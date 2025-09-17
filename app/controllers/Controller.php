@@ -42,11 +42,12 @@ class Controller {
     }
 
     public function planning() {
-        Flight::render('ressourceHumaine/back/test');
+        Flight::render('ressourceHumaine/back/planning2');
     }
 
     public function orgaEntretien() {
         Flight::render('ressourceHumaine/back/orgaEntretien');
 
     }
+
 }
