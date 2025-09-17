@@ -1,0 +1,52 @@
+<?php
+
+namespace app\controllers;
+
+use app\models\Status;
+use Flight;
+
+class Controller {
+
+    public function __construct() {
+    }
+
+    public function log() {
+        Flight::render('auth/log');
+    }
+
+    public function sign() {
+        Flight::render('auth/sign');        
+    }
+
+    public function acceuil() {
+        $status = new Status(); 
+        $data = $status->getStatus();
+
+        Flight::render('ressourceHumaine/acceuil', ['status' => $data]);
+    }
+
+    public function annonce() {
+        Flight::render('ressourceHumaine/annonce');
+    }
+
+    public function singleAnnonce() {
+        Flight::render('ressourceHumaine/annoncePage');
+    }
+
+    public function createAnnonce() {
+        Flight::render('ressourceHumaine/back/creaAnnonce');
+    }
+
+    public function candidature() {
+        Flight::render('ressourceHumaine/candidature');
+    }
+
+    public function planning() {
+        Flight::render('ressourceHumaine/back/test');
+    }
+
+    public function orgaEntretien() {
+        Flight::render('ressourceHumaine/back/orgaEntretien');
+
+    }
+}

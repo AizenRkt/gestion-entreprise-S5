@@ -1,0 +1,142 @@
+vendor/
+.vscode/
+app/config/config.php
+composer.lock
+.vagrant/
+runway
+
+<?php
+
+namespace app\controllers;
+
+use app\models\PDF;
+use Exception;
+use DOMDocument;
+
+class PdfController {
+    private $logger; // Pour la journalisation potentielle
+
+    public function __construct() {
+        // Injection de dépendances ou configuration de logger si nécessaire
+    }
+
+    public function pdf() {
+        try {
+
+            $inputData = json_decode(file_get_contents('php://input'), true);
+
+            if (!isset($inputData['transaction']) || empty($inputData['transaction'])) {
+                throw new Exception('Aucune transaction envoyée');
+            }
+
+            $transaction = $inputData['transaction'];
+
+            // Validation de l'entrée avec vérification supplémentaire
+            // if (!isset($_POST['tableHtml']) || empty($_POST['tableHtml'])) {
+            //     throw new Exception('Aucun tableau HTML n\'a été envoyé');
+            // }
+
+            // $tableHtml = $_POST['tableHtml'];
+
+            // // Validation structurelle du HTML
+            // $this->validateHtmlStructure($tableHtml);
+
+            // // Nettoyage et validation du HTML
+            // $tableHtml = $this->sanitizeHtml($tableHtml);
+
+            // // Création du PDF
+            // $pdf = new PDF();
+            // $pdf->nbPages(); // Pour le numéro total de pages
+            // $pdf->AddPage();
+            // $pdf->SetFont('Arial', '', 12);
+            
+            // // Gestion des erreurs potentielles lors de la génération du tableau
+            // try {
+            //     $pdf->TableFromHtml($tableHtml);
+            // } catch (Exception $e) {
+            //     throw new Exception('Erreur lors de la génération du tableau PDF : ' . $e->getMessage());
+            // }
+
+            // // Options de sortie plus flexibles
+            // $outputMode = 'I'; // Par défaut, ouvrir dans le navigateur
+            // $filename = 'tableau_' . date('Y-m-d_H-i-s') . '.pdf';
+
+            // // Possibilité de personnaliser le nom du fichier via POST
+            // if (isset($_POST['filename']) && !empty($_POST['filename'])) {
+            //     $filename = $this->sanitizeFilename($_POST['filename']) . '.pdf';
+            // }
+
+            // $pdf->Output($outputMode, $filename);
+            // exit(); // Arrêter l'exécution après la génération du PDF
+        } catch (Exception $e) {
+            // Gestion centralisée des erreurs
+            $this->handleError($e->getMessage());
+        }
+    }
+
+    /**
+     * Validation structurelle du HTML
+     * Vérifie que le HTML est un tableau valide
+     */
+    private function validateHtmlStructure($html) {
+        $dom = new DOMDocument();
+        @$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        
+        $tables = $dom->getElementsByTagName('table');
+        if ($tables->length === 0) {
+            throw new Exception('Le HTML fourni ne contient pas de tableau valide');
+        }
+
+        $rows = $dom->getElementsByTagName('tr');
+        if ($rows->length === 0) {
+            throw new Exception('Le tableau HTML ne contient aucune ligne');
+        }
+    }
+
+    /**
+     * Nettoie le HTML pour éviter les injections
+     * Amélioration de la sécurité
+     */
+    private function sanitizeHtml($html) {
+        // Suppression des balises potentiellement dangereuses
+        $allowedTags = '<table><thead><tbody><tr><th><td><br><p><span>';
+        $html = strip_tags($html, $allowedTags);
+        
+        // Suppression des attributs potentiellement dangereux
+        $html = preg_replace('/(<[^>]+) (?:on\w+|style)=[\'"].*?[\'"]([^>]*>)/i', '$1$2', $html);
+        
+        // Encodage pour prévenir les XSS
+        return htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8'));
+    }
+
+    /**
+     * Nettoie le nom de fichier pour éviter les caractères invalides
+     * Ajout de la translittération pour les caractères accentués
+     */
+    private function sanitizeFilename($filename) {
+        // Translittération des caractères accentués
+        $filename = iconv('UTF-8', 'ASCII//TRANSLIT', $filename);
+        
+        // Supprime les caractères spéciaux et limite la longueur
+        $filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $filename);
+        return substr($filename, 0, 50); // Limite à 50 caractères
+    }
+
+    /**
+     * Gestion centralisée des erreurs
+     * Ajout d'un log potentiel
+     */
+    private function handleError($message) {
+        // Exemple de log (à adapter à votre système de logging)
+        error_log('PDF Generation Error: ' . $message);
+
+        // Réponse HTTP appropriée
+        http_response_code(400);
+        
+        // Affichage de l'erreur de manière sécurisée
+        die(json_encode([
+            'error' => true,
+            'message' => $message
+        ]));
+    }
+}
