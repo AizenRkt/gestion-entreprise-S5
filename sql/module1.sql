@@ -42,7 +42,7 @@ CREATE TABLE employe (
     telephone VARCHAR(20),
     genre VARCHAR(1),
     date_embauche DATE,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
+    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
 );
 
 CREATE TABLE employe_statut (
@@ -181,7 +181,7 @@ CREATE TABLE qcm (
 
 CREATE TABLE question (
     id_question INT AUTO_INCREMENT PRIMARY KEY,
-    enonce VARCHAR(255) NOT NULL,
+    enonce VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE reponse (
