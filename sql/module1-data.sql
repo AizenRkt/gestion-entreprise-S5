@@ -32,16 +32,14 @@ INSERT INTO poste (titre, id_service) VALUES
 -- ======================
 -- candidat
 -- ======================
--- INSERT INTO candidat (nom, prenom, email, telephone, genre) VALUES
--- ('Rakoto', 'Jean', 'jean.rakoto@example.com', '0321112233', 'M'),
--- ('Randria', 'Marie', 'marie.randria@example.com', '0324445566', 'F'),
--- ('Ando', 'Paul', 'paul.ando@example.com', '0337778899', 'M'),
--- ('Rasoanaivo', 'Lalao', 'lalao.raso@example.com', '0341234567', 'F'),
--- ('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M');
+INSERT INTO candidat (nom, prenom, email, telephone, genre) VALUES
+('Rakoto', 'Jean', 'jean.rakoto@example.com', '0321112233', 'M'),
+('Randria', 'Marie', 'marie.randria@example.com', '0324445566', 'F'),
+('Ando', 'Paul', 'paul.ando@example.com', '0337778899', 'M'),
+('Rasoanaivo', 'Lalao', 'lalao.raso@example.com', '0341234567', 'F'),
+('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M');
 
--- ======================
--- employe
--- ======================
+
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
 (1, 'Rakoto', 'Jean', 'jean.rakoto@entreprise.com', '0321112233', 'M', '2023-01-10'),
 (2, 'Randria', 'Marie', 'marie.randria@entreprise.com', '0324445566', 'F', '2023-03-15'),
