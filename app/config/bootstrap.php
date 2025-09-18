@@ -34,6 +34,9 @@ $router = $app->router();
  * that will handle the request.
  */
 require('routes.php');
+
+// Inclusion des routes spécifiques au candidat
+require(__DIR__ . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'candidatRoute.php');
 /*
  * You additionally could just define the routes in this file. It's up to you.
  * Example:

@@ -80,3 +80,4 @@ class CandidatModel {
         }
     }
 }
+// ...fin du fichier sans accolades inutiles

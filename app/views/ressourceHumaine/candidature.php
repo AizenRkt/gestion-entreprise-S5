@@ -30,41 +30,40 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card p-4">
-                            <form action="#" method="post" id="cvForm" enctype="multipart/form-data">
-
+                            <form action="<?= Flight::base() ?>/annonce" method="get" id="cvForm" enctype="multipart/form-data">
                                 <!-- ===== Étape 1 : Informations personnelles ===== -->
                                 <div id="step1" class="step-section active">
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Prénom</label>
-                                            <input type="text" name="prenom" class="form-control" placeholder="Ex: Jean" required>
+                                            <input type="text" name="prenom" class="form-control" placeholder="Ex: Jean" >
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Nom</label>
-                                            <input type="text" name="nom" class="form-control" placeholder="Ex: Dupont" required>
+                                            <input type="text" name="nom" class="form-control" placeholder="Ex: Dupont" >
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Email</label>
-                                            <input type="email" name="email" class="form-control" placeholder="Ex: jean.dupont@email.com" required>
+                                            <input type="email" name="email" class="form-control" placeholder="Ex: jean.dupont@email.com" >
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Téléphone</label>
-                                            <input type="tel" name="telephone" class="form-control" placeholder="Ex: +261 34 00 000 00" required>
+                                            <input type="tel" name="telephone" class="form-control" placeholder="Ex: +261 34 00 000 00" >
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Date de naissance</label>
-                                            <input type="date" name="date_naissance" class="form-control" required>
+                                            <input type="date" name="date_naissance" class="form-control" >
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Ville</label>
-                                            <input type="text" name="ville" class="form-control" placeholder="Ex: Antananarivo" required>
+                                            <input type="text" name="ville" class="form-control" placeholder="Ex: Antananarivo" >
                                         </div>
                                     </div>
 
@@ -147,7 +146,7 @@
 
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Téléchargez votre photo</label>
-                                        <input type="file" name="photo" accept="image/*" class="form-control" required>
+                                        <input type="file" name="photo" accept="image/*" class="form-control" >
                                     </div>
 
                                     <div class="d-flex justify-content-between">

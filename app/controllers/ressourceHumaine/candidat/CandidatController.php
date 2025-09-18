@@ -1,25 +1,62 @@
 <?php
 
-namespace app\controllers\candidat;
+namespace app\controllers\ressourceHumaine\candidat;
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use Flight;
 
 class CandidatController {
 
+    public function annonce() {
+        Flight::render('ressourceHumaine/annonce');
+
+    }
+
+
     public function create() {
-        $data = Flight::request()->data;
+        // Récupérer les données du formulaire
+        $data = Flight::request()->data->getData();
+
+        // Gérer le téléchargement de la photo
+        if (isset(Flight::request()->files['photo']) && Flight::request()->files['photo']['error'] == UPLOAD_ERR_OK) {
+            $photo = Flight::request()->files['photo'];
+            $uploadDir = 'public/uploads/photos/';
+            
+            // Créer le répertoire s'il n'existe pas
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Générer un nom de fichier unique
+            $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
+            $uniqueName = uniqid('photo_', true) . '.' . $extension;
+            $uploadPath = $uploadDir . $uniqueName;
+
+            // Déplacer le fichier
+            if (move_uploaded_file($photo['tmp_name'], $uploadPath)) {
+                $data['photo'] = '/' . $uploadPath; // Stocker le chemin relatif
+            } else {
+                $data['photo'] = null; // Gérer l'échec du téléchargement
+            }
+        } else {
+            $data['photo'] = null;
+        }
+
+        // Encoder les champs multivalués (diplômes, compétences) en JSON
+        $data['diplome'] = isset($data['diplome']) ? json_encode($data['diplome']) : json_encode([]);
+        $data['competences'] = isset($data['competences']) ? json_encode($data['competences']) : json_encode([]);
+
+        // Insérer les données via le modèle
         $candidatModel = new CandidatModel();
-        $success = $candidatModel->insert(
-            $data->nom,
-            $data->prenom,
-            $data->email,
-            $data->telephone,
-            $data->genre
+        $message = $candidatModel->insert(
+            $data['nom'] ?? '',
+            $data['prenom'] ?? '',
+            $data['email'] ?? '',
+            $data['telephone'] ?? '',
+            $data['genre'] ?? ''
         );
-        $message = (strpos($success, 'succès') !== false)
-            ? "Candidat ajouté avec succès."
-            : "Échec de l'ajout.";
-        Flight::render('candidat/create', ['message' => $message]);
+
+        // Afficher un message de succès ou d'erreur
+        Flight::render('ressourceHumaine/candidature', ['message' => $message]);
     }
 
     public function getById($id) {

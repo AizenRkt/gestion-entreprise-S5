@@ -2,6 +2,7 @@
 
 use app\controllers\Controller;
 use app\controllers\ressourceHumaine\qcm\QcmController;
+use app\controllers\ressourceHumaine\candidat\CandidatController;
 
 //importation lié flight
 use flight\Engine;
@@ -28,6 +29,7 @@ $router->get('/organiserEntretien', [ $Controller, 'orgaEntretien' ]);
 
 
 $qcmController = new QcmController();
+$candidatController=new CandidatController();
 
 // Routes pour les QCM
 $router->get('/qcm', [$qcmController, 'getAll']);

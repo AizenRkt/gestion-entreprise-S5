@@ -1,6 +1,6 @@
 <?php
 
-use app\controllers\QcmController\QcmController;
+use app\controllers\ressourceHumaine\qcm\QcmController;
 use flight\net\Router;
 
 /** 
