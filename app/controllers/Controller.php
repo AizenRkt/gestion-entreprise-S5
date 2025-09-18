@@ -38,7 +38,14 @@ class Controller {
     }
 
     public function candidature() {
-        Flight::render('ressourceHumaine/candidature');
+        $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
+        $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
+        $diplomes = $diplomeModel->getAll();
+        $competences = $competenceModel->getAll();
+        Flight::render('ressourceHumaine/candidature', [
+            'diplomes' => $diplomes,
+            'competences' => $competences
+        ]);
     }
 
     public function planning() {

@@ -21,6 +21,42 @@
         <?= Flight::menuFrontOffice() ?>
         <div class="content-wrapper container">
             
+            <?php
+            if (isset($_GET['success']) && $_GET['success'] == '1') {
+                echo '<div id="success-msg" class="alert alert-success">Votre CV a été postulé avec succès !</div>';
+            }
+            if (isset($_GET['error']) && $_GET['error'] == 'mail') {
+                echo '<div id="error-msg" class="alert alert-danger">Un CV existe déjà pour ce profil et cet email.</div>';
+            }
+            ?>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var msg = document.getElementById('success-msg');
+                if (msg) {
+                    setTimeout(function() {
+                        msg.style.display = 'none';
+                        // Retirer le paramètre success=1 de l'URL
+                        if (window.location.search.includes('success=1')) {
+                            const url = new URL(window.location);
+                            url.searchParams.delete('success');
+                            window.history.replaceState({}, document.title, url.pathname + url.search);
+                        }
+                    }, 4000); // 4 secondes
+                }
+                var err = document.getElementById('error-msg');
+                if (err) {
+                    setTimeout(function() {
+                        err.style.display = 'none';
+                        // Retirer le paramètre error=mail de l'URL
+                        if (window.location.search.includes('error=mail')) {
+                            const url = new URL(window.location);
+                            url.searchParams.delete('error');
+                            window.history.replaceState({}, document.title, url.pathname + url.search);
+                        }
+                    }, 4000); // 4 secondes
+                }
+            });
+            </script>
             <div class="page-heading">
                 <h3>Déposez votre candidature</h3>
                 <p class="text-muted">Remplissez le formulaire étape par étape</p>
@@ -30,40 +66,40 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card p-4">
-                            <form action="<?= Flight::base() ?>/annonce" method="get" id="cvForm" enctype="multipart/form-data">
+                            <form action="<?= Flight::base() ?>/candidat/create" method="post" id="cvForm" enctype="multipart/form-data">
                                 <!-- ===== Étape 1 : Informations personnelles ===== -->
                                 <div id="step1" class="step-section active">
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Prénom</label>
-                                            <input type="text" name="prenom" class="form-control" placeholder="Ex: Jean" >
+                                            <input type="text" name="prenom" class="form-control" placeholder="Prénom" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Nom</label>
-                                            <input type="text" name="nom" class="form-control" placeholder="Ex: Dupont" >
+                                            <input type="text" name="nom" class="form-control" placeholder="Nom" required>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Email</label>
-                                            <input type="email" name="email" class="form-control" placeholder="Ex: jean.dupont@email.com" >
+                                            <input type="email" name="email" class="form-control" placeholder="Email" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Téléphone</label>
-                                            <input type="tel" name="telephone" class="form-control" placeholder="Ex: +261 34 00 000 00" >
+                                            <input type="tel" name="telephone" class="form-control" placeholder="Téléphone" required>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Date de naissance</label>
-                                            <input type="date" name="date_naissance" class="form-control" >
+                                            <input type="date" name="date_naissance" class="form-control" placeholder="Date de naissance" required>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Ville</label>
-                                            <input type="text" name="ville" class="form-control" placeholder="Ex: Antananarivo" >
+                                            <input type="text" name="ville" class="form-control" placeholder="Ville" required>
                                         </div>
                                     </div>
 
@@ -71,11 +107,11 @@
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold">Genre</label>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="genre" id="homme" value="Homme" checked>
+                                                <input class="form-check-input" type="radio" name="genre" id="homme" value="Homme" required>
                                                 <label class="form-check-label" for="homme">Homme</label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="genre" id="femme" value="Femme">
+                                                <input class="form-check-input" type="radio" name="genre" id="femme" value="Femme" required>
                                                 <label class="form-check-label" for="femme">Femme</label>
                                             </div>
                                         </div>
@@ -91,47 +127,33 @@
 
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Diplômes</label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="diplome[]" value="Licence" id="licence">
-                                            <label class="form-check-label" for="licence">Licence</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="diplome[]" value="Master" id="master">
-                                            <label class="form-check-label" for="master">Master</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="diplome[]" value="Doctorat" id="doctorat">
-                                            <label class="form-check-label" for="doctorat">Doctorat</label>
-                                        </div>
+                                        <?php if (isset($diplomes) && is_array($diplomes)): ?>
+                                            <?php foreach ($diplomes as $diplome): ?>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="diplome[]" value="<?= htmlspecialchars($diplome['nom']) ?>" id="diplome<?= $diplome['id_diplome'] ?>">
+                                                    <label class="form-check-label" for="diplome<?= $diplome['id_diplome'] ?>">
+                                                        <?= htmlspecialchars($diplome['nom']) ?>
+                                                    </label>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <p>Aucun diplôme disponible.</p>
+                                        <?php endif; ?>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Profil</label>
-                                        <select class="choices form-select" name="profil">
-                                            <option value="">Sélectionnez votre profil</option>
-                                            <option value="developpeur">Développeur</option>
-                                            <option value="designer">Designer</option>
-                                            <option value="chef_projet">Chef de projet</option>
-                                            <option value="marketing">Marketing</option>
-                                            <option value="autre">Autre</option>
-                                        </select>
-                                    </div>
 
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Compétences (mots-clés)</label>
                                         <select class="choices form-select" name="competences[]" multiple="multiple">
-                                            <optgroup label="Techniques">
-                                                <option value="php">PHP</option>
-                                                <option value="java">Java</option>
-                                                <option value="javascript">JavaScript</option>
-                                                <option value="python">Python</option>
-                                            </optgroup>
-                                            <optgroup label="Soft skills">
-                                                <option value="communication">Communication</option>
-                                                <option value="gestion">Gestion de projet</option>
-                                                <option value="teamwork">Travail en équipe</option>
-                                                <option value="creativite">Créativité</option>
-                                            </optgroup>
+                                            <?php if (isset($competences) && is_array($competences)): ?>
+                                                <?php foreach ($competences as $competence): ?>
+                                                    <option value="<?= htmlspecialchars($competence['nom']) ?>">
+                                                        <?= htmlspecialchars($competence['nom']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <option disabled>Aucune compétence disponible</option>
+                                            <?php endif; ?>
                                         </select>
                                     </div>
 
@@ -146,12 +168,12 @@
 
                                     <div class="mb-3">
                                         <label class="form-label fw-bold">Téléchargez votre photo</label>
-                                        <input type="file" name="photo" accept="image/*" class="form-control" >
+                                        <input type="file" name="photo" accept="image/*" class="form-control" required>
                                     </div>
 
                                     <div class="d-flex justify-content-between">
                                         <button type="button" class="btn btn-light-secondary" onclick="prevStep(3, 2)">Précédent</button>
-                                        <button type="submit" class="btn btn-success">Soumettre ma candidature</button>
+                                        <button type="submit" class="btn btn-success" id="submitBtn">Soumettre ma candidature</button>
                                     </div>
                                 </div>
 
@@ -178,6 +200,22 @@
                 placeholderValue: 'Sélectionnez...'
             });
         });
+
+        // Coloration du bouton si un champ required n'est pas rempli
+        const form = document.getElementById('cvForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function updateButtonColor() {
+            if (!form.checkValidity()) {
+                submitBtn.style.backgroundColor = '#d3d3d3'; // gris clair
+            } else {
+                submitBtn.style.backgroundColor = '';
+            }
+        }
+
+        form.addEventListener('input', updateButtonColor);
+        // Initialisation au chargement
+        updateButtonColor();
     });
 
     function nextStep(current, next) {

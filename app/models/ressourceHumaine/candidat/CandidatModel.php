@@ -20,9 +20,9 @@ class CandidatModel {
                 ':telephone' => $telephone,
                 ':genre' => $genre
             ]);
-            return "Candidat inséré avec succès.";
+            return $db->lastInsertId();
         } catch (\PDOException $e) {
-            return "Erreur d'insertion : " . $e->getMessage();
+            return false;
         }
     }
 

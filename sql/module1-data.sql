@@ -1,4 +1,18 @@
 -- ======================
+-- profil
+-- ======================
+INSERT INTO profil (nom) VALUES
+('Développeur'),
+('Designer'),
+('Chef de projet'),
+('Marketing'),
+('Comptable'),
+('Administrateur'),
+('RH'),
+('Technicien'),
+('Manager'),
+('Autre');
+-- ======================
 -- departement
 -- ======================
 INSERT INTO departement (nom) VALUES

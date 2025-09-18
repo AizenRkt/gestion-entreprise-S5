@@ -13,9 +13,9 @@ $candidatController = new CandidatController();
 
 // Routes pour les candidats
 $router->get('/candidat', [$candidatController, 'annonce']);          
+$router->post('/candidat/create', [$candidatController, 'create']);          
 $router->get('/candidat/@id', [$candidatController, 'getById']);       
-$router->post('/candidat/update/@id', [$candidatController, 'update']); 
-$router->get('/candidat/delete/@id', [$candidatController, 'delete']); 
+$router->post('/candidat/update/@id', [$candidatController, 'update']);
+$router->get('/candidat/delete/@id', [$candidatController, 'delete']);
 
-$router->get('/annonce', [$candidatController, 'annonce']);
 
