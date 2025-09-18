@@ -39,7 +39,6 @@ INSERT INTO candidat (nom, prenom, email, telephone, genre) VALUES
 ('Rasoanaivo', 'Lalao', 'lalao.raso@example.com', '0341234567', 'F'),
 ('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M');
 
-
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
 (1, 'Rakoto', 'Jean', 'jean.rakoto@entreprise.com', '0321112233', 'M', '2023-01-10'),
 (2, 'Randria', 'Marie', 'marie.randria@entreprise.com', '0324445566', 'F', '2023-03-15'),
@@ -78,3 +77,39 @@ INSERT INTO user_role (id_user, id_role, date_role) VALUES
 (1, 1, '2023-01-10'),  -- jrakoto → Admin
 (2, 4, '2023-03-15'),  -- mrandria → RH
 (3, 3, '2023-05-20');  -- pando → Employé
+
+-- ======================
+-- diplome
+-- ======================
+INSERT INTO diplome (nom) VALUES
+('BEPC'),
+('BACC'),
+('CAP'),
+('BACC+1'),
+('BACC+2'),
+('BACC+3'),
+('BACC+4'),
+('BACC+5'),
+('BACC+6'),
+('Doctorat');
+;
+
+-- ======================
+-- competence
+-- ======================
+INSERT INTO competence (nom) VALUES
+('Informatique de base'),
+('Programmation Java'),
+('Programmation Python'),
+('Développement Web'),
+('Administration Systèmes'),
+('Gestion de projet'),
+('Communication'),
+('Travail en équipe'),
+('Anglais'),
+('Français'),
+('Comptabilité'),
+('Marketing'),
+('Analyse de données'),
+('Conduite'),
+('Réseaux informatiques');
