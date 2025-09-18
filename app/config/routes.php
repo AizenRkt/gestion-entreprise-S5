@@ -24,4 +24,12 @@ $router->get('/candidature', [ $Controller, 'candidature' ]);
 $router->get('/planning', [ $Controller, 'planning' ]);
 $router->get('/organiserEntretien', [ $Controller, 'orgaEntretien' ]);
 
+
+use app\controllers\QcmController\QcmController;
+
+$qcmController = new QcmController();
+
+// Routes pour les QCM
+$router->get('/qcm', [$qcmController, 'getAll']);
+
 ?>
