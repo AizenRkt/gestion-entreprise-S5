@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers\QcmController;
+namespace app\controllers\ressourceHumaine\qcm;
 use app\models\ressourceHumaine\qcm\QcmModel\QcmModel;
 use Flight;
 
