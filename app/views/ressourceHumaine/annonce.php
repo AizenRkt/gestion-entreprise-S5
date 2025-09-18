@@ -25,70 +25,40 @@
                 <div class="page-content">
                     <section class="row">
 
-                        <!-- Barre de recherche -->
-                        <div class="col-12 mb-4">
-                            <div class="card p-3">
-                                <form class="row g-2 align-items-center">
-                                    <div class="col-md-4 col-sm-12">
-                                        <input type="text" class="form-control" placeholder="Mot-clé (ex: développeur, comptable)">
-                                    </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <select class="form-select">
-                                            <option selected>Type de diplôme</option>
-                                            <option>BEPC</option>
-                                            <option>CAP</option>
-                                            <option>BACC</option>
-                                            <option>Licence</option>
-                                            <option>Master</option>
-                                            <option>Doctorat</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <input type="text" class="form-control" placeholder="Localisation">
-                                    </div>
-                                    <div class="col-md-2 col-sm-12">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="bi bi-search"></i> Rechercher
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                       <form method="get" class="row g-2 align-items-center">
+                            <input type="text" name="keyword" class="form-control" placeholder="Mot-clé">
+                            <select class="form-select" name="diplome">
+                                <option value="">Tous</option>
+                                <?php foreach($diplomes as $d): ?>
+                                    <option value="<?= $d['nom'] ?>"><?= $d['nom'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <input type="text" name="ville" class="form-control" placeholder="Localisation">
+                            <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                        </form>
 
-                        <!-- Liste des annonces -->
                         <div class="col-12">
-                            <div class="card mb-3 p-3 d-flex flex-row align-items-center">
-                                <div class="flex-grow-1">
-                                    <h5>Développeur Full Stack</h5>
-                                    <p class="text-muted mb-1">CDI · Antananarivo · Publié le 15/09/2025</p>
-                                    <p class="mb-0">Vous participerez au développement d’applications web et mobiles pour nos clients internationaux.</p>
-                                </div>
-                                <div>
-                                    <a href="<?= Flight::base() ?>/annoncePage" class="btn btn-outline-primary">Postuler</a>
-                                </div>
-                            </div>
-
-                            <div class="card mb-3 p-3 d-flex flex-row align-items-center">
-                                <div class="flex-grow-1">
-                                    <h5>Assistant Comptable</h5>
-                                    <p class="text-muted mb-1">CDD · Mahajanga · Publié le 12/09/2025</p>
-                                    <p class="mb-0">Vous assurerez la gestion des écritures comptables et le suivi des factures fournisseurs.</p>
-                                </div>
-                                <div>
-                                    <a href="#" class="btn btn-outline-primary">Postuler</a>
-                                </div>
-                            </div>
-
-                            <div class="card mb-3 p-3 d-flex flex-row align-items-center">
-                                <div class="flex-grow-1">
-                                    <h5>Chargé Marketing Digital</h5>
-                                    <p class="text-muted mb-1">Stage · Toamasina · Publié le 10/09/2025</p>
-                                    <p class="mb-0">Vous contribuerez à la création de campagnes digitales et au suivi des performances.</p>
-                                </div>
-                                <div>
-                                    <a href="#" class="btn btn-outline-primary">Postuler</a>
-                                </div>
-                            </div>
+                            <?php if (!empty($annonces)): ?>
+                                <?php foreach($annonces as $annonce): ?>
+                                    <div class="card mb-3 p-3 d-flex flex-row align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5><?= htmlspecialchars($annonce['titre']) ?></h5>
+                                            <p class="text-muted mb-1">
+                                                <?= htmlspecialchars($annonce['profil']) ?> · 
+                                                <?= htmlspecialchars($annonce['ville']) ?> · 
+                                                Diplômes: <?= htmlspecialchars($annonce['diplomes']) ?> ·
+                                                Publié le <?= date('d/m/Y', strtotime($annonce['date_debut'])) ?>
+                                            </p>
+                                            <p class="mb-0"><?= htmlspecialchars($annonce['objectif'] ?? '') ?></p>
+                                        </div>
+                                        <div>
+                                            <a href="<?= Flight::base() ?>/annoncePage/<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">Postuler</a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>Aucune annonce disponible pour le moment.</p>
+                            <?php endif; ?>
                         </div>
 
                     </section>
@@ -104,7 +74,6 @@
     
     
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/apexcharts/apexcharts.min.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/dashboard.js"></script>
 
 </body>
 

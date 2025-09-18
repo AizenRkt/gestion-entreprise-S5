@@ -35,6 +35,7 @@ $router = $app->router();
  */
 require('routes.php');
 require('routes/back/creaAnnonce.php');
+require('routes/annonce.php');
 /*
  * You additionally could just define the routes in this file. It's up to you.
  * Example:
