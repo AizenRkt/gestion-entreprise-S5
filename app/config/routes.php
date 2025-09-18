@@ -25,7 +25,6 @@ $router->get('/annoncePage', [ $Controller, 'singleAnnonce' ]);
 $router->get('/annonceCrea', [ $Controller, 'createAnnonce' ]);
 $router->get('/candidature', [ $Controller, 'candidature' ]);
 $router->get('/planning', [ $Controller, 'planning' ]);
-$router->get('/planning2', [ $Controller, 'planning2' ]);
 $router->get('/organiserEntretien', [ $Controller, 'orgaEntretien' ]);
 
 /* Authentication Routes */
