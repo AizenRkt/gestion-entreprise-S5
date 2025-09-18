@@ -1,6 +1,7 @@
 <?php
 
 use app\controllers\Controller;
+use app\controllers\ressourceHumaine\qcm\QcmController;
 
 //importation lié flight
 use flight\Engine;
@@ -25,7 +26,6 @@ $router->get('/planning', [ $Controller, 'planning' ]);
 $router->get('/organiserEntretien', [ $Controller, 'orgaEntretien' ]);
 
 
-use app\controllers\QcmController\QcmController;
 
 $qcmController = new QcmController();
 
