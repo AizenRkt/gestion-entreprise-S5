@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Calendrier - Mazer</title>
+  <title>Planning des entretiens</title>
 
   <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
   <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
@@ -35,7 +35,7 @@
     </header>
 
     <div class="page-heading">
-      <h3>Test Calendrier</h3>
+      <h3>Planning des entretiens</h3>
     </div>
 
     <div class="page-content">
