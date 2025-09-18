@@ -15,6 +15,46 @@
         .step-section.active { display: block; }
     </style>
 </head>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("http://localhost/S5/gestion-entreprise-S5/api/diplomes")
+    .then(res => res.json())
+    .then(data => {
+      let container = document.getElementById("diplomeContainer"); 
+      data.forEach(d => {
+        let div = document.createElement("div");
+        div.classList.add("form-check");
+        div.innerHTML = `
+          <input class="form-check-input" type="checkbox" name="diplome[]" value="${d.nom}" id="diplome_${d.nom}">
+          <label class="form-check-label" for="diplome_${d.nom}">${d.nom}</label>
+        `;
+        container.appendChild(div);
+      });
+    });
+
+  fetch("http://localhost/S5/gestion-entreprise-S5/api/competences")
+  .then(res => res.json())
+  .then(data => {
+    let select = document.getElementById("competence-select");
+
+    data.forEach(c => {
+      let option = document.createElement("option");
+      option.value = c.nom;
+      option.textContent = c.nom;
+      select.appendChild(option);
+    });
+
+    new Choices(select, {
+      searchEnabled: true,
+      removeItemButton: true,
+      allowHTML: true,
+      placeholderValue: "Sélectionnez des compétences"
+    });
+  });
+});
+
+
+</script>
 
 <body>
 <div id="app">
@@ -39,13 +79,17 @@
                 <div class="row">
                     <div class="col-12">
                     <div class="card p-4">
-                        <form action="#" method="post" id="annonceForm">
-                        <!-- ===== Étape 1 : Informations de base ===== -->
+                        <form action="/annonce/create" method="post" id="annonceForm">
                         <div id="step1" class="step-section active">
 
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Titre de l’annonce</label>
                                 <input type="text" name="titre" class="form-control" placeholder="Ex: Développeur Full Stack" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Profil du candidat</label>
+                                <input type="text" name="profil" class="form-control" placeholder="Ex: Informaticien" required>
                             </div>
 
                             <div class="row mb-3">
@@ -61,19 +105,9 @@
 
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Diplôme requis</label>
-                                <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="diplome[]" value="Licence" id="licence">
-                                <label class="form-check-label" for="licence">Licence</label>
-                                </div>
-                                <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="diplome[]" value="Master" id="master">
-                                <label class="form-check-label" for="master">Master</label>
-                                </div>
-                                <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="diplome[]" value="Doctorat" id="doctorat">
-                                <label class="form-check-label" for="doctorat">Doctorat</label>
-                                </div>
+                                <div id="diplomeContainer"></div>
                             </div>
+
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -115,39 +149,11 @@
                             </div>
 
                             <div class="col-md-6 mb-4">
-                                <label class="form-label fw-bold">Profil</label>
-                                <div class="form-group">
-                                    <select class="choices form-select">
-                                        <option value="square">Square</option>
-                                        <option value="rectangle">Rectangle</option>
-                                        <option value="rombo">Rombo</option>
-                                        <option value="romboid">Romboid</option>
-                                        <option value="trapeze">Trapeze</option>
-                                        <option value="traible">Triangle</option>
-                                        <option value="polygon">Polygon</option>
-                                    </select>
-                                </div>
+                                <label class="form-label fw-bold">Compétence (mots-clés)</label>
+                               <select id="competence-select" class="form-select" multiple="multiple"></select>
+
                             </div>
 
-                            <div class="col-md-6 mb-4">
-                                <label class="form-label fw-bold">Compétence (mots-clés)</label>
-                                <div class="form-group">
-                                    <select class="choices form-select" multiple="multiple">
-                                        <optgroup label="Figures">
-                                            <option value="romboid">Romboid</option>
-                                            <option value="trapeze" selected>Trapeze</option>
-                                            <option value="triangle">Triangle</option>
-                                            <option value="polygon">Polygon</option>
-                                        </optgroup>
-                                        <optgroup label="Colors">
-                                            <option value="red">Red</option>
-                                            <option value="green">Green</option>
-                                            <option value="blue" selected>Blue</option>
-                                            <option value="purple">Purple</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
 
                             <div class="d-flex justify-content-between">
                                 <button type="button" class="btn btn-light-secondary" onclick="prevStep()">Précédent</button>
@@ -192,5 +198,47 @@
     document.getElementById('step1').classList.add('active');
   }
 </script>
+<script>
+document.getElementById("annonceForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    let diplomes = [];
+    document.querySelectorAll("input[name='diplome[]']:checked").forEach(cb => {
+        diplomes.push(cb.value);
+    });
+
+    let competences = Array.from(document.getElementById("competence-select").selectedOptions).map(opt => opt.value);
+
+
+    let data = {
+        titre: formData.get("titre"),
+        profil: formData.get("profil"),
+        age_min: formData.get("age_min"),
+        age_max: formData.get("age_max"),
+        experience: formData.get("experience"),
+        lieu: formData.get("lieu"),
+        date_debut: formData.get("date_debut"),
+        date_fin: formData.get("date_fin"),
+        objectif: formData.get("objectif"),
+        qualites: formData.get("qualites"),
+        diplomes: diplomes,
+        competences: competences
+    };
+
+    console.log("Payload envoyé :", data);
+
+    let res = await fetch("http://localhost/S5/gestion-entreprise-S5/annonce/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    let result = await res.json();
+    alert(result.message);
+});
+</script>
+
 </body>
 </html>
