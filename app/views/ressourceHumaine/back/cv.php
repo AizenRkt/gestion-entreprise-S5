@@ -207,6 +207,7 @@
                                             <th>Email</th>
                                             <th>Genre</th>
                                             <th>Date candidature</th>
+                                            <th>Statut</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -225,8 +226,8 @@
                                                     <td>
                                                         <?php if (!empty($photos[$candidat['id_candidat']])): ?>
                                                             <div class="avatar bg-warning me-3">
-                                                                <img src="<?= Flight::base() ?>/public/uploads/photos/<?=htmlspecialchars($photos[$candidat['id_candidat']]) ?>" alt="" srcset="">
-                                                            </div>                                                            
+                                                                <img src="<?= Flight::base() ?>/public/uploads/photos/<?= htmlspecialchars($photos[$candidat['id_candidat']]) ?>" alt="" srcset="">
+                                                            </div>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td><?= htmlspecialchars($candidat['nom']) ?></td>
@@ -235,6 +236,7 @@
                                                     <td><?= htmlspecialchars($candidat['email']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['genre']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['date_candidature']) ?></td>
+                                                    <td> <span class="badge bg-success">Success</span></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
