@@ -50,10 +50,10 @@ INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_emb
 -- ======================
 -- employe_statut
 -- ======================
-INSERT INTO employe_statut (id_employe, id_poste) VALUES
-(1, 1),  -- Jean Rakoto → Développeur Backend
-(2, 4),  -- Marie Randria → Chargée de Recrutement
-(3, 3);  -- Paul Ando → Technicien Support
+INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES
+(1, 1, 1, '2023-01-10 09:00:00'),  -- Jean Rakoto → Développeur Backend (actif)
+(2, 4, 1, '2023-03-15 09:00:00'),  -- Marie Randria → Chargée de Recrutement (actif)
+(3, 3, 0, '2023-05-20 09:00:00');  -- Paul Ando → Technicien Support (actif)
 
 -- ======================
 -- role

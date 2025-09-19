@@ -5,6 +5,23 @@ use Flight;
 use PDO;
 
 class AuthModel {
+    // Récupère le rôle principal de l'utilisateur via son id_user
+    public static function getUserRoleByUserId($id_user) {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT r.nom AS role
+            FROM user u
+            JOIN employe_statut es ON u.id_employe = es.id_employe
+            JOIN poste_role pr ON es.id_poste = pr.id_poste
+            JOIN role r ON pr.id_role = r.id_role
+            WHERE u.id_user = ?
+            ORDER BY es.date_modification DESC, pr.date_role DESC
+            LIMIT 1"
+        );
+        $stmt->execute([$id_user]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['role'] : null;
+    }
     private $db;
 
     public function __construct() {
@@ -17,6 +34,18 @@ class AuthModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public static function getActiveUserByUsername($username) {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT u.* FROM user u
+            JOIN employe_statut es ON u.id_employe = es.id_employe
+            WHERE u.username = ? AND es.activite = 1
+            ORDER BY es.date_modification DESC
+            LIMIT 1"
+        );
+        $stmt->execute([$username]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     public static function getEmployeeByEmail($email) {
         $db = Flight::db();
@@ -65,6 +94,7 @@ class AuthModel {
             return ['success' => false, 'message' => 'Erreur lors de la création du compte.'];
         }
     }
+
 }
 
 ?>

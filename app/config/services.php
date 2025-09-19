@@ -22,13 +22,6 @@ $dsn = 'mysql:host=' . $config['database']['host'] . ';dbname=' . $config['datab
  $pdoClass = Debugger::$showBar === true ? PdoQueryCapture::class : PdoWrapper::class;
  //$app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, '' ?? null ]);
 $testPdo = null;
-try {
-    $testPdo = new PDO($dsn, $config['database']['user'] ?? null, $config['database']['password'] ?? null);
-    $testPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo '<div style="color:green;font-weight:bold;">Connexion à la base de données réussie !</div>';
-} catch (PDOException $e) {
-    echo '<div style="color:red;font-weight:bold;">Erreur de connexion à la base de données : ' . $e->getMessage() . '</div>';
-}
 $app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, $config['database']['password'] ?? null ]);
 
 // Got google oauth stuff? You could register that here
