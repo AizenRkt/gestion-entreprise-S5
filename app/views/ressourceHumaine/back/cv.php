@@ -124,14 +124,14 @@
                                                                 </div>
                                                             </div>
                                                         </li>
-                                                        <li class="d-inline-block me-2 mb-1">
-                                                            <div class="form-check">
-                                                                <div class="checkbox">
-                                                                    <input type="checkbox" class="form-check-input" id="checkbox2">
-                                                                    <label for="checkbox2">sous-contrat</label>
-                                                                </div>
-                                                            </div>
-                                                        </li>
+                                                           <li class="d-inline-block me-2 mb-1">
+                                                               <div class="form-check">
+                                                                   <div class="checkbox">
+                                                                       <input type="checkbox" class="form-check-input" id="statutSousContrat" name="statut" value="sous-contrat" <?= (!empty($filters['statut']) && $filters['statut'] === 'sous-contrat') ? 'checked' : '' ?>>
+                                                                       <label for="statutSousContrat">sous-contrat</label>
+                                                                   </div>
+                                                               </div>
+                                                           </li>
                                                     </ul>
 
 

@@ -40,6 +40,17 @@ class CandidatController {
 
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
+
+        // Filtre sous-contrat : on récupère uniquement les candidats ayant un contrat d'essai
+        if (!empty($filters['statut']) && $filters['statut'] === 'sous-contrat') {
+            $idsSousContrat = $contratEssaiModel->getAllCandidatIds();
+            if (!empty($idsSousContrat)) {
+                $filters['idsSousContrat'] = $idsSousContrat;
+            } else {
+                $filters['idsSousContrat'] = [-1]; // Aucun id, renvoie vide
+            }
+        }
+
         $candidats = $candidatModel->getFiltered($filters);
 
         // Récupérer les photos des candidats via CV

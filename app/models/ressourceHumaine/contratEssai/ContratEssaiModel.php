@@ -26,4 +26,15 @@ class ContratEssaiModel {
             return [];
         }
     }
+
+    // Retourne tous les id_candidat sous contrat
+    public function getAllCandidatIds() {
+        try {
+            $db = Flight::db();
+            $stmt = $db->query("SELECT DISTINCT id_candidat FROM contrat_essai");
+            return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
 }
