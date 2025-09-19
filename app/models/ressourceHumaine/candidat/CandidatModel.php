@@ -55,13 +55,47 @@ class CandidatModel {
             $params[':date_naissance'] = $filters['date_naissance'];
         }
 
-        // (Les autres filtres sont ignorés pour l'instant)
+        // Filtre ville, diplome, competence, profil via jointures
+        $join = '';
+        $having = [];
 
-        $sql = 'SELECT * FROM candidat';
+        // Ville
+        if (!empty($filters['ville'])) {
+            $join .= ' INNER JOIN cv ON cv.id_candidat = candidat.id_candidat';
+            $join .= ' INNER JOIN detail_cv AS dcv_ville ON dcv_ville.id_cv = cv.id_cv AND dcv_ville.type = "ville"';
+            $where[] = 'dcv_ville.id_item = :ville';
+            $params[':ville'] = $filters['ville'];
+        }
+        // Diplome
+        if (!empty($filters['diplome'])) {
+            if (strpos($join, 'cv ON') === false) {
+                $join .= ' INNER JOIN cv ON cv.id_candidat = candidat.id_candidat';
+            }
+            $join .= ' INNER JOIN detail_cv AS dcv_diplome ON dcv_diplome.id_cv = cv.id_cv AND dcv_diplome.type = "diplome"';
+            $where[] = 'dcv_diplome.id_item = :diplome';
+            $params[':diplome'] = $filters['diplome'];
+        }
+        // Competences (peut être plusieurs)
+        if (!empty($filters['competences'])) {
+            if (strpos($join, 'cv ON') === false) {
+                $join .= ' INNER JOIN cv ON cv.id_candidat = candidat.id_candidat';
+            }
+            $join .= ' INNER JOIN detail_cv AS dcv_comp ON dcv_comp.id_cv = cv.id_cv AND dcv_comp.type = "competence"';
+            $where[] = 'dcv_comp.id_item IN (' . implode(',', array_map(function($i){return (int)$i;}, $filters['competences'])) . ')';
+        }
+        // Profils (peut être plusieurs)
+        if (!empty($filters['profils'])) {
+            if (strpos($join, 'cv ON') === false) {
+                $join .= ' INNER JOIN cv ON cv.id_candidat = candidat.id_candidat';
+            }
+            $where[] = 'cv.id_profil IN (' . implode(',', array_map(function($i){return (int)$i;}, $filters['profils'])) . ')';
+        }
+
+        $sql = 'SELECT DISTINCT candidat.* FROM candidat' . $join;
         if ($where) {
             $sql .= ' WHERE ' . implode(' AND ', $where);
         }
-        $sql .= ' ORDER BY date_candidature DESC';
+        $sql .= ' ORDER BY candidat.date_candidature DESC';
 
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
