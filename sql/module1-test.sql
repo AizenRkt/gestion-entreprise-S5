@@ -45,17 +45,19 @@ INSERT INTO profil (nom) VALUES
 ('Designer'),
 ('Chef de projet');
 
--- ====== INSERTS POUR annonce ======
-INSERT INTO annonce (id_profil, titre, date_debut, date_fin, age_min, age_max, experience, objectif, qualite) VALUES
-(1, 'Développeur Front-End', '2025-09-01', '2025-10-01', 22, 35, 2, 'Créer une application web', 'Créatif, rigoureux'),
-(2, 'Designer UI/UX', '2025-09-05', '2025-10-05', 25, 40, 3, 'Améliorer l''expérience utilisateur', 'Imaginatif, précis'),
-(3, 'Chef de projet IT', '2025-09-10', '2025-11-10', 28, 45, 5, 'Gérer une équipe de développeurs', 'Leadership, organisation');
-
 -- ====== INSERTS POUR qcm ======
-INSERT INTO qcm (id_annonce, titre, note_max) VALUES
-(1, 'QCM Front-End', 20),
-(2, 'QCM Design', 15),
-(3, 'QCM Gestion de projet', 25);
+INSERT INTO annonce (id_profil, titre, date_debut, date_fin, age_min, age_max, experience, objectif, qualite)
+VALUES
+(1, 'Annonce Front-End', '2025-09-01', '2025-10-01', 22, 35, 2, 'Créer une application web', 'Créatif, rigoureux'),
+(2, 'Annonce Design', '2025-09-05', '2025-10-05', 25, 40, 3, 'Améliorer UX', 'Imaginatif, précis'),
+(3, 'Annonce Chef de projet', '2025-09-10', '2025-11-10', 28, 45, 5, 'Gérer une équipe', 'Leadership, organisation');
+
+
+-- On suppose que les annonces existent déjà avec id_annonce 1,2,3
+INSERT INTO qcm (id_annonce, id_profil, titre, note_max) VALUES
+(1, 1, 'QCM Front-End', 20),
+(2, 2, 'QCM Design', 15),
+(3, 3, 'QCM Gestion de projet', 25);
 
 -- ====== INSERTS POUR question ======
 INSERT INTO question (enonce) VALUES
@@ -68,10 +70,10 @@ INSERT INTO question (enonce) VALUES
 -- ====== INSERTS POUR reponse ======
 -- Question 1
 INSERT INTO reponse (id_question, texte, est_correcte) VALUES
-(1, '<p>', TRUE),
-(1, '<div>', FALSE),
-(1, '<span>', FALSE),
-(1, '<section>', FALSE);
+(1, 'p', TRUE),
+(1, 'div', FALSE),
+(1, 'span', FALSE),
+(1, 'section', FALSE);
 
 -- Question 2
 INSERT INTO reponse (id_question, texte, est_correcte) VALUES
@@ -103,11 +105,12 @@ INSERT INTO reponse (id_question, texte, est_correcte) VALUES
 
 -- ====== INSERTS POUR detail_qcm ======
 INSERT INTO detail_qcm (id_qcm, id_question, bareme_question) VALUES
-(4, 1, 5),  -- QCM Front-End, Question 1
-(4, 2, 5),  -- QCM Front-End, Question 2
-(4, 3, 10), -- QCM Front-End, Question 3
-(5, 4, 15), -- QCM Design, Question 4
-(6, 5, 25); -- QCM Gestion de projet, Question 5
+(1, 1, 5),  -- QCM Front-End, Question 1
+(1, 2, 5),  -- QCM Front-End, Question 2
+(1, 3, 10), -- QCM Front-End, Question 3
+(2, 4, 15), -- QCM Design, Question 4
+(3, 5, 25); -- QCM Gestion de projet, Question 5
+
 
 -- insert
 INSERT INTO qcm (id_annonce, titre, note_max)
