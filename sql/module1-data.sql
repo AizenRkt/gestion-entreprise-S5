@@ -8,11 +8,7 @@ INSERT INTO ville (nom) VALUES
 ('Fianarantsoa'),
 ('Mahajanga'),
 ('Toliara'),
-('Antsiranana'),
-('Ambatondrazaka'),
-('Manakara'),
-('Morondava'),
-('Sambava');
+('Antsiranana');
 -- ======================
 -- profil
 -- ======================
