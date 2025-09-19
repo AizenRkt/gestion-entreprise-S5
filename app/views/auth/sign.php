@@ -23,7 +23,13 @@
                     </div>
                     <h1 class="auth-title">Sign Up</h1>
                     <p class="auth-subtitle mb-5">Bienvenue sur Mazer Platform</p>
-
+                    <!-- Affichage du message d'erreur s'il existe -->
+                    <?php if (isset($_GET['mssg']) && $_GET['mssg']): ?>
+                        <div class="alert alert-danger" style="margin-bottom:20px;">
+                            <?= htmlspecialchars($_GET['mssg']) ?>
+                        </div>
+                    <?php endif; ?>
+                    
                     <form action="<?= Flight::base() ?>/auth/sign" method="post">
                         <div class="form-group position-relative has-icon-left mb-4">
                             <input type="text" class="form-control form-control-xl" name="email" placeholder="Email">
