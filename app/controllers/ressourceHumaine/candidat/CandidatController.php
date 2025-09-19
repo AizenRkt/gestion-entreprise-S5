@@ -6,6 +6,10 @@ use app\models\ressourceHumaine\cv\CvModel;
 use app\models\ressourceHumaine\cv\DetailCvModel;
 use Flight;
 
+use app\models\ressourceHumaine\contratEssai\ContratEssaiModel;
+use app\models\ressourceHumaine\resultatCandidat\ResultatCandidatModel;
+use app\models\ressourceHumaine\typeResultatCandidat\TypeResultatCandidatModel;
+
 class CandidatController {
     // Filtrage dynamique des candidats pour le back office
     public function filter() {
@@ -27,6 +31,9 @@ class CandidatController {
         $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
         $candidatModel = new CandidatModel();
         $cvModel = new \app\models\ressourceHumaine\cv\CvModel();
+        $contratEssaiModel = new ContratEssaiModel();
+        $resultatCandidatModel = new ResultatCandidatModel();
+        $typeResultatCandidatModel = new TypeResultatCandidatModel();
         $db = \Flight::db();
         $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
         $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
@@ -37,10 +44,39 @@ class CandidatController {
 
         // Récupérer les photos des candidats via CV
         $photos = [];
+        $statuts = [];
         foreach ($candidats as $cand) {
+            $id_candidat = $cand['id_candidat'];
             $stmt = $db->prepare('SELECT photo FROM cv WHERE id_candidat = ? ORDER BY id_cv DESC LIMIT 1');
-            $stmt->execute([$cand['id_candidat']]);
-            $photos[$cand['id_candidat']] = $stmt->fetchColumn();
+            $stmt->execute([$id_candidat]);
+            $photos[$id_candidat] = $stmt->fetchColumn();
+
+            // Statut prioritaire
+            // 1. Sous-contrat
+            $contrat = $contratEssaiModel->getByCandidat($id_candidat);
+            if (!empty($contrat)) {
+                $statuts[$id_candidat] = 'Sous-contrat';
+                continue;
+            }
+            // 2. Résultat
+            $resultats = $resultatCandidatModel->getByCandidat($id_candidat);
+            if (!empty($resultats)) {
+                $res = $resultats[0]; // On prend le plus récent si plusieurs
+                // Récupérer le type
+                $type = $db->prepare('SELECT valeur FROM type_resultat_candidat WHERE id_type_resultat_candidat = ?');
+                $type->execute([$res['id_type_resultat_candidat']]);
+                $valeur = $type->fetchColumn();
+                if ($valeur === 'attente') {
+                    $statuts[$id_candidat] = 'Révision';
+                } elseif ($valeur === 'refus') {
+                    $statuts[$id_candidat] = 'Refusé';
+                } else {
+                    $statuts[$id_candidat] = 'Archivé';
+                }
+                continue;
+            }
+            // 3. Aucun statut
+            $statuts[$id_candidat] = 'Archivé';
         }
 
         Flight::render('ressourceHumaine/back/cv', [
@@ -50,6 +86,7 @@ class CandidatController {
             'profils' => $profils,
             'candidats' => $candidats,
             'photos' => $photos,
+            'statuts' => $statuts,
             'filters' => $filters
         ]);
     }

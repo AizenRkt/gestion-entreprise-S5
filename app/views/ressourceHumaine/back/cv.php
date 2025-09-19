@@ -236,7 +236,16 @@
                                                     <td><?= htmlspecialchars($candidat['email']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['genre']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['date_candidature']) ?></td>
-                                                    <td> <span class="badge bg-success">Success</span></td>
+                                                    <td>
+                                                        <?php
+                                                        $statut = isset($statuts[$candidat['id_candidat']]) ? $statuts[$candidat['id_candidat']] : 'Archivé';
+                                                        $badgeClass = 'bg-secondary';
+                                                        if ($statut === 'Sous-contrat') $badgeClass = 'bg-success';
+                                                        elseif ($statut === 'Révision') $badgeClass = 'bg-primary';
+                                                        elseif ($statut === 'Refusé') $badgeClass = 'bg-danger';
+                                                        ?>
+                                                        <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($statut) ?></span>
+                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
