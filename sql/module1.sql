@@ -49,6 +49,7 @@ CREATE TABLE employe_statut (
     id_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
     id_employe INT NOT NULL,
     id_poste INT NOT NULL,
+    activite INT NOT NULL, -- 0 (pas actif) et 1 (actif)
     date_modification DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
