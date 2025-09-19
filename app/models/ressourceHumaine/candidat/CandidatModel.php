@@ -13,8 +13,12 @@ class CandidatModel {
         $db = Flight::db();
         $where = [];
         $params = [];
-        // Filtre sous-contrat prioritaire : on applique tous les autres filtres mais uniquement sur les candidats sous contrat
+        // Filtre idsSousContrat prioritaire : on applique tous les autres filtres mais uniquement sur les candidats ayant ces ids
         if (!empty($filters['idsSousContrat']) && is_array($filters['idsSousContrat'])) {
+            // Si aucun id, on renvoie vide
+            if (count($filters['idsSousContrat']) === 1 && $filters['idsSousContrat'][0] === -1) {
+                return [];
+            }
             $whereSousContrat = 'candidat.id_candidat IN (' . implode(',', array_map('intval', $filters['idsSousContrat'])) . ')';
             $where[] = $whereSousContrat;
         }

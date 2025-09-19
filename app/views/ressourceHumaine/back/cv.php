@@ -119,19 +119,19 @@
                                                         <li class="d-inline-block me-2 mb-1">
                                                             <div class="form-check">
                                                                 <div class="checkbox">
-                                                                    <input type="checkbox" class="form-check-input" id="checkbox2">
-                                                                    <label for="checkbox2">eligible</label>
+                                                                    <input type="checkbox" class="form-check-input" id="statutEligible" name="statut" value="eligible" <?= (!empty($filters['statut']) && $filters['statut'] === 'eligible') ? 'checked' : '' ?>>
+                                                                    <label for="statutEligible">eligible</label>
                                                                 </div>
                                                             </div>
                                                         </li>
-                                                           <li class="d-inline-block me-2 mb-1">
-                                                               <div class="form-check">
-                                                                   <div class="checkbox">
-                                                                       <input type="checkbox" class="form-check-input" id="statutSousContrat" name="statut" value="sous-contrat" <?= (!empty($filters['statut']) && $filters['statut'] === 'sous-contrat') ? 'checked' : '' ?>>
-                                                                       <label for="statutSousContrat">sous-contrat</label>
-                                                                   </div>
-                                                               </div>
-                                                           </li>
+                                                        <li class="d-inline-block me-2 mb-1">
+                                                            <div class="form-check">
+                                                                <div class="checkbox">
+                                                                    <input type="checkbox" class="form-check-input" id="statutSousContrat" name="statut" value="sous-contrat" <?= (!empty($filters['statut']) && $filters['statut'] === 'sous-contrat') ? 'checked' : '' ?>>
+                                                                    <label for="statutSousContrat">sous-contrat</label>
+                                                                </div>
+                                                            </div>
+                                                        </li>
                                                     </ul>
 
 
@@ -359,6 +359,22 @@
 
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/form-element-select.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        // Rendre les cases 'eligible' et 'sous-contrat' mutuellement exclusives
+        $('#statutEligible').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#statutSousContrat').prop('checked', false);
+            }
+        });
+        $('#statutSousContrat').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#statutEligible').prop('checked', false);
+            }
+        });
+    });
+    </script>
 
 
 </body>

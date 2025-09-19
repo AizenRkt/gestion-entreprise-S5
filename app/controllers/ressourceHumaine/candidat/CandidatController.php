@@ -1,6 +1,7 @@
 <?php
 
 namespace app\controllers\ressourceHumaine\candidat;
+
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use app\models\ressourceHumaine\cv\CvModel;
 use app\models\ressourceHumaine\cv\DetailCvModel;
@@ -10,9 +11,11 @@ use app\models\ressourceHumaine\contratEssai\ContratEssaiModel;
 use app\models\ressourceHumaine\resultatCandidat\ResultatCandidatModel;
 use app\models\ressourceHumaine\typeResultatCandidat\TypeResultatCandidatModel;
 
-class CandidatController {
+class CandidatController
+{
     // Filtrage dynamique des candidats pour le back office
-    public function filter() {
+    public function filter()
+    {
         $filters = Flight::request()->data->getData();
         // Correction pour compatibilité avec le modèle
         if (isset($filters['diplome']) && is_string($filters['diplome'])) {
@@ -41,8 +44,15 @@ class CandidatController {
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
 
-        // Filtre sous-contrat : on récupère uniquement les candidats ayant un contrat d'essai
-        if (!empty($filters['statut']) && $filters['statut'] === 'sous-contrat') {
+        // Priorité : si 'eligible' est coché, on filtre uniquement sur les candidats ayant un résultat
+        if (!empty($filters['statut']) && $filters['statut'] === 'eligible') {
+            $idsEligible = $resultatCandidatModel->getAllCandidatIds();
+            if (!empty($idsEligible)) {
+                $filters['idsSousContrat'] = $idsEligible;
+            } else {
+                $filters['idsSousContrat'] = [-1]; // Aucun id, renvoie vide
+            }
+        } else if (!empty($filters['statut']) && $filters['statut'] === 'sous-contrat') {
             $idsSousContrat = $contratEssaiModel->getAllCandidatIds();
             if (!empty($idsSousContrat)) {
                 $filters['idsSousContrat'] = $idsSousContrat;
@@ -102,7 +112,8 @@ class CandidatController {
         ]);
     }
 
-    public function create() {
+    public function create()
+    {
         // Récupérer les données du formulaire
         $data = Flight::request()->data->getData();
         $cvModel = new CvModel();
@@ -162,8 +173,8 @@ class CandidatController {
             $genre = null;
         }
 
-    // Ville comme id (depuis le select)
-    $id_ville = $data['ville'] ?? null;
+        // Ville comme id (depuis le select)
+        $id_ville = $data['ville'] ?? null;
 
         // Insérer le candidat
         $candidatModel = new CandidatModel();
@@ -214,19 +225,22 @@ class CandidatController {
         Flight::redirect('/candidature?success=1');
     }
 
-    public function getById($id) {
+    public function getById($id)
+    {
         $candidatModel = new CandidatModel();
         $candidat = $candidatModel->getById($id);
         Flight::render('candidat/show', ['candidat' => $candidat]);
     }
 
-    public function getAll() {
+    public function getAll()
+    {
         $candidatModel = new CandidatModel();
         $candidats = $candidatModel->getAll();
         Flight::render('candidat/listes', ['candidats' => $candidats]);
     }
 
-    public function update($id) {
+    public function update($id)
+    {
         $data = Flight::request()->data;
         $candidatModel = new CandidatModel();
         $success = $candidatModel->update(
@@ -248,7 +262,8 @@ class CandidatController {
         ]);
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $candidatModel = new CandidatModel();
         $success = $candidatModel->delete($id);
         $message = (strpos($success, 'réussie') !== false)
@@ -261,7 +276,8 @@ class CandidatController {
             'message' => $message
         ]);
     }
-    public function backOfficeCandidat(){
+    public function backOfficeCandidat()
+    {
         // Charger les données dynamiques
         $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
         $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
@@ -270,16 +286,48 @@ class CandidatController {
         $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
         $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
 
-        
+
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
         $candidats = $candidatModel->getAll();
 
         $photos = [];
+        $statuts = [];
         foreach ($candidats as $cand) {
+
+            $contratEssaiModel = new ContratEssaiModel();
+            $resultatCandidatModel = new ResultatCandidatModel();
+            $id_candidat = $cand['id_candidat'];
             $stmt = $db->prepare('SELECT photo FROM cv WHERE id_candidat = ? ORDER BY id_cv DESC LIMIT 1');
-            $stmt->execute([$cand['id_candidat']]);
-            $photos[$cand['id_candidat']] = $stmt->fetchColumn();
+            $stmt->execute([$id_candidat]);
+            $photos[$id_candidat] = $stmt->fetchColumn();
+
+            // Statut prioritaire
+            // 1. Sous-contrat
+            $contrat = $contratEssaiModel->getByCandidat($id_candidat);
+            if (!empty($contrat)) {
+                $statuts[$id_candidat] = 'Sous-contrat';
+                continue;
+            }
+            // 2. Résultat
+            $resultats = $resultatCandidatModel->getByCandidat($id_candidat);
+            if (!empty($resultats)) {
+                $res = $resultats[0]; // On prend le plus récent si plusieurs
+                // Récupérer le type
+                $type = $db->prepare('SELECT valeur FROM type_resultat_candidat WHERE id_type_resultat_candidat = ?');
+                $type->execute([$res['id_type_resultat_candidat']]);
+                $valeur = $type->fetchColumn();
+                if ($valeur === 'attente') {
+                    $statuts[$id_candidat] = 'Révision';
+                } elseif ($valeur === 'refus') {
+                    $statuts[$id_candidat] = 'Refusé';
+                } else {
+                    $statuts[$id_candidat] = 'Archivé';
+                }
+                continue;
+            }
+            // 3. Aucun statut
+            $statuts[$id_candidat] = 'Archivé';
         }
 
 
@@ -288,9 +336,9 @@ class CandidatController {
             'competences' => $competences,
             'villes' => $villes,
             'profils' => $profils,
+            'statuts' => $statuts,
             'photos' => $photos,
             'candidats' => $candidats
         ]);
     }
 }
-?>
