@@ -74,7 +74,7 @@ CREATE TABLE poste_role (
     id_poste INT NOT NULL,
     id_role INT NOT NULL,
     date_role DATE NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES user(id_user),
+    FOREIGN KEY (id_poste) REFERENCES poste(id_poste),
     FOREIGN KEY (id_role) REFERENCES role(id_role)
 );
 

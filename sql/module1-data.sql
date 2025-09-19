@@ -73,10 +73,13 @@ INSERT INTO user (username, pwd, id_employe) VALUES
 ('mrandria', 'password123', 2),
 ('pando', 'password123', 3);
 
+
 -- ======================
--- user_role
+-- poste_role
 -- ======================
-INSERT INTO user_role (id_user, id_role, date_role) VALUES
-(1, 1, '2023-01-10'),  -- jrakoto → Admin
-(2, 4, '2023-03-15'),  -- mrandria → RH
-(3, 3, '2023-05-20');  -- pando → Employé
+-- On relie les rôles aux postes (exemple :
+-- Développeur Backend = Admin, Technicien Support = Employé, Chargé de Recrutement = RH)
+INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
+(1, 1, '2023-01-10'),  -- Développeur Backend → Admin
+(3, 3, '2023-05-20'),  -- Technicien Support → Employé
+(4, 4, '2023-03-15');  -- Chargé de Recrutement → RH
