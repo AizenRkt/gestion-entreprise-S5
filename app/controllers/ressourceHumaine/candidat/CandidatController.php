@@ -78,7 +78,8 @@ class CandidatController {
             $data['prenom'] ?? '',
             $data['email'] ?? '',
             $data['telephone'] ?? '',
-            $genre
+            $genre,
+            $data['date_naissance'] ?? null
         );
         $id_cv = $cvModel->insert($id_candidat, $id_profil, $data['photo'] ?? null);
 

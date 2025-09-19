@@ -1,5 +1,5 @@
 DROP DATABASE if exists gestion_entreprise;
-CREATE DATABASE gestion_entreprise;
+CREATE DATABASE if not exists gestion_entreprise;
 USE gestion_entreprise;
 
 -- ======================

@@ -6,19 +6,20 @@ use PDO;
 
 class CandidatModel {
 
-    public function insert($nom, $prenom, $email, $telephone, $genre) {
+    public function insert($nom, $prenom, $email, $telephone, $genre, $date_naissance) {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                INSERT INTO candidat (nom, prenom, email, telephone, genre)
-                VALUES (:nom, :prenom, :email, :telephone, :genre)
+                INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance)
+                VALUES (:nom, :prenom, :email, :telephone, :genre, :date_naissance)
             ");
             $stmt->execute([
                 ':nom' => $nom,
                 ':prenom' => $prenom,
                 ':email' => $email,
                 ':telephone' => $telephone,
-                ':genre' => $genre
+                ':genre' => $genre,
+                ':date_naissance' => $date_naissance
             ]);
             return $db->lastInsertId();
         } catch (\PDOException $e) {

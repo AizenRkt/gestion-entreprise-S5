@@ -110,7 +110,35 @@
                                             </div>
 
 
-                                            <div class="col-md-4 mb-4">
+                                            <div class="col-md-2 mb-4">
+                                                <h6>Situation</h6>
+                                                <ul class="list-unstyled mb-0">
+                                <li class="d-inline-block me-2 mb-1">
+                                    <div class="form-check">
+                                        <div class="checkbox">
+                                            <input type="checkbox" id="checkbox1" class="form-check-input" checked>
+                                            <label for="checkbox1">Touch me!</label>
+                                        </div>
+                                    </div>
+                                </li><li class="d-inline-block me-2 mb-1">
+                                    <div class="form-check">
+                                        <div class="checkbox">
+                                            <input type="checkbox" id="checkbox1" class="form-check-input" checked>
+                                            <label for="checkbox1">Touch me!</label>
+                                        </div>
+                                    </div>
+                                </li><li class="d-inline-block me-2 mb-1">
+                                    <div class="form-check">
+                                        <div class="checkbox">
+                                            <input type="checkbox" id="checkbox1" class="form-check-input" checked>
+                                            <label for="checkbox1">Touch me!</label>
+                                        </div>
+                                    </div>
+                                </li>
+                               
+                            </ul>
+                                            </div>
+                                            <div class="col-md-2 mb-4">
                                                 <h6>Ville</h6>
                                                 <fieldset class="form-group">
                                                     <select class="form-select" id="basicSelect" name="ville">
@@ -146,6 +174,7 @@
                                                     </select>
                                                 </div>
                                             </div>
+                                            
                                             
                                         <div class="col-sm-12 d-flex justify-content-end">
                                             <button type="submit" class="btn btn-primary me-1 mb-1">Valider</button>
