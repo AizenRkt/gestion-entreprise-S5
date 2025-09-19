@@ -62,7 +62,7 @@
                                     Mazer est un acteur majeur dans le développement de solutions digitales innovantes.
                                     Nous aidons nos clients à transformer leurs idées en produits performants.
                                 </p>
-                                <a href="<?= Flight::base() ?>/candidature" class="btn btn-primary w-100 mt-2">
+                                <a href="<?= Flight::base() ?>/candidature?id_annonce=<?= $annonce['id_annonce'] ?>" class="btn btn-primary w-100 mt-2">
                                     <i class="bi bi-send me-2"></i> Postuler
                                 </a>
                             </div>

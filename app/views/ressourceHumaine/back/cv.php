@@ -47,7 +47,7 @@
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h4 class="card-title">Choices</h4>
+                                    <h4 class="card-title">Choix</h4>
                                 </div>
                                 <div class="card-content">
                                     <div class="card-body">
@@ -67,13 +67,13 @@
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     <label for="ageMin">Âge minimum</label>
-                                                    <input type="number" class="form-control" id="ageMin" name="age_min" placeholder="Âge min (ex: 18)" min="18" max="65" required>
+                                                    <input type="number" class="form-control" id="ageMin" name="age_min" placeholder="min" min="18" max="65" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     <label for="ageMax">Âge maximum</label>
-                                                    <input type="number" class="form-control" id="ageMax" name="age_max" placeholder="Âge max (ex: 65)" min="18" max="65" required>
+                                                    <input type="number" class="form-control" id="ageMax" name="age_max" placeholder="max" min="18" max="65" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 mb-4">

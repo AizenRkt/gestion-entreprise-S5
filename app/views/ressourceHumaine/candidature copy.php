@@ -72,9 +72,6 @@
                         <div class="col-12">
                             <div class="card p-4">
                                 <form action="<?= Flight::base() ?>/candidat/create" method="post" id="cvForm" enctype="multipart/form-data">
-                                    <?php if (isset($_GET['id_annonce'])): ?>
-                                        <input type="hidden" name="id_annonce" value="<?= htmlspecialchars($_GET['id_annonce']) ?>">
-                                    <?php endif; ?>
                                     <!-- ===== Étape 1 : Informations personnelles ===== -->
                                     <div id="step1" class="step-section active">
 
@@ -109,7 +106,6 @@
                                             <div class="col-md-6">
                                                 <label class="form-label fw-bold">Ville</label>
                                                 <select name="ville" class="form-select" required>
-                                                    <option value="" disabled selected hidden>Choisissez une ville</option>
                                                     <?php if (isset($villes) && is_array($villes)): ?>
                                                         <?php foreach ($villes as $ville): ?>
                                                             <option value="<?= htmlspecialchars($ville['id_ville']) ?>">
@@ -218,29 +214,6 @@
                     removeItemButton: true,
                     placeholder: true,
                     placeholderValue: 'Sélectionnez...'
-                });
-            });
-
-            // Diplômes : sélection en cascade
-            const diplomeCheckboxes = document.querySelectorAll('input[name="diplome[]"]');
-            diplomeCheckboxes.forEach(cb => {
-                cb.addEventListener('change', function() {
-                    if (this.checked) {
-                        const id = parseInt(this.id.replace('diplome', ''));
-                        diplomeCheckboxes.forEach(other => {
-                            const otherId = parseInt(other.id.replace('diplome', ''));
-                            other.checked = otherId <= id;
-                        });
-                    } else {
-                        // Si on décoche, on décoche tout ce qui a un id supérieur ou égal
-                        const id = parseInt(this.id.replace('diplome', ''));
-                        diplomeCheckboxes.forEach(other => {
-                            const otherId = parseInt(other.id.replace('diplome', ''));
-                            if (otherId >= id) {
-                                other.checked = false;
-                            }
-                        });
-                    }
                 });
             });
 

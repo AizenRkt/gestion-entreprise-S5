@@ -12,8 +12,19 @@ class CandidatController {
         // Récupérer les données du formulaire
         $data = Flight::request()->data->getData();
         $cvModel = new CvModel();
-        $id_profil = 1; // profil forcé à 1
         $db = \Flight::db();
+
+        // Récupérer l'id_annonce depuis l'URL (GET ou POST) pour trouver le profil
+        $id_annonce = $_GET['id_annonce'] ?? ($data['id_annonce'] ?? null);
+        $id_profil = 1; // Valeur par défaut si pas d'annonce ou annonce non trouvée
+        if ($id_annonce) {
+            $stmt = $db->prepare('SELECT id_profil FROM annonce WHERE id_annonce = ?');
+            $stmt->execute([$id_annonce]);
+            $id_profil_db = $stmt->fetchColumn();
+            if ($id_profil_db !== false && $id_profil_db !== null) {
+                $id_profil = $id_profil_db;
+            }
+        }
 
         // Vérification unicité email pour le même profil
         $stmt = $db->prepare('SELECT id_candidat FROM cv WHERE id_profil = ?');
@@ -75,16 +86,28 @@ class CandidatController {
         $detailCvModel = new DetailCvModel();
         if (!empty($data['diplome'])) {
             $diplomes = is_array($data['diplome']) ? $data['diplome'] : json_decode($data['diplome'], true);
-            foreach ($diplomes as $id_diplome) {
-                $detailCvModel->insert($id_cv, 'diplome', $id_diplome);
+            foreach ($diplomes as $diplome_nom) {
+                // Chercher l'id du diplôme
+                $stmt = $db->prepare('SELECT id_diplome FROM diplome WHERE nom = ?');
+                $stmt->execute([$diplome_nom]);
+                $id_diplome = $stmt->fetchColumn();
+                if ($id_diplome) {
+                    $detailCvModel->insert($id_cv, 'diplome', $id_diplome);
+                }
             }
         }
 
         // Insérer les compétences dans detail_cv
         if (!empty($data['competences'])) {
             $competences = is_array($data['competences']) ? $data['competences'] : json_decode($data['competences'], true);
-            foreach ($competences as $id_competence) {
-                $detailCvModel->insert($id_cv, 'competence', $id_competence);
+            foreach ($competences as $competence_nom) {
+                // Chercher l'id de la compétence
+                $stmt = $db->prepare('SELECT id_competence FROM competence WHERE nom = ?');
+                $stmt->execute([$competence_nom]);
+                $id_competence = $stmt->fetchColumn();
+                if ($id_competence) {
+                    $detailCvModel->insert($id_cv, 'competence', $id_competence);
+                }
             }
         }
 

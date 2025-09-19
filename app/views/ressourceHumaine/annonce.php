@@ -17,41 +17,43 @@
             <?= Flight::menuFrontOffice() ?>
 
             <div class="content-wrapper container">
-                
+
                 <div class="page-heading">
                     <h3>Voici les postes disponibles du moment</h3>
                 </div>
 
                 <div class="page-content">
                     <section class="row">
-
-                       <form method="get" class="row g-2 align-items-center">
-                            <input type="text" name="keyword" class="form-control" placeholder="Mot-clé">
-                            <select class="form-select" name="diplome">
-                                <option value="">diplomes</option>
-                                <?php foreach($diplomes as $d): ?>
-                                    <option value="<?= $d['id_diplome'] ?>"><?= $d['nom'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <select class="form-select" name="ville">
-                                <option value="">villes</option>
-                                <?php foreach($villes as $v): ?>
-                                    <option value="<?= $v['id_ville'] ?>"><?= $v['nom'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button type="submit" class="btn btn-primary w-100">Rechercher</button>
-                        </form>
-                        
+                        <div class="col-12">
+                            <div class="card p-4 text-center">
+                                <form method="get" class="row g-2 align-items-center">
+                                    <input type="text" name="keyword" class="form-control" placeholder="Mot-clé">
+                                    <select class="form-select" name="diplome">
+                                        <option value="">diplomes</option>
+                                        <?php foreach ($diplomes as $d): ?>
+                                            <option value="<?= $d['id_diplome'] ?>"><?= $d['nom'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <select class="form-select" name="ville">
+                                        <option value="">villes</option>
+                                        <?php foreach ($villes as $v): ?>
+                                            <option value="<?= $v['id_ville'] ?>"><?= $v['nom'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary w-100">Rechercher</button>
+                                </form>
+                            </div>
+                        </div>
 
                         <div class="col-12">
                             <?php if (!empty($annonces)): ?>
-                                <?php foreach($annonces as $annonce): ?>
+                                <?php foreach ($annonces as $annonce): ?>
                                     <div class="card mb-3 p-3 d-flex flex-row align-items-center">
                                         <div class="flex-grow-1">
                                             <h5><?= htmlspecialchars($annonce['titre']) ?></h5>
                                             <p class="text-muted mb-1">
-                                                <?= htmlspecialchars($annonce['profil']) ?> · 
-                                                <?= htmlspecialchars($annonce['ville']) ?> · 
+                                                <?= htmlspecialchars($annonce['profil']) ?> ·
+                                                <?= htmlspecialchars($annonce['ville']) ?> ·
                                                 Diplômes: <?= htmlspecialchars($annonce['diplomes']) ?> ·
                                                 Publié le <?= date('d/m/Y', strtotime($annonce['date_debut'])) ?>
                                             </p>
@@ -75,11 +77,11 @@
     </div>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/horizontal-layout.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    
+
     <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
-    
-    
-<script src="<?= Flight::base() ?>/public/template/assets/extensions/apexcharts/apexcharts.min.js"></script>
+
+
+    <script src="<?= Flight::base() ?>/public/template/assets/extensions/apexcharts/apexcharts.min.js"></script>
 
 </body>
 
