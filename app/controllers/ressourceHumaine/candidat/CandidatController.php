@@ -7,6 +7,29 @@ use app\models\ressourceHumaine\cv\DetailCvModel;
 use Flight;
 
 class CandidatController {
+    // Filtrage dynamique des candidats pour le back office
+    public function filter() {
+        $filters = Flight::request()->data->getData();
+        $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
+        $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
+        $candidatModel = new CandidatModel();
+        $db = \Flight::db();
+        $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
+        $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
+
+        $diplomes = $diplomeModel->getAll();
+        $competences = $competenceModel->getAll();
+        $candidats = $candidatModel->getFiltered($filters);
+
+        Flight::render('ressourceHumaine/back/cv', [
+            'diplomes' => $diplomes,
+            'competences' => $competences,
+            'villes' => $villes,
+            'profils' => $profils,
+            'candidats' => $candidats,
+            'filters' => $filters
+        ]);
+    }
 
     public function create() {
         // Récupérer les données du formulaire

@@ -18,5 +18,6 @@ $router->get('/candidat/@id', [$candidatController, 'getById']);
 $router->post('/candidat/update/@id', [$candidatController, 'update']);
 $router->get('/candidat/delete/@id', [$candidatController, 'delete']);
 $router->get('/backOffice/candidat', [$candidatController, 'backOfficeCandidat']);
+$router->post('/backOffice/candidat/filter', [$candidatController, 'filter']);
 
 

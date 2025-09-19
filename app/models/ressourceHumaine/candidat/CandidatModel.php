@@ -5,6 +5,68 @@ use Flight;
 use PDO;
 
 class CandidatModel {
+    /**
+     * Filtrage dynamique des candidats selon les filtres fournis
+     * $filters = [genre, age_min, age_max, diplome, competences, ville, profils, date_naissance]
+     */
+    public function getFiltered($filters = []) {
+        $db = Flight::db();
+        $where = [];
+        $params = [];
+
+        // Si aucun filtre n'est choisi, retourne tous les candidats (table candidat uniquement)
+        $hasFilter = false;
+        foreach (["genre","age_min","age_max","ville","diplome","competences","profils","date_naissance"] as $key) {
+            if (!empty($filters[$key])) {
+                $hasFilter = true;
+                break;
+            }
+        }
+        if (!$hasFilter) {
+            $stmt = $db->query("SELECT * FROM candidat ORDER BY date_candidature DESC");
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        // Genre
+        if (!empty($filters['genre'])) {
+            $val = $filters['genre'];
+            if (strtolower($val) === 'm' || strtolower($val) === 'homme') {
+                $val = 'M';
+            } elseif (strtolower($val) === 'f' || strtolower($val) === 'femme') {
+                $val = 'F';
+            }
+            $where[] = 'genre = :genre';
+            $params[':genre'] = $val;
+        }
+
+        // Age (calculé à partir de date_naissance)
+        if (!empty($filters['age_min'])) {
+            $where[] = 'TIMESTAMPDIFF(YEAR, date_naissance, CURDATE()) >= :age_min';
+            $params[':age_min'] = $filters['age_min'];
+        }
+        if (!empty($filters['age_max'])) {
+            $where[] = 'TIMESTAMPDIFF(YEAR, date_naissance, CURDATE()) <= :age_max';
+            $params[':age_max'] = $filters['age_max'];
+        }
+
+        // Date de candidature avant
+        if (!empty($filters['date_naissance'])) {
+            $where[] = 'date_candidature <= :date_naissance';
+            $params[':date_naissance'] = $filters['date_naissance'];
+        }
+
+        // (Les autres filtres sont ignorés pour l'instant)
+
+        $sql = 'SELECT * FROM candidat';
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
+        }
+        $sql .= ' ORDER BY date_candidature DESC';
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function insert($nom, $prenom, $email, $telephone, $genre, $date_naissance) {
         try {
