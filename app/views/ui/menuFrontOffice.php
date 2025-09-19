@@ -41,7 +41,7 @@
                 </li>
                 
                 <li class="menu-item">
-                    <a href="<?= Flight::base() ?>/annonce" class='menu-link'>
+                    <a href="<?= Flight::base() ?>/annonces" class='menu-link'>
                         <span><i class="bi bi-briefcase-fill"></i> Offre d'emploi</span>
                     </a>
                 </li>

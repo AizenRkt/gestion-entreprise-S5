@@ -37,6 +37,8 @@ require('routes.php');
 
 // Inclusion des routes spécifiques au candidat
 require(__DIR__ . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'candidatRoute.php');
+require('routes/back/creaAnnonce.php');
+require('routes/annonce.php');
 /*
  * You additionally could just define the routes in this file. It's up to you.
  * Example:
