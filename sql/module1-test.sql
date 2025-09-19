@@ -4,27 +4,15 @@ CREATE TABLE profil (
     nom VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE annonce (
-    id_annonce INT AUTO_INCREMENT PRIMARY KEY,
-    id_profil INT,
-    titre VARCHAR(255) NOT NULL,
-    date_debut DATE NOT NULL,
-    date_fin DATE NOT NULL,
-    age_min INT,
-    age_max INT,
-    experience INT,
-    objectif VARCHAR(255),
-    qualite VARCHAR(255),
-    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
-);
-
 CREATE TABLE qcm (
     id_qcm INT AUTO_INCREMENT PRIMARY KEY,
     id_annonce INT NOT NULL,
+    id_profil INT NOT NULL,
     titre VARCHAR(255) NOT NULL,
     note_max DECIMAL(5,2) NOT NULL,  
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
+    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
 );
 
 CREATE TABLE question (
