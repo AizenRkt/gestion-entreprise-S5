@@ -9,6 +9,8 @@ use flight\net\Router;
 
 //use Flight;
 
+require __DIR__ . '/routes/qcmRoute.php';
+
 /** 
  * @var Router $router 
  * @var Engine $app
