@@ -28,14 +28,20 @@
                        <form method="get" class="row g-2 align-items-center">
                             <input type="text" name="keyword" class="form-control" placeholder="Mot-clé">
                             <select class="form-select" name="diplome">
-                                <option value="">Tous</option>
+                                <option value="">diplomes</option>
                                 <?php foreach($diplomes as $d): ?>
-                                    <option value="<?= $d['nom'] ?>"><?= $d['nom'] ?></option>
+                                    <option value="<?= $d['id_diplome'] ?>"><?= $d['nom'] ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <input type="text" name="ville" class="form-control" placeholder="Localisation">
+                            <select class="form-select" name="ville">
+                                <option value="">villes</option>
+                                <?php foreach($villes as $v): ?>
+                                    <option value="<?= $v['id_ville'] ?>"><?= $v['nom'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
                             <button type="submit" class="btn btn-primary w-100">Rechercher</button>
                         </form>
+                        
 
                         <div class="col-12">
                             <?php if (!empty($annonces)): ?>
@@ -52,7 +58,7 @@
                                             <p class="mb-0"><?= htmlspecialchars($annonce['objectif'] ?? '') ?></p>
                                         </div>
                                         <div>
-                                            <a href="<?= Flight::base() ?>/annoncePage/<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">Postuler</a>
+                                            <a href="<?= Flight::base() ?>/annoncePage?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">Detail</a>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

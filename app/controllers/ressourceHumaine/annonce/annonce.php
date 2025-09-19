@@ -15,24 +15,50 @@ class annonce {
     }
 
     public function getAllAnnonces() {
-    $keyword = $_GET['keyword'] ?? null;
-    $diplome = $_GET['diplome'] ?? null;
-    $ville   = $_GET['ville'] ?? null;
+        $keyword = $_GET['keyword'] ?? null;
+        $diplome = $_GET['diplome'] ?? null;
+        $ville   = $_GET['ville'] ?? null;
 
-    $annonces = $this->model->getFilteredAnnonces($keyword, $diplome, $ville);
+        $annonces = $this->model->getFilteredAnnonces($keyword, $diplome, $ville); 
+        $annonces = $this->model->getAllAnnonces();
 
-    $diplomes = $this->model->getAllDiplomes(); 
+        $diplomes = $this->model->getAllDiplomes(); 
 
-    $villes = $this->model->getAllVilles(); 
+        $villes = $this->model->getAllVilles(); 
 
-    Flight::render('ressourceHumaine/annonce', [
-        'annonces' => $annonces,
-        'diplomes' => $diplomes,
-        'villes' => $villes
-    ]); 
-}
+        Flight::render('ressourceHumaine/annonce', [
+            'annonces' => $annonces,
+            'diplomes' => $diplomes,
+            'villes' => $villes
+        ]); 
+    }
 
+    public function getFilteredAnnonces() {
+        $keyword = $_GET['keyword'] ?? null;
+        $diplome = $_GET['diplome'] ?? null;
+        $ville   = $_GET['ville'] ?? null;
 
-    
+        $annonces = $this->model->getFilteredAnnonces($keyword, $diplome, $ville);
+
+        $diplomes = $this->model->getAllDiplomes(); 
+
+        $villes = $this->model->getAllVilles(); 
+
+        Flight::render('ressourceHumaine/annonce', [
+            'annonces' => $annonces,
+            'diplomes' => $diplomes,
+            'villes' => $villes
+        ]); 
+    }
+
+    public function getDetailAnnonces() {
+        $id = $_GET['id'] ?? null;
+
+        $annonces = $this->model->getDetailAnnonces($id); 
+
+        Flight::render('ressourceHumaine/annoncePage', [
+            'annonces' => $annonces,
+        ]); 
+    }
 }
 
