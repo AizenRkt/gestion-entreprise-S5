@@ -67,9 +67,9 @@ CREATE TABLE user (
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
 );
 
-CREATE TABLE user_role (
-    id_user_role INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT NOT NULL,
+CREATE TABLE poste_role (
+    id_poste_role INT AUTO_INCREMENT PRIMARY KEY,
+    id_poste INT NOT NULL,
     id_role INT NOT NULL,
     date_role DATE NOT NULL,
     FOREIGN KEY (id_user) REFERENCES user(id_user),
