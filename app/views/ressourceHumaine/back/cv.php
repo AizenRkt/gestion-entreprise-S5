@@ -37,7 +37,7 @@
                         </div>
                         <div class="col-12 col-md-6 order-md-2 order-first text-end">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
-                                Trouver une question
+                                Trouver une cv
                             </button>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                                                     <label class="form-check-label" for="femme">Femme</label>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="col-md-1">
                                                 <div class="form-group">
                                                     <label for="ageMin">Âge minimum</label>
@@ -146,55 +146,20 @@
                                                     </select>
                                                 </div>
                                             </div>
-
+                                            
+                                        <div class="col-sm-12 d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary me-1 mb-1">Valider</button>
+                                        </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </section>
 
-                <!-- Modal Ajouter Question -->
-                <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title" id="addQuestionLabel">Ajouter une question</h4>
-                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                    <i data-feather="x"></i>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form>
-                                    <div class="mb-3">
-                                        <label for="questionText" class="form-label">Énoncé de la question</label>
-                                        <input type="text" class="form-control" id="questionText" placeholder="Tapez la question">
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label for="numReponses" class="form-label">Nombre de réponses</label>
-                                            <input type="number" class="form-control" id="numReponses" value="3" min="2">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="correctAnswer" class="form-label">Réponse correcte</label>
-                                            <select class="form-select" id="correctAnswer"></select>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Réponses possibles</label>
-                                        <div id="answersContainer"></div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Fermer</button>
-                                <button type="button" class="btn btn-primary" id="addQuestionBtn" data-bs-dismiss="modal">Ajouter la question</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Tableau des candidats -->
                 <section class="section">
@@ -224,7 +189,9 @@
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
-                                            <tr><td colspan="4">Aucun candidat trouvé.</td></tr>
+                                            <tr>
+                                                <td colspan="4">Aucun candidat trouvé.</td>
+                                            </tr>
                                         <?php endif; ?>
                                     </tbody>
                                 </table>
@@ -260,7 +227,6 @@
                     questions.forEach(q => {
                         const nbReponses = q.reponse.length;
 
-                        // trouver la/les réponses correctes
                         const correctes = q.reponse
                             .filter(r => r.est_correcte)
                             .map(r => r.reponse)
