@@ -25,6 +25,7 @@ $router->get('/annonceCrea', [ $Controller, 'createAnnonce' ]);
 $router->get('/candidature', [ $Controller, 'candidature' ]);
 $router->get('/planning', [ $Controller, 'planning' ]);
 $router->get('/organiserEntretien', [ $Controller, 'orgaEntretien' ]);
+$router->get('/backOffice',[$Controller,'backOffice']);
 
 
 

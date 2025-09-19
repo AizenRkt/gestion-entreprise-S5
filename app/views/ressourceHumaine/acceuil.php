@@ -21,7 +21,7 @@
                 <div class="page-heading">
                     <h3>Bienvenue sur Mazer Entreprise</h3>
                 </div>
-
+                <a href="<?= Flight::base() ?>/backOffice">back office</a>
                 <div class="page-content">
                     <section class="row">
                         

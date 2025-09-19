@@ -8,16 +8,14 @@ use Flight;
 
 class CandidatController {
 
-
-
     public function create() {
         // Récupérer les données du formulaire
         $data = Flight::request()->data->getData();
-        // Vérification unicité email pour le même profil
         $cvModel = new CvModel();
         $id_profil = 1; // profil forcé à 1
         $db = \Flight::db();
-        // Récupérer tous les CV avec ce profil
+
+        // Vérification unicité email pour le même profil
         $stmt = $db->prepare('SELECT id_candidat FROM cv WHERE id_profil = ?');
         $stmt->execute([$id_profil]);
         $candidatsProfil = $stmt->fetchAll();
@@ -33,7 +31,6 @@ class CandidatController {
             }
         }
         if ($emailExists) {
-            // Rediriger avec message d'erreur
             Flight::redirect('/candidature?success=0&error=mail');
             return;
         }
@@ -43,30 +40,34 @@ class CandidatController {
             $photo = Flight::request()->files['photo'];
             $extension = pathinfo($photo['name'], PATHINFO_EXTENSION);
             $uniqueName = uniqid('photo_', true) . '.' . $extension;
-            // Déplacement du fichier (optionnel, mais on n'enregistre que le nom)
             $uploadDir = 'public/uploads/photos/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0777, true);
             }
             $uploadPath = $uploadDir . $uniqueName;
             move_uploaded_file($photo['tmp_name'], $uploadPath);
-            $data['photo'] = $uniqueName; // Stocker uniquement le nom du fichier
+            $data['photo'] = $uniqueName;
         } else {
             $data['photo'] = null;
         }
 
-        // Encoder les champs multivalués (diplômes, compétences) en JSON
-        $data['diplome'] = isset($data['diplome']) ? json_encode($data['diplome']) : json_encode([]);
-        $data['competences'] = isset($data['competences']) ? json_encode($data['competences']) : json_encode([]);
+        // Correction genre (H/F)
+        $genre = strtoupper(substr($data['genre'] ?? '', 0, 1));
+        if ($genre !== 'H' && $genre !== 'F') {
+            $genre = null;
+        }
 
-        // Insérer les données via le modèle
+    // Ville comme id (depuis le select)
+    $id_ville = $data['ville'] ?? null;
+
+        // Insérer le candidat
         $candidatModel = new CandidatModel();
         $id_candidat = $candidatModel->insert(
             $data['nom'] ?? '',
             $data['prenom'] ?? '',
             $data['email'] ?? '',
             $data['telephone'] ?? '',
-            $data['genre'] ?? ''
+            $genre
         );
         $id_cv = $cvModel->insert($id_candidat, $id_profil, $data['photo'] ?? null);
 
@@ -74,32 +75,24 @@ class CandidatController {
         $detailCvModel = new DetailCvModel();
         if (!empty($data['diplome'])) {
             $diplomes = is_array($data['diplome']) ? $data['diplome'] : json_decode($data['diplome'], true);
-            foreach ($diplomes as $diplomeNom) {
-                // Récupérer l'id du diplôme par son nom
-                $stmt = $db->prepare('SELECT id_diplome FROM diplome WHERE nom = ?');
-                $stmt->execute([$diplomeNom]);
-                $row = $stmt->fetch();
-                if ($row) {
-                    $detailCvModel->insert($id_cv, 'diplome', $row['id_diplome']);
-                }
+            foreach ($diplomes as $id_diplome) {
+                $detailCvModel->insert($id_cv, 'diplome', $id_diplome);
             }
         }
 
         // Insérer les compétences dans detail_cv
         if (!empty($data['competences'])) {
             $competences = is_array($data['competences']) ? $data['competences'] : json_decode($data['competences'], true);
-            foreach ($competences as $competenceNom) {
-                // Récupérer l'id de la compétence par son nom
-                $stmt = $db->prepare('SELECT id_competence FROM competence WHERE nom = ?');
-                $stmt->execute([$competenceNom]);
-                $row = $stmt->fetch();
-                if ($row) {
-                    $detailCvModel->insert($id_cv, 'competence', $row['id_competence']);
-                }
+            foreach ($competences as $id_competence) {
+                $detailCvModel->insert($id_cv, 'competence', $id_competence);
             }
         }
 
-        // Rediriger vers la page de candidature après insertion avec message succès
+        // Insérer la ville dans detail_cv si présente
+        if (!empty($id_ville)) {
+            $detailCvModel->insert($id_cv, 'ville', $id_ville);
+        }
+
         Flight::redirect('/candidature?success=1');
     }
 
@@ -148,6 +141,27 @@ class CandidatController {
         Flight::render('candidat/listes', [
             'candidats' => $candidats,
             'message' => $message
+        ]);
+    }
+    public function backOfficeCandidat(){
+        // Charger les données dynamiques
+        $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
+        $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
+        $candidatModel = new \app\models\ressourceHumaine\candidat\CandidatModel();
+        $db = \Flight::db();
+        $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
+        $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
+
+        $diplomes = $diplomeModel->getAll();
+        $competences = $competenceModel->getAll();
+        $candidats = $candidatModel->getAll();
+
+        Flight::render('ressourceHumaine/back/cv', [
+            'diplomes' => $diplomes,
+            'competences' => $competences,
+            'villes' => $villes,
+            'profils' => $profils,
+            'candidats' => $candidats
         ]);
     }
 }

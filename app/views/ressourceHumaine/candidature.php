@@ -23,10 +23,10 @@
             
             <?php
             if (isset($_GET['success']) && $_GET['success'] == '1') {
-                echo '<div id="success-msg" class="alert alert-success">Votre CV a été postulé avec succès !</div>';
+                echo '<div id="success-msg" class="alert alert-success"><i class="bi bi-check-circle"></i> Votre CV a été postulé avec succès !</div>';
             }
             if (isset($_GET['error']) && $_GET['error'] == 'mail') {
-                echo '<div id="error-msg" class="alert alert-danger">Un CV existe déjà pour ce profil et cet email.</div>';
+                echo '<div id="error-msg" class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i>Un CV existe déjà pour ce profil et cet email.</div>';
             }
             ?>
             <script>

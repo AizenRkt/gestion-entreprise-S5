@@ -1,4 +1,18 @@
 -- ======================
+-- ville
+-- ======================
+INSERT INTO ville (nom) VALUES
+('Antananarivo'),
+('Toamasina'),
+('Fianarantsoa'),
+('Mahajanga'),
+('Toliara'),
+('Antsiranana'),
+('Ambatondrazaka'),
+('Manakara'),
+('Morondava'),
+('Sambava');
+-- ======================
 -- profil
 -- ======================
 INSERT INTO profil (nom) VALUES
@@ -96,17 +110,10 @@ INSERT INTO user_role (id_user, id_role, date_role) VALUES
 -- diplome
 -- ======================
 INSERT INTO diplome (nom) VALUES
-('BEPC'),
-('BACC'),
-('CAP'),
-('BACC+1'),
-('BACC+2'),
-('BACC+3'),
-('BACC+4'),
-('BACC+5'),
-('BACC+6'),
+('Bepc'),
+('Bacc'),
+('Licence'),
 ('Doctorat');
-;
 
 -- ======================
 -- competence

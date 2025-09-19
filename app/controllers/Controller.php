@@ -54,7 +54,10 @@ class Controller {
 
     public function orgaEntretien() {
         Flight::render('ressourceHumaine/back/orgaEntretien');
+    }
 
+    public function backOffice(){
+        Flight::render('ui/homeDefLayout');
     }
 
 }

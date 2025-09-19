@@ -31,6 +31,7 @@ CREATE TABLE candidat (
     email VARCHAR(150)  NOT NULL,
     telephone VARCHAR(20),
     genre VARCHAR(1),
+    date_naissance DATE,
     date_candidature DATE DEFAULT CURRENT_DATE
 );
 

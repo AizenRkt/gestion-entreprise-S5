@@ -41,6 +41,12 @@
         <div class="sidebar-menu">
             <ul class="menu">
                 <li class="sidebar-title">Recrutement</li>
+                <li class="sidebar-item  ">
+                    <a href="<?= Flight::base() ?>/backOffice/candidat" class="sidebar-link">
+                        <i class="bi bi-send-fill"></i>
+                        <span>Cv</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
@@ -86,6 +92,7 @@
                         </li>                        
                     </ul>
                 </li>
+                
 
                 <li class="sidebar-title">Emploi</li>
 
