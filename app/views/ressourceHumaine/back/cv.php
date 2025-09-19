@@ -200,9 +200,9 @@
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
-                                            <th>Age</th>
                                             <th>Nom</th>
                                             <th>Prénom</th>
+                                            <th>Age</th>
                                             <th>Email</th>
                                             <th>Téléphone</th>
                                             <th>Genre</th>
@@ -223,9 +223,9 @@
                                                         $age = $now->diff($dob)->y;
                                                     }
                                                     ?>
-                                                    <td><?= htmlspecialchars($age) ?></td>
                                                     <td><?= htmlspecialchars($candidat['nom']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['prenom']) ?></td>
+                                                    <td><?= htmlspecialchars($age) ?></td>
                                                     <td><?= htmlspecialchars($candidat['email']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['telephone']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['genre']) ?></td>

@@ -1,5 +1,9 @@
 
 -- ======================
+-- ======================
+-- ======================
+-- Candidats, CV et detail_cv (ensemble à partir de l'id 1)
+-- ======================
 -- ville
 -- ======================
 INSERT INTO ville (nom) VALUES
@@ -96,7 +100,73 @@ INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALU
 ('Randria', 'Marie', 'marie.randria@example.com', '0324445566', 'F', '1992-03-15'),
 ('Ando', 'Paul', 'paul.ando@example.com', '0337778899', 'M', '1988-07-22'),
 ('Rasoanaivo', 'Lalao', 'lalao.raso@example.com', '0341234567', 'F', '1995-11-30'),
-('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M', '1985-05-10');
+('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M', '1985-05-10'),
+('Rabe', 'Tiana', 'tiana.rabe@example.com', '0321111111', 'M', '1991-02-10'),
+('Rasoanaivo', 'Hery', 'hery.raso@example.com', '0322222222', 'M', '1989-05-20'),
+('Andrianarisoa', 'Fanja', 'fanja.andria@example.com', '0343333333', 'F', '1993-07-15'),
+('Rakotomalala', 'Zo', 'zo.rakoto@example.com', '0344444444', 'M', '1990-09-25'),
+('Randrianarivelo', 'Mamy', 'mamy.randria@example.com', '0335555555', 'M', '1987-12-01'),
+('Ratsimbazafy', 'Niry', 'niry.ratsimba@example.com', '0336666666', 'F', '1994-03-18'),
+('Raharison', 'Lova', 'lova.rahar@example.com', '0347777777', 'F', '1992-06-22'),
+('Ravelo', 'Tovo', 'tovo.ravelo@example.com', '0348888888', 'M', '1988-11-30'),
+('Rakotoarisoa', 'Feno', 'feno.rakoto@example.com', '0329999999', 'M', '1995-04-05'),
+('Ramanandraibe', 'Sitraka', 'sitraka.raman@example.com', '0331010101', 'M', '1991-08-12'),
+('Rajaonarivelo', 'Hanitra', 'hanitra.rajao@example.com', '0342020202', 'F', '1993-10-17'),
+('Ratsimandresy', 'Tsiory', 'tsiory.ratsim@example.com', '0323030303', 'M', '1986-01-23'),
+('Raharimalala', 'Malala', 'malala.rahari@example.com', '0334040404', 'F', '1994-05-29'),
+('Randriamampionona', 'Fetra', 'fetra.randri@example.com', '0345050505', 'M', '1992-09-09'),
+('Ravelomanana', 'Nomena', 'nomena.ravelo@example.com', '0326060606', 'F', '1990-12-31');
+-- CV (id_candidat de 1 à 20, id_profil de 1 à 10, photo fictive)
+INSERT INTO cv (id_candidat, id_profil, photo) VALUES
+(1, 1, 'photo1.jpg'),
+(2, 2, 'photo2.jpg'),
+(3, 3, 'photo3.jpg'),
+(4, 4, 'photo4.jpg'),
+(5, 5, 'photo5.jpg'),
+(6, 6, 'photo6.jpg'),
+(7, 7, 'photo7.jpg'),
+(8, 8, 'photo8.jpg'),
+(9, 9, 'photo9.jpg'),
+(10, 10, 'photo10.jpg'),
+(11, 1, 'photo11.jpg'),
+(12, 2, 'photo12.jpg'),
+(13, 3, 'photo13.jpg'),
+(14, 4, 'photo14.jpg'),
+(15, 5, 'photo15.jpg'),
+(16, 6, 'photo16.jpg'),
+(17, 7, 'photo17.jpg'),
+(18, 8, 'photo18.jpg'),
+(19, 9, 'photo19.jpg'),
+(20, 10, 'photo20.jpg');
+-- detail_cv (ville, diplome, competence pour chaque CV)
+INSERT INTO detail_cv (id_cv, type, id_item) VALUES
+(1, 'ville', 1), (1, 'diplome', 1), (1, 'diplome', 2), (1, 'competence', 1), (1, 'competence', 2),
+(2, 'ville', 2), (2, 'diplome', 2), (2, 'diplome', 3), (2, 'competence', 2), (2, 'competence', 3),
+(3, 'ville', 3), (3, 'diplome', 3), (3, 'diplome', 4), (3, 'competence', 3), (3, 'competence', 4),
+(4, 'ville', 4), (4, 'diplome', 4), (4, 'diplome', 1), (4, 'competence', 4), (4, 'competence', 5),
+(5, 'ville', 5), (5, 'diplome', 1), (5, 'diplome', 2), (5, 'competence', 5), (5, 'competence', 6),
+(6, 'ville', 6), (6, 'diplome', 2), (6, 'diplome', 3), (6, 'competence', 6), (6, 'competence', 7),
+(7, 'ville', 1), (7, 'diplome', 3), (7, 'diplome', 4), (7, 'competence', 7), (7, 'competence', 8),
+(8, 'ville', 2), (8, 'diplome', 4), (8, 'diplome', 1), (8, 'competence', 8), (8, 'competence', 9),
+(9, 'ville', 3), (9, 'diplome', 1), (9, 'diplome', 2), (9, 'competence', 9), (9, 'competence', 10),
+(10, 'ville', 4), (10, 'diplome', 2), (10, 'diplome', 3), (10, 'competence', 10), (10, 'competence', 11),
+(11, 'ville', 5), (11, 'diplome', 3), (11, 'diplome', 4), (11, 'competence', 11), (11, 'competence', 12),
+(12, 'ville', 6), (12, 'diplome', 4), (12, 'diplome', 1), (12, 'competence', 12), (12, 'competence', 13),
+(13, 'ville', 1), (13, 'diplome', 1), (13, 'diplome', 2), (13, 'competence', 13), (13, 'competence', 14),
+(14, 'ville', 2), (14, 'diplome', 2), (14, 'diplome', 3), (14, 'competence', 14), (14, 'competence', 15),
+(15, 'ville', 3), (15, 'diplome', 3), (15, 'diplome', 4), (15, 'competence', 15), (15, 'competence', 1),
+(16, 'ville', 4), (16, 'diplome', 4), (16, 'diplome', 1), (16, 'competence', 1), (16, 'competence', 2),
+(17, 'ville', 5), (17, 'diplome', 1), (17, 'diplome', 2), (17, 'competence', 2), (17, 'competence', 3),
+(18, 'ville', 6), (18, 'diplome', 2), (18, 'diplome', 3), (18, 'competence', 3), (18, 'competence', 4),
+(19, 'ville', 1), (19, 'diplome', 3), (19, 'diplome', 4), (19, 'competence', 4), (19, 'competence', 5),
+(20, 'ville', 2), (20, 'diplome', 4), (20, 'diplome', 1), (20, 'competence', 5), (20, 'competence', 6),
+(1, 'competence', 3), (1, 'competence', 4), (2, 'competence', 4), (2, 'competence', 5), (3, 'competence', 5), (3, 'competence', 6),
+(4, 'competence', 6), (4, 'competence', 7), (5, 'competence', 7), (5, 'competence', 8), (6, 'competence', 8), (6, 'competence', 9),
+(7, 'competence', 9), (7, 'competence', 10), (8, 'competence', 10), (8, 'competence', 11), (9, 'competence', 11), (9, 'competence', 12),
+(10, 'competence', 12), (10, 'competence', 13), (11, 'competence', 13), (11, 'competence', 14), (12, 'competence', 14), (12, 'competence', 15),
+(13, 'competence', 15), (13, 'competence', 1), (14, 'competence', 1), (14, 'competence', 2), (15, 'competence', 2), (15, 'competence', 3),
+(16, 'competence', 3), (16, 'competence', 4), (17, 'competence', 4), (17, 'competence', 5), (18, 'competence', 5), (18, 'competence', 6),
+(19, 'competence', 6), (19, 'competence', 7), (20, 'competence', 7), (20, 'competence', 8);
 
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
 (1, 'Rakoto', 'Jean', 'jean.rakoto@entreprise.com', '0321112233', 'M', '2023-01-10'),
