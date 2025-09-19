@@ -114,24 +114,18 @@
                                                 <h6>Situation</h6>
                                                 <ul class="list-unstyled mb-0">
                                 <li class="d-inline-block me-2 mb-1">
+                                </li><li class="d-inline-block me-2 mb-1">
                                     <div class="form-check">
                                         <div class="checkbox">
                                             <input type="checkbox" id="checkbox1" class="form-check-input" checked>
-                                            <label for="checkbox1">Touch me!</label>
+                                            <label for="checkbox1">Eligible</label>
                                         </div>
                                     </div>
                                 </li><li class="d-inline-block me-2 mb-1">
                                     <div class="form-check">
                                         <div class="checkbox">
                                             <input type="checkbox" id="checkbox1" class="form-check-input" checked>
-                                            <label for="checkbox1">Touch me!</label>
-                                        </div>
-                                    </div>
-                                </li><li class="d-inline-block me-2 mb-1">
-                                    <div class="form-check">
-                                        <div class="checkbox">
-                                            <input type="checkbox" id="checkbox1" class="form-check-input" checked>
-                                            <label for="checkbox1">Touch me!</label>
+                                            <label for="checkbox1">Sous contrat</label>
                                         </div>
                                     </div>
                                 </li>
@@ -194,32 +188,40 @@
                 <section class="section">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title">Candidats trouvés selon filtre</h5>
+                            <h5 class="card-title">Tous les candidats</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
+                                            <th>ID</th>
                                             <th>Nom</th>
                                             <th>Prénom</th>
-                                            <th>Age</th>
-                                            <th>Profil</th>
+                                            <th>Email</th>
+                                            <th>Téléphone</th>
+                                            <th>Genre</th>
+                                            <th>Date de naissance</th>
+                                            <th>Date candidature</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php if (isset($candidats) && is_array($candidats)): ?>
                                             <?php foreach ($candidats as $candidat): ?>
                                                 <tr>
+                                                    <td><?= htmlspecialchars($candidat['id_candidat']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['nom']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['prenom']) ?></td>
-                                                    <td><?= isset($candidat['age']) ? htmlspecialchars($candidat['age']) : '-' ?></td>
-                                                    <td><?= isset($candidat['profil']) ? htmlspecialchars($candidat['profil']) : '-' ?></td>
+                                                    <td><?= htmlspecialchars($candidat['email']) ?></td>
+                                                    <td><?= htmlspecialchars($candidat['telephone']) ?></td>
+                                                    <td><?= htmlspecialchars($candidat['genre']) ?></td>
+                                                    <td><?= htmlspecialchars($candidat['date_naissance']) ?></td>
+                                                    <td><?= htmlspecialchars($candidat['date_candidature']) ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <tr>
-                                                <td colspan="4">Aucun candidat trouvé.</td>
+                                                <td colspan="8">Aucun candidat trouvé.</td>
                                             </tr>
                                         <?php endif; ?>
                                     </tbody>

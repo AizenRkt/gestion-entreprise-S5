@@ -91,12 +91,12 @@ INSERT INTO detail_annonce (id_annonce, type, id_item) VALUES
 -- ======================
 -- candidat
 -- ======================
-INSERT INTO candidat (nom, prenom, email, telephone, genre) VALUES
-('Rakoto', 'Jean', 'jean.rakoto@example.com', '0321112233', 'M'),
-('Randria', 'Marie', 'marie.randria@example.com', '0324445566', 'F'),
-('Ando', 'Paul', 'paul.ando@example.com', '0337778899', 'M'),
-('Rasoanaivo', 'Lalao', 'lalao.raso@example.com', '0341234567', 'F'),
-('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M');
+INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
+('Rakoto', 'Jean', 'jean.rakoto@example.com', '0321112233', 'M', '1990-01-01'),
+('Randria', 'Marie', 'marie.randria@example.com', '0324445566', 'F', '1992-03-15'),
+('Ando', 'Paul', 'paul.ando@example.com', '0337778899', 'M', '1988-07-22'),
+('Rasoanaivo', 'Lalao', 'lalao.raso@example.com', '0341234567', 'F', '1995-11-30'),
+('Raharinirina', 'Eric', 'eric.rahar@example.com', '0349876543', 'M', '1985-05-10');
 
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
 (1, 'Rakoto', 'Jean', 'jean.rakoto@entreprise.com', '0321112233', 'M', '2023-01-10'),
