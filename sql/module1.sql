@@ -74,7 +74,6 @@ CREATE TABLE poste_role (
     id_poste INT NOT NULL,
     id_role INT NOT NULL,
     date_role DATE NOT NULL,
-    FOREIGN KEY (id_poste) REFERENCES poste(id_poste),
     FOREIGN KEY (id_role) REFERENCES role(id_role)
 );
 
@@ -175,10 +174,12 @@ CREATE TABLE postulance (
 CREATE TABLE qcm (
     id_qcm INT AUTO_INCREMENT PRIMARY KEY,
     id_annonce INT NOT NULL,
+    id_profil INT NOT NULL,
     titre VARCHAR(255) NOT NULL,
     note_max DECIMAL(5,2) NOT NULL,  
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
+    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
 );
 
 CREATE TABLE question (
