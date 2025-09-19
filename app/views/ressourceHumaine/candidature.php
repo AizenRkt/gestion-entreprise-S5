@@ -127,11 +127,11 @@
                                             <div class="col-md-6">
                                                 <label class="form-label fw-bold">Genre</label>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="genre" id="homme" value="Homme" required>
+                                                    <input class="form-check-input" type="radio" name="genre" id="homme" value="Masculin" required>
                                                     <label class="form-check-label" for="homme">Homme</label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="genre" id="femme" value="Femme" required>
+                                                    <input class="form-check-input" type="radio" name="genre" id="femme" value="Femminin" required>
                                                     <label class="form-check-label" for="femme">Femme</label>
                                                 </div>
                                             </div>

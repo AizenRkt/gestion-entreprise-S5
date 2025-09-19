@@ -200,6 +200,7 @@
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
+                                            <th>Photo</th>
                                             <th>Nom</th>
                                             <th>Prénom</th>
                                             <th>Age</th>
@@ -223,6 +224,13 @@
                                                         $age = $now->diff($dob)->y;
                                                     }
                                                     ?>
+                                                    <td>
+                                                        <?php if (!empty($photos[$candidat['id_candidat']])): ?>
+                                                            <div class="avatar bg-warning me-3">
+                                                                <img src="<?= Flight::base() ?>/public/uploads/photos/<?=htmlspecialchars($photos[$candidat['id_candidat']]) ?>" alt="" srcset="">
+                                                            </div>                                                            
+                                                        <?php endif; ?>
+                                                    </td>
                                                     <td><?= htmlspecialchars($candidat['nom']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['prenom']) ?></td>
                                                     <td><?= htmlspecialchars($age) ?></td>

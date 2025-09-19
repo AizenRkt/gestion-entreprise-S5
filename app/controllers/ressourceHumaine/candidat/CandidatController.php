@@ -10,9 +10,23 @@ class CandidatController {
     // Filtrage dynamique des candidats pour le back office
     public function filter() {
         $filters = Flight::request()->data->getData();
+        // Correction pour compatibilité avec le modèle
+        if (isset($filters['diplome']) && is_string($filters['diplome'])) {
+            $filters['diplome'] = (int)$filters['diplome'];
+        }
+        if (isset($filters['ville']) && is_string($filters['ville'])) {
+            $filters['ville'] = (int)$filters['ville'];
+        }
+        if (isset($filters['competences']) && !is_array($filters['competences'])) {
+            $filters['competences'] = [$filters['competences']];
+        }
+        if (isset($filters['profils']) && !is_array($filters['profils'])) {
+            $filters['profils'] = [$filters['profils']];
+        }
         $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
         $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
         $candidatModel = new CandidatModel();
+        $cvModel = new \app\models\ressourceHumaine\cv\CvModel();
         $db = \Flight::db();
         $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
         $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
@@ -21,12 +35,21 @@ class CandidatController {
         $competences = $competenceModel->getAll();
         $candidats = $candidatModel->getFiltered($filters);
 
+        // Récupérer les photos des candidats via CV
+        $photos = [];
+        foreach ($candidats as $cand) {
+            $stmt = $db->prepare('SELECT photo FROM cv WHERE id_candidat = ? ORDER BY id_cv DESC LIMIT 1');
+            $stmt->execute([$cand['id_candidat']]);
+            $photos[$cand['id_candidat']] = $stmt->fetchColumn();
+        }
+
         Flight::render('ressourceHumaine/back/cv', [
             'diplomes' => $diplomes,
             'competences' => $competences,
             'villes' => $villes,
             'profils' => $profils,
             'candidats' => $candidats,
+            'photos' => $photos,
             'filters' => $filters
         ]);
     }
@@ -87,7 +110,7 @@ class CandidatController {
 
         // Correction genre (H/F)
         $genre = strtoupper(substr($data['genre'] ?? '', 0, 1));
-        if ($genre !== 'H' && $genre !== 'F') {
+        if ($genre !== 'M' && $genre !== 'F') {
             $genre = null;
         }
 
@@ -199,15 +222,25 @@ class CandidatController {
         $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
         $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
 
+        
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
         $candidats = $candidatModel->getAll();
+
+        $photos = [];
+        foreach ($candidats as $cand) {
+            $stmt = $db->prepare('SELECT photo FROM cv WHERE id_candidat = ? ORDER BY id_cv DESC LIMIT 1');
+            $stmt->execute([$cand['id_candidat']]);
+            $photos[$cand['id_candidat']] = $stmt->fetchColumn();
+        }
+
 
         Flight::render('ressourceHumaine/back/cv', [
             'diplomes' => $diplomes,
             'competences' => $competences,
             'villes' => $villes,
             'profils' => $profils,
+            'photos' => $photos,
             'candidats' => $candidats
         ]);
     }
