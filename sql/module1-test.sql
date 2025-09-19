@@ -190,3 +190,9 @@ WHERE q.id_question = 2;
         est_correcte
     }
 }
+
+SELECT u.* FROM user u
+            JOIN employe_statut es ON u.id_employe = es.id_employe
+            WHERE u.username = 'jrakoto' AND es.activite = 1
+            ORDER BY es.date_modification DESC
+            LIMIT 1
