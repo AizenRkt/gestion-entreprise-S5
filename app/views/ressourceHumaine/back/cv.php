@@ -205,9 +205,7 @@
                                             <th>Prénom</th>
                                             <th>Age</th>
                                             <th>Email</th>
-                                            <th>Téléphone</th>
                                             <th>Genre</th>
-                                            <th>Date de naissance</th>
                                             <th>Date candidature</th>
                                         </tr>
                                     </thead>
@@ -235,9 +233,7 @@
                                                     <td><?= htmlspecialchars($candidat['prenom']) ?></td>
                                                     <td><?= htmlspecialchars($age) ?></td>
                                                     <td><?= htmlspecialchars($candidat['email']) ?></td>
-                                                    <td><?= htmlspecialchars($candidat['telephone']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['genre']) ?></td>
-                                                    <td><?= htmlspecialchars($candidat['date_naissance']) ?></td>
                                                     <td><?= htmlspecialchars($candidat['date_candidature']) ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
