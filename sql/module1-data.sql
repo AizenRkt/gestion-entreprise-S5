@@ -1,5 +1,6 @@
 
 -- ======================
+
 -- ======================
 -- ======================
 -- Candidats, CV et detail_cv (ensemble à partir de l'id 1)
@@ -235,3 +236,32 @@ INSERT INTO competence (nom) VALUES
 ('Analyse de données'),
 ('Conduite'),
 ('Réseaux informatiques');
+
+
+-- ======================
+-- type_resultat_candidat
+-- ======================
+INSERT INTO type_resultat_candidat (valeur) VALUES
+('refus'),
+('attente');
+
+INSERT INTO resultat_candidat (id_candidat, id_type_resultat_candidat, date) VALUES
+(1, 1, '2025-09-20'),
+(2, 2, '2025-09-20'),
+(3, 1, '2025-09-20'),
+(4, 2, '2025-09-20'),
+(5, 1, '2025-09-20'),
+(6, 2, '2025-09-20'),
+(7, 1, '2025-09-20'),
+(8, 2, '2025-09-20'),
+(9, 1, '2025-09-20'),
+(10, 2, '2025-09-20');
+-- ======================
+-- contrat_essai pour 5 candidats (parmi ceux de resultat_candidat)
+-- ======================
+INSERT INTO contrat_essai (id_candidat, debut, fin) VALUES
+(2, '2025-09-21', '2025-12-21'),
+(4, '2025-09-22', '2025-12-22'),
+(6, '2025-09-23', '2025-12-23'),
+(8, '2025-09-24', '2025-12-24'),
+(10, '2025-09-25', '2025-12-25');

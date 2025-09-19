@@ -128,7 +128,7 @@
                                                             <div class="form-check">
                                                                 <div class="checkbox">
                                                                     <input type="checkbox" class="form-check-input" id="checkbox2">
-                                                                    <label for="checkbox2">sous contrat</label>
+                                                                    <label for="checkbox2">sous-contrat</label>
                                                                 </div>
                                                             </div>
                                                         </li>
