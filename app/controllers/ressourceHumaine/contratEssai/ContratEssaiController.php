@@ -57,12 +57,13 @@ class ContratEssaiController
                     e.note_entretien,
                     e.evaluation,
                     e.commentaire,
-                    ce.contrat_accepte,
-                    ce.date_acceptation
+                    cea.contrat_accepte,
+                    cea.date_acceptation,
+                    ceg.date_generation
                 FROM candidat c
                 INNER JOIN entretien_candidat e ON c.id_candidat = e.id_candidat
                 LEFT JOIN contrat_essai_acceptation cea ON c.id_candidat = cea.id_candidat
-                LEFT JOIN contrat_essai ce ON c.id_candidat = ce.id_candidat
+                LEFT JOIN contrat_essai_generation ceg ON c.id_candidat = ceg.id_candidat
                 WHERE e.evaluation = 'recommande'
                 AND e.note_entretien IS NOT NULL
                 ORDER BY e.date DESC
@@ -311,6 +312,120 @@ class ContratEssaiController
             }
         } catch (\PDOException $e) {
             error_log("Erreur dans marquerContratGenere: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * API pour récupérer les candidats recommandés (format JSON)
+     */
+    public function getCandidatsRecommandesAPI()
+    {
+        try {
+            $candidats = $this->getCandidatsRecommandes();
+            Flight::json([
+                'success' => true,
+                'data' => $candidats,
+                'total' => count($candidats)
+            ]);
+        } catch (\Exception $e) {
+            error_log("Erreur dans getCandidatsRecommandesAPI: " . $e->getMessage());
+            Flight::json(['error' => 'Une erreur est survenue'], 500);
+        }
+    }
+
+    /**
+     * Créer un contrat d'essai officiel après validation
+     */
+    public function creerContratOfficiel()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            try {
+                $id_candidat = $_POST['id_candidat'] ?? null;
+                $date_debut = $_POST['date_debut'] ?? date('Y-m-d');
+                
+                if (!$id_candidat) {
+                    Flight::json(['error' => 'ID candidat manquant'], 400);
+                    return;
+                }
+
+                // Vérifier que le candidat a accepté le contrat
+                if (!$this->contratEssaiModel->candidatAAccepteContrat($id_candidat)) {
+                    Flight::json(['error' => 'Le candidat doit d\'abord accepter le contrat'], 400);
+                    return;
+                }
+
+                // Calculer la date de fin (3 mois)
+                $date_fin = date('Y-m-d', strtotime($date_debut . ' +3 months'));
+
+                // Créer le contrat officiel
+                $result = $this->contratEssaiModel->creerContratEssai($id_candidat, $date_debut, $date_fin);
+
+                if ($result['success']) {
+                    // Optionnel: créer un employé à partir du candidat
+                    $this->creerEmployeDepuisCandidat($id_candidat);
+                    
+                    Flight::json([
+                        'success' => true,
+                        'message' => $result['message'],
+                        'id_contrat' => $result['id_contrat']
+                    ]);
+                } else {
+                    Flight::json(['error' => $result['message']], 400);
+                }
+
+            } catch (\Exception $e) {
+                error_log("Erreur dans creerContratOfficiel: " . $e->getMessage());
+                Flight::json(['error' => 'Une erreur est survenue lors de la création du contrat'], 500);
+            }
+        } else {
+            Flight::json(['error' => 'Méthode non autorisée'], 405);
+        }
+    }
+
+    /**
+     * Créer un employé à partir d'un candidat
+     */
+    private function creerEmployeDepuisCandidat($id_candidat)
+    {
+        try {
+            $db = Flight::db();
+            
+            // Récupérer les informations du candidat
+            $stmt = $db->prepare("SELECT * FROM candidat WHERE id_candidat = ?");
+            $stmt->execute([$id_candidat]);
+            $candidat = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if ($candidat) {
+                // Vérifier qu'un employé n'existe pas déjà
+                $stmt = $db->prepare("SELECT id_employe FROM employe WHERE id_candidat = ?");
+                $stmt->execute([$id_candidat]);
+                $exists = $stmt->fetch();
+
+                if (!$exists) {
+                    // Créer le nouvel employé
+                    $stmt = $db->prepare("
+                        INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ");
+                    $stmt->execute([
+                        $id_candidat,
+                        $candidat['nom'],
+                        $candidat['prenom'],
+                        $candidat['email'],
+                        $candidat['telephone'],
+                        $candidat['genre'],
+                        date('Y-m-d')
+                    ]);
+
+                    return ['success' => true, 'id_employe' => $db->lastInsertId()];
+                }
+            }
+
+            return ['success' => false, 'message' => 'Candidat introuvable ou employé existant'];
+
+        } catch (\PDOException $e) {
+            error_log("Erreur dans creerEmployeDepuisCandidat: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de la création de l\'employé'];
         }
     }
 

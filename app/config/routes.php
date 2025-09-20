@@ -5,6 +5,7 @@ use app\controllers\ressourceHumaine\qcm\QcmController;
 use app\controllers\ressourceHumaine\candidat\CandidatController;
 use app\controllers\ressourceHumaine\AuthController;
 use app\controllers\ressourceHumaine\entretien\entretienController;
+use app\controllers\ressourceHumaine\contratEssai\ContratEssaiController;
 
 //importation liée flight
 use flight\Engine;
@@ -27,7 +28,7 @@ $router->get('/candidature', [ $Controller, 'candidature' ]);
 $router->get('/planning', [ $Controller, 'planning' ]);
 $router->get('/planning2', [ $Controller, 'planning2' ]);
 $router->get('/backOffice',[$Controller,'backOffice']);
-$router->get('/contratCrea',[$Controller,'contratEssai']);
+
 /* Authentication Routes */
 $AuthController = new AuthController();
 $qcmController = new QcmController();
@@ -39,7 +40,7 @@ $router->post('/auth/login', [ $AuthController, 'authVerif' ]);
 $router->get('/auth/sign', [ $AuthController, 'sign' ]);
 $router->post('/auth/sign', [ $AuthController, 'authInscription' ]);
 
-/* Entretien Routes - NOUVELLES ROUTES */
+/* Entretien Routes */
 $entretienController = new entretienController();
 
 $router->get('/organiserEntretien', [ $entretienController, 'orgaEntretien' ]);
@@ -51,5 +52,23 @@ $router->post('/entretien/supprimer', [ $entretienController, 'supprimerEntretie
 $router->get('/entretien/api/planning', [ $entretienController, 'getEntretiensPlanning' ]);
 $router->post('/entretien/noter', [ $entretienController, 'noterEntretien' ]);
 $router->get('/entretien/details', [ $entretienController, 'getEntretienDetails' ]);
+
+/* Contrat d'Essai Routes - NOUVELLES ROUTES */
+$contratEssaiController = new ContratEssaiController();
+
+// Page principale des contrats d'essai
+$router->get('/contratCrea', [ $contratEssaiController, 'contratEssai' ]);
+
+// Accepter un contrat (AJAX)
+$router->post('/contrat/accepter', [ $contratEssaiController, 'accepterContrat' ]);
+
+// Générer le PDF du contrat
+$router->get('/contrat/generate/@id', [ $contratEssaiController, 'generatePdf' ]);
+
+// API pour récupérer les candidats recommandés
+$router->get('/api/candidats/recommandes', [ $contratEssaiController, 'getCandidatsRecommandesAPI' ]);
+
+// Créer un contrat d'essai officiel
+$router->post('/contrat/creer-officiel', [ $contratEssaiController, 'creerContratOfficiel' ]);
 
 ?>

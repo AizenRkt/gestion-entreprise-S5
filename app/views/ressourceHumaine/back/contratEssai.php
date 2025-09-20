@@ -80,6 +80,26 @@
             padding: 40px;
             color: #6c757d;
         }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -187,17 +207,40 @@
 let currentCandidatId = null;
 
 function generateContract(candidatId) {
-    currentCandidatId = candidatId;
+    const button = document.getElementById(`btn-contract-${candidatId}`);
+    const checkbox = document.getElementById(`accept-${candidatId}`);
     
     // Vérifier si le contrat a été accepté
-    const checkbox = document.getElementById(`accept-${candidatId}`);
     if (!checkbox.checked) {
-        alert('Le candidat doit d\'abord accepter les termes du contrat avant de pouvoir le générer.');
+        showAlert('Le candidat doit d\'abord accepter les termes du contrat avant de pouvoir le générer.', 'error');
         return;
     }
     
-    // Générer le PDF directement
-    window.open(`<?= Flight::base() ?>/contrat/generate/${candidatId}`, '_blank');
+    // Afficher un indicateur de chargement
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="loading-spinner"></span> Génération...';
+    button.disabled = true;
+    
+    // Générer le PDF
+    const newWindow = window.open(`<?= Flight::base() ?>/contrat/generate/${candidatId}`, '_blank');
+    
+    // Restaurer le bouton après un délai
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        // Marquer comme généré si la fenêtre s'est ouverte correctement
+        if (newWindow && !newWindow.closed) {
+            showAlert('Contrat généré avec succès', 'success');
+            
+            // Optionnel: mettre à jour l'interface pour montrer que le contrat a été généré
+            setTimeout(() => {
+                button.innerHTML = '<i class="bi bi-check-circle"></i> Contrat généré';
+                button.classList.add('btn-success');
+                button.classList.remove('btn-contract');
+            }, 1000);
+        }
+    }, 2000);
 }
 
 function toggleContractAcceptance(candidatId) {
