@@ -4,6 +4,7 @@ namespace app\controllers\ressourceHumaine\qcm;
 
 use app\models\ressourceHumaine\qcm\QcmModel;
 use app\models\ressourceHumaine\qcm\QuestionModel;
+use app\models\ressourceHumaine\ProfilModel;
 use Exception;
 
 use Flight;
@@ -23,7 +24,8 @@ class QcmController {
     }
 
     public function createQcm() {
-        Flight::render('ressourceHumaine/back/qcm/qcmCreate');
+        $profil = ProfilModel::getAll();
+        Flight::render('ressourceHumaine/back/qcm/qcmCreate', ['profil' => $profil]);
     }
 
     public function createQuestion() {
@@ -144,6 +146,57 @@ class QcmController {
 
         } catch (Exception $e) {
             Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public static function searchQuestion() {
+        try {
+            $term = Flight::request()->query['q'];
+            if (empty($term)) {
+                Flight::json(['success' => false, 'message' => 'Veuillez entrer un terme de recherche'], 400);
+                return;
+            }
+
+            $results = QuestionModel::search($term);
+
+            Flight::json([
+                'success' => true,
+                'data' => $results
+            ]);
+        } catch (Exception $e) {
+            Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function createQcmApi() {
+        $data = json_decode(Flight::request()->getBody(), true);
+
+        $id_profil = intval($data['id_profil'] ?? 0);
+        $titre = trim($data['titre'] ?? '');
+        $note_max = floatval($data['note_max'] ?? 10);
+        $questions = $data['questions'] ?? []; 
+
+        if (!$id_profil || !$titre || empty($questions)) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Profil, titre et au moins une question sont requis.'
+            ]);
+            return;
+        }
+
+        try {
+            $id_qcm = QcmModel::create($id_profil, $titre, $note_max, $questions);
+
+            Flight::json([
+                'success' => true,
+                'message' => 'QCM créé avec succès',
+                'id_qcm' => $id_qcm
+            ]);
+        } catch (Exception $e) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Erreur lors de la création du QCM : ' . $e->getMessage()
+            ]);
         }
     }
 

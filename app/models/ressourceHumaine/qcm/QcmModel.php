@@ -2,6 +2,7 @@
 namespace app\models\ressourceHumaine\qcm;
 use Flight;
 use PDO;
+use Exception;
 
 class QcmModel {
 
@@ -35,7 +36,7 @@ class QcmModel {
             $db = Flight::db();
 
             $sql = "
-                SELECT q.id_question, q.enonce, r.id_reponse, r.texte AS texte_reponse
+                SELECT q.id_question, q.enonce, r.id_reponse, r.texte AS texte_reponse, dq.bareme_question AS bareme
                 FROM detail_qcm dq
                 JOIN question q ON dq.id_question = q.id_question
                 JOIN reponse r ON r.id_question = q.id_question
@@ -55,6 +56,7 @@ class QcmModel {
                     $questions[$id_question] = [
                         'id_question' => $id_question,
                         'enonce' => $row['enonce'],
+                        'bareme' => $row['bareme'],
                         'reponses' => []
                     ];
                 }
@@ -96,5 +98,30 @@ class QcmModel {
             ], 500);
         }
     }
+
+    public static function create($id_profil, $titre, $note_max, $questions) {
+        $db = Flight::db();
+        $db->beginTransaction();
+
+        try {
+            $stmt = $db->prepare("INSERT INTO qcm (id_profil, titre, note_max) VALUES (?, ?, ?)");
+            $stmt->execute([$id_profil, $titre, $note_max]);
+            $id_qcm = $db->lastInsertId();
+
+            $stmtDetail = $db->prepare("INSERT INTO detail_qcm (id_qcm, id_question, bareme_question) VALUES (?, ?, ?)");
+            foreach ($questions as $q) {
+                $stmtDetail->execute([$id_qcm, $q['id_question'], $q['bareme']]);
+            }
+
+            $db->commit();
+            return $id_qcm; 
+
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+
 
 }

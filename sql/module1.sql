@@ -174,12 +174,10 @@ CREATE TABLE postulance (
 -- ======================
 CREATE TABLE qcm (
     id_qcm INT AUTO_INCREMENT PRIMARY KEY,
-    id_annonce INT NOT NULL,
     id_profil INT NOT NULL,
     titre VARCHAR(255) NOT NULL,
     note_max DECIMAL(5,2) NOT NULL,  
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
 );
 
@@ -202,8 +200,7 @@ CREATE TABLE detail_qcm (
     id_question INT NOT NULL,
     bareme_question DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm) ON DELETE CASCADE,
-    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE,
-    UNIQUE KEY unique_qcm_question (id_qcm, id_question)
+    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE
 );
 
 -- ======================

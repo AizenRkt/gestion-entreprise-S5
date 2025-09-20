@@ -144,4 +144,45 @@ class QuestionModel {
 
         return $idQuestion;
     }
+
+    public static function search($term) {
+    $db = Flight::db();
+
+    $sql = "
+        SELECT 
+            q.id_question,
+            q.enonce AS question,
+            r.id_reponse,
+            r.texte AS reponse,
+            r.est_correcte
+        FROM question q
+        JOIN reponse r ON q.id_question = r.id_question
+        WHERE q.enonce LIKE :term OR r.texte LIKE :term
+        ORDER BY q.id_question, r.id_reponse
+    ";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute([':term' => '%' . $term . '%']);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $questions = [];
+    foreach ($rows as $row) {
+        $id = $row['id_question'];
+        if (!isset($questions[$id])) {
+            $questions[$id] = [
+                'id_question' => $id,
+                'enonce' => $row['question'],
+                'reponses' => []
+            ];
+        }
+        $questions[$id]['reponses'][] = [
+            'id_reponse' => $row['id_reponse'],
+            'reponse' => $row['reponse'],
+            'est_correcte' => (bool)$row['est_correcte']
+        ];
+    }
+
+    return array_values($questions);
+    }
+
 }
