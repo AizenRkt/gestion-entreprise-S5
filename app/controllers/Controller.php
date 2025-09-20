@@ -41,8 +41,8 @@ class Controller {
         Flight::render('ressourceHumaine/candidature');
     }
 
-    public function planning() {
-        Flight::render('ressourceHumaine/back/planning2');
+    public function planne() {
+        Flight::render('ressourceHumaine/planning');
     }
 
     public function orgaEntretien() {
