@@ -265,7 +265,5 @@ INSERT INTO resultat_candidat (id_candidat, id_type_resultat_candidat, date) VAL
 INSERT INTO contrat_essai (id_candidat, debut, fin) VALUES
 (2, '2025-09-21', '2025-12-21'),
 (4, '2025-09-22', '2025-12-22'),
-(6, '2025-09-23', '2025-12-23'),
-(8, '2025-09-24', '2025-12-24'),
-(10, '2025-09-25', '2025-12-25');
+(6, '2025-09-23', '2025-12-23');
 -- On relie les rôles aux postes (exemple :
