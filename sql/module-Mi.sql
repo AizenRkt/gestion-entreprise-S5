@@ -283,3 +283,9 @@ CREATE TABLE renouvellement_essai (
 );
 
 ALTER TABLE entretien_candidat ADD COLUMN duree INT NULL AFTER id_user;
+
+ALTER TABLE entretien_candidat 
+ADD COLUMN note_entretien DECIMAL(3,1) NULL CHECK (note_entretien >= 0 AND note_entretien <= 10),
+ADD COLUMN evaluation ENUM('recommande', 'reserve', 'refuse') NULL,
+ADD COLUMN commentaire TEXT NULL,
+ADD COLUMN date_evaluation DATETIME NULL;
