@@ -24,42 +24,34 @@ if (isset($_SESSION['user'])) {
         <div id="main" class="layout-horizontal">
             <?= Flight::menuFrontOffice() ?>
 
+            <?php foreach($annonces as $annonce): ?>
             <div class="content-wrapper container">
                 
                 <!-- En-tête -->
                 <div class="page-heading mb-4">
-                    <h2 class="fw-bold">Développeur Full Stack</h2>
-                    <p class="text-muted">CDI · Antananarivo · Publié le 15/09/2025</p>
+                    <h2 class="fw-bold"><?= htmlspecialchars($annonce['titre']) ?></h2>
+                    <p class="text-muted"><?= htmlspecialchars($annonce['ville']) ?>· <?= date('d/m/Y', strtotime($annonce['date_debut'])) ?></p>
                 </div>
-
-                <div class="page-content">
+<div class="col-lg-8 col-md-12">
+                            <div class="page-content">
                     <section class="row">
                         
-                        <!-- Détails annonce -->
                         <div class="col-lg-8 col-md-12">
                             <div class="card mb-4 p-4">
-                                <h5 class="mb-3">Description du poste</h5>
+                                <h5 class="mb-3">Competences requise :</h5>
                                 <p>
-                                    Nous recherchons un développeur Full Stack passionné pour rejoindre notre équipe.
-                                    Vous participerez à la conception, au développement et au déploiement
-                                    d’applications web et mobiles pour nos clients internationaux.
+                                    <?= htmlspecialchars($annonce['competences']) ?>
                                 </p>
 
-                                <h6 class="mt-4">Missions principales :</h6>
-                                <ul>
-                                    <li>Développer et maintenir des applications web modernes.</li>
-                                    <li>Collaborer avec l’équipe design et produit.</li>
-                                    <li>Participer aux revues de code et proposer des améliorations.</li>
-                                    <li>Assurer la qualité et la sécurité des livrables.</li>
-                                </ul>
+                                <h6 class="mt-4">Diplomes necessaires :</h6>
+                                <p>
+                                    <?= htmlspecialchars($annonce['diplomes']) ?>
+                                </p>
 
-                                <h6 class="mt-4">Profil recherché :</h6>
-                                <ul>
-                                    <li>Expérience en développement web (JavaScript, PHP, ou équivalent).</li>
-                                    <li>Connaissance des frameworks modernes (React, Laravel, etc.).</li>
-                                    <li>Bon esprit d’équipe et capacité d’adaptation.</li>
-                                    <li>Maîtrise du français, l’anglais est un plus.</li>
-                                </ul>
+                                <h6 class="mt-4">Qualite recherche :</h6>
+                                <p>
+                                    <?= htmlspecialchars($annonce['qualite']) ?>
+                                </p>
                             </div>
                         </div>
 
@@ -89,6 +81,7 @@ if (isset($_SESSION['user'])) {
                 </div>
 
             </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
