@@ -6,12 +6,10 @@ CREATE TABLE profil (
 
 CREATE TABLE qcm (
     id_qcm INT AUTO_INCREMENT PRIMARY KEY,
-    id_annonce INT NOT NULL,
     id_profil INT NOT NULL,
     titre VARCHAR(255) NOT NULL,
     note_max DECIMAL(5,2) NOT NULL,  
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
 );
 
@@ -34,8 +32,7 @@ CREATE TABLE detail_qcm (
     id_question INT NOT NULL,
     bareme_question DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm) ON DELETE CASCADE,
-    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE,
-    UNIQUE KEY unique_qcm_question (id_qcm, id_question)
+    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE
 );
 
 -- data
@@ -125,17 +122,6 @@ VALUES (:id_qcm, :id_question, :bareme_question);
 
 
 -- request
-SELECT q.id_qcm, q.titre, q.note_max, q.date_creation -- getById (annonce)
-FROM qcm q
-JOIN annonce a ON q.id_annonce = a.id_annonce
-WHERE a.id_annonce = :id_annonce;
-
-SELECT q.id_qcm, q.titre, q.note_max, q.date_creation
-FROM qcm q
-JOIN annonce a ON q.id_annonce = a.id_annonce
-WHERE a.id_annonce = 1;
-
-
 SELECT q.id_question, q.enonce, r.id_reponse, r.texte -- QCM (questions + réponses)
 FROM detail_qcm dq
 JOIN question q ON dq.id_question = q.id_question
@@ -191,8 +177,17 @@ WHERE q.id_question = 2;
     }
 }
 
-SELECT u.* FROM user u
-            JOIN employe_statut es ON u.id_employe = es.id_employe
-            WHERE u.username = 'jrakoto' AND es.activite = 1
-            ORDER BY es.date_modification DESC
-            LIMIT 1
+-- processus de création de qcm
+INSERT INTO qcm (id_profil, titre, note_max) VALUES();
+INSERT INTO detail_qcm (id_qcm, id_question, bareme_question) VALUES();
+
+question : {
+        {
+        id_question : 1
+        bareme : 10
+    }
+        {
+        id_question : 1
+        bareme : 10
+    }
+}
