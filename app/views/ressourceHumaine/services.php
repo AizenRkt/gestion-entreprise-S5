@@ -30,7 +30,6 @@ try {
     die('Erreur de connexion à la base de données : ' . $e->getMessage());
 }
 
-$testPdo = null;
 $app->register('db', $pdoClass, [ $dsn, $config['database']['user'] ?? null, $config['database']['password'] ?? null ]);
 
 // Got google oauth stuff? You could register that here

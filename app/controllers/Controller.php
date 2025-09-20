@@ -38,7 +38,17 @@ class Controller {
     }
 
     public function candidature() {
-        Flight::render('ressourceHumaine/candidature');
+        $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
+        $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
+        $villeModel = new \app\models\ressourceHumaine\ville\VilleModel();
+        $diplomes = $diplomeModel->getAll();
+        $competences = $competenceModel->getAll();
+        $villes = $villeModel->getAll();
+        Flight::render('ressourceHumaine/candidature', [
+            'diplomes' => $diplomes,
+            'competences' => $competences,
+            'villes' => $villes
+        ]);
     }
 
     public function planning() {
@@ -47,7 +57,10 @@ class Controller {
 
     public function orgaEntretien() {
         Flight::render('ressourceHumaine/back/orgaEntretien');
+    }
 
+    public function backOffice(){
+        Flight::render('ui/homeDefLayout');
     }
 
 }

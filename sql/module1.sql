@@ -1,5 +1,6 @@
-DROP DATABASE IF EXISTS gestion_entreprise;
-CREATE DATABASE gestion_entreprise;
+DROP DATABASE if exists gestion_entreprise;
+CREATE DATABASE if not exists gestion_entreprise;
+
 USE gestion_entreprise;
 
 -- ======================
@@ -28,7 +29,7 @@ CREATE TABLE candidat (
     id_candidat INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
+    email VARCHAR(150)  NOT NULL,
     telephone VARCHAR(20),
     genre VARCHAR(1),
     date_naissance DATE,
