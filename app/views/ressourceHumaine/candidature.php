@@ -78,9 +78,20 @@
                         <div class="col-12">
                             <div class="card p-4">
                                 <form action="<?= Flight::base() ?>/candidat/create" method="post" id="cvForm" enctype="multipart/form-data">
-                                    <?php if (isset($_GET['id_annonce'])): ?>
-                                        <input type="hidden" name="id_annonce" value="<?= htmlspecialchars($_GET['id_annonce']) ?>">
-                                    <?php endif; ?>
+                                    <?php
+                                    // Toujours récupérer id_annonce depuis l'URL si présent
+                                    $id_annonce = '';
+                                    if (isset($_GET['id_annonce'])) {
+                                        $id_annonce = $_GET['id_annonce'];
+                                    }
+                                    // Si le paramètre est dans POST (après soumission), le garder aussi
+                                    if (isset($_POST['id_annonce'])) {
+                                        $id_annonce = $_POST['id_annonce'];
+                                    }
+                                    if (!empty($id_annonce)) {
+                                        echo '<input type="hidden" name="id_annonce" value="' . htmlspecialchars($id_annonce) . '">';
+                                    }
+                                    ?>
                                     <!-- ===== Étape 1 : Informations personnelles ===== -->
                                     <div id="step1" class="step-section active">
 

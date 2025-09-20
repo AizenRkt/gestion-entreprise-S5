@@ -165,7 +165,11 @@ class CandidatController
             }
         }
         if ($emailExists) {
-            Flight::redirect('/candidature?success=0&error=mail');
+            $id_annonce_url = '';
+            if (!empty($data['id_annonce'])) {
+                $id_annonce_url = '&id_annonce=' . urlencode($data['id_annonce']);
+            }
+            Flight::redirect('/candidature?success=0&error=mail' . $id_annonce_url);
             return;
         }
 
@@ -240,7 +244,11 @@ class CandidatController
             $detailCvModel->insert($id_cv, 'ville', $id_ville);
         }
 
-        Flight::redirect('/candidature?success=1');
+        $id_annonce_url = '';
+        if (!empty($data['id_annonce'])) {
+            $id_annonce_url = '&id_annonce=' . urlencode($data['id_annonce']);
+        }
+        Flight::redirect('/candidature?success=1' . $id_annonce_url);
     }
 
     public function getById($id)

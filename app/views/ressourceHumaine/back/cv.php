@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QCM Créator - Mazer</title>
+    <title>CV Filtre - Mazer</title>
 
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
@@ -274,88 +274,6 @@
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
 
-    <script>
-        $(document).ready(function() {
-
-            // Charger les questions depuis l’API
-            $.getJSON("<?= Flight::base() ?>/question/all", function(response) {
-                if (response.success) {
-                    const questions = response.data;
-                    const tbody = $('#table1 tbody');
-                    tbody.empty(); // vider le tableau
-
-                    questions.forEach(q => {
-                        const nbReponses = q.reponse.length;
-
-                        const correctes = q.reponse
-                            .filter(r => r.est_correcte)
-                            .map(r => r.reponse)
-                            .join(", ");
-
-                        tbody.append(`
-                    <tr>
-                        <td>${q.enonce}</td>
-                        <td>${nbReponses}</td>
-                        <td>${correctes || '-'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger delete-btn" data-id="${q.id_question}">
-                                Supprimer
-                            </button>
-                        </td>
-                    </tr>
-                `);
-                    });
-                } else {
-                    alert("Erreur : " + response.message);
-                }
-            });
-
-            // Fonction ajout via modal (garde ton code)
-            function updateAnswers() {
-                const num = parseInt($('#numReponses').val()) || 2;
-                const container = $('#answersContainer');
-                const select = $('#correctAnswer');
-
-                container.empty();
-                select.empty();
-
-                for (let i = 1; i <= num; i++) {
-                    const letter = String.fromCharCode(64 + i); // A, B, C...
-                    container.append(`<input type="text" class="form-control mb-2 answerInput" placeholder="Réponse ${letter}" data-letter="${letter}">`);
-                    select.append(`<option value="${letter}">${letter}</option>`);
-                }
-            }
-
-            updateAnswers();
-            $('#numReponses').on('input', updateAnswers);
-
-            $('#addQuestionBtn').on('click', function() {
-                const question = $('#questionText').val();
-                const num = $('#numReponses').val();
-                const correct = $('#correctAnswer').val();
-
-                const answers = [];
-                $('.answerInput').each(function() {
-                    answers.push($(this).val());
-                });
-
-                $('#table1 tbody').append(`
-            <tr>
-                <td>${question}</td>
-                <td>${num}</td>
-                <td>${correct}) ${answers[correct.charCodeAt(0)-65]}</td>
-                <td><span class="badge bg-success">Active</span></td>
-            </tr>
-        `);
-
-                // Réinitialisation modal
-                $('#questionText').val('');
-                $('#numReponses').val('3');
-                updateAnswers();
-            });
-
-        });
-    </script>
 
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/form-element-select.js"></script>
