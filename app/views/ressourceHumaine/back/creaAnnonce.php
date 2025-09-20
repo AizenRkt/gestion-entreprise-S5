@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+
   fetch("http://localhost/S5/gestion-entreprise-S5/api/competences")
   .then(res => res.json())
   .then(data => {
@@ -53,7 +54,29 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+fetch("http://localhost/S5/gestion-entreprise-S5/api/profil")
+  .then(res => res.json())
+  .then(data => {
+    let select = document.getElementById("profil-select");
+    data.forEach(p => {
+      let option = document.createElement("option");
+      option.value = p.id_profil || p.nom;  
+      option.textContent = p.nom;
+      select.appendChild(option);
+    });
+  });
 
+fetch("http://localhost/S5/gestion-entreprise-S5/api/ville")
+  .then(res => res.json())
+  .then(data => {
+    let select = document.getElementById("ville-select");
+    data.forEach(v => {
+      let option = document.createElement("option");
+      option.value = v.id_ville || v.nom;  
+      option.textContent = v.nom;
+      select.appendChild(option);
+    });
+  });
 </script>
 
 <body>
@@ -89,8 +112,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Profil du candidat</label>
-                                <input type="text" name="profil" class="form-control" placeholder="Ex: Informaticien" required>
+                                <select name="profil" id="profil-select" class="form-select" required>
+                                    <option value="">-- Sélectionnez un profil --</option>
+                                </select>
                             </div>
+
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -115,8 +141,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <input type="number" name="experience" class="form-control" placeholder="Ex: 2" required>
                                 </div>
                                 <div class="col-md-6">
-                                <label class="form-label fw-bold">Lieu (ville)</label>
-                                <input type="text" name="lieu" class="form-control" placeholder="Ex: Antananarivo" required>
+                                    <label class="form-label fw-bold">Lieu (ville)</label>
+                                    <select name="lieu" id="ville-select" class="form-select" required>
+                                        <option value="">-- Sélectionnez une ville --</option>
+                                    </select>
                                 </div>
                             </div>
 
