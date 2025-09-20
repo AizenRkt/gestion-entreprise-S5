@@ -1,3 +1,12 @@
+<?php
+if (isset($_SESSION['user'])) {
+    echo "ID utilisateur : " . $_SESSION['user']['id_user'] . "<br>";
+    echo "Nom d'utilisateur : " . $_SESSION['user']['username'] . "<br>";
+    echo "Rôle : " . $_SESSION['user']['role'] . "<br>";
+} else {
+    echo "Aucun utilisateur connecté.";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 

@@ -1,5 +1,6 @@
 DROP DATABASE if exists gestion_entreprise;
 CREATE DATABASE if not exists gestion_entreprise;
+
 USE gestion_entreprise;
 
 -- ======================
@@ -51,6 +52,7 @@ CREATE TABLE employe_statut (
     id_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
     id_employe INT NOT NULL,
     id_poste INT NOT NULL,
+    activite INT NOT NULL, -- 0 (pas actif) et 1 (actif)
     date_modification DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
@@ -69,12 +71,11 @@ CREATE TABLE user (
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
 );
 
-CREATE TABLE user_role (
-    id_user_role INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT NOT NULL,
+CREATE TABLE poste_role (
+    id_poste_role INT AUTO_INCREMENT PRIMARY KEY,
+    id_poste INT NOT NULL,
     id_role INT NOT NULL,
     date_role DATE NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES user(id_user),
     FOREIGN KEY (id_role) REFERENCES role(id_role)
 );
 
@@ -175,10 +176,12 @@ CREATE TABLE postulance (
 CREATE TABLE qcm (
     id_qcm INT AUTO_INCREMENT PRIMARY KEY,
     id_annonce INT NOT NULL,
+    id_profil INT NOT NULL,
     titre VARCHAR(255) NOT NULL,
     note_max DECIMAL(5,2) NOT NULL,  
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
+    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
 );
 
 CREATE TABLE question (

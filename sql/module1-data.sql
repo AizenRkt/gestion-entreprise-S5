@@ -177,10 +177,10 @@ INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_emb
 -- ======================
 -- employe_statut
 -- ======================
-INSERT INTO employe_statut (id_employe, id_poste) VALUES
-(1, 1),  -- Jean Rakoto → Développeur Backend
-(2, 4),  -- Marie Randria → Chargée de Recrutement
-(3, 3);  -- Paul Ando → Technicien Support
+INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES
+(1, 1, 1, '2023-01-10 09:00:00'),  -- Jean Rakoto → Développeur Backend (actif)
+(2, 4, 1, '2023-03-15 09:00:00'),  -- Marie Randria → Chargée de Recrutement (actif)
+(3, 3, 0, '2023-05-20 09:00:00');  -- Paul Ando → Technicien Support (actif)
 
 -- ======================
 -- role
@@ -200,16 +200,9 @@ INSERT INTO user (username, pwd, id_employe) VALUES
 ('mrandria', 'password123', 2),
 ('pando', 'password123', 3);
 
--- ======================
--- user_role
--- ======================
-INSERT INTO user_role (id_user, id_role, date_role) VALUES
-(1, 1, '2023-01-10'),  -- jrakoto → Admin
-(2, 4, '2023-03-15'),  -- mrandria → RH
-(3, 3, '2023-05-20');  -- pando → Employé
 
 -- ======================
--- diplome
+-- poste_role
 -- ======================
 INSERT INTO diplome (nom) VALUES
 ('Bepc'),
@@ -265,3 +258,9 @@ INSERT INTO contrat_essai (id_candidat, debut, fin) VALUES
 (6, '2025-09-23', '2025-12-23'),
 (8, '2025-09-24', '2025-12-24'),
 (10, '2025-09-25', '2025-12-25');
+-- On relie les rôles aux postes (exemple :
+-- Développeur Backend = Admin, Technicien Support = Employé, Chargé de Recrutement = RH)
+INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
+(1, 1, '2023-01-10'),  -- Développeur Backend → Admin
+(3, 3, '2023-05-20'),  -- Technicien Support → Employé
+(4, 4, '2023-03-15');  -- Chargé de Recrutement → RH

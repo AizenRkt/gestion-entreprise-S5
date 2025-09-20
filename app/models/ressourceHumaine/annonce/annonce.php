@@ -17,15 +17,22 @@ class Annonce {
                         p.nom AS profil,
                         GROUP_CONCAT(DISTINCT d.nom SEPARATOR ', ') AS diplomes,
                         v.nom AS ville,
-                        a.objectif
+                        a.objectif,
+                        sa.valeur AS valeur
                     FROM annonce a
                     LEFT JOIN profil p ON a.id_profil = p.id_profil
                     LEFT JOIN detail_annonce da ON a.id_annonce = da.id_annonce AND da.type='ville'
                     LEFT JOIN ville v ON da.id_item = v.id_ville
                     LEFT JOIN detail_annonce dd ON a.id_annonce = dd.id_annonce AND dd.type='diplome'
-                    LEFT JOIN diplome d ON dd.id_item = d.id_diplome 
-                    GROUP BY a.id_annonce 
-                    ORDER BY a.date_debut DESC";
+                    LEFT JOIN diplome d ON dd.id_item = d.id_diplome
+                    LEFT JOIN statut_annonce sa 
+                        ON sa.id_statut_annonce = (
+                                SELECT MAX(sa2.id_statut_annonce)
+                                FROM statut_annonce sa2
+                                WHERE sa2.id_annonce = a.id_annonce
+                        )
+                    GROUP BY a.id_annonce
+                    ORDER BY a.date_debut DESC;";
             $stmt = $this->db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -48,46 +55,53 @@ public function getFilteredAnnonces($keyword, $diplome, $ville): array {
                    p.nom AS profil,
                    GROUP_CONCAT(DISTINCT d.nom SEPARATOR ', ') AS diplomes,
                    v.nom AS ville,
-                   a.objectif
+                   a.objectif,
+                   sa.valeur AS valeur,
+                   MAX(d.id_diplome) AS max_diplome -- to sort by highest diploma
             FROM annonce a
             LEFT JOIN profil p ON a.id_profil = p.id_profil
             LEFT JOIN detail_annonce da ON a.id_annonce = da.id_annonce AND da.type='ville'
             LEFT JOIN ville v ON da.id_item = v.id_ville
             LEFT JOIN detail_annonce dd ON a.id_annonce = dd.id_annonce AND dd.type='diplome'
             LEFT JOIN diplome d ON dd.id_item = d.id_diplome
-            WHERE 1=1";   // 🔑 Important: start WHERE block cleanly
+            LEFT JOIN statut_annonce sa 
+                ON sa.id_statut_annonce = (
+                    SELECT MAX(sa2.id_statut_annonce)
+                    FROM statut_annonce sa2
+                    WHERE sa2.id_annonce = a.id_annonce
+                )
+            WHERE 1=1";
 
     $params = [];
 
-    if ($keyword!=null) {
+    if (!empty($keyword)) {
         $sql .= " AND a.titre LIKE :keyword ";
         $params[':keyword'] = "%$keyword%";
     }
 
-    if ($diplome!=null) {
-        // Use EXISTS so annonce still returns ALL diplomas
+    if (!empty($diplome)) {
         $sql .= " AND EXISTS (
-                      SELECT 1
-                      FROM detail_annonce dd2
-                      WHERE dd2.id_annonce = a.id_annonce
-                        AND dd2.type='diplome'
-                        AND dd2.id_item = :diplome
+                        SELECT 1
+                        FROM detail_annonce dd2
+                        WHERE dd2.id_annonce = a.id_annonce
+                          AND dd2.type='diplome'
+                          AND dd2.id_item <= :diplome
                   )";
         $params[':diplome'] = $diplome;
     }
 
-    if ($ville!=null) {
+    if (!empty($ville)) {
         $sql .= " AND v.id_ville = :ville ";
         $params[':ville'] = $ville;
     }
 
-    $sql .= " GROUP BY a.id_annonce ORDER BY a.date_debut DESC";
+    $sql .= " GROUP BY a.id_annonce
+              ORDER BY max_diplome DESC, a.date_debut DESC"; 
 
     $stmt = $this->db->prepare($sql);
     $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
     public function getDetailAnnonces($id): array {
     try {
@@ -96,7 +110,7 @@ public function getFilteredAnnonces($keyword, $diplome, $ville): array {
                         GROUP_CONCAT(DISTINCT d.nom SEPARATOR ', ') AS diplomes,
                         GROUP_CONCAT(DISTINCT c.nom SEPARATOR ', ') AS competences,
                         v.nom AS ville,
-                        a.objectif
+                        a.objectif, sa.valeur AS valeur
                     FROM annonce a
                     LEFT JOIN profil p ON a.id_profil = p.id_profil
                     LEFT JOIN detail_annonce da ON a.id_annonce = da.id_annonce AND da.type='ville'
@@ -105,6 +119,7 @@ public function getFilteredAnnonces($keyword, $diplome, $ville): array {
                     LEFT JOIN diplome d ON dd.id_item = d.id_diplome
                     LEFT JOIN detail_annonce dc ON a.id_annonce = dc.id_annonce AND dc.type='competence'
                     LEFT JOIN competence c ON dc.id_item = c.id_competence
+                    LEFT JOIN statut_annonce sa ON a.id_annonce = sa.id_annonce 
                     WHERE a.id_annonce = ?
                     GROUP BY a.id_annonce 
                     ORDER BY a.date_debut DESC";
@@ -115,4 +130,35 @@ public function getFilteredAnnonces($keyword, $diplome, $ville): array {
             return [];
         }
     }
+
+    public function retraitaAnnonce($id) {
+        $date = date('Y-m-d');  
+
+        try {
+            $sql = "INSERT INTO statut_annonce (id_annonce, valeur, date_fin) 
+                    VALUES (?, ?, ?)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id, 'retrait', $date]);
+            return $this->db->lastInsertId();
+
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function renouvellementAnnonce($id) {
+        $date = date('Y-m-d');  
+
+        try {
+            $sql = "INSERT INTO statut_annonce (id_annonce, valeur, date_fin) 
+                    VALUES (?, ?, ?)";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id, 'renouvellement', $date]);
+            return $this->db->lastInsertId();
+
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
 }

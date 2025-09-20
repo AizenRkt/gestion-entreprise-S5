@@ -1,5 +1,5 @@
 <?php
-namespace app\models\QcmModel;
+namespace app\models\ressourceHumaine\qcm;
 
 use Flight;
 use PDO;

@@ -58,7 +58,7 @@
                             <a href="<?= Flight::base() ?>/annonceCrea" class="submenu-link">Créer & Poster</a>
                         </li>     
                         <li class="submenu-item">
-                            <a href="" class="submenu-link">Listing</a>
+                            <a href="<?= Flight::base() ?>/annonceListe" class="submenu-link">Listing</a>
                         </li>                        
                     </ul>
                 </li>
@@ -83,12 +83,15 @@
                         <i class="bi bi-question-circle-fill"></i> <!-- contrat -->
                         <span>QCM</span>
                     </a>
-                    <ul class="submenu">
+                    <ul class="submenu submenu-open" style="--submenu-height: 86px;">
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/contratCrea" class="submenu-link">Créer de zéro</a>
+                            <a href="<?= Flight::base() ?>/createQuestion" class="submenu-link">questions & réponses</a>
+                        </li>  
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/createQcm" class="submenu-link">Créer de zéro</a>
                         </li>     
                         <li class="submenu-item">
-                            <a href="" class="submenu-link">QCM existant</a>
+                            <a href="<?= Flight::base() ?>/seeAllQcm" class="submenu-link">QCM existant</a>
                         </li>                        
                     </ul>
                 </li>

@@ -1,6 +1,5 @@
 <?php
-namespace app\models\ressourceHumaine\qcm\QcmModel;
-
+namespace app\models\ressourceHumaine\qcm;
 use Flight;
 use PDO;
 
@@ -21,7 +20,7 @@ class QcmModel {
         }
     }
 
-    public function getAll() {
+    public static function getAll() {
         try {
             $db = Flight::db();
             $stmt = $db->query("SELECT * FROM qcm ORDER BY date_creation DESC");
@@ -31,41 +30,71 @@ class QcmModel {
         }
     }
 
-    public function getById($id) {
+    public static function getById($id_qcm) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("SELECT * FROM qcm WHERE id_qcm = ?");
-            $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $sql = "
+                SELECT q.id_question, q.enonce, r.id_reponse, r.texte AS texte_reponse
+                FROM detail_qcm dq
+                JOIN question q ON dq.id_question = q.id_question
+                JOIN reponse r ON r.id_question = q.id_question
+                WHERE dq.id_qcm = :id_qcm
+                ORDER BY q.id_question;
+            ";
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':id_qcm' => $id_qcm]);
+
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $questions = [];
+            foreach ($rows as $row) {
+                $id_question = $row['id_question'];
+                if (!isset($questions[$id_question])) {
+                    $questions[$id_question] = [
+                        'id_question' => $id_question,
+                        'enonce' => $row['enonce'],
+                        'reponses' => []
+                    ];
+                }
+                $questions[$id_question]['reponses'][] = [
+                    'id_reponse' => $row['id_reponse'],
+                    'texte' => $row['texte_reponse']
+                ];
+            }
+
+            return array_values($questions);
+
         } catch (\PDOException $e) {
+            error_log($e->getMessage());
             return null;
         }
     }
 
-    public function update($id, $id_annonce, $titre, $note_max) {
+    public static function delete($id_qcm) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("UPDATE qcm SET id_annonce = :id_annonce, titre = :titre, note_max = :note_max WHERE id_qcm = :id");
-            $stmt->execute([
-                ':id' => $id,
-                ':id_annonce' => $id_annonce,
-                ':titre' => $titre,
-                ':note_max' => $note_max
+
+            $db->beginTransaction();
+
+            $stmt = $db->prepare("DELETE FROM qcm WHERE id_qcm = :id_qcm");
+            $stmt->execute([':id_qcm' => $id_qcm]);
+
+            $db->commit();
+
+            Flight::json([
+                'success' => true,
+                'message' => "Le QCM #$id_qcm a été supprimé avec succès."
             ]);
-            return "Mise à jour réussie.";
+
         } catch (\PDOException $e) {
-            return "Erreur de mise à jour : " . $e->getMessage();
+            $db->rollBack();
+            Flight::json([
+                'success' => false,
+                'message' => "Erreur lors de la suppression : " . $e->getMessage()
+            ], 500);
         }
     }
 
-    public function delete($id) {
-        try {
-            $db = Flight::db();
-            $stmt = $db->prepare("DELETE FROM qcm WHERE id_qcm = ?");
-            $stmt->execute([$id]);
-            return "Suppression réussie.";
-        } catch (\PDOException $e) {
-            return "Erreur de suppression : " . $e->getMessage();
-        }
-    }
 }
