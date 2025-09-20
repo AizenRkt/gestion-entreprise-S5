@@ -46,6 +46,7 @@
                         <div class="col-12">
                             <?php if (!empty($annonces)): ?>
                                 <?php foreach($annonces as $annonce): ?>
+                                    <?php if (($annonce['valeur'])!= 'retrait') {?> 
                                     <div class="card mb-3 p-3 d-flex flex-row align-items-center">
                                         <div class="flex-grow-1">
                                             <h5><?= htmlspecialchars($annonce['titre']) ?></h5>
@@ -61,6 +62,7 @@
                                             <a href="<?= Flight::base() ?>/annoncePage?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">Detail</a>
                                         </div>
                                     </div>
+                                    <?php } ?>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <p>Aucune annonce disponible pour le moment.</p>

@@ -52,7 +52,7 @@
                             <a href="<?= Flight::base() ?>/annonceCrea" class="submenu-link">Créer & Poster</a>
                         </li>     
                         <li class="submenu-item">
-                            <a href="" class="submenu-link">Listing</a>
+                            <a href="<?= Flight::base() ?>/annonceListe" class="submenu-link">Listing</a>
                         </li>                        
                     </ul>
                 </li>
