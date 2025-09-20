@@ -41,12 +41,6 @@
         <div class="sidebar-menu">
             <ul class="menu">
                 <li class="sidebar-title">Recrutement</li>
-                <li class="sidebar-item  ">
-                    <a href="<?= Flight::base() ?>/backOffice/candidat" class="sidebar-link">
-                        <i class="bi bi-send-fill"></i>
-                        <span>Cv</span>
-                    </a>
-                </li>
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
@@ -62,6 +56,14 @@
                         </li>                        
                     </ul>
                 </li>
+
+                <li class="sidebar-item  ">
+                    <a href="<?= Flight::base() ?>/backOffice/candidat" class="sidebar-link">
+                        <i class="bi bi-send-fill"></i>
+                        <span>CV</span>
+                    </a>
+                </li>
+
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
@@ -115,19 +117,35 @@
                 </li>
 
                 <li class="sidebar-item  ">
-                    <a href="index.html" class="sidebar-link">
+                    <a href="<?= Flight::base() ?>/employes" class="sidebar-link">
                         <i class="bi bi-people-fill"></i>
                         <span>Team</span>
                     </a>
                 </li>
 
-                <li class="sidebar-item  ">
+                <!-- <li class="sidebar-item  ">
                     <a href="index.html" class="sidebar-link">
                         <i class="bi bi-inbox-fill"></i>
                         <span>Mail</span>
                     </a>
-                </li>
+                </li> -->
                 
+                <li class="sidebar-title">Compte</li>
+
+                <li class="sidebar-item">
+                    <a href="index.html" class="sidebar-link">
+                        <i class="bi bi-gear-fill"></i>
+                        <span>paramètre</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/deconnexion" class="sidebar-link">
+                        <i class="bi bi-door-closed-fill"></i>
+                        <span>déconnexion</span>
+                    </a>
+                </li>
+
             </ul>
         </div>
     </div>
