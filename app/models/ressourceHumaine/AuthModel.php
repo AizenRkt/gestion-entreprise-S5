@@ -37,11 +37,15 @@ class AuthModel {
     public static function getActiveUserByUsername($username) {
         $db = Flight::db();
         $stmt = $db->prepare(
-            "SELECT u.* FROM user u
-            JOIN employe_statut es ON u.id_employe = es.id_employe
-            WHERE u.username = ? AND es.activite = 1
-            ORDER BY es.date_modification DESC
-            LIMIT 1"
+            "SELECT * FROM (
+                SELECT u.*, es.activite
+                FROM user u
+                JOIN employe_statut es ON u.id_employe = es.id_employe
+                WHERE u.username = ?
+                ORDER BY es.date_modification DESC
+                LIMIT 1
+            ) AS latest_user_status
+            WHERE latest_user_status.activite = 1"
         );
         $stmt->execute([$username]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -63,6 +67,20 @@ class AuthModel {
     }
 
 
+    public static function isEmployeeActive($id_employe) {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT activite FROM employe_statut
+             WHERE id_employe = ?
+             ORDER BY date_modification DESC
+             LIMIT 1"
+        );
+        $stmt->execute([$id_employe]);
+        $status = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $status && $status['activite'] == 1;
+    }
+
     public static function registerUser($email, $username, $password) {
         $db = Flight::db();
 
@@ -80,6 +98,11 @@ class AuthModel {
         }
 
         $id_employe = $employee['id_employe'];
+
+        // 2.5 Check if the employee is active
+        if (!self::isEmployeeActive($id_employe)) {
+            return ['success' => false, 'message' => 'Le compte de cet employé est inactif.'];
+        }
 
         // 3. Check if a user account already exists for this employee
         if (self::userExistsForEmployee($id_employe)) {

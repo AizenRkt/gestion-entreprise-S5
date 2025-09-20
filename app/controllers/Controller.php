@@ -49,5 +49,8 @@ class Controller {
         Flight::render('ressourceHumaine/back/orgaEntretien');
 
     }
+    public function listing() {
+        Flight::render('ressourceHumaine/back/employe/listemploye');
+    }
 
 }

@@ -4,6 +4,7 @@ use app\controllers\Controller;
 use app\controllers\ressourceHumaine\AuthController;
 
 //importation lié flight
+use app\controllers\ressourceHumaine\employe\EmployeController;
 use flight\Engine;
 use flight\net\Router;
 
@@ -28,6 +29,7 @@ $router->get('/candidature', [ $Controller, 'candidature' ]);
 $router->get('/planning', [ $Controller, 'planning' ]);
 $router->get('/planning2', [ $Controller, 'planning2' ]);
 $router->get('/organiserEntretien', [ $Controller, 'orgaEntretien' ]);
+// $router->get('/listemploye', [ $Controller, 'listing' ]);
 
 
 /* Authentication Routes */
@@ -39,5 +41,12 @@ $router->post('/auth/login', [ $AuthController, 'authVerif' ]); // Vérifie la c
 // Routes pour l'inscription
 $router->get('/auth/sign', [ $AuthController, 'sign' ]); // Affiche le formulaire d'inscription
 $router->post('/auth/sign', [ $AuthController, 'authInscription' ]); // Traite l'inscription
+
+// Routes pour la gestion des employés
+$EmployeController = new EmployeController();
+$router->get('/employes', [ $EmployeController, 'listEmployes' ]); // Liste tous les employés
+$router->post('/employe/update', [ $EmployeController, 'updateEmploye' ]); // Liste tous les employés
+
+
 
 ?>
