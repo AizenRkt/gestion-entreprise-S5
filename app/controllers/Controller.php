@@ -62,5 +62,8 @@ class Controller {
     public function backOffice(){
         Flight::render('ui/homeDefLayout');
     }
+    public function listing() {
+        Flight::render('ressourceHumaine/back/employe/listemploye');
+    }
 
 }

@@ -27,7 +27,7 @@ class AuthController {
                 'role' => $role
             ]; 
             $mssg = "Bienvenue " . $user['username'] . "!";
-            Flight::redirect('/annoncePage?mssg=' . urlencode($mssg));
+            Flight::redirect('/employes?mssg=' . urlencode($mssg));
         } else {
             $mssg = "Nom d'utilisateur ou mot de passe incorrect ou compte inactif.";
             Flight::redirect('/log/?mssg=' . urlencode($mssg));
@@ -56,7 +56,7 @@ class AuthController {
                 'role' => $role
             ]; 
             $mssg = "Inscription réussie. Bienvenue " . $user['username'] . "!";
-            Flight::redirect('/annoncePage?mssg=' . urlencode($mssg));
+            Flight::redirect('/employes?mssg=' . urlencode($mssg));
         } else {
             Flight::redirect('/sign?mssg=' . urlencode($result['message']));
         }
