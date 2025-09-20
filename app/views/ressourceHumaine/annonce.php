@@ -48,35 +48,36 @@
                         <div class="col-12">
                             <?php if (!empty($annonces)): ?>
                                 <?php foreach ($annonces as $annonce): ?>
-                                <?php foreach($annonces as $annonce): ?>
-                                    <?php if (($annonce['valeur'])!= 'retrait') {?> 
-                                    <div class="card mb-3 p-3 d-flex flex-row align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h5><?= htmlspecialchars($annonce['titre']) ?></h5>
-                                            <p class="text-muted mb-1">
-                                                <?= htmlspecialchars($annonce['profil']) ?> ·
-                                                <?= htmlspecialchars($annonce['ville']) ?> ·
-                                                Diplômes: <?= htmlspecialchars($annonce['diplomes']) ?> ·
-                                                Publié le <?= date('d/m/Y', strtotime($annonce['date_debut'])) ?>
-                                            </p>
-                                            <p class="mb-0"><?= htmlspecialchars($annonce['objectif'] ?? '') ?></p>
+                                    <?php if ($annonce['valeur'] != 'retrait'): ?>
+                                        <div class="card mb-3 p-3 d-flex flex-row align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h5><?= htmlspecialchars($annonce['titre']) ?></h5>
+                                                <p class="text-muted mb-1">
+                                                    <?= htmlspecialchars($annonce['profil']) ?> ·
+                                                    <?= htmlspecialchars($annonce['ville']) ?> ·
+                                                    Diplômes: <?= htmlspecialchars($annonce['diplomes']) ?> ·
+                                                    Publié le <?= date('d/m/Y', strtotime($annonce['date_debut'])) ?>
+                                                </p>
+                                                <p class="mb-0"><?= htmlspecialchars($annonce['objectif'] ?? '') ?></p>
+                                            </div>
+                                            <div>
+                                                <a href="<?= Flight::base() ?>/annoncePage?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">Detail</a>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <a href="<?= Flight::base() ?>/annoncePage?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">Detail</a>
-                                        </div>
-                                    </div>
-                                    <?php } ?>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <p>Aucune annonce disponible pour le moment.</p>
                             <?php endif; ?>
                         </div>
 
-                    </section>
                 </div>
 
+                </section>
             </div>
+
         </div>
+    </div>
     </div>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/horizontal-layout.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>

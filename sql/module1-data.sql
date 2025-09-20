@@ -60,6 +60,52 @@ INSERT INTO poste (titre, id_service) VALUES
 ('Community Manager', 5);
 
 -- ======================
+-- poste_role
+-- ======================
+INSERT INTO diplome (nom) VALUES
+('Bepc'),
+('Bacc'),
+('Licence'),
+('Doctorat');
+
+-- ======================
+-- competence
+-- ======================
+INSERT INTO competence (nom) VALUES
+('Informatique de base'),
+('Programmation Java'),
+('Programmation Python'),
+('Développement Web'),
+('Administration Systèmes'),
+('Gestion de projet'),
+('Communication'),
+('Travail en équipe'),
+('Anglais'),
+('Français'),
+('Comptabilité'),
+('Marketing'),
+('Analyse de données'),
+('Conduite'),
+('Réseaux informatiques');
+
+
+-- ======================
+-- role
+-- ======================
+INSERT INTO role (nom) VALUES
+('Administrateur'),
+('Manager'),
+('Employé'),
+('RH'),
+('Comptable');
+
+-- Développeur Backend = Admin, Technicien Support = Employé, Chargé de Recrutement = RH)
+INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
+(1, 1, '2023-01-10'),  -- Développeur Backend → Admin
+(3, 3, '2023-05-20'),  -- Technicien Support → Employé
+(4, 4, '2023-03-15');  -- Chargé de Recrutement → RH
+
+-- ======================
 -- annonce
 -- ======================
 INSERT INTO annonce (id_profil, titre, date_debut, date_fin, age_min, age_max, experience, objectif, qualite) VALUES
@@ -182,15 +228,7 @@ INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) V
 (2, 4, 1, '2023-03-15 09:00:00'),  -- Marie Randria → Chargée de Recrutement (actif)
 (3, 3, 0, '2023-05-20 09:00:00');  -- Paul Ando → Technicien Support (actif)
 
--- ======================
--- role
--- ======================
-INSERT INTO role (nom) VALUES
-('Administrateur'),
-('Manager'),
-('Employé'),
-('RH'),
-('Comptable');
+
 
 -- ======================
 -- user
@@ -201,34 +239,6 @@ INSERT INTO user (username, pwd, id_employe) VALUES
 ('pando', 'password123', 3);
 
 
--- ======================
--- poste_role
--- ======================
-INSERT INTO diplome (nom) VALUES
-('Bepc'),
-('Bacc'),
-('Licence'),
-('Doctorat');
-
--- ======================
--- competence
--- ======================
-INSERT INTO competence (nom) VALUES
-('Informatique de base'),
-('Programmation Java'),
-('Programmation Python'),
-('Développement Web'),
-('Administration Systèmes'),
-('Gestion de projet'),
-('Communication'),
-('Travail en équipe'),
-('Anglais'),
-('Français'),
-('Comptabilité'),
-('Marketing'),
-('Analyse de données'),
-('Conduite'),
-('Réseaux informatiques');
 
 
 -- ======================
@@ -259,8 +269,3 @@ INSERT INTO contrat_essai (id_candidat, debut, fin) VALUES
 (8, '2025-09-24', '2025-12-24'),
 (10, '2025-09-25', '2025-12-25');
 -- On relie les rôles aux postes (exemple :
--- Développeur Backend = Admin, Technicien Support = Employé, Chargé de Recrutement = RH)
-INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
-(1, 1, '2023-01-10'),  -- Développeur Backend → Admin
-(3, 3, '2023-05-20'),  -- Technicien Support → Employé
-(4, 4, '2023-03-15');  -- Chargé de Recrutement → RH
