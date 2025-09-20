@@ -41,32 +41,14 @@ $router->post('/auth/sign', [ $AuthController, 'authInscription' ]);
 
 /* Entretien Routes - NOUVELLES ROUTES */
 $entretienController = new entretienController();
-
-// Affichage du formulaire d'organisation d'entretien
 $router->get('/organiserEntretien', [ $entretienController, 'orgaEntretien' ]);
-
-// Création d'un entretien (AJAX)
 $router->post('/entretien/creer', [ $entretienController, 'creerEntretien' ]);
-
-// Récupération des informations d'un candidat (AJAX)
 $router->get('/entretien/candidat-info', [ $entretienController, 'getCandidatInfo' ]);
-
-// Liste des entretiens
 $router->get('/entretien/liste', [ $entretienController, 'listerEntretiens' ]);
-
-// Modification d'un entretien
 $router->post('/entretien/modifier', [ $entretienController, 'modifierEntretien' ]);
-
-// Suppression d'un entretien
 $router->post('/entretien/supprimer', [ $entretienController, 'supprimerEntretien' ]);
-
-// Récupération des entretiens pour le planning
 $router->get('/entretien/api/planning', [ $entretienController, 'getEntretiensPlanning' ]);
-
-// NOUVELLE ROUTE : Noter un entretien
 $router->post('/entretien/noter', [ $entretienController, 'noterEntretien' ]);
-
-// NOUVELLE ROUTE : Récupérer les détails d'un entretien
 $router->get('/entretien/details', [ $entretienController, 'getEntretienDetails' ]);
 
 ?>
