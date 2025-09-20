@@ -23,6 +23,16 @@ class creaAnnonce {
         Flight::json($data);
     }
 
+    public function getAllVille() {
+        $data = $this->model->getAllVille();
+        Flight::json($data);
+    }
+
+    public function getAllProfil() {
+        $data = $this->model->getAllProfil();
+        Flight::json($data);
+    }
+
     public static function create() {
         $db = Flight::db();
         $data = json_decode(file_get_contents("php://input"), true);

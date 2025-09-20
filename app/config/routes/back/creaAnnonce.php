@@ -14,6 +14,18 @@ Flight::route('GET /api/competences', function() {
     Flight::json($controller->getAllCompetence());
 });
 
+Flight::route('GET /api/ville', function() {
+    $db = Flight::db();
+    $controller = new creaAnnonce($db);
+    Flight::json($controller->getAllVille());
+});
+
+Flight::route('GET /api/profil', function() {
+    $db = Flight::db();
+    $controller = new creaAnnonce($db);
+    Flight::json($controller->getAllProfil());
+});
+
 Flight::route('POST /annonce/create', ['app\controllers\ressourceHumaine\back\creaAnnonce','create']);
 
 
