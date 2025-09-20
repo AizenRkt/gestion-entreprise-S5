@@ -6,13 +6,11 @@ use PDO;
 
 class EntretienModel {
     
-    // Vérifier s'il y a un conflit d'horaire
     public function hasScheduleConflict($date, $duree, $ignoreId = null)
     {
         try {
             $db = Flight::db();
             
-            // Convertir la date de début en datetime
             $startDateTime = $date;
             $endDateTime = date('Y-m-d H:i:s', strtotime($startDateTime . ' + ' . $duree . ' minutes'));
             
@@ -31,7 +29,6 @@ class EntretienModel {
                 ':end' => $endDateTime
             ];
             
-            // Si on ignore un ID (pour les mises à jour)
             if ($ignoreId) {
                 $sql .= " AND id_entretien != :ignore_id";
                 $params[':ignore_id'] = $ignoreId;
@@ -46,13 +43,10 @@ class EntretienModel {
             
         } catch (\PDOException $e) {
             error_log("Erreur de vérification de conflit: " . $e->getMessage());
-            return true; // En cas d'erreur, on considère qu'il y a conflit pour éviter les doublons
+            return true;
         }
     }
 
-    /**
-     * Créer un nouvel entretien
-     */
     public function creerEntretien($id_candidat, $date, $duree, $id_user = null) {
         try {
             // Vérifier s'il y a un conflit d'horaire
@@ -91,9 +85,6 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Noter un entretien
-     */
     public function noterEntretien($id_entretien, $note, $evaluation, $commentaire = null) {
         try {
             $db = Flight::db();
@@ -128,9 +119,6 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Récupérer tous les candidats
-     */
     public function getTousCandidats() {
         try {
             $db = Flight::db();
@@ -144,9 +132,6 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Récupérer les informations d'un candidat
-     */
     public function getCandidatById($id_candidat) {
         try {
             $db = Flight::db();
@@ -160,9 +145,7 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Récupérer les entretiens d'un candidat
-     */
+
     public function getEntretiensByCandidatId($id_candidat) {
         try {
             $db = Flight::db();
@@ -176,9 +159,6 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Récupérer tous les entretiens avec informations candidat
-     */
     public function getTousEntretiens() {
         try {
             $db = Flight::db();
@@ -196,12 +176,8 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Modifier un entretien
-     */
     public function modifierEntretien($id_entretien, $date, $duree) {
         try {
-            // Vérifier s'il y a un conflit d'horaire (en ignorant l'entretien actuel)
             if ($this->hasScheduleConflict($date, $duree, $id_entretien)) {
                 return [
                     'success' => false,
@@ -226,9 +202,6 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Supprimer un entretien
-     */
     public function supprimerEntretien($id_entretien) {
         try {
             $db = Flight::db();
@@ -248,7 +221,6 @@ class EntretienModel {
         }
     }
 
-    // Vérifier si un candidat a déjà un entretien
     public function candidateHasInterview($id_candidat, $ignoreId = null)
     {
         try {
@@ -271,7 +243,7 @@ class EntretienModel {
             
         } catch (\PDOException $e) {
             error_log("Erreur de vérification candidat: " . $e->getMessage());
-            return true; // En cas d'erreur, on considère que le candidat a un entretien
+            return true;
         }
     }
 
@@ -314,9 +286,6 @@ class EntretienModel {
         }
     }
 
-    /**
-     * Récupérer un entretien par son ID
-     */
     public function getEntretienById($id_entretien) {
         try {
             $db = Flight::db();

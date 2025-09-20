@@ -179,9 +179,6 @@ class entretienController
         }
     }
 
-    /**
-     * Récupérer les informations d'un candidat (AJAX)
-     */
     public function getCandidatInfo()
     {
         $id_candidat = $_GET['id'] ?? null;
@@ -200,9 +197,6 @@ class entretienController
         }
     }
 
-    /**
-     * Lister tous les entretiens
-     */
     public function listerEntretiens()
     {
         $entretiens = $this->entretienModel->getTousEntretiens();
@@ -212,9 +206,6 @@ class entretienController
         ]);
     }
 
-    /**
-     * Modifier un entretien
-     */
     public function modifierEntretien()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -246,9 +237,6 @@ class entretienController
         }
     }
 
-    /**
-     * Supprimer un entretien
-     */
     public function supprimerEntretien()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
