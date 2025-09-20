@@ -65,7 +65,7 @@
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn icon btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-<?= $emp['id_employe'] ?>"><i class="bi bi-pencil"></i></button>
-                                                    <a href="#" class="btn icon btn-danger"><i class="bi bi-x"></i></a>
+                                                    <!--<a href="#" class="btn icon btn-danger"><i class="bi bi-x"></i></a>-->
                                                 </td>
                                             </tr>
 
