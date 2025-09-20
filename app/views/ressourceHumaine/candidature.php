@@ -33,6 +33,12 @@
                 if (isset($_GET['error']) && $_GET['error'] == 'mail') {
                     echo '<div id="error-msg" class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i>Un CV existe déjà pour ce profil et cet email.</div>';
                 }
+                if (isset($_GET['error']) && $_GET['error'] == 'age') {
+                    echo '<div id="error-msg" class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i>Âge minimum requis : 16 ans.</div>';
+                }
+                if (isset($_GET['error']) && $_GET['error'] == 'tel') {
+                    echo '<div id="error-msg" class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i>Numéro de téléphone invalide.</div>';
+                }
                 ?>
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {

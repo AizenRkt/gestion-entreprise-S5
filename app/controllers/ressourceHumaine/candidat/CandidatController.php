@@ -118,6 +118,24 @@ class CandidatController
         $data = Flight::request()->data->getData();
         $cvModel = new CvModel();
         $db = \Flight::db();
+        $candidatModel = new CandidatModel();
+
+        // Vérification âge
+        $age = $candidatModel->getAge($data['date_naissance'] ?? null);
+        $id_annonce_url = '';
+        if (!empty($data['id_annonce'])) {
+            $id_annonce_url = '&id_annonce=' . urlencode($data['id_annonce']);
+        }
+        if ($age !== null && $age < 16) {
+            Flight::redirect('/candidature?success=0&error=age' . $id_annonce_url);
+            return;
+        }
+        // Vérification numéro de téléphone
+        $telephone = $data['telephone'] ?? '';
+        if (!preg_match('/^\d+$/', $telephone)) {
+            Flight::redirect('/candidature?success=0&error=tel' . $id_annonce_url);
+            return;
+        }
 
         // Récupérer l'id_annonce depuis l'URL (GET ou POST) pour trouver le profil
         $id_annonce = $_GET['id_annonce'] ?? ($data['id_annonce'] ?? null);

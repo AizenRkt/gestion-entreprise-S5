@@ -5,6 +5,17 @@ use Flight;
 use PDO;
 
 class CandidatModel {
+    // Calcule l'âge à partir de la date de naissance (format YYYY-MM-DD)
+    public function getAge($date_naissance) {
+        if (empty($date_naissance)) return null;
+        try {
+            $dob = new \DateTime($date_naissance);
+            $now = new \DateTime();
+            return $now->diff($dob)->y;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
     /**
      * Filtrage dynamique des candidats selon les filtres fournis
      * $filters = [genre, age_min, age_max, diplome, competences, ville, profils, date_naissance]
