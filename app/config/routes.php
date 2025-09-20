@@ -4,7 +4,7 @@ use app\controllers\Controller;
 use app\controllers\ressourceHumaine\qcm\QcmController;
 use app\controllers\ressourceHumaine\candidat\CandidatController;
 use app\controllers\ressourceHumaine\AuthController;
-use app\controllers\ressourceHumaine\entretien\entretienController; // Nouveau import
+use app\controllers\ressourceHumaine\entretien\entretienController;
 
 //importation liée flight
 use flight\Engine;
@@ -27,7 +27,7 @@ $router->get('/candidature', [ $Controller, 'candidature' ]);
 $router->get('/planning', [ $Controller, 'planning' ]);
 $router->get('/planning2', [ $Controller, 'planning2' ]);
 $router->get('/backOffice',[$Controller,'backOffice']);
-
+$router->get('/contratCrea',[$Controller,'contratEssai']);
 /* Authentication Routes */
 $AuthController = new AuthController();
 $qcmController = new QcmController();
@@ -41,6 +41,7 @@ $router->post('/auth/sign', [ $AuthController, 'authInscription' ]);
 
 /* Entretien Routes - NOUVELLES ROUTES */
 $entretienController = new entretienController();
+
 $router->get('/organiserEntretien', [ $entretienController, 'orgaEntretien' ]);
 $router->post('/entretien/creer', [ $entretienController, 'creerEntretien' ]);
 $router->get('/entretien/candidat-info', [ $entretienController, 'getCandidatInfo' ]);

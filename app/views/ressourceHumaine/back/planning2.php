@@ -582,7 +582,7 @@ function displayInterviewDetails(dateStr) {
       <div class="interview-item">
         ${hasNote ? `<div class="note-badge">${interview.note_entretien}</div>` : ''}
         
-        <div class="interview-time">${interview.time} - ${endTime}</div>
+        <div class="interview-time">${interview.time}</div>
         <div class="interview-candidate"><strong>${interview.candidate}</strong></div>
         <div class="interview-duration">Durée: ${interview.duration} minutes</div>
         <div class="interview-email"><small><i class="bi bi-envelope"></i> ${interview.email}</small></div>
@@ -741,7 +741,6 @@ document.getElementById('notationForm').addEventListener('submit', async functio
     if (result.success) {
       alert('Notation enregistrée avec succès!');
       closeModal();
-      // Recharger les données et rafraîchir l'affichage
       await loadInterviews();
       if (selectedDate) {
         displayInterviewDetails(selectedDate);
@@ -755,7 +754,6 @@ document.getElementById('notationForm').addEventListener('submit', async functio
   }
 });
 
-// Fermer la modal en cliquant à l'extérieur
 window.addEventListener('click', function(event) {
   const modal = document.getElementById('notationModal');
   if (event.target === modal) {
@@ -763,9 +761,8 @@ window.addEventListener('click', function(event) {
   }
 });
 
-// Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-  loadTestData(); // Remplacer par loadInterviews() quand l'API est prête
+  loadInterviews();
 });
 </script>
 

@@ -63,4 +63,8 @@ class Controller {
         Flight::render('ui/homeDefLayout');
     }
 
+    public function contratEssai() {
+        Flight::render('ressourceHumaine/back/contratEssai');
+    }
+
 }
