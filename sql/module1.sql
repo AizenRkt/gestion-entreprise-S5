@@ -280,3 +280,10 @@ CREATE TABLE renouvellement_essai (
     date_fin DATE NOT NULL,
     FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
 );
+
+CREATE TABLE route_permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    route_pattern VARCHAR(191) NOT NULL,
+    role_name VARCHAR(50) NOT NULL,
+    UNIQUE KEY unique_route_role (route_pattern, role_name)
+);

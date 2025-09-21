@@ -169,3 +169,37 @@ INSERT INTO ville (nom) VALUES
 ('Londres'),
 ('New York'),
 ('Tokyo');
+
+-- ======================
+-- Permissions des Routes (RBAC)
+-- ======================
+
+-- Annonces (Gestion)
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/annonceCrea', 'Administrateur');
+
+-- Annonces (Consultation)
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/annonceListe', 'Administrateur');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/annonceListe', 'RH');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/annonceListe', 'Employé');
+
+
+-- CV question (Gestion)
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/createQuestion', 'Administrateur');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/createQuestion', 'RH');
+
+-- QCM créer de 0 (Gestion & Consultation)
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/createQcm', 'Administrateur');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/createQcm', 'RH');
+
+-- QCM existant (Gestion & Consultation)
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/seeAllQcm', 'Administrateur');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/seeAllQcm', 'RH');
+
+-- Employés (Gestion)
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/employes', 'Administrateur');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/employes', 'RH');
+
+
+-- Contrats 
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/contratCrea', 'Administrateur');
+INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/contratCrea', 'RH');
