@@ -192,6 +192,9 @@ class QcmController {
                 'message' => 'QCM créé avec succès',
                 'id_qcm' => $id_qcm
             ]);
+
+            Flight::redirect('/createQcm');
+
         } catch (Exception $e) {
             Flight::json([
                 'success' => false,
