@@ -211,6 +211,7 @@ CREATE TABLE entretien_candidat (
     id_entretien INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     date DATETIME NOT NULL,
+    duree INT,
     id_user INT,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
     FOREIGN KEY (id_user) REFERENCES user(id_user)
@@ -228,22 +229,22 @@ CREATE TABLE scoring (
     id_scoring INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_type_scoring INT NOT NULL,
-    id_qcm INT NOT NULL,
     valeur DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
-    FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring),
-    FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm)
+    FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring)
 );
 
-CREATE TABLE reponse_candidat (
-    id_reponse_candidat INT AUTO_INCREMENT PRIMARY KEY,
-    id_candidat INT NOT NULL,
-    id_question INT NOT NULL,
-    id_reponse INT NOT NULL,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
-    FOREIGN KEY (id_question) REFERENCES question(id_question),
-    FOREIGN KEY (id_reponse) REFERENCES reponse(id_reponse)
-);
+-- CREATE TABLE reponse_candidat (
+--     id_reponse_candidat INT AUTO_INCREMENT PRIMARY KEY,
+--     id_candidat INT NOT NULL,
+--     id_qcm INT NOT NULL,
+--     id_question INT NOT NULL,
+--     id_reponse INT NOT NULL,
+--     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
+--     FOREIGN KEY (id_question) REFERENCES question(id_question),
+--     FOREIGN KEY (id_reponse) REFERENCES reponse(id_reponse),
+--     FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm)
+-- );
 
 -- ======================
 -- resultat final
@@ -281,6 +282,9 @@ CREATE TABLE renouvellement_essai (
     FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
 );
 
+-- ======================
+-- permissions
+-- ======================
 CREATE TABLE route_permissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     route_pattern VARCHAR(191) NOT NULL,

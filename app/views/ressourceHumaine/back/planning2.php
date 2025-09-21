@@ -727,9 +727,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Soumission du formulaire de notation
 document.getElementById('notationForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  
+
   const formData = new FormData(this);
-  
+
   try {
     const response = await fetch('<?= Flight::base() ?>/entretien/noter', {
       method: 'POST',
@@ -762,7 +762,7 @@ window.addEventListener('click', function(event) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-  loadInterviews();
+  loadTestData();
 });
 </script>
 

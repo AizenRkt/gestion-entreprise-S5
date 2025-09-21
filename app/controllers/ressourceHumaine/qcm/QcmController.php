@@ -5,6 +5,7 @@ namespace app\controllers\ressourceHumaine\qcm;
 use app\models\ressourceHumaine\qcm\QcmModel;
 use app\models\ressourceHumaine\qcm\QuestionModel;
 use app\models\ressourceHumaine\ProfilModel;
+use app\models\ressourceHumaine\scoring\ScoringModel;
 use Exception;
 
 use Flight;
@@ -202,6 +203,28 @@ class QcmController {
             ]);
         }
     }
+
+    public function scoringQcm() {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!$data || !isset($data['id_candidat'], $data['id_qcm'], $data['score'])) {
+            echo json_encode(['success' => false, 'message' => 'Données manquantes']);
+            return;
+        }
+
+        $id_candidat = (int) $data['id_candidat'];
+        $id_qcm = (int) $data['id_qcm'];
+        $score = (float) $data['score'];
+
+        $id_typeScoring = 1; 
+
+        try {
+            ScoringModel::insertScore($id_candidat, $id_typeScoring, $score);
+            echo json_encode(['success' => true, 'score' => $score]);
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+}
 
 }
 ?>

@@ -5,9 +5,11 @@ namespace app\controllers\ressourceHumaine\candidat;
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use app\models\ressourceHumaine\cv\CvModel;
 use app\models\ressourceHumaine\cv\DetailCvModel;
+use app\models\ressourceHumaine\cv\PostulanceModel;
 use Flight;
 
 use app\models\ressourceHumaine\contratEssai\ContratEssaiModel;
+use app\models\ressourceHumaine\qcm\QcmModel;
 use app\models\ressourceHumaine\resultatCandidat\ResultatCandidatModel;
 use app\models\ressourceHumaine\typeResultatCandidat\TypeResultatCandidatModel;
 
@@ -248,8 +250,28 @@ class CandidatController
         if (!empty($data['id_annonce'])) {
             $id_annonce_url = '&id_annonce=' . urlencode($data['id_annonce']);
         }
-        Flight::redirect('/candidature?success=1' . $id_annonce_url);
+
+        PostulanceModel::insertPostulance($id_cv, $id_annonce);
+
+        $eligible = PostulanceModel::eligibilite($id_annonce, $id_candidat);
+
+        if ($eligible) {        
+            $qcm = QcmModel::randomQcm($id_profil);
+            Flight::redirect('/interviewQcm?id='.$qcm['id_qcm'].'&id_candidat='.$id_candidat);
+        } else {
+            Flight::redirect('/candidature?success=1' . $id_annonce_url);
+        }
     }
+
+    // public function eli() {
+    //     $eligible = PostulanceModel::eligibilite(1, 7);
+    //     print($eligible);
+    //     if ($eligible) {
+    //         $id_candidat = 7;
+    //         $qcm = QcmModel::randomQcm(1);
+    //         Flight::redirect('/interviewQcm?id='.$qcm['id_qcm'].'&id_candidat='.$id_candidat);
+    //     }
+    // }
 
     public function getById($id)
     {
@@ -287,7 +309,6 @@ class CandidatController
             'message' => $message
         ]);
     }
-
     public function delete($id)
     {
         $candidatModel = new CandidatModel();

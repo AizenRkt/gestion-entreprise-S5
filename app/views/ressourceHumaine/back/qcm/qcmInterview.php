@@ -33,59 +33,12 @@
         </div>
 
         <section class="section">
-          <form action="#" method="post">
-            
-            <!-- Question 1 -->
-            <div class="card mb-3 question-step" id="question1">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">1. Quel est le langage utilisé pour structurer une page web ?</h5>
-                <span class="badge bg-primary">5 pts</span>
-              </div>
-              <div class="card-body">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" id="q1r1" name="q1" value="html">
-                  <label class="form-check-label" for="q1r1">HTML</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" id="q1r2" name="q1" value="css">
-                  <label class="form-check-label" for="q1r2">CSS</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" id="q1r3" name="q1" value="php">
-                  <label class="form-check-label" for="q1r3">PHP</label>
-                </div>
-              </div>
-              <div class="card-footer text-end">
-                <button type="button" class="btn btn-primary next-btn">Question suivante</button>
-              </div>
-            </div>
-
-            <!-- Question 2 -->
-            <div class="card mb-3 question-step d-none" id="question2">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">2. Quel langage est orienté objet ?</h5>
-                <span class="badge bg-primary">8 pts</span>
-              </div>
-              <div class="card-body">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" id="q2r1" name="q2" value="java">
-                  <label class="form-check-label" for="q2r1">Java</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" id="q2r2" name="q2" value="python">
-                  <label class="form-check-label" for="q2r2">Python</label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" id="q2r3" name="q2" value="html">
-                  <label class="form-check-label" for="q2r3">HTML</label>
-                </div>
-              </div>
-              <div class="card-footer text-end">
-                <button type="submit" class="btn btn-success">Valider mes réponses</button>
-              </div>
-            </div>
-
-          </form>
+          <div class="row">
+              <div id="qcmContainer" class="col-12"></div>
+          </div>
+          <div class="mt-4 text-end">
+              <button id="submitQcmBtn" class="btn btn-success">Valider mes réponses</button>
+          </div>
         </section>
       </div>
     </div>
@@ -97,17 +50,89 @@
 <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 
 <script>
-    document.querySelectorAll(".next-btn").forEach(btn => {
-        btn.addEventListener("click", function() {
-            const current = this.closest(".question-step");
-            const next = current.nextElementSibling;
-            if (next && next.classList.contains("question-step")) {
-                current.classList.add("d-none");
-                next.classList.remove("d-none");
+document.addEventListener("DOMContentLoaded", () => {
+    const qcmContainer = document.getElementById("qcmContainer");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const qcmId = urlParams.get('id');
+    const idCandidat = urlParams.get('id_candidat');
+
+    function loadQcm(id) {
+        fetch(`<?= Flight::base() ?>/qcm/${id}`)
+            .then(res => res.json())
+            .then(response => {
+                if(response.success) {
+                    qcmContainer.innerHTML = "";
+                    response.data.forEach((question, index) => {
+                        const card = document.createElement("div");
+                        card.className = "card mb-4 shadow-sm";
+
+                        let reponsesHTML = question.reponses.map((rep, i) => `
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="radio" name="q${question.id_question}" value="${rep.id_reponse}" data-correct="${rep.est_correcte}" id="q${question.id_question}r${i+1}">
+                                <label class="form-check-label" for="q${question.id_question}r${i+1}">${rep.texte}</label>
+                            </div>
+                        `).join("");
+
+                        card.innerHTML = `
+                            <div class="card-body position-relative">
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-3">${question.bareme} pts</span>
+                                <h5 class="card-title">Question ${index + 1} : ${question.enonce}</h5>
+                                ${reponsesHTML}
+                            </div>
+                        `;
+                        qcmContainer.appendChild(card);
+                    });
+                } else {
+                    qcmContainer.innerHTML = `<p class="text-muted">QCM introuvable.</p>`;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                qcmContainer.innerHTML = `<p class="text-danger">Erreur lors du chargement du QCM.</p>`;
+            });
+    }
+
+    loadQcm(qcmId);
+
+    // Validation du QCM
+    document.getElementById("submitQcmBtn").addEventListener("click", () => {
+        const questions = qcmContainer.querySelectorAll(".card");
+        let scoreTotal = 0;
+
+        questions.forEach(card => {
+            const selected = card.querySelector("input[type=radio]:checked");
+            if(selected && selected.dataset.correct == "1") {
+                const bareme = parseFloat(card.querySelector(".badge").textContent);
+                scoreTotal += bareme;
             }
         });
-    });
-</script>
 
+        // Envoi du score au serveur
+        fetch('<?= Flight::base() ?>/scoringQcm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_candidat: idCandidat,
+                id_qcm: qcmId,
+                score: scoreTotal
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                alert("Score enregistré : " + scoreTotal + " pts");
+                window.location.href = "<?= Flight::base() ?>/";
+            } else {
+                alert("Erreur lors de l'enregistrement du score.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Erreur réseau.");
+        });
+    });
+});
+</script>
 </body>
 </html>

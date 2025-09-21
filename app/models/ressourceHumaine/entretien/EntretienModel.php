@@ -6,6 +6,7 @@ use PDO;
 
 class EntretienModel {
     
+    // correction
     public function hasScheduleConflict($date, $duree, $ignoreId = null)
     {
         try {
@@ -18,15 +19,15 @@ class EntretienModel {
                 SELECT COUNT(*) as count 
                 FROM entretien_candidat 
                 WHERE (
-                    (:start BETWEEN date AND DATE_ADD(date, INTERVAL duree MINUTE))
-                    OR (:end BETWEEN date AND DATE_ADD(date, INTERVAL duree MINUTE))
+                    (:start BETWEEN date AND DATE_ADD(date, INTERVAL $duree MINUTE))
+                    OR (:end BETWEEN date AND DATE_ADD(date, INTERVAL $duree MINUTE))
                     OR (date BETWEEN :start AND :end)
                 )
             ";
             
             $params = [
                 ':start' => $startDateTime,
-                ':end' => $endDateTime
+                ':end'   => $endDateTime
             ];
             
             if ($ignoreId) {
@@ -43,9 +44,50 @@ class EntretienModel {
             
         } catch (\PDOException $e) {
             error_log("Erreur de vérification de conflit: " . $e->getMessage());
-            return true;
+            return true; // on suppose un conflit en cas d'erreur
         }
     }
+
+    // public function hasScheduleConflict($date, $duree, $ignoreId = null)
+    // {
+    //     try {
+    //         $db = Flight::db();
+            
+    //         $startDateTime = $date;
+    //         $endDateTime = date('Y-m-d H:i:s', strtotime($startDateTime . ' + ' . $duree . ' minutes'));
+            
+    //         $sql = "
+    //             SELECT COUNT(*) as count 
+    //             FROM entretien_candidat 
+    //             WHERE (
+    //                 (:start BETWEEN date AND DATE_ADD(date, INTERVAL duree MINUTE))
+    //                 OR (:end BETWEEN date AND DATE_ADD(date, INTERVAL duree MINUTE))
+    //                 OR (date BETWEEN :start AND :end)
+    //             )
+    //         ";
+            
+    //         $params = [
+    //             ':start' => $startDateTime,
+    //             ':end' => $endDateTime
+    //         ];
+            
+    //         if ($ignoreId) {
+    //             $sql .= " AND id_entretien != :ignore_id";
+    //             $params[':ignore_id'] = $ignoreId;
+    //         }
+            
+    //         $stmt = $db->prepare($sql);
+    //         $stmt->execute($params);
+            
+    //         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+    //         return $result['count'] > 0;
+            
+    //     } catch (\PDOException $e) {
+    //         error_log("Erreur de vérification de conflit: " . $e->getMessage());
+    //         return true;
+    //     }
+    // }
 
     public function creerEntretien($id_candidat, $date, $duree, $id_user = null) {
         try {

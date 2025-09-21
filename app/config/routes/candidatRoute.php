@@ -20,4 +20,4 @@ $router->get('/candidat/delete/@id', [$candidatController, 'delete']);
 $router->get('/backOffice/candidat', [$candidatController, 'backOfficeCandidat']);
 $router->post('/backOffice/candidat/filter', [$candidatController, 'filter']);
 
-
+$router->get('/test', [$candidatController, 'eli']);

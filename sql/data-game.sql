@@ -203,3 +203,9 @@ INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/employes', 'R
 -- Contrats 
 INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/contratCrea', 'Administrateur');
 INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/contratCrea', 'RH');
+-- scoring
+-- ======================
+INSERT INTO type_scoring (nom) VALUES
+('QCM'),
+('entretien RH'),
+('entretien Technique');

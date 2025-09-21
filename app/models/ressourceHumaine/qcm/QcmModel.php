@@ -36,7 +36,7 @@ class QcmModel {
             $db = Flight::db();
 
             $sql = "
-                SELECT q.id_question, q.enonce, r.id_reponse, r.texte AS texte_reponse, dq.bareme_question AS bareme
+                SELECT q.id_question, q.enonce, r.id_reponse, r.texte AS texte_reponse, r.est_correcte AS est_correcte, dq.bareme_question AS bareme
                 FROM detail_qcm dq
                 JOIN question q ON dq.id_question = q.id_question
                 JOIN reponse r ON r.id_question = q.id_question
@@ -62,7 +62,8 @@ class QcmModel {
                 }
                 $questions[$id_question]['reponses'][] = [
                     'id_reponse' => $row['id_reponse'],
-                    'texte' => $row['texte_reponse']
+                    'texte' => $row['texte_reponse'],
+                    'est_correcte' => $row['est_correcte']
                 ];
             }
 
@@ -122,6 +123,21 @@ class QcmModel {
         }
     }
 
+    public static function randomQcm($id_profil) {
+        $db = Flight::db();
 
+        $stmt = $db->prepare("
+            SELECT * 
+            FROM qcm 
+            WHERE id_profil = ? 
+            ORDER BY RAND() 
+            LIMIT 1
+        ");
+        $stmt->execute([$id_profil]);
+
+        $qcm = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $qcm ?: null;
+    }
 
 }
