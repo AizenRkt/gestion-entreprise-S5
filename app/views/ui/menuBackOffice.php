@@ -76,7 +76,10 @@
                         </li>     
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/planning" class="submenu-link">Planning</a>
-                        </li>                        
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/seeAllQcm" class="submenu-link">résultat QCM</a>
+                        </li>                                                  
                     </ul>
                 </li>
 
@@ -94,7 +97,8 @@
                         </li>     
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/seeAllQcm" class="submenu-link">QCM existant</a>
-                        </li>                        
+                        </li>
+
                     </ul>
                 </li>
                 

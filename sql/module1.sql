@@ -229,6 +229,7 @@ CREATE TABLE scoring (
     id_scoring INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_type_scoring INT NOT NULL,
+    id_item INT NOT NULL,
     valeur DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
     FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring)

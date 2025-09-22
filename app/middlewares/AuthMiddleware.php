@@ -53,7 +53,8 @@ class AuthMiddleware {
         // 5. Vérifier si le rôle de l'utilisateur est dans la liste des rôles autorisés
         $userRole = $_SESSION['user']['role'];
         if (!in_array($userRole, $allowedRoles)) {
-            Flight::halt(403, '<h1>403 - Accès Interdit</h1><p>Vous n\'avez pas les droits nécessaires pour accéder à cette page.</p>');
+            // Flight::halt(403, '<h1>403 - Accès Interdit</h1><p>Vous n\'avez pas les droits nécessaires pour accéder à cette page.</p>');
+            Flight::render('ui/erreur403');
             exit();
         }
     }

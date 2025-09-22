@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\Status;
 use app\controllers\ressourceHumaine\contratEssai\ContratEssaiController;
 use Flight;
 
@@ -25,10 +24,7 @@ class Controller
 
     public function acceuil()
     {
-        $status = new Status();
-        $data = $status->getStatus();
-
-        Flight::render('ressourceHumaine/acceuil', ['status' => $data]);
+        Flight::render('ressourceHumaine/acceuil');
     }
 
     public function annonce()
