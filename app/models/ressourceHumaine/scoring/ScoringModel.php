@@ -6,17 +6,18 @@ use Exception;
 use PDOException;
 
 class ScoringModel {
-    public static function insertScore($id_candidat, $id_typeScoring, $score) {
+    public static function insertScore($id_candidat, $id_typeScoring, $score, $id_item) {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                INSERT INTO scoring (id_candidat, id_type_scoring, valeur)
-                VALUES (:id_candidat, :id_type_scoring, :valeur)
+                INSERT INTO scoring (id_candidat, id_type_scoring, valeur, id_item)
+                VALUES (:id_candidat, :id_type_scoring, :valeur, :id_item)
             ");
             $stmt->execute([
                 ':id_candidat'     => $id_candidat,
                 ':id_type_scoring' => $id_typeScoring,
-                ':valeur'          => $score
+                ':valeur'          => $score,
+                ':id_item'         => $id_item
             ]);
 
             return $db->lastInsertId();

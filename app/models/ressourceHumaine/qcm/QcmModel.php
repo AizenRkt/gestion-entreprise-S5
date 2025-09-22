@@ -140,4 +140,67 @@ class QcmModel {
         return $qcm ?: null;
     }
 
+    // public static function findCandidatSuccess($id_qcm) {
+    //     try {
+    //         $db = Flight::db();
+
+    //         $sql = "
+    //             SELECT 
+    //                 s.id_candidat,
+    //                 c.nom,
+    //                 c.prenom,
+    //                 s.valeur,
+    //                 q.note_max,
+    //                 (q.note_max / 2) AS moyenne
+    //             FROM scoring s
+    //             JOIN candidat c ON s.id_candidat = c.id_candidat
+    //             JOIN qcm q ON s.id_item = q.id_qcm
+    //             WHERE s.id_item = ?
+    //             AND s.id_type_scoring = 1
+    //             AND s.valeur >= (q.note_max / 2)
+    //         ";
+
+    //         $stmt = $db->prepare($sql);
+    //         $stmt->execute([$id_qcm]);
+
+    //         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //     } catch (\PDOException $e) {
+    //         return [];
+    //     }
+    // }
+
+    public static function findCandidatSuccess($id_qcm) {
+        try {
+            $db = Flight::db();
+
+            $sql = "
+                SELECT 
+                    s.id_candidat,
+                    c.nom,
+                    c.prenom,
+                    s.valeur,
+                    q.note_max,
+                    (q.note_max / 2) AS moyenne
+                FROM scoring s
+                JOIN candidat c ON s.id_candidat = c.id_candidat
+                JOIN qcm q ON s.id_item = q.id_qcm
+                LEFT JOIN employe e ON c.id_candidat = e.id_candidat
+                LEFT JOIN entretien ent ON c.id_candidat = ent.id_candidat
+                WHERE s.id_item = ?
+                AND s.id_type_scoring = 1
+                AND s.valeur >= (q.note_max / 2)
+                AND e.id_candidat IS NULL
+                AND ent.id_candidat IS NULL
+            ";
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute([$id_qcm]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
 }

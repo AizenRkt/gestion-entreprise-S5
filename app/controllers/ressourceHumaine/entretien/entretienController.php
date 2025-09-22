@@ -3,6 +3,9 @@
 namespace app\controllers\ressourceHumaine\entretien;
 
 use app\models\ressourceHumaine\entretien\EntretienModel;
+use app\models\ressourceHumaine\candidat\CandidatModel;
+use app\models\ressourceHumaine\scoring\ScoringModel;
+use Dom\Entity;
 use Flight;
 
 class entretienController
@@ -22,10 +25,21 @@ class entretienController
         // Récupérer tous les candidats pour le formulaire
         $candidats = $this->entretienModel->getTousCandidats();
 
+        $id_candidat = $_GET['id_candidat'] ?? null;
+
+        $candidat = null;
+        if ($id_candidat) {
+            $candidatModel = new CandidatModel();
+            $candidat = $candidatModel->getById($id_candidat);
+        }
+
         Flight::render('ressourceHumaine/back/orgaEntretien', [
+            'candidat' => $candidat,
             'candidats' => $candidats
         ]);
+
     }
+
 
     public function getEntretiensPlanning()
     {
@@ -260,6 +274,32 @@ class entretienController
                 error_log("Erreur dans supprimerEntretien: " . $e->getMessage());
                 Flight::json(['error' => 'Une erreur est survenue'], 500);
             }
+        }
+    }
+
+    public function scoringEntretien() {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!$data || !isset($data['id_candidat'], $data['id_entretien'], $data['score'], $data['duree'], $data['commentaire'])) {
+            echo json_encode(['success' => false, 'message' => 'Données manquantes']);
+            return;
+        }
+
+        $id_candidat = (int) $data['id_candidat'];
+        $id_entretien = (int) $data['id_entretien'];
+        $score = (float) $data['score'];
+
+        $duree = (int) $data['duree'];
+        $commentaire = (String) $data['commentaire'];
+
+        $id_typeScoring = 2; 
+
+        try {
+            ScoringModel::insertScore($id_candidat, $id_typeScoring, $score, $id_entretien);
+            $this->entretienModel->creerDetailEntretien($id_entretien, $duree, $commentaire);
+            echo json_encode(['success' => true, 'score' => $score]);
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 }

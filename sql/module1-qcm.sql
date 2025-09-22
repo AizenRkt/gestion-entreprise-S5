@@ -191,3 +191,43 @@ question : {
         bareme : 10
     }
 }
+
+CREATE TABLE type_scoring (
+    id_type_scoring INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE scoring (
+    id_scoring INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT NOT NULL,
+    id_type_scoring INT NOT NULL,
+    id_item INT NOT NULL,
+    valeur DECIMAL(5,2) NOT NULL,
+    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
+    FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring)
+);
+
+CREATE TABLE qcm (
+    id_qcm INT AUTO_INCREMENT PRIMARY KEY,
+    id_profil INT NOT NULL,
+    titre VARCHAR(255) NOT NULL,
+    note_max DECIMAL(5,2) NOT NULL,  
+    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
+);
+
+SELECT 
+    s.id_candidat,
+    c.nom,
+    c.prenom,
+    q.id_qcm,
+    q.titre,
+    s.valeur,
+    q.note_max,
+    (q.note_max / 2) AS moyenne,
+    CASE WHEN s.valeur >= q.note_max / 2 THEN 1 ELSE 0 END AS est_admis
+FROM scoring s
+JOIN candidat c ON s.id_candidat = c.id_candidat
+JOIN qcm q ON s.id_item = q.id_qcm
+WHERE s.id_type_scoring = 1 
+  AND s.valeur >= q.note_max / 2;

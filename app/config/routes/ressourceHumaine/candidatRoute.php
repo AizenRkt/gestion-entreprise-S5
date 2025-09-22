@@ -1,5 +1,6 @@
 <?php
 
+use app\controllers\Controller;
 use app\controllers\ressourceHumaine\candidat\CandidatController;
 use flight\Engine;
 use flight\net\Router;
@@ -10,6 +11,10 @@ use flight\net\Router;
  */
 
 $candidatController = new CandidatController();
+
+$Controller = new Controller();
+
+$router->get('/candidature', [ $Controller, 'candidature' ]);
 
 // Routes pour les candidats
 $router->get('/candidat', [$candidatController, 'annonce']);          

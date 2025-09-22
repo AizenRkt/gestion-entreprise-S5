@@ -217,6 +217,14 @@ CREATE TABLE entretien_candidat (
     FOREIGN KEY (id_user) REFERENCES user(id_user)
 );
 
+CREATE TABLE detail_entretien (
+    id_detail_entretien INT AUTO_INCREMENT PRIMARY KEY,
+    id_entretien INT,
+    duree INT,
+    commentaire TEXT NULL,
+    FOREIGN KEY (id_entretien) REFERENCES entretien_candidat(id_entretien)
+);
+
 -- ======================
 -- scoring
 -- ======================

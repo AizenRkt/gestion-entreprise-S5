@@ -212,5 +212,4 @@ INSERT INTO route_permissions (route_pattern, role_name) VALUES ('/annonceListe'
 
 INSERT INTO type_scoring (nom) VALUES
 ('QCM'),
-('entretien RH'),
-('entretien Technique');
+('entretien')

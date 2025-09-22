@@ -1,11 +1,18 @@
 <?php
 
+use app\controllers\Controller;
 use app\controllers\ressourceHumaine\AuthController;
 use flight\net\Router;
 
 /** 
  * @var Router $router
 */
+
+$Controller = new Controller();
+$router->get('/', [ $Controller, 'acceuil' ]);
+$router->get('/log', [ $Controller, 'log' ]);
+$router->get('/sign', [ $Controller, 'sign' ]);
+
 $AuthController = new AuthController();
 
 $router->get('/auth/login', [ $AuthController, 'log' ]); // Affiche le formulaire de connexion

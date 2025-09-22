@@ -31,7 +31,8 @@ $router->get('/question/all', [$qcmController, 'getAllQuestion']);
 $router->get('/question/@id', [$qcmController, 'getByIdQuestion']);
 $router->delete('/question/@id', [$qcmController, 'deleteQuestion']);
 
-// 
+// scoring
 $router->POST('/scoringQcm', [$qcmController, 'scoringQcm']);
+$router->GET('/resultatQcm', [$qcmController, 'qcmResult']);
 
 

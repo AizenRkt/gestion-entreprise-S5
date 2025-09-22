@@ -263,16 +263,6 @@ class CandidatController
         }
     }
 
-    // public function eli() {
-    //     $eligible = PostulanceModel::eligibilite(1, 7);
-    //     print($eligible);
-    //     if ($eligible) {
-    //         $id_candidat = 7;
-    //         $qcm = QcmModel::randomQcm(1);
-    //         Flight::redirect('/interviewQcm?id='.$qcm['id_qcm'].'&id_candidat='.$id_candidat);
-    //     }
-    // }
-
     public function getById($id)
     {
         $candidatModel = new CandidatModel();
@@ -309,6 +299,7 @@ class CandidatController
             'message' => $message
         ]);
     }
+    
     public function delete($id)
     {
         $candidatModel = new CandidatModel();
@@ -323,6 +314,7 @@ class CandidatController
             'message' => $message
         ]);
     }
+
     public function backOfficeCandidat()
     {
         // Charger les données dynamiques

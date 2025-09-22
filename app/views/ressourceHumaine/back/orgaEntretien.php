@@ -58,20 +58,8 @@
                         <div class="card p-4">
                             <form id="entretienForm" method="post">
 
-                                <!-- Sélection du candidat -->
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Candidat *</label>
-                                    <select name="id_candidat" id="candidatSelect" class="form-select" required>
-                                        <option value="">-- Sélectionner un candidat --</option>
-                                        <?php if (isset($candidats) && is_array($candidats)): ?>
-                                            <?php foreach ($candidats as $candidat): ?>
-                                                <option value="<?= htmlspecialchars($candidat['id_candidat']) ?>">
-                                                    <?= htmlspecialchars($candidat['prenom'] . ' ' . $candidat['nom']) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-                                </div>
+                                <!-- Champ caché candidat -->
+                                <input type="hidden" name="id_candidat" value="<?= htmlspecialchars($candidat['id_candidat']) ?>">
 
                                 <!-- Date de l'entretien -->
                                 <div class="mb-3">
@@ -108,27 +96,25 @@
                             <h5 class="fw-bold">Informations du candidat</h5>
                             <p class="text-muted">Détails du candidat sélectionné</p>
 
-                            <!-- Aperçu du candidat -->
-                            <div id="candidatPreview" style="display: none;">
+                            <div id="candidatPreview">
                                 <div class="text-center mb-3">
                                     <div class="avatar avatar-xl">
-                                        <span id="candidatInitials" class="avatar-initial bg-primary text-white"></span>
+                                        <span class="avatar-initial bg-primary text-white">
+                                            <?= strtoupper(substr($candidat['prenom'], 0, 1) . substr($candidat['nom'], 0, 1)) ?>
+                                        </span>
                                     </div>
                                 </div>
-                                <h6 id="candidatNom" class="fw-bold text-center mb-2"></h6>
+                                <h6 class="fw-bold text-center mb-2">
+                                    <?= htmlspecialchars($candidat['prenom'] . ' ' . $candidat['nom']) ?>
+                                </h6>
                                 <div class="mb-2">
                                     <strong>Email:</strong>
-                                    <span id="candidatEmail" class="text-muted"></span>
+                                    <span class="text-muted"><?= htmlspecialchars($candidat['email'] ?? 'Non renseigné') ?></span>
                                 </div>
                                 <div class="mb-2">
                                     <strong>Téléphone:</strong>
-                                    <span id="candidatTelephone" class="text-muted"></span>
+                                    <span class="text-muted"><?= htmlspecialchars($candidat['telephone'] ?? 'Non renseigné') ?></span>
                                 </div>
-                            </div>
-
-                            <div id="noSelection" class="text-center text-muted">
-                                <i class="bi bi-person-circle fs-1 mb-3"></i>
-                                <p>Sélectionnez un candidat pour voir ses informations</p>
                             </div>
                         </div>
                     </div>
@@ -145,51 +131,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('entretienForm');
-    const candidatSelect = document.getElementById('candidatSelect');
-    const preview = document.getElementById('candidatPreview');
-    const noSelection = document.getElementById('noSelection');
     const loading = document.querySelector('.loading');
 
-    // Gestion de la sélection du candidat
-    candidatSelect.addEventListener('change', function() {
-        const candidatId = this.value;
-        
-        if (candidatId) {
-            // Récupérer les informations du candidat via AJAX
-            fetch(`<?= Flight::base() ?>/entretien/candidat-info?id=${candidatId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.error) {
-                        updateCandidatPreview(data);
-                        preview.style.display = 'block';
-                        noSelection.style.display = 'none';
-                    } else {
-                        console.error('Erreur:', data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la récupération des données candidat:', error);
-                });
-        } else {
-            preview.style.display = 'none';
-            noSelection.style.display = 'block';
-        }
-    });
-
-    // Fonction pour mettre à jour l'aperçu du candidat
-    function updateCandidatPreview(candidat) {
-        const initials = (candidat.prenom[0] + candidat.nom[0]).toUpperCase();
-        document.getElementById('candidatInitials').textContent = initials;
-        document.getElementById('candidatNom').textContent = candidat.prenom + ' ' + candidat.nom;
-        document.getElementById('candidatEmail').textContent = candidat.email || 'Non renseigné';
-        document.getElementById('candidatTelephone').textContent = candidat.telephone || 'Non renseigné';
-    }
-
-    // Gestion de la soumission du formulaire
+    // Soumission du formulaire
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Afficher le loading
         loading.style.display = 'inline-block';
         
         const formData = new FormData(form);
@@ -205,8 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 showAlert('success', data.message);
                 form.reset();
-                preview.style.display = 'none';
-                noSelection.style.display = 'block';
             } else {
                 showAlert('error', data.error || 'Une erreur est survenue');
             }
@@ -226,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
         messageElement.textContent = message;
         alertElement.style.display = 'block';
         
-        // Masquer l'alerte après 5 secondes
         setTimeout(() => {
             alertElement.style.display = 'none';
         }, 5000);

@@ -355,4 +355,27 @@ class EntretienModel {
             return null;
         }
     }
+
+    public function creerDetailEntretien($id_entretien, $duree, $commentaire = null) {
+        try {
+            $db = Flight::db();
+            $sql = "
+                INSERT INTO detail_entretien (id_entretien, duree, commentaire)
+                VALUES (:id_entretien, :duree, :commentaire)
+            ";
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                ':id_entretien' => $id_entretien,
+                ':duree'        => $duree,
+                ':commentaire'  => $commentaire
+            ]);
+
+            return $db->lastInsertId();
+
+        } catch (\PDOException $e) {
+            error_log("Erreur lors de la création du détail entretien : " . $e->getMessage());
+            return false;
+        }
+    }
+
 }
