@@ -55,8 +55,9 @@
                                                 <td><?= htmlspecialchars($annonce['ville']) ?></td>
                                                 <td><?= date('d/m/Y', strtotime($annonce['date_debut'])) ?> - <?= date('d/m/Y', strtotime($annonce['date_fin'])) ?></td>
                                                 <td><?php if ((($annonce['valeur'])==null)or(($annonce['valeur'])=='renouvellement')) {?> <span class="badge bg-success">Active</span></td><?php } else { ?><span class="badge bg-danger">retiree</span></td> <?php } ?></td>
-                                                <td><a href="<?= Flight::base() ?>/annonceretrait?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">retiree</a>
-                                            <a href="<?= Flight::base() ?>/annoncerenouvellement?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">renouvellee</a></td>
+                                                <td><?php if ((($annonce['valeur'])==null)or(($annonce['valeur'])=='renouvellement')) {?> <a href="<?= Flight::base() ?>/annonceretrait?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">retiree</a> <?php } else { ?>
+                                                <a href="<?= Flight::base() ?>/annoncerenouvellement?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">renouvellee</a><?php } ?>
+                                                <a href="<?= Flight::base() ?>/annoncedetail?id=<?= $annonce['id_annonce'] ?>" class="btn btn-outline-primary">detail</a></td>
                                             </tr>     
                                         <?php endforeach; ?>
                                     <?php else: ?>

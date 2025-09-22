@@ -91,5 +91,35 @@ class annonce {
             'annonces' => $annonces,
         ]); 
     }
+
+    public function getDetailAnnonces2() {
+        $id = $_GET['id'] ?? null;
+
+        $annonces = $this->model->getDetailAnnonces($id); 
+
+        Flight::render('ressourceHumaine/back/detailAnnonce', [
+            'annonces' => $annonces,
+        ]); 
+    }
+    
+    public function getDetailAnnonces3() {
+        $id = $_GET['id'] ?? null;
+        $this->model->retraitaAnnonce($id);
+        $annonces = $this->model->getDetailAnnonces($id); 
+
+        Flight::render('ressourceHumaine/back/detailAnnonce', [
+            'annonces' => $annonces,
+        ]); 
+    }
+
+    public function getDetailAnnonces4() {
+        $id = $_GET['id'] ?? null;
+        $this->model->renouvellementAnnonce($id);
+        $annonces = $this->model->getDetailAnnonces($id); 
+
+        Flight::render('ressourceHumaine/back/detailAnnonce', [
+            'annonces' => $annonces,
+        ]); 
+    }
 }
 

@@ -26,6 +26,21 @@ Flight::route('GET /annoncerenouvellement', function() {
     $controller->getAllAnnonces3(); 
 });
 
+Flight::route('GET /annonceretrait2', function() {
+    $controller = new AnnonceController();
+    $controller->getDetailAnnonces3(); 
+});
+
+Flight::route('GET /annoncerenouvellement2', function() {
+    $controller = new AnnonceController();
+    $controller->getDetailAnnonces4(); 
+});
+
+Flight::route('GET /annoncedetail', function() {
+    $controller = new AnnonceController();
+    $controller->getDetailAnnonces2(); 
+});
+
 /*Flight::route('POST /annonces', function() {
     $controller = new AnnonceController();
     $controller->getFilteredAnnonces(); 

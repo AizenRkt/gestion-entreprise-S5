@@ -119,7 +119,12 @@ public function getFilteredAnnonces($keyword, $diplome, $ville): array {
                     LEFT JOIN diplome d ON dd.id_item = d.id_diplome
                     LEFT JOIN detail_annonce dc ON a.id_annonce = dc.id_annonce AND dc.type='competence'
                     LEFT JOIN competence c ON dc.id_item = c.id_competence
-                    LEFT JOIN statut_annonce sa ON a.id_annonce = sa.id_annonce 
+                    LEFT JOIN statut_annonce sa 
+                ON sa.id_statut_annonce = (
+                    SELECT MAX(sa2.id_statut_annonce)
+                    FROM statut_annonce sa2
+                    WHERE sa2.id_annonce = a.id_annonce
+                )
                     WHERE a.id_annonce = ?
                     GROUP BY a.id_annonce 
                     ORDER BY a.date_debut DESC";

@@ -52,6 +52,11 @@ if (isset($_SESSION['user'])) {
                                 <p>
                                     <?= htmlspecialchars($annonce['qualite']) ?>
                                 </p>
+
+                                <h6 class="mt-4">Objectif :</h6>
+                                <p>
+                                    <?= htmlspecialchars($annonce['objectif']) ?>
+                                </p>
                             </div>
                         </div>
 
