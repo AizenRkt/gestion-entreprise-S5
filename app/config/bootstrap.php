@@ -35,6 +35,9 @@ $router = $app->router();
  */
 require('routes.php');
 
+// Enregistrement du Middleware d'authentification pour qu'il s'exécute avant chaque route
+// Flight::before('start', ['app\middlewares\AuthMiddleware', 'checkAccess']);
+
 // Inclusion des routes spécifiques au candidat
 require(__DIR__ . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'candidatRoute.php');
 require('routes/back/creaAnnonce.php');

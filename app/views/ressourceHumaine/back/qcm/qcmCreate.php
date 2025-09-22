@@ -1,191 +1,384 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QCM Créator - Mazer</title>
+    <title>Créer un QCM - Mazer</title>
     
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app-dark.css">
-    
-    <!-- datatables -->
-    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
-    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable.css">
+
+    <style>
+        .autocomplete-list {
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .autocomplete-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .autocomplete-item:hover {
+            background: #f1f1f1;
+        }
+
+        /* Flashcards - Deux par deux */
+        .flashcards-wrapper {
+            margin-top: 20px;
+            min-height: 270px;
+        }
+        
+        .flashcard-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .flashcard {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+            min-height: 250px;
+            position: relative;
+        }
+        
+        .flashcard-empty {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .flashcard-nav {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .flashcard-nav.hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .flashcard-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<script src="<?= Flight::base() ?>/public/template/assets/static/js/initTheme.js"></script>
 <div id="app">
     <?= Flight::menuBackOffice() ?>
     <div id="main">
-        <header class="mb-3">
-            <a href="#" class="burger-btn d-block d-xl-none">
-                <i class="bi bi-justify fs-3"></i>
-            </a>
-        </header>
-
         <div class="page-heading">
-            <div class="page-title">
-                <div class="row">
-                    <div class="col-12 col-md-6 order-md-1 order-last">
-                        <h3>Création de QCM</h3>
-                        <p class="text-subtitle text-muted">Cherchez et ajoutez des questions à votre QCM.</p>
+            <h3>Créateur de QCM</h3>
+        </div>
+
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Nouveau QCM</h4>
+                </div>
+
+                <div class="card-body">
+                    <div class="col-6 mb-3">
+                        <label class="form-label">Titre du QCM</label>
+                        <input type="text" class="form-control" placeholder="Ex: Test de logique">
                     </div>
-                    <div class="col-12 col-md-6 order-md-2 order-first text-end">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
-                            Ajouter une question
+                    
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-3 mb-3">
+                            <label class="form-label">Barème global (points)</label>
+                            <input type="number" class="form-control" value="1" min="1">
+                        </div>
+
+                        <div class="col-3 mb-3">
+                            <label class="form-label">profil</label>
+                            <select name="id_profil" class="form-select" id="basicSelect">
+                                <?php foreach($profil as $x) {?>
+                                    <option value="<?= $x['id_profil'] ?>"><?= $x['nom'] ?></option>
+                                <?php } ?>
+                            </select>
+
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 position-relative">
+                        <label class="form-label">Rechercher une question existante</label>
+                        <input type="text" id="searchQuestion" class="form-control" placeholder="Tapez un mot-clé...">
+                        <div id="autocompleteList" class="autocomplete-list d-none"></div>
+                        <button class="btn btn-primary mt-2" id="addSelectedQuestion">
+                            <i class="bi bi-plus-circle"></i> Ajouter au QCM
                         </button>
                     </div>
-                </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-12 col-md-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Rechercher une question...">
-                        <button class="btn btn-outline-primary" type="button">Chercher</button>
-                    </div>
-                </div>
-            </div>
+                    <hr>
 
-            <!-- Modal Ajouter Question -->
-            <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="addQuestionLabel">Ajouter une question</h4>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                <i data-feather="x"></i>
+                    <!-- Zone flashcards - Deux par deux -->
+                    <div class="flashcards-wrapper">
+                        <div id="flashcards-display"></div>
+                        
+                        <div class="flashcard-nav hidden" id="flashcard-nav">
+                            <button class="btn btn-outline-secondary" id="prev-page">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <span class="mx-3" id="page-info">Page 1</span>
+                            <button class="btn btn-outline-secondary" id="next-page">
+                                <i class="bi bi-chevron-right"></i>
                             </button>
                         </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="mb-3">
-                                    <label for="questionText" class="form-label">Énoncé de la question</label>
-                                    <input type="text" class="form-control" id="questionText" placeholder="Tapez la question">
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <label for="questionPoints" class="form-label">Barème (points)</label>
-                                        <input type="number" class="form-control" id="questionPoints" value="5">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="numReponses" class="form-label">Nombre de réponses</label>
-                                        <input type="number" class="form-control" id="numReponses" value="3" min="2">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="correctAnswer" class="form-label">Réponse correcte</label>
-                                        <select class="form-select" id="correctAnswer"></select>
-                                    </div>
-                                </div>
+                    </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Réponses possibles</label>
-                                    <div id="answersContainer"></div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">Fermer</button>
-                            <button type="button" class="btn btn-primary" id="addQuestionBtn" data-bs-dismiss="modal">Ajouter la question</button>
-                        </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button class="btn btn-secondary me-2">Annuler</button>
+                        <button class="btn btn-success">Enregistrer le QCM</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Tableau des questions -->
-            <section class="section">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Questions ajoutées au QCM</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table" id="table1">
-                                <thead>
-                                    <tr>
-                                        <th>Énoncé</th>
-                                        <th>Nombre de réponses</th>
-                                        <th>Réponse correcte</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Quel est la capitale de Madagascar ?</td>
-                                        <td>3</td>
-                                        <td>A) Antananarivo</td>
-                                        <td><span class="badge bg-success">Active</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
         </div>
     </div>
-</div>
+</div>    
 
-<!-- JQuery doit être chargé avant ton script -->
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
 
 <script>
-$(document).ready(function(){
+    let selectedQuestion = null;
+    let questions = [];
+    let currentPage = 0;
+    const questionsPerPage = 2;
 
-    function updateAnswers() {
-        const num = parseInt($('#numReponses').val()) || 2;
-        const container = $('#answersContainer');
-        const select = $('#correctAnswer');
-
-        container.empty();
-        select.empty();
-
-        for(let i=1; i<=num; i++){
-            const letter = String.fromCharCode(64+i); // A, B, C...
-            container.append(`<input type="text" class="form-control mb-2 answerInput" placeholder="Réponse ${letter}" data-letter="${letter}">`);
-            select.append(`<option value="${letter}">${letter}</option>`);
+    // Autocomplete
+    $("#searchQuestion").on("input", function() {
+        const query = $(this).val().trim();
+        if (query.length < 2) {
+            $("#autocompleteList").addClass("d-none").empty();
+            return;
         }
-    }
 
-    updateAnswers();
-    $('#numReponses').on('input', updateAnswers);
+        $.getJSON("<?= Flight::base() ?>/question/search?q=" + encodeURIComponent(query), function(response) {
+            const list = $("#autocompleteList");
+            list.empty();
 
-    $('#addQuestionBtn').on('click', function(){
-        const question = $('#questionText').val();
-        const num = $('#numReponses').val();
-        const correct = $('#correctAnswer').val();
-
-        const answers = [];
-        $('.answerInput').each(function(){ answers.push($(this).val()); });
-
-        $('#table1 tbody').append(`
-            <tr>
-                <td>${question}</td>
-                <td>${num}</td>
-                <td>${correct}) ${answers[correct.charCodeAt(0)-65]}</td>
-                <td><span class="badge bg-success">Active</span></td>
-            </tr>
-        `);
-
-        // Réinitialisation modal
-        $('#questionText').val('');
-        $('#questionPoints').val('5');
-        $('#numReponses').val('3');
-        updateAnswers();
+            if (response.success && response.data.length > 0) {
+                response.data.forEach(q => {
+                    const item = $(`<div class="autocomplete-item">${q.enonce}</div>`);
+                    item.on("click", function() {
+                        $("#searchQuestion").val(q.enonce);
+                        selectedQuestion = q;
+                        list.addClass("d-none").empty();
+                    });
+                    list.append(item);
+                });
+                list.removeClass("d-none");
+            } else {
+                list.addClass("d-none");
+            }
+        });
     });
 
-});
+    // Ajouter une question
+    $("#addSelectedQuestion").on("click", function() {
+        if (!selectedQuestion) {
+            alert("Veuillez d'abord sélectionner une question !");
+            return;
+        }
+
+        // On enregistre uniquement id_question + bareme (le reste sert à l’affichage)
+        questions.push({
+            id_question: selectedQuestion.id_question,
+            enonce: selectedQuestion.enonce,
+            reponses: selectedQuestion.reponses || [],
+            bareme: 1
+        });
+
+        $("#searchQuestion").val("");
+        selectedQuestion = null;
+
+        updateFlashcardsDisplay();
+        updateNavigation();
+    });
+
+    function createFlashcard(question, index) {
+        return `
+            <div class="flashcard">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Question ${index + 1}</h6>
+                    <button class="btn btn-sm btn-danger remove-question" data-index="${index}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="mb-3">
+                    <strong>${question.enonce}</strong>
+                </div>
+                <ul class="mb-3">
+                    ${question.reponses.map(r => 
+                        `<li class="mb-1">${r.reponse} ${r.est_correcte ? "<span class='badge bg-success ms-1'>Correct</span>" : ""}</li>`
+                    ).join("")}
+                </ul>
+                <div class="mt-auto">
+                    <label class="form-label">Barème (points)</label>
+                    <input type="number" class="form-control bareme-question" value="${question.bareme}" min="1" data-index="${index}">
+                </div>
+            </div>
+        `;
+    }
+
+    function updateFlashcardsDisplay() {
+        const display = document.getElementById("flashcards-display");
+        display.innerHTML = "";
+
+        if (questions.length === 0) {
+            display.innerHTML = `
+                <div class="flashcard-container">
+                    <div class="flashcard flashcard-empty">
+                        <span>Aucune question ajoutée</span>
+                    </div>
+                    <div class="flashcard flashcard-empty">
+                        <span>Ajoutez des questions pour commencer</span>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        const startIndex = currentPage * questionsPerPage;
+        const endIndex = Math.min(startIndex + questionsPerPage, questions.length);
+        
+        const container = document.createElement("div");
+        container.className = "flashcard-container";
+
+        for (let i = startIndex; i < endIndex; i++) {
+            container.innerHTML += createFlashcard(questions[i], i);
+        }
+
+        if ((endIndex - startIndex) === 1) {
+            container.innerHTML += '<div class="flashcard flashcard-empty"><span>Emplacement libre</span></div>';
+        }
+
+        display.appendChild(container);
+
+        // Suppression
+        container.querySelectorAll(".remove-question").forEach(btn => {
+            btn.addEventListener("click", function() {
+                const index = parseInt(this.dataset.index);
+                questions.splice(index, 1);
+                const maxPage = Math.max(0, Math.ceil(questions.length / questionsPerPage) - 1);
+                if (currentPage > maxPage) {
+                    currentPage = maxPage;
+                }
+                updateFlashcardsDisplay();
+                updateNavigation();
+            });
+        });
+
+        // Mise à jour barème
+        container.querySelectorAll(".bareme-question").forEach(input => {
+            input.addEventListener("change", function() {
+                const index = parseInt(this.dataset.index);
+                questions[index].bareme = parseInt(this.value) || 1;
+            });
+        });
+    }
+
+    function updateNavigation() {
+        const nav = document.getElementById("flashcard-nav");
+        const prevBtn = document.getElementById("prev-page");
+        const nextBtn = document.getElementById("next-page");
+        const pageInfo = document.getElementById("page-info");
+
+        if (questions.length === 0) {
+            nav.classList.add("hidden");
+            return;
+        }
+
+        nav.classList.remove("hidden");
+
+        const totalPages = Math.ceil(questions.length / questionsPerPage);
+        
+        prevBtn.disabled = currentPage === 0;
+        nextBtn.disabled = currentPage >= totalPages - 1;
+        
+        pageInfo.textContent = `Page ${currentPage + 1} sur ${totalPages}`;
+    }
+
+    // Navigation
+    $("#prev-page").on("click", function() {
+        if (currentPage > 0) {
+            currentPage--;
+            updateFlashcardsDisplay();
+            updateNavigation();
+        }
+    });
+
+    $("#next-page").on("click", function() {
+        const totalPages = Math.ceil(questions.length / questionsPerPage);
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            updateFlashcardsDisplay();
+            updateNavigation();
+        }
+    });
+
+    // Initialiser
+    updateFlashcardsDisplay();
+    updateNavigation();
+</script>
+
+<script>
+    $(".btn-success").on("click", function() {
+        const titre = $("input[placeholder^='Ex: Test']").val().trim();
+        const id_profil = $("#basicSelect").val();
+        const note_max = $("input[type='number']").first().val();
+
+        const questionsData = questions.map(q => ({
+            id_question: q.id_question,
+            bareme: q.bareme
+        }));
+
+        if(!titre || questionsData.length === 0){
+            alert("Veuillez remplir le titre et ajouter au moins une question");
+            return;
+        }
+
+        $.ajax({
+            url: "<?= Flight::base() ?>/qcm/create",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id_profil: id_profil,
+                titre: titre,
+                note_max: note_max,
+                questions: questionsData
+            }),
+            success: function(res){
+                if(res.success){
+                    alert("QCM créé avec succès !");
+                    window.location.href = "<?= Flight::base() ?>/qcm/all"; // redirection vers liste QCM
+                } else {
+                    alert("Erreur : " + res.message);
+                }
+            },
+            error: function(){
+                alert("Erreur lors de l'envoi du QCM");
+            }
+        });
+    });
 </script>
 
 </body>

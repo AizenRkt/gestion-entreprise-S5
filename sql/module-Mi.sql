@@ -1,6 +1,7 @@
-DROP DATABASE if exists gestion_entreprise;
-CREATE DATABASE if not exists gestion_entreprise;
-
+-- ======================
+-- Création de la base
+-- ======================
+CREATE DATABASE IF NOT EXISTS gestion_entreprise;
 USE gestion_entreprise;
 
 -- ======================
@@ -29,11 +30,10 @@ CREATE TABLE candidat (
     id_candidat INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
-    email VARCHAR(150)  NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
     telephone VARCHAR(20),
     genre VARCHAR(1),
-    date_naissance DATE,
-    date_candidature DATE DEFAULT CURRENT_DATE
+    date_candidature DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE employe (
@@ -52,7 +52,6 @@ CREATE TABLE employe_statut (
     id_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
     id_employe INT NOT NULL,
     id_poste INT NOT NULL,
-    activite INT NOT NULL, -- 0 (pas actif) et 1 (actif)
     date_modification DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
@@ -71,11 +70,12 @@ CREATE TABLE user (
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
 );
 
-CREATE TABLE poste_role (
-    id_poste_role INT AUTO_INCREMENT PRIMARY KEY,
-    id_poste INT NOT NULL,
+CREATE TABLE user_role (
+    id_user_role INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
     id_role INT NOT NULL,
     date_role DATE NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES user(id_user),
     FOREIGN KEY (id_role) REFERENCES role(id_role)
 );
 
@@ -143,7 +143,7 @@ CREATE TABLE cv (
     id_cv INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_profil INT NOT NULL,
-    date_soumission DATE DEFAULT CURRENT_DATE,
+    date_soumission DATETIME DEFAULT CURRENT_TIMESTAMP,
     photo VARCHAR(255),
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
@@ -165,7 +165,7 @@ CREATE TABLE postulance (
     id_postulance INT AUTO_INCREMENT PRIMARY KEY,
     id_cv INT NOT NULL,
     id_annonce INT NOT NULL,
-    date_postulation DATE DEFAULT CURRENT_DATE,
+    date_postulation DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
     FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
 );
@@ -175,11 +175,11 @@ CREATE TABLE postulance (
 -- ======================
 CREATE TABLE qcm (
     id_qcm INT AUTO_INCREMENT PRIMARY KEY,
-    id_profil INT NOT NULL,
+    id_annonce INT NOT NULL,
     titre VARCHAR(255) NOT NULL,
-    note_max DECIMAL(5,2) NOT NULL,  
+    note_max DECIMAL(5,2) NOT NULL,
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
 );
 
 CREATE TABLE question (
@@ -201,7 +201,8 @@ CREATE TABLE detail_qcm (
     id_question INT NOT NULL,
     bareme_question DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm) ON DELETE CASCADE,
-    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE
+    FOREIGN KEY (id_question) REFERENCES question(id_question) ON DELETE CASCADE,
+    UNIQUE KEY unique_qcm_question (id_qcm, id_question)
 );
 
 -- ======================
@@ -211,7 +212,6 @@ CREATE TABLE entretien_candidat (
     id_entretien INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     date DATETIME NOT NULL,
-    duree INT,
     id_user INT,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
     FOREIGN KEY (id_user) REFERENCES user(id_user)
@@ -229,23 +229,22 @@ CREATE TABLE scoring (
     id_scoring INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_type_scoring INT NOT NULL,
-    id_item INT NOT NULL,
+    id_qcm INT NOT NULL,
     valeur DECIMAL(5,2) NOT NULL,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
-    FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring)
+    FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring),
+    FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm)
 );
 
--- CREATE TABLE reponse_candidat (
---     id_reponse_candidat INT AUTO_INCREMENT PRIMARY KEY,
---     id_candidat INT NOT NULL,
---     id_qcm INT NOT NULL,
---     id_question INT NOT NULL,
---     id_reponse INT NOT NULL,
---     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
---     FOREIGN KEY (id_question) REFERENCES question(id_question),
---     FOREIGN KEY (id_reponse) REFERENCES reponse(id_reponse),
---     FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm)
--- );
+CREATE TABLE reponse_candidat (
+    id_reponse_candidat INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT NOT NULL,
+    id_question INT NOT NULL,
+    id_reponse INT NOT NULL,
+    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
+    FOREIGN KEY (id_question) REFERENCES question(id_question),
+    FOREIGN KEY (id_reponse) REFERENCES reponse(id_reponse)
+);
 
 -- ======================
 -- resultat final
@@ -283,12 +282,10 @@ CREATE TABLE renouvellement_essai (
     FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
 );
 
--- ======================
--- permissions
--- ======================
-CREATE TABLE route_permissions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    route_pattern VARCHAR(191) NOT NULL,
-    role_name VARCHAR(50) NOT NULL,
-    UNIQUE KEY unique_route_role (route_pattern, role_name)
-);
+ALTER TABLE entretien_candidat ADD COLUMN duree INT NULL AFTER id_user;
+
+ALTER TABLE entretien_candidat 
+ADD COLUMN note_entretien DECIMAL(3,1) NULL CHECK (note_entretien >= 0 AND note_entretien <= 10),
+ADD COLUMN evaluation ENUM('recommande', 'reserve', 'refuse') NULL,
+ADD COLUMN commentaire TEXT NULL,
+ADD COLUMN date_evaluation DATETIME NULL;

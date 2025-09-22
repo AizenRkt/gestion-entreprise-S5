@@ -21,12 +21,17 @@ $router->get('/createQuestion', [$qcmController, 'createQuestion']);
 $router->get('/qcm/all', [$qcmController, 'getAll']);           
 $router->get('/qcm/@id', [$qcmController, 'getById']);
 $router->delete('/qcm/@id', [$qcmController, 'delete']);
+$router->post('/qcm/create', [$qcmController, 'createQcmApi']);
 
 $router->post('/question/add', [$qcmController,'addQuestion']);
+$router->get('/question/search', [$qcmController,'searchQuestion']);
 
 // question api
 $router->get('/question/all', [$qcmController, 'getAllQuestion']);           
 $router->get('/question/@id', [$qcmController, 'getByIdQuestion']);
 $router->delete('/question/@id', [$qcmController, 'deleteQuestion']);
+
+// 
+$router->POST('/scoringQcm', [$qcmController, 'scoringQcm']);
 
 

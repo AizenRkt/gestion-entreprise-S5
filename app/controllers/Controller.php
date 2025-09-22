@@ -2,42 +2,48 @@
 
 namespace app\controllers;
 
-use app\models\Status;
+use app\controllers\ressourceHumaine\contratEssai\ContratEssaiController;
 use Flight;
 
-class Controller {
+class Controller
+{
 
-    public function __construct() {
+    public function __construct()
+    {
     }
 
-    public function log() {
+    public function log()
+    {
         Flight::render('auth/log');
     }
 
-    public function sign() {
-        Flight::render('auth/sign');        
+    public function sign()
+    {
+        Flight::render('auth/sign');
     }
 
-    public function acceuil() {
-        $status = new Status(); 
-        $data = $status->getStatus();
-
-        Flight::render('ressourceHumaine/acceuil', ['status' => $data]);
+    public function acceuil()
+    {
+        Flight::render('ressourceHumaine/acceuil');
     }
 
-    public function annonce() {
+    public function annonce()
+    {
         Flight::render('ressourceHumaine/annonce');
     }
 
-    public function singleAnnonce() {
+    public function singleAnnonce()
+    {
         Flight::render('ressourceHumaine/annoncePage');
     }
 
-    public function createAnnonce() {
+    public function createAnnonce()
+    {
         Flight::render('ressourceHumaine/back/creaAnnonce');
     }
 
-    public function candidature() {
+    public function candidature()
+    {
         $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
         $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
         $villeModel = new \app\models\ressourceHumaine\ville\VilleModel();
@@ -51,16 +57,29 @@ class Controller {
         ]);
     }
 
-    public function planning() {
+    public function planning()
+    {
         Flight::render('ressourceHumaine/back/planning2');
     }
 
-    public function orgaEntretien() {
+    public function orgaEntretien()
+    {
         Flight::render('ressourceHumaine/back/orgaEntretien');
     }
 
-    public function backOffice(){
+    public function backOffice()
+    {
         Flight::render('ui/homeDefLayout');
+    }
+    public function listing() {
+        Flight::render('ressourceHumaine/back/employe/listemploye');
+    }
+
+    public function contratEssai()
+    {
+        // Rediriger vers le nouveau contrôleur
+        $contratController = new ContratEssaiController();
+        return $contratController->contratEssai();
     }
 
 }

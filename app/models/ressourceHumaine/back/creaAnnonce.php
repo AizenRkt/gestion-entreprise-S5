@@ -30,4 +30,24 @@ class creaAnnonce {
             return [];
         }
     }
+
+    public function getAllVille(): array {
+        try {
+            $sql = "SELECT nom FROM ville";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getAllProfil(): array {
+        try {
+            $sql = "SELECT nom FROM Profil";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }

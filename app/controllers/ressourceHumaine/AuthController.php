@@ -27,7 +27,7 @@ class AuthController {
                 'role' => $role
             ]; 
             $mssg = "Bienvenue " . $user['username'] . "!";
-            Flight::redirect('/annoncePage?mssg=' . urlencode($mssg));
+            Flight::redirect('/employes?mssg=' . urlencode($mssg));
         } else {
             $mssg = "Nom d'utilisateur ou mot de passe incorrect ou compte inactif.";
             Flight::redirect('/log/?mssg=' . urlencode($mssg));
@@ -56,10 +56,36 @@ class AuthController {
                 'role' => $role
             ]; 
             $mssg = "Inscription réussie. Bienvenue " . $user['username'] . "!";
-            Flight::redirect('/annoncePage?mssg=' . urlencode($mssg));
+            Flight::redirect('/employes?mssg=' . urlencode($mssg));
         } else {
             Flight::redirect('/sign?mssg=' . urlencode($result['message']));
         }
     }
+
+    public function authDeconnexion() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $_SESSION = [];
+
+        session_destroy();
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+
+        Flight::redirect('/log');
+    }
+
 }
 ?>

@@ -41,12 +41,6 @@
 
             <section class="section">
                 <div class="row">
-                    <!-- Barre de recherche -->
-                    <div class="d-flex mb-4">
-                        <input type="text" id="searchInput" class="form-control form-control-sm w-25 me-2" placeholder="Rechercher une question">
-                        <button id="searchBtn" class="btn btn-primary btn-sm">Chercher</button>
-                    </div>
-
                     <!-- Conteneur QCM dynamique -->
                     <div id="qcmContainer"></div>
                 </div>
@@ -84,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         card.innerHTML = `
                             <div class="card-body position-relative">
-                                <span class="badge bg-primary position-absolute top-0 end-0 m-3">8 pts</span>
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-3">${question.bareme} pts</span>
                                 <h5 class="card-title">Question ${index + 1} : ${question.enonce}</h5>
                                 ${reponsesHTML}
                             </div>
