@@ -163,6 +163,7 @@ INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALU
 ('Raharimalala', 'Malala', 'malala.rahari@example.com', '0334040404', 'F', '1994-05-29'),
 ('Randriamampionona', 'Fetra', 'fetra.randri@example.com', '0345050505', 'M', '1992-09-09'),
 ('Ravelomanana', 'Nomena', 'nomena.ravelo@example.com', '0326060606', 'F', '1990-12-31');
+
 -- CV (id_candidat de 1 à 20, id_profil de 1 à 10, photo fictive)
 INSERT INTO cv (id_candidat, id_profil, photo) VALUES
 (1, 1, 'photo1.jpg'),
@@ -263,9 +264,9 @@ INSERT INTO resultat_candidat (id_candidat, id_type_resultat_candidat, date) VAL
 -- contrat_essai pour 5 candidats (parmi ceux de resultat_candidat)
 -- ======================
 INSERT INTO contrat_essai (id_candidat, debut, fin) VALUES
-(2, '2025-09-21', '2025-12-21'),
 (4, '2025-09-22', '2025-12-22'),
-(6, '2025-09-23', '2025-12-23'),
-(8, '2025-09-24', '2025-12-24'),
-(10, '2025-09-25', '2025-12-25');
+(6, '2025-09-23', '2025-12-23');
 -- On relie les rôles aux postes (exemple :
+
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(6, 'Rabe', 'Tiana', 'tiana.rabe@example.com', '0337778899', 'M', '2023-05-20');

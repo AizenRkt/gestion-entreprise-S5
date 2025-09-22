@@ -5,11 +5,12 @@ namespace app\controllers\ressourceHumaine\candidat;
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use app\models\ressourceHumaine\cv\CvModel;
 use app\models\ressourceHumaine\cv\DetailCvModel;
-use Flight;
-
 use app\models\ressourceHumaine\contratEssai\ContratEssaiModel;
 use app\models\ressourceHumaine\resultatCandidat\ResultatCandidatModel;
 use app\models\ressourceHumaine\typeResultatCandidat\TypeResultatCandidatModel;
+use app\models\ressourceHumaine\employe\EmployeModel;
+
+use Flight;
 
 class CandidatController
 {
@@ -34,15 +35,21 @@ class CandidatController
         $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
         $candidatModel = new CandidatModel();
         $cvModel = new \app\models\ressourceHumaine\cv\CvModel();
+
+
         $contratEssaiModel = new ContratEssaiModel();
         $resultatCandidatModel = new ResultatCandidatModel();
         $typeResultatCandidatModel = new TypeResultatCandidatModel();
+        $employeModel = new EmployeModel();
+
         $db = \Flight::db();
         $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
         $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
 
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
+
+
 
         // Priorité : si 'eligible' est coché, on filtre uniquement sur les candidats ayant un résultat
         if (!empty($filters['statut']) && $filters['statut'] === 'eligible') {
@@ -62,6 +69,12 @@ class CandidatController
         }
 
         $candidats = $candidatModel->getFiltered($filters);
+        
+        $idsEmployes = $employeModel->getAllEmployeIds(); // Tous les id_candidat déjà employés
+        // Filtrer les candidats pour exclure ceux déjà employés
+        $candidats = array_filter($candidats, function ($cand) use ($idsEmployes) {
+            return !in_array($cand['id_candidat'], $idsEmployes);
+        });
 
         // Récupérer les photos des candidats via CV
         $photos = [];
@@ -308,6 +321,8 @@ class CandidatController
         $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
         $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
         $candidatModel = new \app\models\ressourceHumaine\candidat\CandidatModel();
+        $employeModel = new EmployeModel();
+        
         $db = \Flight::db();
         $villes = $db->query('SELECT * FROM ville ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
         $profils = $db->query('SELECT * FROM profil ORDER BY nom ASC')->fetchAll(\PDO::FETCH_ASSOC);
@@ -316,6 +331,12 @@ class CandidatController
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
         $candidats = $candidatModel->getAll();
+        
+        $idsEmployes = $employeModel->getAllEmployeIds(); // Tous les id_candidat déjà employés
+        // Filtrer les candidats pour exclure ceux déjà employés
+        $candidats = array_filter($candidats, function ($cand) use ($idsEmployes) {
+            return !in_array($cand['id_candidat'], $idsEmployes);
+        });
 
         $photos = [];
         $statuts = [];
