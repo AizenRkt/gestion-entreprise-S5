@@ -3,9 +3,11 @@
 namespace app\controllers\ressourceHumaine\candidat;
 
 use app\models\ressourceHumaine\candidat\CandidatModel;
+use app\models\ressourceHumaine\competence\CompetenceModel;
 use app\models\ressourceHumaine\cv\CvModel;
 use app\models\ressourceHumaine\cv\DetailCvModel;
 use app\models\ressourceHumaine\contratEssai\ContratEssaiModel;
+use app\models\ressourceHumaine\diplome\DiplomeModel;
 use app\models\ressourceHumaine\resultatCandidat\ResultatCandidatModel;
 use app\models\ressourceHumaine\typeResultatCandidat\TypeResultatCandidatModel;
 use app\models\ressourceHumaine\employe\EmployeModel;
@@ -31,10 +33,10 @@ class CandidatController
         if (isset($filters['profils']) && !is_array($filters['profils'])) {
             $filters['profils'] = [$filters['profils']];
         }
-        $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
-        $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
+        $diplomeModel = new DiplomeModel();
+        $competenceModel = new CompetenceModel();
         $candidatModel = new CandidatModel();
-        $cvModel = new \app\models\ressourceHumaine\cv\CvModel();
+        $cvModel = new CvModel();
 
 
         $contratEssaiModel = new ContratEssaiModel();
@@ -318,9 +320,9 @@ class CandidatController
     public function backOfficeCandidat()
     {
         // Charger les données dynamiques
-        $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
-        $competenceModel = new \app\models\ressourceHumaine\competence\CompetenceModel();
-        $candidatModel = new \app\models\ressourceHumaine\candidat\CandidatModel();
+        $diplomeModel = new DiplomeModel();
+        $competenceModel = new CompetenceModel();
+        $candidatModel = new CandidatModel();
         $employeModel = new EmployeModel();
         
         $db = \Flight::db();
@@ -331,7 +333,7 @@ class CandidatController
         $diplomes = $diplomeModel->getAll();
         $competences = $competenceModel->getAll();
         $candidats = $candidatModel->getAll();
-        
+
         $idsEmployes = $employeModel->getAllEmployeIds(); // Tous les id_candidat déjà employés
         // Filtrer les candidats pour exclure ceux déjà employés
         $candidats = array_filter($candidats, function ($cand) use ($idsEmployes) {
