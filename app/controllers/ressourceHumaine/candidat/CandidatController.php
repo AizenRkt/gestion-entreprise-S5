@@ -13,6 +13,7 @@ use app\models\ressourceHumaine\qcm\QcmModel;
 use app\models\ressourceHumaine\resultatCandidat\ResultatCandidatModel;
 use app\models\ressourceHumaine\typeResultatCandidat\TypeResultatCandidatModel;
 use app\models\ressourceHumaine\employe\EmployeModel;
+use app\models\ressourceHumaine\annonce\Annonce;
 
 use Flight;
 
@@ -132,10 +133,12 @@ class CandidatController
     public function create()
     {
         // Récupérer les données du formulaire
+        $db = \Flight::db();
         $data = Flight::request()->data->getData();
         $cvModel = new CvModel();
-        $db = \Flight::db();
         $candidatModel = new CandidatModel();
+        $annonceModel= new Annonce($db);
+
 
         // Vérification âge
         $age = $candidatModel->getAge($data['date_naissance'] ?? null);
@@ -161,6 +164,8 @@ class CandidatController
             $stmt = $db->prepare('SELECT id_profil FROM annonce WHERE id_annonce = ?');
             $stmt->execute([$id_annonce]);
             $id_profil_db = $stmt->fetchColumn();
+            
+            
             if ($id_profil_db !== false && $id_profil_db !== null) {
                 $id_profil = $id_profil_db;
             }
@@ -172,13 +177,21 @@ class CandidatController
         $candidatsProfil = $stmt->fetchAll();
         $emailToCheck = $data['email'] ?? '';
         $emailExists = false;
+                $age = $candidatModel->getAge($data['date_naissance'] ?? null);
+
+        //$idAnnonceByIdProfil = $annonce->getAllAnnonceByIdProfil($id_profil);
         foreach ($candidatsProfil as $row) {
             $stmt2 = $db->prepare('SELECT email FROM candidat WHERE id_candidat = ?');
             $stmt2->execute([$row['id_candidat']]);
             $email = $stmt2->fetchColumn();
             if ($email === $emailToCheck) {
-                $emailExists = true;
-                break;
+                $annonceByIdProfil = $annonceModel->getAllAnnonceByIdProfil($id_profil);
+                foreach($annonceByIdProfil as $rowAnnonce){
+                    if($rowAnnonce['id_annonce']==$id_annonce){
+                        $emailExists = true;
+                        break;
+                    }
+                }
             }
         }
         if ($emailExists) {

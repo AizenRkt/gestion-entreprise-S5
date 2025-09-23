@@ -39,7 +39,18 @@ class Annonce {
             return [];
         }
     }
+    public function getAllAnnonceByIdProfil($id){
+        try {
+            $sql = "SELECT * from annonce where id_profil = ? ;";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                return [];
+            }
+    }
 
+    
     public function getAllDiplomes(): array {
         $stmt = $this->db->query("SELECT id_diplome, nom FROM diplome ORDER BY nom ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -50,58 +61,58 @@ class Annonce {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-public function getFilteredAnnonces($keyword, $diplome, $ville): array {
-    $sql = "SELECT a.id_annonce, a.titre, a.date_debut, a.date_fin, a.experience, a.age_min, a.age_max,
-                   p.nom AS profil,
-                   GROUP_CONCAT(DISTINCT d.nom SEPARATOR ', ') AS diplomes,
-                   v.nom AS ville,
-                   a.objectif,
-                   sa.valeur AS valeur,
-                   MAX(d.id_diplome) AS max_diplome -- to sort by highest diploma
-            FROM annonce a
-            LEFT JOIN profil p ON a.id_profil = p.id_profil
-            LEFT JOIN detail_annonce da ON a.id_annonce = da.id_annonce AND da.type='ville'
-            LEFT JOIN ville v ON da.id_item = v.id_ville
-            LEFT JOIN detail_annonce dd ON a.id_annonce = dd.id_annonce AND dd.type='diplome'
-            LEFT JOIN diplome d ON dd.id_item = d.id_diplome
-            LEFT JOIN statut_annonce sa 
-                ON sa.id_statut_annonce = (
-                    SELECT MAX(sa2.id_statut_annonce)
-                    FROM statut_annonce sa2
-                    WHERE sa2.id_annonce = a.id_annonce
-                )
-            WHERE 1=1";
+    public function getFilteredAnnonces($keyword, $diplome, $ville): array {
+        $sql = "SELECT a.id_annonce, a.titre, a.date_debut, a.date_fin, a.experience, a.age_min, a.age_max,
+                    p.nom AS profil,
+                    GROUP_CONCAT(DISTINCT d.nom SEPARATOR ', ') AS diplomes,
+                    v.nom AS ville,
+                    a.objectif,
+                    sa.valeur AS valeur,
+                    MAX(d.id_diplome) AS max_diplome -- to sort by highest diploma
+                FROM annonce a
+                LEFT JOIN profil p ON a.id_profil = p.id_profil
+                LEFT JOIN detail_annonce da ON a.id_annonce = da.id_annonce AND da.type='ville'
+                LEFT JOIN ville v ON da.id_item = v.id_ville
+                LEFT JOIN detail_annonce dd ON a.id_annonce = dd.id_annonce AND dd.type='diplome'
+                LEFT JOIN diplome d ON dd.id_item = d.id_diplome
+                LEFT JOIN statut_annonce sa 
+                    ON sa.id_statut_annonce = (
+                        SELECT MAX(sa2.id_statut_annonce)
+                        FROM statut_annonce sa2
+                        WHERE sa2.id_annonce = a.id_annonce
+                    )
+                WHERE 1=1";
 
-    $params = [];
+        $params = [];
 
-    if (!empty($keyword)) {
-        $sql .= " AND a.titre LIKE :keyword ";
-        $params[':keyword'] = "%$keyword%";
+        if (!empty($keyword)) {
+            $sql .= " AND a.titre LIKE :keyword ";
+            $params[':keyword'] = "%$keyword%";
+        }
+
+        if (!empty($diplome)) {
+            $sql .= " AND EXISTS (
+                            SELECT 1
+                            FROM detail_annonce dd2
+                            WHERE dd2.id_annonce = a.id_annonce
+                            AND dd2.type='diplome'
+                            AND dd2.id_item <= :diplome
+                    )";
+            $params[':diplome'] = $diplome;
+        }
+
+        if (!empty($ville)) {
+            $sql .= " AND v.id_ville = :ville ";
+            $params[':ville'] = $ville;
+        }
+
+        $sql .= " GROUP BY a.id_annonce
+                ORDER BY max_diplome DESC, a.date_debut DESC"; 
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    if (!empty($diplome)) {
-        $sql .= " AND EXISTS (
-                        SELECT 1
-                        FROM detail_annonce dd2
-                        WHERE dd2.id_annonce = a.id_annonce
-                          AND dd2.type='diplome'
-                          AND dd2.id_item <= :diplome
-                  )";
-        $params[':diplome'] = $diplome;
-    }
-
-    if (!empty($ville)) {
-        $sql .= " AND v.id_ville = :ville ";
-        $params[':ville'] = $ville;
-    }
-
-    $sql .= " GROUP BY a.id_annonce
-              ORDER BY max_diplome DESC, a.date_debut DESC"; 
-
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 
     public function getDetailAnnonces($id): array {
     try {
@@ -161,4 +172,5 @@ public function getFilteredAnnonces($keyword, $diplome, $ville): array {
         }
     }
 
+   
 }
