@@ -186,7 +186,7 @@ class QcmModel {
                 JOIN candidat c ON s.id_candidat = c.id_candidat
                 JOIN qcm q ON s.id_item = q.id_qcm
                 LEFT JOIN employe e ON c.id_candidat = e.id_candidat
-                LEFT JOIN entretien ent ON c.id_candidat = ent.id_candidat
+                LEFT JOIN entretien_candidat ent ON c.id_candidat = ent.id_candidat
                 WHERE s.id_item = ?
                 AND s.id_type_scoring = 1
                 AND s.valeur >= (q.note_max / 2)

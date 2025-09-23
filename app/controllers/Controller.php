@@ -59,7 +59,7 @@ class Controller
 
     public function planning()
     {
-        Flight::render('ressourceHumaine/back/planning2');
+        Flight::render('ressourceHumaine/back/planning');
     }
 
     public function orgaEntretien()

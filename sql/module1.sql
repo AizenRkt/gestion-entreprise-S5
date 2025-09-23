@@ -220,8 +220,8 @@ CREATE TABLE entretien_candidat (
 CREATE TABLE detail_entretien (
     id_detail_entretien INT AUTO_INCREMENT PRIMARY KEY,
     id_entretien INT,
-    duree INT,
-    commentaire TEXT NULL,
+    evaluation ENUM('recommande', 'reserve', 'refuse') NULL, 
+    commentaire VARCHAR(255) NULL,
     FOREIGN KEY (id_entretien) REFERENCES entretien_candidat(id_entretien)
 );
 

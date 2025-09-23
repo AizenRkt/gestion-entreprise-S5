@@ -62,59 +62,59 @@ class entretienController
     /**
      * Noter un entretien
      */
-    public function noterEntretien()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            try {
-                $id_entretien = $_POST['id_entretien'] ?? null;
-                $note = $_POST['note'] ?? null;
-                $evaluation = $_POST['evaluation'] ?? null;
-                $commentaire = $_POST['commentaire'] ?? null;
+    // public function noterEntretien()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //         try {
+    //             $id_entretien = $_POST['id_entretien'] ?? null;
+    //             $note = $_POST['note'] ?? null;
+    //             $evaluation = $_POST['evaluation'] ?? null;
+    //             $commentaire = $_POST['commentaire'] ?? null;
 
-                // Validation des données
-                if (!$id_entretien || $note === null || !$evaluation) {
-                    Flight::json(['error' => 'ID entretien, note et évaluation sont obligatoires'], 400);
-                    return;
-                }
+    //             // Validation des données
+    //             if (!$id_entretien || $note === null || !$evaluation) {
+    //                 Flight::json(['error' => 'ID entretien, note et évaluation sont obligatoires'], 400);
+    //                 return;
+    //             }
 
-                // Validation de la note (0-10)
-                if (!is_numeric($note) || $note < 0 || $note > 10) {
-                    Flight::json(['error' => 'La note doit être comprise entre 0 et 10'], 400);
-                    return;
-                }
+    //             // Validation de la note (0-10)
+    //             if (!is_numeric($note) || $note < 0 || $note > 10) {
+    //                 Flight::json(['error' => 'La note doit être comprise entre 0 et 10'], 400);
+    //                 return;
+    //             }
 
-                // Validation de l'évaluation
-                $evaluationsValides = ['recommande', 'reserve', 'refuse'];
-                if (!in_array($evaluation, $evaluationsValides)) {
-                    Flight::json(['error' => 'Évaluation non valide'], 400);
-                    return;
-                }
+    //             // Validation de l'évaluation
+    //             $evaluationsValides = ['recommande', 'reserve', 'refuse'];
+    //             if (!in_array($evaluation, $evaluationsValides)) {
+    //                 Flight::json(['error' => 'Évaluation non valide'], 400);
+    //                 return;
+    //             }
 
-                // Noter l'entretien
-                $result = $this->entretienModel->noterEntretien(
-                    $id_entretien,
-                    $note,
-                    $evaluation,
-                    $commentaire
-                );
+    //             // Noter l'entretien
+    //             $result = $this->entretienModel->noterEntretien(
+    //                 $id_entretien,
+    //                 $note,
+    //                 $evaluation,
+    //                 $commentaire
+    //             );
 
-                if ($result['success']) {
-                    Flight::json([
-                        'success' => true,
-                        'message' => $result['message']
-                    ]);
-                } else {
-                    Flight::json(['error' => $result['message']], 400);
-                }
+    //             if ($result['success']) {
+    //                 Flight::json([
+    //                     'success' => true,
+    //                     'message' => $result['message']
+    //                 ]);
+    //             } else {
+    //                 Flight::json(['error' => $result['message']], 400);
+    //             }
 
-            } catch (\Exception $e) {
-                error_log("Erreur dans noterEntretien: " . $e->getMessage());
-                Flight::json(['error' => 'Une erreur est survenue lors de la notation'], 500);
-            }
-        } else {
-            Flight::json(['error' => 'Méthode non autorisée'], 405);
-        }
-    }
+    //         } catch (\Exception $e) {
+    //             error_log("Erreur dans noterEntretien: " . $e->getMessage());
+    //             Flight::json(['error' => 'Une erreur est survenue lors de la notation'], 500);
+    //         }
+    //     } else {
+    //         Flight::json(['error' => 'Méthode non autorisée'], 405);
+    //     }
+    // }
 
     /**
      * Récupérer les détails d'un entretien
@@ -277,29 +277,89 @@ class entretienController
         }
     }
 
-    public function scoringEntretien() {
-        $data = json_decode(file_get_contents('php://input'), true);
+    // public function scoringEntretien() {
+    //     $data = json_decode(file_get_contents('php://input'), true);
 
-        if (!$data || !isset($data['id_candidat'], $data['id_entretien'], $data['score'], $data['duree'], $data['commentaire'])) {
+    //     if (!$data || !isset($data['id_candidat'], $data['id_entretien'], $data['score'], $data['duree'], $data['commentaire'])) {
+    //         echo json_encode(['success' => false, 'message' => 'Données manquantes']);
+    //         return;
+    //     }
+
+    //     $id_candidat = (int) $data['id_candidat'];
+    //     $id_entretien = (int) $data['id_entretien'];
+    //     $score = (float) $data['score'];
+
+    //     $duree = (int) $data['duree'];
+    //     $commentaire = (string) $data['commentaire'];
+
+    //     $id_typeScoring = 2; 
+
+    //     try {
+    //         ScoringModel::insertScore($id_candidat, $id_typeScoring, $score, $id_entretien);
+    //         $this->entretienModel->creerDetailEntretien($id_entretien, $commentaire);
+    //         echo json_encode(['success' => true, 'score' => $score]);
+    //     } catch (\Exception $e) {
+    //         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    //     }
+    // }
+
+    // public function scoringEntretien() {
+    //     $data = json_decode(file_get_contents('php://input'), true);
+
+    //     if (!$data || !isset($data['id_entretien'], $data['note'], $data['evaluation'], $data['commentaire'])) {
+    //         echo json_encode(['success' => false, 'message' => 'Données manquantes']);
+    //         return;
+    //     }
+
+    //     $id_entretien = (int) $data['id_entretien'];
+    //     $note = (float) $data['note'];
+    //     $evaluation = $data['evaluation'];
+    //     $commentaire = $data['commentaire'] ?? null;
+
+    //     try {
+    //         // retrouver id_candidat via l’entretien
+    //         $entretien = $this->entretienModel->getEntretienById($id_entretien);
+    //         $id_candidat = $entretien['id_candidat'];
+
+    //         $id_typeScoring = 2;
+
+    //         // enregistrer le score
+    //         ScoringModel::insertScore($id_candidat, $id_typeScoring, $note, $id_entretien);
+
+    //         // enregistrer détail entretien (évaluation + commentaire)
+    //         $this->entretienModel->creerDetailEntretien($id_entretien,$evaluation, $commentaire,);
+
+    //         echo json_encode(['success' => true, 'score' => $note]);
+    //     } catch (\Exception $e) {
+    //         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    //     }
+    // }
+
+    public function scoringEntretien() {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['id_candidat'], $data['id_entretien'], $data['score'], $data['evaluation'], $data['commentaire'])) {
             echo json_encode(['success' => false, 'message' => 'Données manquantes']);
             return;
         }
 
         $id_candidat = (int) $data['id_candidat'];
         $id_entretien = (int) $data['id_entretien'];
-        $score = (float) $data['score'];
-
-        $duree = (int) $data['duree'];
-        $commentaire = (String) $data['commentaire'];
+        $score = (float) $data['score'];   
+        $evaluation = (string) $data['evaluation'];
+        $commentaire = (string) $data['commentaire'];
 
         $id_typeScoring = 2; 
 
         try {
             ScoringModel::insertScore($id_candidat, $id_typeScoring, $score, $id_entretien);
-            $this->entretienModel->creerDetailEntretien($id_entretien, $duree, $commentaire);
+            $this->entretienModel->creerDetailEntretien($id_entretien, $evaluation, $commentaire);
             echo json_encode(['success' => true, 'score' => $score]);
         } catch (\Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+
+
 }
