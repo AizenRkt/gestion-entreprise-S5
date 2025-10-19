@@ -15,6 +15,7 @@ require __DIR__ . '/routes/ressourceHumaine/entretienRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/back/creaAnnonce.php';
 require __DIR__ . '/routes/ressourceHumaine/annonce.php';
 require __DIR__ . '/routes/ressourceHumaine/candidatRoute.php';
+require __DIR__ . '/routes/ressourceHumaine/scoringRoute.php';
 
 /** 
  * @var Router $router 

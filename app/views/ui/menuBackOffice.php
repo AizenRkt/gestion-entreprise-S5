@@ -64,25 +64,6 @@
                     </a>
                 </li>
 
-
-                <li class="sidebar-item has-sub">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
-                        <span>Entretien</span>
-                    </a>
-                    <ul class="submenu">
-                        <!-- <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/organiserEntretien" class="submenu-link">Organiser</a>
-                        </li>      -->
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/planning" class="submenu-link">Planning</a>
-                        </li>
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/resultatQcm" class="submenu-link">résultat QCM</a>
-                        </li>                                                  
-                    </ul>
-                </li>
-
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-question-circle-fill"></i> <!-- contrat -->
@@ -102,6 +83,23 @@
                     </ul>
                 </li>
                 
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
+                        <span>Entretien</span>
+                    </a>
+                    <ul class="submenu">
+                        <!-- <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/organiserEntretien" class="submenu-link">Organiser</a>
+                        </li>      -->
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/planning" class="submenu-link">Planning</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/resultatQcm" class="submenu-link">résultat QCM</a>
+                        </li>                                                  
+                    </ul>
+                </li>
 
                 <li class="sidebar-title">Emploi</li>
 

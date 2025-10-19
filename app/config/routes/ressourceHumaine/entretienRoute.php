@@ -21,5 +21,8 @@ $router->get('/entretien/liste', [ $entretienController, 'listerEntretiens' ]);
 $router->post('/entretien/modifier', [ $entretienController, 'modifierEntretien' ]);
 $router->post('/entretien/supprimer', [ $entretienController, 'supprimerEntretien' ]);
 $router->get('/entretien/api/planning', [ $entretienController, 'getEntretiensPlanning' ]);
-$router->post('/entretien/noter', [ $entretienController, 'noterEntretien' ]);
+// $router->post('/entretien/noter', [ $entretienController, 'noterEntretien' ]);
 $router->get('/entretien/details', [ $entretienController, 'getEntretienDetails' ]);
+
+// pour noter l'entretien dans les normes
+$router->post('/entretien/scoring', [ $entretienController, 'scoringEntretien' ]);

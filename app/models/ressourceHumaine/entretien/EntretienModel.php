@@ -127,39 +127,39 @@ class EntretienModel {
         }
     }
 
-    public function noterEntretien($id_entretien, $note, $evaluation, $commentaire = null) {
-        try {
-            $db = Flight::db();
+    // public function noterEntretien($id_entretien, $note, $evaluation, $commentaire = null) {
+    //     try {
+    //         $db = Flight::db();
             
-            $stmt = $db->prepare("
-                UPDATE entretien_candidat 
-                SET note_entretien = :note, 
-                    evaluation = :evaluation, 
-                    commentaire = :commentaire,
-                    date_evaluation = NOW()
-                WHERE id_entretien = :id_entretien
-            ");
+    //         $stmt = $db->prepare("
+    //             UPDATE entretien_candidat 
+    //             SET note_entretien = :note, 
+    //                 evaluation = :evaluation, 
+    //                 commentaire = :commentaire,
+    //                 date_evaluation = NOW()
+    //             WHERE id_entretien = :id_entretien
+    //         ");
             
-            $result = $stmt->execute([
-                ':note' => $note,
-                ':evaluation' => $evaluation,
-                ':commentaire' => $commentaire,
-                ':id_entretien' => $id_entretien
-            ]);
+    //         $result = $stmt->execute([
+    //             ':note' => $note,
+    //             ':evaluation' => $evaluation,
+    //             ':commentaire' => $commentaire,
+    //             ':id_entretien' => $id_entretien
+    //         ]);
             
-            return [
-                'success' => $result,
-                'message' => $result ? "Entretien noté avec succès." : "Erreur lors de la notation."
-            ];
+    //         return [
+    //             'success' => $result,
+    //             'message' => $result ? "Entretien noté avec succès." : "Erreur lors de la notation."
+    //         ];
             
-        } catch (\PDOException $e) {
-            error_log("Erreur lors de la notation de l'entretien: " . $e->getMessage());
-            return [
-                'success' => false,
-                'message' => "Erreur de notation : " . $e->getMessage()
-            ];
-        }
-    }
+    //     } catch (\PDOException $e) {
+    //         error_log("Erreur lors de la notation de l'entretien: " . $e->getMessage());
+    //         return [
+    //             'success' => false,
+    //             'message' => "Erreur de notation : " . $e->getMessage()
+    //         ];
+    //     }
+    // }
 
     public function getTousCandidats() {
         try {
@@ -186,7 +186,6 @@ class EntretienModel {
             return null;
         }
     }
-
 
     public function getEntretiensByCandidatId($id_candidat) {
         try {
@@ -289,41 +288,124 @@ class EntretienModel {
         }
     }
 
+    // public function getEntretiensByMonth($month, $year) {
+    //     try {
+    //         $db = Flight::db();
+            
+    //         $sql = "
+    //             SELECT 
+    //                 e.id_entretien,
+    //                 e.date,
+    //                 e.duree,
+    //                 c.nom,
+    //                 c.prenom,
+    //                 c.email,
+    //                 u.username
+    //             FROM entretien_candidat e 
+    //             JOIN candidat c ON e.id_candidat = c.id_candidat 
+    //             LEFT JOIN user u ON e.id_user = u.id_user 
+    //             WHERE MONTH(e.date) = :month 
+    //             AND YEAR(e.date) = :year
+    //             ORDER BY e.date ASC
+    //         ";
+            
+    //         $stmt = $db->prepare($sql);
+    //         $stmt->execute([
+    //             ':month' => $month,
+    //             ':year' => $year
+    //         ]);
+            
+    //         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+    //     } catch (\PDOException $e) {
+    //         error_log("Erreur lors de la récupération des entretiens par mois: " . $e->getMessage());
+    //         return [];
+    //     }
+    // }
+
     public function getEntretiensByMonth($month, $year) {
         try {
             $db = Flight::db();
-            
+
             $sql = "
                 SELECT 
                     e.id_entretien,
                     e.date,
                     e.duree,
-                    e.note_entretien,
-                    e.evaluation,
-                    e.commentaire,
-                    e.date_evaluation,
+                    c.id_candidat,
                     c.nom,
                     c.prenom,
                     c.email,
-                    u.username
-                FROM entretien_candidat e 
-                JOIN candidat c ON e.id_candidat = c.id_candidat 
-                LEFT JOIN user u ON e.id_user = u.id_user 
-                WHERE MONTH(e.date) = :month 
+                    c.telephone,
+                    u.username AS created_by,
+                    d.evaluation,
+                    d.commentaire,
+                    s.valeur AS score,
+                    ts.nom AS type_scoring
+                FROM entretien_candidat e
+                JOIN candidat c ON e.id_candidat = c.id_candidat
+                LEFT JOIN user u ON e.id_user = u.id_user
+                LEFT JOIN detail_entretien d ON d.id_entretien = e.id_entretien
+                LEFT JOIN scoring s ON s.id_item = e.id_entretien AND s.id_type_scoring = 2 -- type scoring entretien
+                LEFT JOIN type_scoring ts ON ts.id_type_scoring = s.id_type_scoring
+                WHERE MONTH(e.date) = :month
                 AND YEAR(e.date) = :year
                 ORDER BY e.date ASC
             ";
-            
+
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 ':month' => $month,
                 ':year' => $year
             ]);
-            
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
         } catch (\PDOException $e) {
             error_log("Erreur lors de la récupération des entretiens par mois: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getEntretiensByRange($startDate, $endDate) {
+        try {
+            $db = Flight::db();
+
+            $sql = "
+                SELECT 
+                    e.id_entretien,
+                    e.date,
+                    e.duree,
+                    c.id_candidat,
+                    c.nom,
+                    c.prenom,
+                    c.email,
+                    c.telephone,
+                    u.username AS created_by,
+                    d.evaluation,
+                    d.commentaire,
+                    s.valeur AS score,
+                    ts.nom AS type_scoring
+                FROM entretien_candidat e
+                JOIN candidat c ON e.id_candidat = c.id_candidat
+                LEFT JOIN user u ON e.id_user = u.id_user
+                LEFT JOIN detail_entretien d ON d.id_entretien = e.id_entretien
+                LEFT JOIN scoring s ON s.id_item = e.id_entretien AND s.id_type_scoring = 2 -- type scoring entretien
+                LEFT JOIN type_scoring ts ON ts.id_type_scoring = s.id_type_scoring
+                WHERE e.date BETWEEN :startDate AND :endDate
+                ORDER BY e.date ASC
+            ";
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                ':startDate' => $startDate,
+                ':endDate'   => $endDate
+            ]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur lors de la récupération des entretiens par plage de dates: " . $e->getMessage());
             return [];
         }
     }
@@ -356,18 +438,19 @@ class EntretienModel {
         }
     }
 
-    public function creerDetailEntretien($id_entretien, $duree, $commentaire = null) {
+    public function creerDetailEntretien($id_entretien, $evaluation, $commentaire) {
         try {
             $db = Flight::db();
             $sql = "
-                INSERT INTO detail_entretien (id_entretien, duree, commentaire)
-                VALUES (:id_entretien, :duree, :commentaire)
+                INSERT INTO detail_entretien (id_entretien, commentaire, evaluation)
+                VALUES (:id_entretien, :commentaire, :evaluation)
             ";
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 ':id_entretien' => $id_entretien,
-                ':duree'        => $duree,
-                ':commentaire'  => $commentaire
+                ':commentaire'  => $commentaire,
+                ':evaluation'  => $evaluation
+
             ]);
 
             return $db->lastInsertId();

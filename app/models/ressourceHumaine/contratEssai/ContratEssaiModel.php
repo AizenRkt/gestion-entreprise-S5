@@ -6,6 +6,18 @@ use PDO;
 
 class ContratEssaiModel {
     // Récupérer tous les contrats d'essai
+
+    public function insert($id_candidat, $debut, $fin, $path) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("INSERT INTO contrat_essai (id_candidat, debut, fin, pathPdf) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$id_candidat, $debut, $fin, $path]);
+            return $db->lastInsertId();
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
     public function getAll() {
         try {
             $db = Flight::db();

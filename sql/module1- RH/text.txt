@@ -1,0 +1,9 @@
+Reste todo liste à faire:
+- refonte et correction de contrat d'essai
+- refonte accésibilité (user) du site
+- vérification base données
+- test en condition réel
+
+eligibilité à une période essaie
+- qcm validé (note >= moyenne)
+- entretien validé (note >= moyenne) && (recommandé)
