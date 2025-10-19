@@ -219,9 +219,9 @@ CREATE TABLE entretien_candidat (
 
 CREATE TABLE detail_entretien (
     id_detail_entretien INT AUTO_INCREMENT PRIMARY KEY,
-    id_entretien INT,
-    evaluation ENUM('recommande', 'reserve', 'refuse') NULL, 
-    commentaire VARCHAR(255) NULL,
+    id_entretien INT NOT NULL,
+    evaluation ENUM('recommande','refuse') NOT NULL, 
+    commentaire VARCHAR(255) NOT NULL,
     FOREIGN KEY (id_entretien) REFERENCES entretien_candidat(id_entretien)
 );
 
@@ -243,34 +243,22 @@ CREATE TABLE scoring (
     FOREIGN KEY (id_type_scoring) REFERENCES type_scoring(id_type_scoring)
 );
 
--- CREATE TABLE reponse_candidat (
---     id_reponse_candidat INT AUTO_INCREMENT PRIMARY KEY,
---     id_candidat INT NOT NULL,
---     id_qcm INT NOT NULL,
---     id_question INT NOT NULL,
---     id_reponse INT NOT NULL,
---     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
---     FOREIGN KEY (id_question) REFERENCES question(id_question),
---     FOREIGN KEY (id_reponse) REFERENCES reponse(id_reponse),
---     FOREIGN KEY (id_qcm) REFERENCES qcm(id_qcm)
--- );
-
 -- ======================
 -- resultat final
 -- ======================
-CREATE TABLE type_resultat_candidat (
-    id_type_resultat_candidat INT AUTO_INCREMENT PRIMARY KEY,
-    valeur ENUM('refus','attente') NOT NULL
-);
+-- CREATE TABLE type_resultat_candidat (
+--     id_type_resultat_candidat INT AUTO_INCREMENT PRIMARY KEY,
+--     valeur ENUM('refus','attente') NOT NULL
+-- );
 
-CREATE TABLE resultat_candidat (
-    id_resultat_candidat INT AUTO_INCREMENT PRIMARY KEY,
-    id_candidat INT NOT NULL,
-    id_type_resultat_candidat INT NOT NULL,
-    date DATE NOT NULL,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
-    FOREIGN KEY (id_type_resultat_candidat) REFERENCES type_resultat_candidat(id_type_resultat_candidat)
-);
+-- CREATE TABLE resultat_candidat (
+--     id_resultat_candidat INT AUTO_INCREMENT PRIMARY KEY,
+--     id_candidat INT NOT NULL,
+--     id_type_resultat_candidat INT NOT NULL,
+--     date DATE NOT NULL,
+--     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
+--     FOREIGN KEY (id_type_resultat_candidat) REFERENCES type_resultat_candidat(id_type_resultat_candidat)
+-- );
 
 -- ======================
 -- contrat d’essai et renouvellement
@@ -280,16 +268,17 @@ CREATE TABLE contrat_essai (
     id_candidat INT NOT NULL,
     debut DATE NOT NULL,
     fin DATE NOT NULL,
+    pathPdf VARCHAR(255) NOT NULL,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
 );
 
-CREATE TABLE renouvellement_essai (
-    id_renouvellement_essai INT AUTO_INCREMENT PRIMARY KEY,
-    id_contrat_essai INT NOT NULL,
-    date_renouvellement DATE NOT NULL,
-    date_fin DATE NOT NULL,
-    FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
-);
+-- CREATE TABLE renouvellement_essai (
+--     id_renouvellement_essai INT AUTO_INCREMENT PRIMARY KEY,
+--     id_contrat_essai INT NOT NULL,
+--     date_renouvellement DATE NOT NULL,
+--     date_fin DATE NOT NULL,
+--     FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
+-- );
 
 -- ======================
 -- permissions

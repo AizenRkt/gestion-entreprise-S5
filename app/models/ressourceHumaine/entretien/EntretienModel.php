@@ -367,6 +367,49 @@ class EntretienModel {
         }
     }
 
+    public function getEntretiensByRange($startDate, $endDate) {
+        try {
+            $db = Flight::db();
+
+            $sql = "
+                SELECT 
+                    e.id_entretien,
+                    e.date,
+                    e.duree,
+                    c.id_candidat,
+                    c.nom,
+                    c.prenom,
+                    c.email,
+                    c.telephone,
+                    u.username AS created_by,
+                    d.evaluation,
+                    d.commentaire,
+                    s.valeur AS score,
+                    ts.nom AS type_scoring
+                FROM entretien_candidat e
+                JOIN candidat c ON e.id_candidat = c.id_candidat
+                LEFT JOIN user u ON e.id_user = u.id_user
+                LEFT JOIN detail_entretien d ON d.id_entretien = e.id_entretien
+                LEFT JOIN scoring s ON s.id_item = e.id_entretien AND s.id_type_scoring = 2 -- type scoring entretien
+                LEFT JOIN type_scoring ts ON ts.id_type_scoring = s.id_type_scoring
+                WHERE e.date BETWEEN :startDate AND :endDate
+                ORDER BY e.date ASC
+            ";
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                ':startDate' => $startDate,
+                ':endDate'   => $endDate
+            ]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (\PDOException $e) {
+            error_log("Erreur lors de la récupération des entretiens par plage de dates: " . $e->getMessage());
+            return [];
+        }
+    }
+
     public function getEntretienById($id_entretien) {
         try {
             $db = Flight::db();

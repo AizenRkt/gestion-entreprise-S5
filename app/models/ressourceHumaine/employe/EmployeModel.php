@@ -11,6 +11,34 @@ Class EmployeModel {
         $this->db = Flight::db();
     }
 
+    public static function createEmploye($nom, $prenom, $email, $telephone, $genre, $date_embauche, $activite, $id_poste) {
+        $db = Flight::db();
+        
+        // 1. Insérer dans la table employe
+        $sql_employe = "INSERT INTO employe (nom, prenom, email, telephone, genre, date_embauche) VALUES (:nom, :prenom, :email, :telephone, :genre, :date_embauche)";
+        $stmt_employe = $db->prepare($sql_employe);
+        $stmt_employe->execute([
+            ':nom' => $nom,
+            ':prenom' => $prenom,
+            ':email' => $email,
+            ':telephone' => $telephone,
+            ':genre' => $genre,
+            ':date_embauche' => $date_embauche
+        ]);
+        $id_employe = $db->lastInsertId();
+
+        // 2. Insérer dans la table employe_statut
+        $sql_statut = "INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES (:id_employe, :id_poste, :activite, NOW())";
+        $stmt_statut = $db->prepare($sql_statut);
+        $stmt_statut->execute([
+            ':id_employe' => $id_employe,
+            ':id_poste' => $id_poste,
+            ':activite' => $activite
+        ]);
+
+        return $id_employe;
+    }
+
     public static function getAllEmployes() {
         $db = Flight::db();
         $query = "
@@ -53,7 +81,10 @@ Class EmployeModel {
             ':id_poste' => $id_poste,
             ':activite' => $activite
         ]);
-    }    public static function getAllPostes() {
+    
+    }    
+    
+    public static function getAllPostes() {
         $db = Flight::db();
         $stmt = $db->query("SELECT id_poste, titre FROM poste");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

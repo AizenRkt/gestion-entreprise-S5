@@ -185,7 +185,7 @@ class CandidatModel {
             return "Erreur de mise à jour : " . $e->getMessage();
         }
     }
-
+    
     public function delete($id) {
         try {
             $db = Flight::db();

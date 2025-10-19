@@ -9,307 +9,168 @@
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app-dark.css">
-    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/styles/choices.css">
-    <style>
-        .candidate-card {
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .candidate-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .candidate-details h5 {
-            margin: 0;
-            color: #495057;
-        }
-        .candidate-details p {
-            margin: 5px 0;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        .contract-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .contract-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .contract-checkbox input[type="checkbox"] {
-            transform: scale(1.2);
-        }
-        .contract-checkbox label {
-            font-size: 0.9rem;
-            color: #495057;
-        }
-        .btn-contract {
-            background: #435ebe;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .btn-contract:hover {
-            background: #364a98;
-        }
-        .btn-contract:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-        .interview-badge {
-            background: #28a745;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
-        .no-candidates {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+
+    <!-- datatables -->
+    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
+    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable.css">
+    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable-jquery.css">
+    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
 </head>
 
 <body>
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/initTheme.js"></script>
 <div id="app">
     <?= Flight::menuBackOffice() ?>
     <div id="main">
-        <header class="mb-3">
-            <a href="#" class="burger-btn d-block d-xl-none">
-                <i class="bi bi-justify fs-3"></i>
-            </a>
-        </header>
-        
-        <div class="page-heading">
-            <div class="page-title">
-                <div class="row">
-                    <div class="col-12 col-md-6 order-md-1 order-last">
-                        <h3>Gestion des Contrats d'Essai</h3>
-                        <p class="text-subtitle text-muted">Candidats recommandés pour signature de contrat</p>
+        <section class="section">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Candidats éligibles au contrat d'essai</h5>
+                    <select id="annonceSelect" class="form-select w-auto">
+                        <option value="">-- choisir une annonce --</option>
+                        <?php foreach($annonce as $a): ?>
+                            <option value="<?= $a['id_annonce'] ?>"><?= htmlspecialchars($a['titre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="tableCandidats">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Prénom</th>
+                                    <th>Email</th>
+                                    <th>Date de candidature</th>
+                                    <th>Note QCM</th>
+                                    <th>Note Entretien /10</th>
+                                    <th>Évaluation Entretien</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- vide au départ -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            
-            <section class="section">
-                <div class="row">
-                    <div class="col-12">
-                        <?php if (!empty($candidatsRecommandes)): ?>
-                            <?php foreach ($candidatsRecommandes as $candidat): ?>
-                                <div class="candidate-card">
-                                    <div class="candidate-info">
-                                        <div class="candidate-details">
-                                            <h5><?= htmlspecialchars($candidat['prenom'] . ' ' . $candidat['nom']) ?></h5>
-                                            <p><i class="bi bi-envelope"></i> <?= htmlspecialchars($candidat['email']) ?></p>
-                                            <p><i class="bi bi-telephone"></i> <?= htmlspecialchars($candidat['telephone'] ?? 'Non renseigné') ?></p>
-                                            <p><i class="bi bi-calendar"></i> Entretien: <?= date('d/m/Y à H:i', strtotime($candidat['date_entretien'])) ?></p>
-                                            <p><i class="bi bi-star-fill"></i> Note: <?= $candidat['note_entretien'] ?>/10</p>
-                                        </div>
-                                        <div class="interview-status">
-                                            <span class="interview-badge">Recommandé</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="contract-actions">
-                                        <button class="btn-contract" onclick="generateContract(<?= $candidat['id_candidat'] ?>)" 
-                                                id="btn-contract-<?= $candidat['id_candidat'] ?>" 
-                                                <?= !empty($candidat['contrat_accepte']) ? 'disabled' : '' ?>>
-                                            <i class="bi bi-file-earmark-pdf"></i> 
-                                            <?= !empty($candidat['contrat_accepte']) ? 'Contrat signé' : 'Générer le contrat' ?>
-                                        </button>
-                                        
-                                        <div class="contract-checkbox">
-                                            <input type="checkbox" 
-                                                   id="accept-<?= $candidat['id_candidat'] ?>" 
-                                                   <?= !empty($candidat['contrat_accepte']) ? 'checked disabled' : '' ?>
-                                                   onchange="toggleContractAcceptance(<?= $candidat['id_candidat'] ?>)">
-                                            <label for="accept-<?= $candidat['id_candidat'] ?>">
-                                                Lu, compris et accepté les termes et conditions du contrat d'essai
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="no-candidates">
-                                <i class="bi bi-person-x" style="font-size: 3rem; color: #dee2e6;"></i>
-                                <h4>Aucun candidat recommandé</h4>
-                                <p>Il n'y a actuellement aucun candidat avec un statut "recommandé" suite à un entretien.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </section>
-        </div>
-
+        </section>
     </div>
 </div>
 
-<!-- Modal de confirmation -->
-<div class="modal fade" id="contractModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- ✅ MODAL CRÉATION CONTRAT -->
+<div class="modal fade" id="modalContrat" tabindex="-1" aria-labelledby="modalContratLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmation de contrat</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir générer le contrat d'essai pour ce candidat ?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                <button type="button" class="btn btn-primary" id="confirmGenerate">Générer</button>
-            </div>
+            <form id="formContrat" action="<?= Flight::base() ?>/contrat/creer" method="get">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalContratLabel">Établir un contrat d'essai</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id_candidat" id="idCandidatInput">
+
+                    <div class="mb-3">
+                        <label for="dateDebut" class="form-label">Date de début du contrat</label>
+                        <input type="date" class="form-control" name="date_debut" id="dateDebut" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="duree" class="form-label">Durée du contrat (en mois)</label>
+                        <input type="number" class="form-control" name="duree_mois" id="duree" min="1" max="6" required>
+                        <small class="text-muted">La durée maximale est de 6 mois.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer le contrat</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
+<!-- SCRIPTS -->
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
-<script src="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-let currentCandidatId = null;
+$(document).ready(function () {
+    let table = $('#tableCandidats').DataTable();
 
-function generateContract(candidatId) {
-    const button = document.getElementById(`btn-contract-${candidatId}`);
-    const checkbox = document.getElementById(`accept-${candidatId}`);
-    
-    // Vérifier si le contrat a été accepté
-    if (!checkbox.checked) {
-        showAlert('Le candidat doit d\'abord accepter les termes du contrat avant de pouvoir le générer.', 'error');
-        return;
-    }
-    
-    // Afficher un indicateur de chargement
-    const originalText = button.innerHTML;
-    button.innerHTML = '<span class="loading-spinner"></span> Génération...';
-    button.disabled = true;
-    
-    // Générer le PDF
-    const newWindow = window.open(`<?= Flight::base() ?>/contrat/generate/${candidatId}`, '_blank');
-    
-    // Restaurer le bouton après un délai
-    setTimeout(() => {
-        button.innerHTML = originalText;
-        button.disabled = false;
-        
-        // Marquer comme généré si la fenêtre s'est ouverte correctement
-        if (newWindow && !newWindow.closed) {
-            showAlert('Contrat généré avec succès', 'success');
-            
-            // Optionnel: mettre à jour l'interface pour montrer que le contrat a été généré
-            setTimeout(() => {
-                button.innerHTML = '<i class="bi bi-check-circle"></i> Contrat généré';
-                button.classList.add('btn-success');
-                button.classList.remove('btn-contract');
-            }, 1000);
+    // 🟦 Chargement des candidats selon l'annonce
+    $('#annonceSelect').on('change', function () {
+        let idAnnonce = $(this).val();
+        table.clear().draw();
+
+        if (!idAnnonce) {
+            table.row.add(["Veuillez sélectionner une annonce", "", "", "", "", "", "", ""]).draw();
+            return;
         }
-    }, 2000);
-}
 
-function toggleContractAcceptance(candidatId) {
-    const checkbox = document.getElementById(`accept-${candidatId}`);
-    const button = document.getElementById(`btn-contract-${candidatId}`);
-    
-    if (checkbox.checked) {
-        // Marquer comme accepté en base de données
-        fetch('<?= Flight::base() ?>/contrat/accepter', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id_candidat=${candidatId}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                button.disabled = false;
-                showAlert('Contrat accepté avec succès', 'success');
-            } else {
-                checkbox.checked = false;
-                showAlert('Erreur lors de l\'acceptation du contrat', 'error');
-            }
-        })
-        .catch(error => {
-            checkbox.checked = false;
-            showAlert('Erreur de communication', 'error');
-            console.error('Error:', error);
-        });
-    } else {
-        button.disabled = true;
-    }
-}
+        fetch(`<?= Flight::base() ?>/eligibleEssai/${idAnnonce}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    let rows = [];
+                    data.data.forEach(candidat => {
+                        let noteQCM = candidat.note_qcm + '/' + candidat.note_max_qcm;
 
-function showAlert(message, type) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    // Insérer l'alerte au début de la section
-    const section = document.querySelector('.section');
-    section.insertAdjacentHTML('afterbegin', alertHtml);
-    
-    // Supprimer l'alerte après 3 secondes
-    setTimeout(() => {
-        const alert = section.querySelector('.alert');
-        if (alert) {
-            alert.remove();
-        }
-    }, 3000);
-}
+                        let boutonContrat = `
+                            <button class="btn btn-primary btn-sm etablir-contrat"
+                                    data-id="${candidat.id_candidat}"
+                                    data-nom="${candidat.nom || ''}"
+                                    data-prenom="${candidat.prenom || ''}">
+                                <i class="bi bi-file-earmark-text"></i> Établir un contrat
+                            </button>
+                        `;
 
-// Initialisation des choix si nécessaire
-document.addEventListener("DOMContentLoaded", function () {
-    const elements = document.querySelectorAll('.choices');
-    elements.forEach(el => {
-        new Choices(el, {
-            searchEnabled: true,
-            removeItemButton: true,
-            placeholder: true,
-            placeholderValue: 'Sélectionnez des compétences'
-        });
+                        rows.push([
+                            candidat.nom,
+                            candidat.prenom,
+                            candidat.email,
+                            candidat.date_candidature,
+                            noteQCM,
+                            candidat.note_entretien,
+                            candidat.evaluation_entretien,
+                            boutonContrat
+                        ]);
+                    });
+                    table.rows.add(rows).draw(false);
+                } else {
+                    table.row.add(["Aucun candidat trouvé", "", "", "", "", "", "", ""]).draw();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                table.row.add(["Erreur lors du chargement", "", "", "", "", "", "", ""]).draw();
+            });
+    });
+
+    // 🟩 Ouverture du modal
+    $('#tableCandidats').on('click', '.etablir-contrat', function () {
+        const bouton = $(this);
+        const idCandidat = bouton.attr('data-id');
+        const nom = bouton.attr('data-nom');
+        const prenom = bouton.attr('data-prenom');
+
+        // Remplir le champ caché du formulaire
+        $('#idCandidatInput').val(idCandidat);
+
+        // Modifier le titre du modal
+        $('#modalContratLabel').text(`Établir un contrat pour ${prenom} ${nom}`);
+
+        // Ouvrir le modal
+        const modal = new bootstrap.Modal(document.getElementById('modalContrat'));
+        modal.show();
     });
 });
 </script>
+
 </body>
 </html>

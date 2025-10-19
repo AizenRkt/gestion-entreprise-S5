@@ -389,19 +389,20 @@
     });
 
     // load data
-    document.addEventListener('DOMContentLoaded', async function () {
+    document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
         const entretiensList = document.getElementById('entretiens-list');
 
-        async function loadEvents() {
+        async function fetchEvents(info, successCallback, failureCallback) {
             try {
-                const response = await fetch('<?= Flight::base() ?>/entretien/api/planning');
+                // Ici on passe la plage visible au backend
+                const response = await fetch(`<?= Flight::base() ?>/entretien/api/planning?startDate=${info.startStr}&endDate=${info.endStr}`);
                 const data = await response.json();
 
-                return data.map(interview => ({
+                const events = data.map(interview => ({
                     id: interview.id_entretien,
                     title: `${interview.prenom} ${interview.nom}`,
-                    start: interview.date, 
+                    start: interview.date,
                     extendedProps: {
                         id_candidat: interview.id_candidat,
                         prenom: interview.prenom,
@@ -410,17 +411,17 @@
                         telephone: interview.telephone,
                         duration: interview.duree,
                         score: interview.score,
-                        evaluation: interview.evaluation, 
+                        evaluation: interview.evaluation,
                         commentaire: interview.commentaire
                     }
                 }));
+
+                successCallback(events);
             } catch (error) {
-                console.error('Erreur lors du chargement des entretiens:', error);
-                return [];
+                console.error("Erreur lors du chargement des entretiens :", error);
+                failureCallback(error);
             }
         }
-
-        const events = await loadEvents();
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
@@ -430,17 +431,17 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
             },
-            events: events,
+            events: fetchEvents, // ⚡ FullCalendar appelle fetchEvents avec start/end
             dateClick: function (info) {
                 const selectedDate = info.dateStr;
-                const filtered = events.filter(e => e.start.startsWith(selectedDate));
+                const events = calendar.getEvents().filter(e => e.startStr.startsWith(selectedDate));
 
                 entretiensList.innerHTML = "";
 
-                if (filtered.length === 0) {
+                if (events.length === 0) {
                     entretiensList.innerHTML = `<li class="list-group-item text-muted">Aucun entretien prévu ce jour-là</li>`;
                 } else {
-                    filtered.forEach(e => {
+                    events.forEach(e => {
                         const li = document.createElement("li");
                         li.className = "list-group-item d-flex justify-content-between align-items-center";
                         li.innerHTML = `
@@ -464,6 +465,8 @@
 
         calendar.render();
     });
+
+
 </script>
 
 </html>
