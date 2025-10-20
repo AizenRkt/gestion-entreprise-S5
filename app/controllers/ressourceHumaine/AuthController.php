@@ -21,13 +21,15 @@ class AuthController {
 
         if ($user && $password && $password === $user['pwd']) {
             $role = AuthModel::getUserRoleByUserId($user['id_user']);
+            $service =AuthModel::getServiceByUserId($user['id_user']);
             $_SESSION['user'] = [
                 'id_user' => $user['id_user'],
                 'username' => $user['username'],
-                'role' => $role
+                'role' => $role,
+                'id_service' => $service
             ]; 
             $mssg = "Bienvenue " . $user['username'] . "!";
-            Flight::redirect('/employes?mssg=' . urlencode($mssg));
+            Flight::redirect('/backOffice?mssg=' . urlencode($mssg));
         } else {
             $mssg = "Nom d'utilisateur ou mot de passe incorrect ou compte inactif.";
             Flight::redirect('/log/?mssg=' . urlencode($mssg));
@@ -50,10 +52,13 @@ class AuthController {
         if ($result['success']) {
             $user = AuthModel::getByUsername($username);
             $role = AuthModel::getUserRoleByUserId($user['id_user']);
+            $service =AuthModel::getServiceByUserId($user['id_user']);
+
             $_SESSION['user'] = [
                 'id_user' => $user['id_user'],
                 'username' => $user['username'],
-                'role' => $role
+                'role' => $role,
+                'id_service' => $service
             ]; 
             $mssg = "Inscription réussie. Bienvenue " . $user['username'] . "!";
             Flight::redirect('/employes?mssg=' . urlencode($mssg));

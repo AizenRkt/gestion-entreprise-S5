@@ -25,4 +25,10 @@ $router->get('/candidat/delete/@id', [$candidatController, 'delete']);
 $router->get('/backOffice/candidat', [$candidatController, 'backOfficeCandidat']);
 $router->post('/backOffice/candidat/filter', [$candidatController, 'filter']);
 
+
+//api
+$router->get('/candidat/detail/@id', [$candidatController, 'candidatDetail']);
+$router->get('/candidat/excel/@id', [$candidatController, 'exportCvToExcel']);
+
+
 $router->get('/test', [$candidatController, 'eli']);

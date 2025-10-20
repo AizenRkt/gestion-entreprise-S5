@@ -287,5 +287,45 @@ CREATE TABLE route_permissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     route_pattern VARCHAR(191) NOT NULL,
     role_name VARCHAR(50) NOT NULL,
-    UNIQUE KEY unique_route_role (route_pattern, role_name)
+    id_service INT NOT NULL,
+    UNIQUE KEY unique_route_role (route_pattern, role_name),
+    FOREIGN KEY (id_service) REFERENCES service(id_service)
+);
+
+CREATE TABLE menu_ui (
+    id_menu INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    id_service INT NOT NULL
+    FOREIGN KEY (id_service) REFERENCES service(id_service)
+);
+
+
+CREATE TABLE candidat (
+    id_candidat INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(150)  NOT NULL,
+    telephone VARCHAR(20),
+    genre VARCHAR(1),
+    date_naissance DATE,
+    date_candidature DATE DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE cv (
+    id_cv INT AUTO_INCREMENT PRIMARY KEY,
+    id_candidat INT NOT NULL,
+    id_profil INT NOT NULL,
+    date_soumission DATE DEFAULT CURRENT_DATE,
+    photo VARCHAR(255),
+    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
+    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
+);
+
+CREATE TABLE detail_cv (
+    id_detail_cv INT AUTO_INCREMENT PRIMARY KEY,
+    id_cv INT NOT NULL,
+    type ENUM('ville','diplome','competence') NOT NULL,
+    id_item INT NOT NULL,
+    FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
+    UNIQUE KEY unique_cv_item (id_cv, type, id_item)
 );

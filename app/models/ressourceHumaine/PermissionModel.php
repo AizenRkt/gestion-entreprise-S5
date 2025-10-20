@@ -27,16 +27,40 @@ class PermissionModel {
      *
      * @return array Format: ['/route' => ['Role1', 'Role2']]
      */
-    public function getPermissions(): array {
-        $query = "SELECT route_pattern, role_name FROM route_permissions";
-        // On utilise directement la connexion $this->db
+    // public function getPermissions(): array {
+    //     $query = "SELECT route_pattern, role_name, id_service  FROM route_permissions";
+    //     // On utilise directement la connexion $this->db
+    //     $stmt = $this->db->query($query);
+    //     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //     $permissions = [];
+    //     foreach ($results as $row) {
+    //         // On groupe les rôles par route
+    //         $permissions[$row['route_pattern']][] = $row['role_name'];
+    //     }
+
+    //     return $permissions;
+    // }
+
+     public function getPermissions(): array {
+        $query = "SELECT route_pattern, role_name, id_service FROM route_permissions";
         $stmt = $this->db->query($query);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $permissions = [];
         foreach ($results as $row) {
-            // On groupe les rôles par route
-            $permissions[$row['route_pattern']][] = $row['role_name'];
+            $route = $row['route_pattern'];
+            $role = $row['role_name'];
+            $service = (int)$row['id_service'];
+
+            if (!isset($permissions[$route])) {
+                $permissions[$route] = [];
+            }
+
+            $permissions[$route][] = [
+                'role' => $role,
+                'id_service' => $service
+            ];
         }
 
         return $permissions;

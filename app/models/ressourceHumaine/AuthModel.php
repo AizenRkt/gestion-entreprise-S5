@@ -118,6 +118,19 @@ class AuthModel {
         }
     }
 
+    public static function getServiceByUserId($id_user) {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT * FROM user u
+            JOIN employe_statut es ON u.id_employe = es.id_employe
+            JOIN poste p ON es.id_poste = p.id_poste
+            JOIN service s ON p.id_service = s.id_service
+            WHERE u.id_user = ?"
+        );
+        $stmt->execute([$id_user]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? $row['id_service'] : null;
+    }
 }
 
 ?>

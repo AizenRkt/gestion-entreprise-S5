@@ -380,4 +380,45 @@ class CandidatController
             'candidats' => $candidats
         ]);
     }
+
+    public function candidatDetail($id) {
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["error" => "ID du candidat manquant"]);
+            return;
+        }
+
+        $model = new CandidatModel();
+        $data = $model->cvAPI($id);
+
+        if (!$data) {
+            http_response_code(404);
+            echo json_encode(["error" => "Candidat non trouvé"]);
+            return;
+        }
+
+        // Retourner les données en JSON
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
+    public function exportCvToExcel($id)
+    {
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["error" => "ID du candidat manquant"]);
+            return;
+        }
+
+        $candidatModel = new CandidatModel();
+        $data = $candidatModel->cvAPI($id);
+        if (!$data) {
+            http_response_code(404);
+            echo json_encode(["error" => "Candidat non trouvé"]);
+            return;
+        }
+
+        $candidatModel->exportCvToExcel($data);
+    }
+
 }

@@ -208,6 +208,7 @@
                                             <th>Genre</th>
                                             <th>Date candidature</th>
                                             <th>Statut</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -245,6 +246,12 @@
                                                         elseif ($statut === 'Refusé') $badgeClass = 'bg-danger';
                                                         ?>
                                                         <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($statut) ?></span>
+                                                    </td>
+                                                     <td>
+                                                        <a href="<?= Flight::base() ?>/candidat/excel/<?= $candidat['id_candidat'] ?>" 
+                                                        class="btn btn-sm btn-success">
+                                                            <i class="bi bi-file-earmark-excel"></i> Exporter
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>

@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\controllers\ressourceHumaine\contratEssai\ContratEssaiController;
+use app\models\ressourceHumaine\AuthModel;
+
 use Flight;
 
 class Controller
@@ -21,6 +23,40 @@ class Controller
     {
         Flight::render('auth/sign');
     }
+
+    public static function getMenuByUser() {
+        if (!isset($_SESSION['user'])) {
+            http_response_code(401);
+            echo json_encode(["error" => "Utilisateur non connecté"]);
+            return;
+        }
+    
+        $id_user = $_SESSION['user']['id_user'];
+        $id_service = AuthModel::getServiceByUserId($id_user);
+
+        if (!$id_service || !isset($_SESSION['user']['id_user'])) {
+            http_response_code(404);
+            echo json_encode(["error" => "Service non trouvé pour cet utilisateur"]);
+            return;
+        }
+
+        $menuPath = null;
+        switch ($id_service) {
+            case 8:
+                $menuPath = "ui/menu/menuRH";
+                break;
+            case 1:
+                $menuPath = "ui/menu/menuDept";
+                break;
+
+            default:
+                $menuPath = "ui/menu/menu";
+                break;
+        }
+
+        return $menuPath;
+    }
+
 
     public function acceuil()
     {

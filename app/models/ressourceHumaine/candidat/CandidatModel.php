@@ -4,8 +4,11 @@ namespace app\models\ressourceHumaine\candidat;
 use Flight;
 use PDO;
 
+require __DIR__ . '/../../../../vendor/autoload.php';
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class CandidatModel {
-    // Calcule l'âge à partir de la date de naissance (format YYYY-MM-DD)
     public function getAge($date_naissance) {
         if (empty($date_naissance)) return null;
         try {
@@ -16,10 +19,7 @@ class CandidatModel {
             return null;
         }
     }
-    /**
-     * Filtrage dynamique des candidats selon les filtres fournis
-     * $filters = [genre, age_min, age_max, diplome, competences, ville, profils, date_naissance]
-     */
+
     public function getFiltered($filters = []) {
         $db = Flight::db();
         $where = [];
@@ -196,5 +196,179 @@ class CandidatModel {
             return "Erreur de suppression : " . $e->getMessage();
         }
     }
+
+    public function getVilleByIdCv($idCv) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT dcv.id_item, v.nom
+                FROM detail_cv dcv
+                JOIN ville v ON dcv.id_item = v.id_ville
+                WHERE dcv.id_cv = ? AND dcv.type = 'ville'
+            ");
+            $stmt->execute([$idCv]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getDiplomeByIdCv($idCv) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT dcv.id_item, d.nom
+                FROM detail_cv dcv
+                JOIN diplome d ON dcv.id_item = d.id_diplome
+                WHERE dcv.id_cv = ? AND dcv.type = 'diplome'
+            ");
+            $stmt->execute([$idCv]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getCompetenceByIdCv($idCv) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT dcv.id_item, c.nom
+                FROM detail_cv dcv
+                JOIN competence c ON dcv.id_item = c.id_competence
+                WHERE dcv.id_cv = ? AND dcv.type = 'competence'
+            ");
+            $stmt->execute([$idCv]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    public function getCvById($id) {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT 
+                    c.id_candidat,
+                    c.nom,
+                    c.prenom,
+                    c.email,
+                    c.telephone,
+                    c.genre,
+                    c.date_naissance,
+                    c.date_candidature,
+                    cv.id_cv,
+                    p.nom as profil,
+                    cv.date_soumission AS cv_date_soumission,
+                    cv.photo
+                FROM candidat c
+                LEFT JOIN cv ON c.id_candidat = cv.id_candidat
+                LEFT JOIN profil p ON cv.id_profil = p.id_profil
+                WHERE c.id_candidat = ?
+            ");
+            $stmt->execute([$id]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    public function cvAPI($id) {
+        try {
+            $cvs = $this->getCvById($id);
+
+            if (!$cvs) {
+                return null;
+            }
+
+            $result = [
+                'id_candidat' => $cvs[0]['id_candidat'],
+                'nom' => $cvs[0]['nom'],
+                'prenom' => $cvs[0]['prenom'],
+                'email' => $cvs[0]['email'],
+                'telephone' => $cvs[0]['telephone'],
+                'genre' => $cvs[0]['genre'],
+                'date_naissance' => $cvs[0]['date_naissance'],
+                'date_candidature' => $cvs[0]['date_candidature'],
+                'cvs' => []
+            ];
+
+            foreach ($cvs as $cv) {
+                $idCv = $cv['id_cv'];
+                
+                $result['cvs'][] = [
+                    'id_cv' => $idCv,
+                    'profil' => $cv['profil'], 
+                    'date_soumission' => $cv['cv_date_soumission'],
+                    'photo' => $cv['photo'],
+                    'villes' => $this->getVilleByIdCv($idCv),
+                    'diplomes' => $this->getDiplomeByIdCv($idCv),
+                    'competences' => $this->getCompetenceByIdCv($idCv)
+                ];
+            }
+
+            return $result;
+
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    public function exportCvToExcel($candidatData) {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // 1️⃣ Entêtes
+        $sheet->setCellValue('A1', 'Nom');
+        $sheet->setCellValue('B1', 'Prénom');
+        $sheet->setCellValue('C1', 'Email');
+        $sheet->setCellValue('D1', 'Téléphone');
+        $sheet->setCellValue('E1', 'Genre');
+        $sheet->setCellValue('F1', 'Date Naissance');
+        $sheet->setCellValue('G1', 'Date Candidature');
+        $sheet->setCellValue('H1', 'CV Profil');
+        $sheet->setCellValue('I1', 'CV Date Soumission');
+        $sheet->setCellValue('J1', 'CV Photo');
+        $sheet->setCellValue('K1', 'Villes');
+        $sheet->setCellValue('L1', 'Diplômes');
+        $sheet->setCellValue('M1', 'Compétences');
+
+        $row = 2; // Ligne de départ
+
+        foreach ($candidatData['cvs'] as $cv) {
+            $sheet->setCellValue('A'.$row, $candidatData['nom']);
+            $sheet->setCellValue('B'.$row, $candidatData['prenom']);
+            $sheet->setCellValue('C'.$row, $candidatData['email']);
+            $sheet->setCellValue('D'.$row, $candidatData['telephone']);
+            $sheet->setCellValue('E'.$row, $candidatData['genre']);
+            $sheet->setCellValue('F'.$row, $candidatData['date_naissance']);
+            $sheet->setCellValue('G'.$row, $candidatData['date_candidature']);
+            $sheet->setCellValue('H'.$row, $cv['profil']);
+            $sheet->setCellValue('I'.$row, $cv['date_soumission']);
+            $sheet->setCellValue('J'.$row, $cv['photo']);
+
+            // Colonnes avec plusieurs valeurs : on joint par une virgule
+            $sheet->setCellValue('K'.$row, implode(', ', array_column($cv['villes'], 'nom')));
+            $sheet->setCellValue('L'.$row, implode(', ', array_column($cv['diplomes'], 'nom')));
+            $sheet->setCellValue('M'.$row, implode(', ', array_column($cv['competences'], 'nom')));
+
+            $row++;
+        }
+
+        // 2️⃣ Création du fichier Excel
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'candidat_'.$candidatData['nom'].'-'.$candidatData['prenom'].'.xlsx';
+
+        // 3️⃣ Téléchargement direct
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+
+
 }
-// ...fin du fichier sans accolades inutiles

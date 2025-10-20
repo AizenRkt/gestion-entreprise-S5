@@ -1,9 +1,12 @@
 <?php
 
+
 use flight\Engine;
 use flight\database\PdoWrapper;
 use flight\debug\database\PdoQueryCapture;
 use Tracy\Debugger;
+use app\controllers\Controller;
+
 
 /** 
  * @var array $config This comes from the returned array at the bottom of the config.php file
@@ -69,5 +72,6 @@ Flight::map('menuFrontOffice', function () {
 });
 
 Flight::map('menuBackOffice', function () {
-    Flight::render('ui/menuBackOffice');
+    $menu = Controller::getMenuByUser();
+    Flight::render($menu);
 });
