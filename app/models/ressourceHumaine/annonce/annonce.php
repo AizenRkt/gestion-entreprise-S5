@@ -40,6 +40,10 @@ class Annonce {
         }
     }
 
+    public function getAllProfils(): array {
+        $stmt = $this->db->query("SELECT id_profil, nom FROM profil ORDER BY nom ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
     public function getAllDiplomes(): array {
         $stmt = $this->db->query("SELECT id_diplome, nom FROM diplome ORDER BY nom ASC");
@@ -51,7 +55,7 @@ class Annonce {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getFilteredAnnonces($keyword, $diplome, $ville): array {
+    public function getFilteredAnnonces($keyword, $diplome, $ville, $profil): array {
         $sql = "SELECT a.id_annonce, a.titre, a.date_debut, a.date_fin, a.experience, a.age_min, a.age_max,
                     p.nom AS profil,
                     GROUP_CONCAT(DISTINCT d.nom SEPARATOR ', ') AS diplomes,
@@ -94,6 +98,11 @@ class Annonce {
         if (!empty($ville)) {
             $sql .= " AND v.id_ville = :ville ";
             $params[':ville'] = $ville;
+        }
+
+        if (!empty($profil)) {
+            $sql .= " AND p.id_profil = :profil ";
+            $params[':profil'] = $profil;
         }
 
         $sql .= " GROUP BY a.id_annonce

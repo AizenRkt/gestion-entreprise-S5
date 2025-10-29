@@ -70,9 +70,6 @@
                         <span>Entretien</span>
                     </a>
                     <ul class="submenu">
-                        <!-- <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/organiserEntretien" class="submenu-link">Organiser</a>
-                        </li>      -->
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/planning" class="submenu-link">Planning</a>
                         </li>
@@ -80,30 +77,6 @@
                             <a href="<?= Flight::base() ?>/resultatQcm" class="submenu-link">résultat QCM</a>
                         </li>                                                  
                     </ul>
-                </li>
-
-                <li class="sidebar-title">Emploi</li>
-
-                <li class="sidebar-item has-sub">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-file-earmark-text-fill"></i>
-                        <span>Contrat</span>
-                    </a>
-                    <ul class="submenu">
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/contratCrea" class="submenu-link">Etablir</a>
-                        </li>     
-                        <li class="submenu-item">
-                            <a href="" class="submenu-link">Listing</a>
-                        </li>                        
-                    </ul>
-                </li>
-
-                <li class="sidebar-item  ">
-                    <a href="<?= Flight::base() ?>/employes" class="sidebar-link">
-                        <i class="bi bi-people-fill"></i>
-                        <span>Team</span>
-                    </a>
                 </li>
                 
                 <li class="sidebar-title">Compte</li>

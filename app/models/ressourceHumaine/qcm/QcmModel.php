@@ -24,7 +24,7 @@ class QcmModel {
     public static function getAll() {
         try {
             $db = Flight::db();
-            $stmt = $db->query("SELECT * FROM qcm ORDER BY date_creation DESC");
+            $stmt = $db->query("SELECT * FROM qcm q JOIN profil p on q.id_profil=p.id_profil ORDER BY date_creation DESC");
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             return [];

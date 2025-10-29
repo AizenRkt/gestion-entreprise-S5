@@ -61,15 +61,6 @@
                     </ul>
                 </li>
                 
-                <li class="sidebar-title">Tâches</li>
-
-                <li class="sidebar-item  ">
-                    <a href="#" class="sidebar-link">
-                        <i class="bi bi-people-fill"></i>
-                        <span>ticket</span>
-                    </a>
-                </li>
-                
                 <li class="sidebar-title">Compte</li>
 
                 <li class="sidebar-item">

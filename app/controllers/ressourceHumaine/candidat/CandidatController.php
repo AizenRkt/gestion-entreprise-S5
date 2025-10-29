@@ -402,6 +402,21 @@ class CandidatController
         echo json_encode($data);
     }
 
+    public function candidatAllDetail() {
+        echo "caca";
+        // $model = new CandidatModel();
+        // $data = $model->cvApiAll();
+
+        // if (!$data) {
+        //     http_response_code(404);
+        //     echo json_encode(["error" => "pas de candidat trouvé"]);
+        //     return;
+        // }
+
+        // header('Content-Type: application/json');
+        // echo json_encode($data);
+    }
+
     public function exportCvToExcel($id)
     {
         if (!$id) {
@@ -419,6 +434,11 @@ class CandidatController
         }
 
         $candidatModel->exportCvToExcel($data);
+    }
+
+    public function detailCv()
+    {
+        Flight::render('ressourceHumaine/back/cvDetail');
     }
 
 }

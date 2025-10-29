@@ -173,6 +173,7 @@ $(document).ready(function(){
                     </tr>
                 `);
             });
+            $('#table1').DataTable();
         } else {
             showToast(response.message ?? "Erreur lors du chargement des questions.", 'danger');
         }

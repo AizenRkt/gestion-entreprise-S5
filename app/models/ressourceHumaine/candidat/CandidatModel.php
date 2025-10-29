@@ -245,6 +245,87 @@ class CandidatModel {
         }
     }
 
+    public function getCvAll() {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("
+                SELECT 
+                    c.id_candidat,
+                    c.nom,
+                    c.prenom,
+                    c.email,
+                    c.telephone,
+                    c.genre,
+                    c.date_naissance,
+                    c.date_candidature,
+                    cv.id_cv,
+                    p.nom as profil,
+                    cv.date_soumission AS cv_date_soumission,
+                    cv.photo
+                FROM candidat c
+                LEFT JOIN cv ON c.id_candidat = cv.id_candidat
+                LEFT JOIN profil p ON cv.id_profil = p.id_profil
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
+    public function cvApiAll() {
+        try {
+            $cvs = $this->getCvAll();
+
+            if (!$cvs) {
+                return [];
+            }
+
+            $result = [];
+            $candidats = [];
+
+            foreach ($cvs as $cv) {
+                $idCandidat = $cv['id_candidat'];
+
+                if (!isset($candidats[$idCandidat])) {
+                    $candidats[$idCandidat] = [
+                        'id_candidat' => $cv['id_candidat'],
+                        'nom' => $cv['nom'],
+                        'prenom' => $cv['prenom'],
+                        'email' => $cv['email'],
+                        'telephone' => $cv['telephone'],
+                        'genre' => $cv['genre'],
+                        'date_naissance' => $cv['date_naissance'],
+                        'date_candidature' => $cv['date_candidature'],
+                        'cvs' => []
+                    ];
+                }
+
+                if (!empty($cv['id_cv'])) {
+                    $idCv = $cv['id_cv'];
+                    $candidats[$idCandidat]['cvs'][] = [
+                        'id_cv' => $idCv,
+                        'profil' => $cv['profil'],
+                        'date_soumission' => $cv['cv_date_soumission'],
+                        'photo' => $cv['photo'],
+                        'villes' => $this->getVilleByIdCv($idCv),
+                        'diplomes' => $this->getDiplomeByIdCv($idCv),
+                        'competences' => $this->getCompetenceByIdCv($idCv)
+                    ];
+                }
+            }
+
+            foreach ($candidats as $candidat) {
+                $result[] = $candidat;
+            }
+
+            return $result;
+
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
     public function getCvById($id) {
         try {
             $db = Flight::db();
@@ -314,6 +395,7 @@ class CandidatModel {
             return null;
         }
     }
+
 
     public function exportCvToExcel($candidatData) {
         $spreadsheet = new Spreadsheet();

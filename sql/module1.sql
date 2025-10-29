@@ -1,7 +1,7 @@
-DROP DATABASE if exists gestion_entreprise;
-CREATE DATABASE if not exists gestion_entreprise;
+DROP DATABASE if exists gestion_entreprise_test;
+CREATE DATABASE if not exists gestion_entreprise_test;
 
-USE gestion_entreprise;
+USE gestion_entreprise_test;
 
 -- ======================
 -- utilisateur, role, métier
@@ -244,23 +244,6 @@ CREATE TABLE scoring (
 );
 
 -- ======================
--- resultat final
--- ======================
--- CREATE TABLE type_resultat_candidat (
---     id_type_resultat_candidat INT AUTO_INCREMENT PRIMARY KEY,
---     valeur ENUM('refus','attente') NOT NULL
--- );
-
--- CREATE TABLE resultat_candidat (
---     id_resultat_candidat INT AUTO_INCREMENT PRIMARY KEY,
---     id_candidat INT NOT NULL,
---     id_type_resultat_candidat INT NOT NULL,
---     date DATE NOT NULL,
---     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat),
---     FOREIGN KEY (id_type_resultat_candidat) REFERENCES type_resultat_candidat(id_type_resultat_candidat)
--- );
-
--- ======================
 -- contrat d’essai et renouvellement
 -- ======================
 CREATE TABLE contrat_essai (
@@ -295,37 +278,7 @@ CREATE TABLE route_permissions (
 CREATE TABLE menu_ui (
     id_menu INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
-    id_service INT NOT NULL
+    id_service INT NOT NULL,
+    
     FOREIGN KEY (id_service) REFERENCES service(id_service)
-);
-
-
-CREATE TABLE candidat (
-    id_candidat INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
-    email VARCHAR(150)  NOT NULL,
-    telephone VARCHAR(20),
-    genre VARCHAR(1),
-    date_naissance DATE,
-    date_candidature DATE DEFAULT CURRENT_DATE
-);
-
-CREATE TABLE cv (
-    id_cv INT AUTO_INCREMENT PRIMARY KEY,
-    id_candidat INT NOT NULL,
-    id_profil INT NOT NULL,
-    date_soumission DATE DEFAULT CURRENT_DATE,
-    photo VARCHAR(255),
-    FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
-);
-
-CREATE TABLE detail_cv (
-    id_detail_cv INT AUTO_INCREMENT PRIMARY KEY,
-    id_cv INT NOT NULL,
-    type ENUM('ville','diplome','competence') NOT NULL,
-    id_item INT NOT NULL,
-    FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
-    UNIQUE KEY unique_cv_item (id_cv, type, id_item)
 );

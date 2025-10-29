@@ -32,6 +32,7 @@ class Controller
         }
     
         $id_user = $_SESSION['user']['id_user'];
+        $role = $_SESSION['user']['role'];
         $id_service = AuthModel::getServiceByUserId($id_user);
 
         if (!$id_service || !isset($_SESSION['user']['id_user'])) {
@@ -41,18 +42,28 @@ class Controller
         }
 
         $menuPath = null;
-        switch ($id_service) {
-            case 8:
-                $menuPath = "ui/menu/menuRH";
-                break;
-            case 1:
-                $menuPath = "ui/menu/menuDept";
-                break;
-
-            default:
-                $menuPath = "ui/menu/menu";
-                break;
+        // Cas combinés service + rôle
+        if ($id_service == 8 && $role == "Manager") {
+            $menuPath = "ui/menu/menuDirecteurRH";
+        } elseif ($id_service == 8) {
+            $menuPath = "ui/menu/menuRH";
+        } elseif ($id_service == 1) {
+            $menuPath = "ui/menu/menuDept";
+        } else {
+            $menuPath = "ui/menu/menu";
         }
+        // switch ($id_service) {
+        //     case 8:
+        //         $menuPath = "ui/menu/menuRH";
+        //         break;
+        //     case 1:
+        //         $menuPath = "ui/menu/menuDept";
+        //         break;
+
+        //     default:
+        //         $menuPath = "ui/menu/menu";
+        //         break;
+        // }
 
         return $menuPath;
     }

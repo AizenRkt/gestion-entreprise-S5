@@ -199,6 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="card qcm-card">
                             <div class="card-body">
                                 <h5 class="card-title">${qcm.titre}</h5>
+                                <p class="">profil : ${qcm.nom}</p>
                                 <p class="card-text text-muted">Note max : ${qcm.note_max}</p>
                                 <p class="card-text text-muted">Date de création : ${qcm.date_creation}</p>
                                 <a href="<?= Flight::base() ?>/singleQcm?id=${qcm.id_qcm}" class="btn btn-outline-primary btn-sm">Voir</a>

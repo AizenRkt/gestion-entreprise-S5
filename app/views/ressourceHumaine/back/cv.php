@@ -36,8 +36,8 @@
                             <p class="text-subtitle text-muted">Cherchez et filtrer des cv dans la base</p>
                         </div>
                         <div class="col-12 col-md-6 order-md-2 order-first text-end">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
-                                Trouver une cv
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+                                <i class="bi bi-file-earmark-excel"></i> exporter
                             </button>
                         </div>
                     </div>
@@ -82,7 +82,6 @@
                                                     <div class="form-group">
                                                         <select class="choices form-select" name="diplome">
                                                             <option value="" disabled selected hidden>Choisissez un diplôme</option>
-                                                            <option value="" disabled>Aucun diplôme</option>
                                                             <?php if (isset($diplomes) && is_array($diplomes)): ?>
                                                                 <?php foreach ($diplomes as $diplome): ?>
                                                                     <option value="<?= htmlspecialchars($diplome['id_diplome']) ?>">
@@ -248,6 +247,10 @@
                                                         <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($statut) ?></span>
                                                     </td>
                                                      <td>
+                                                        <a href="<?= Flight::base() ?>/backOffice/candidat/detail?id_candidat=<?= $candidat['id_candidat'] ?>" 
+                                                        class="btn btn-sm btn-primary">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
                                                         <a href="<?= Flight::base() ?>/candidat/excel/<?= $candidat['id_candidat'] ?>" 
                                                         class="btn btn-sm btn-success">
                                                             <i class="bi bi-file-earmark-excel"></i> Exporter

@@ -24,7 +24,7 @@ $router->post('/candidat/update/@id', [$candidatController, 'update']);
 $router->get('/candidat/delete/@id', [$candidatController, 'delete']);
 $router->get('/backOffice/candidat', [$candidatController, 'backOfficeCandidat']);
 $router->post('/backOffice/candidat/filter', [$candidatController, 'filter']);
-
+$router->get('/backOffice/candidat/detail', [$candidatController, 'detailCv']);
 
 //api
 $router->get('/candidat/detail/@id', [$candidatController, 'candidatDetail']);

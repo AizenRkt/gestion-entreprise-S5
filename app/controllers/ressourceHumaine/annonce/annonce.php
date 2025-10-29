@@ -17,12 +17,15 @@ class annonce {
     public function getAllAnnonces() {
         $annonces = $this->model->getAllAnnonces();
 
+        $profils = $this->model->getAllProfils();
+
         $diplomes = $this->model->getAllDiplomes(); 
 
         $villes = $this->model->getAllVilles(); 
 
         Flight::render('ressourceHumaine/back/listingAnnonce', [
             'annonces' => $annonces,
+            'pfs' => $profils,
             'diplomes' => $diplomes,
             'villes' => $villes
         ]); 
@@ -35,12 +38,15 @@ class annonce {
 
         $annonces = $this->model->getAllAnnonces();
 
+        $profils = $this->model->getAllProfils();
+
         $diplomes = $this->model->getAllDiplomes(); 
 
         $villes = $this->model->getAllVilles(); 
 
         Flight::render('ressourceHumaine/back/listingAnnonce', [
             'annonces' => $annonces,
+            'pfs' => $profils,
             'diplomes' => $diplomes,
             'villes' => $villes
         ]); 
@@ -53,12 +59,15 @@ class annonce {
 
         $annonces = $this->model->getAllAnnonces();
 
+        $profils = $this->model->getAllProfils();
+
         $diplomes = $this->model->getAllDiplomes(); 
 
         $villes = $this->model->getAllVilles(); 
 
         Flight::render('ressourceHumaine/back/listingAnnonce', [
             'annonces' => $annonces,
+            'pfs' => $profils,
             'diplomes' => $diplomes,
             'villes' => $villes
         ]); 
@@ -68,15 +77,20 @@ class annonce {
         $keyword = $_GET['keyword'] ?? null;
         $diplome = $_GET['diplome'] ?? null;
         $ville   = $_GET['ville'] ?? null;
+        $profil   = $_GET['profil'] ?? null;
 
-        $annonces = $this->model->getFilteredAnnonces($keyword, $diplome, $ville);
 
-        $diplomes = $this->model->getAllDiplomes(); 
+        $annonces = $this->model->getFilteredAnnonces($keyword, $diplome, $ville, $profil);
+
+        $diplomes = $this->model->getAllDiplomes();
+        
+        $profils = $this->model->getAllProfils();
 
         $villes = $this->model->getAllVilles(); 
 
         Flight::render('ressourceHumaine/annonce', [
             'annonces' => $annonces,
+            'pfs' => $profils,
             'diplomes' => $diplomes,
             'villes' => $villes
         ]); 
