@@ -22,4 +22,9 @@ $router->post('/auth/login', [ $AuthController, 'authVerif' ]); // Vérifie la c
 $router->get('/auth/sign', [ $AuthController, 'sign' ]); // Affiche le formulaire d'inscription
 $router->post('/auth/sign', [ $AuthController, 'authInscription' ]); // Traite l'inscription
 
+// routes pour les paramètres d'user
+$router->get('/auth/parametre', [ $AuthController, 'authParametre' ]); 
+
+// deco
 $router->get('/deconnexion', [$AuthController, 'authDeconnexion']);
+$router->get('/auth/disable/@iduser', [$AuthController, 'disableUser']);

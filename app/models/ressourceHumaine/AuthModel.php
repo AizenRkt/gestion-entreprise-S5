@@ -5,7 +5,12 @@ use Flight;
 use PDO;
 
 class AuthModel {
-    // Récupère le rôle principal de l'utilisateur via son id_user
+    private $db;
+
+    public function __construct() {
+        $this->db = Flight::db();
+    }
+
     public static function getUserRoleByUserId($id_user) {
         $db = Flight::db();
         $stmt = $db->prepare(
@@ -22,11 +27,7 @@ class AuthModel {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ? $row['role'] : null;
     }
-    private $db;
 
-    public function __construct() {
-        $this->db = Flight::db();
-    }
     public static function getByUsername($username) {
         $db = Flight::db();
         $stmt = $db->prepare("SELECT * FROM user WHERE username = ?");
@@ -58,6 +59,14 @@ class AuthModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public static function getMenuByRoleAndService($id_service, $role) {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT nom FROM menu_ui WHERE id_service = ? and role = ?"
+        );
+        $stmt->execute([$id_service, $role]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     public static function userExistsForEmployee($id_employe) {
         $db = Flight::db();
@@ -65,7 +74,6 @@ class AuthModel {
         $stmt->execute([$id_employe]);
         return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
-
 
     public static function isEmployeeActive($id_employe) {
         $db = Flight::db();
@@ -117,11 +125,11 @@ class AuthModel {
             return ['success' => false, 'message' => 'Erreur lors de la création du compte.'];
         }
     }
-
+    
     public static function getServiceByUserId($id_user) {
         $db = Flight::db();
         $stmt = $db->prepare(
-            "SELECT * FROM user u
+            "SELECT s.nom, s.id_service FROM user u
             JOIN employe_statut es ON u.id_employe = es.id_employe
             JOIN poste p ON es.id_poste = p.id_poste
             JOIN service s ON p.id_service = s.id_service
@@ -129,7 +137,59 @@ class AuthModel {
         );
         $stmt->execute([$id_user]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? $row['id_service'] : null;
+        return $row ?: null;
+    }
+
+    public function activerUser($id_user)
+    {
+        $sql = "INSERT INTO user_statut (id_user, activite, date_activite)
+                VALUES (:id_user, 1, CURDATE())
+                ON DUPLICATE KEY UPDATE activite = 1, date_activite = CURDATE()";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_user' => $id_user]);
+    }
+
+    public function desactiverUser($id_user)
+    {
+        $sql = "INSERT INTO user_statut (id_user, activite, date_activite)
+                VALUES (:id_user, 0, CURDATE())
+                ON DUPLICATE KEY UPDATE activite = 0, date_activite = CURDATE()";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_user' => $id_user]);
+    }
+
+    public function getDernierStatut($id_user)
+    {
+        $sql = "SELECT * FROM user_statut 
+                WHERE id_user = :id_user 
+                ORDER BY date_activite DESC 
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_user' => $id_user]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function estActif($id_user): bool
+    {
+        $sql = "SELECT activite 
+                FROM user_statut 
+                WHERE id_user = :id_user 
+                ORDER BY date_activite DESC 
+                LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_user' => $id_user]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result && $result['activite'] == 1;
+    }
+
+    public function getHistoriqueStatut($id_user)
+    {
+        $sql = "SELECT * FROM user_statut 
+                WHERE id_user = :id_user 
+                ORDER BY date_activite DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_user' => $id_user]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 

@@ -28,7 +28,9 @@ $router->get('/backOffice/candidat/detail', [$candidatController, 'detailCv']);
 
 //api
 $router->get('/candidat/detail/@id', [$candidatController, 'candidatDetail']);
+$router->get('/getAllCv', [$candidatController, 'candidatAllDetail']);
 $router->get('/candidat/excel/@id', [$candidatController, 'exportCvToExcel']);
+$router->get('/exportAllCv', [$candidatController, 'exportAllCvToExcel']);
 
-
+// test
 $router->get('/test', [$candidatController, 'eli']);

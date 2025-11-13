@@ -66,7 +66,15 @@ Flight::map('base', function() {
     return $base;
 });
 
-// ui elements 
+// ui elements
+Flight::map('userCard', function () {
+    Flight::render('ui/compo/userCard');
+});
+
+Flight::map('userAccount', function () {
+    Flight::render('ui/compo/userAccount');
+});
+
 Flight::map('menuFrontOffice', function () {
     Flight::render('ui/menuFrontOffice');
 });

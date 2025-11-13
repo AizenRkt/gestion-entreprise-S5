@@ -396,7 +396,6 @@ class CandidatModel {
         }
     }
 
-
     public function exportCvToExcel($candidatData) {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -451,6 +450,75 @@ class CandidatModel {
         exit;
     }
 
+    public function exportAllCvToExcel($candidatsData) {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
 
+        // 1️⃣ Entêtes
+        $headers = [
+            'A1' => 'Nom',
+            'B1' => 'Prénom',
+            'C1' => 'Email',
+            'D1' => 'Téléphone',
+            'E1' => 'Genre',
+            'F1' => 'Date Naissance',
+            'G1' => 'Date Candidature',
+            'H1' => 'CV Profil',
+            'I1' => 'CV Date Soumission',
+            'J1' => 'CV Photo',
+            'K1' => 'Villes',
+            'L1' => 'Diplômes',
+            'M1' => 'Compétences'
+        ];
 
+        foreach ($headers as $cell => $label) {
+            $sheet->setCellValue($cell, $label);
+        }
+
+        $row = 2; // ligne de départ après l'entête
+
+        // 2️⃣ Boucle sur les candidats
+        foreach ($candidatsData as $candidat) {
+            // sécurité si le candidat n’a pas de CV
+            if (!isset($candidat['cvs']) || empty($candidat['cvs'])) continue;
+
+            foreach ($candidat['cvs'] as $cv) {
+                $sheet->setCellValue('A' . $row, $candidat['nom']);
+                $sheet->setCellValue('B' . $row, $candidat['prenom']);
+                $sheet->setCellValue('C' . $row, $candidat['email']);
+                $sheet->setCellValue('D' . $row, $candidat['telephone']);
+                $sheet->setCellValue('E' . $row, $candidat['genre']);
+                $sheet->setCellValue('F' . $row, $candidat['date_naissance']);
+                $sheet->setCellValue('G' . $row, $candidat['date_candidature']);
+                $sheet->setCellValue('H' . $row, $cv['profil']);
+                $sheet->setCellValue('I' . $row, $cv['date_soumission']);
+                $sheet->setCellValue('J' . $row, $cv['photo']);
+
+                // Colonnes multiples : villes, diplômes, compétences
+                $sheet->setCellValue('K' . $row, implode(', ', array_column($cv['villes'], 'nom')));
+                $sheet->setCellValue('L' . $row, implode(', ', array_column($cv['diplomes'], 'nom')));
+                $sheet->setCellValue('M' . $row, implode(', ', array_column($cv['competences'], 'nom')));
+
+                $row++;
+            }
+        }
+
+        // 3️⃣ Mise en forme automatique (facultatif)
+        foreach (range('A', 'M') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // 4️⃣ Création du fichier Excel
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'export_candidats_'.date('Y-m-d_H-i-s').'.xlsx';
+
+        // 5️⃣ Envoi au navigateur
+        ob_clean(); // nettoie le buffer avant envoi
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
 }

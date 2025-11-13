@@ -3,7 +3,7 @@
         <div class="sidebar-header position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo">
-                    <a href="index.html"><img src="<?= Flight::base() ?>/public/template/assets/compiled/svg/logo.svg" alt="Logo" srcset=""></a>
+                    <a href="<?= Flight::base() ?>/"><img src="<?= Flight::base() ?>/public/template/assets/compiled/svg/logo.svg" alt="Logo" srcset=""></a>
                 </div>
                 <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"
@@ -40,6 +40,8 @@
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
+                <?= Flight::userCard() ?>
+
                 <li class="sidebar-title">Recrutement</li>
 
                 <li class="sidebar-item has-sub">
@@ -63,6 +65,25 @@
                         <span>CV</span>
                     </a>
                 </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-question-circle-fill"></i> <!-- contrat -->
+                        <span>QCM</span>
+                    </a>
+                    <ul class="submenu submenu" style="--submenu-height: 86px;">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/createQuestion" class="submenu-link">questions & réponses</a>
+                        </li>  
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/createQcm" class="submenu-link">Créer de zéro</a>
+                        </li>     
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/seeAllQcm" class="submenu-link">QCM existant</a>
+                        </li>
+
+                    </ul>
+                </li>
                 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
@@ -71,29 +92,16 @@
                     </a>
                     <ul class="submenu">
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/planning" class="submenu-link">Planning</a>
-                        </li>
-                        <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/resultatQcm" class="submenu-link">résultat QCM</a>
-                        </li>                                                  
+                        </li>         
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/planning" class="submenu-link">Planning</a>
+                        </li>                                         
                     </ul>
                 </li>
                 
-                <li class="sidebar-title">Compte</li>
-
-                <li class="sidebar-item">
-                    <a href="index.html" class="sidebar-link">
-                        <i class="bi bi-gear-fill"></i>
-                        <span>paramètre</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/deconnexion" class="sidebar-link">
-                        <i class="bi bi-door-closed-fill"></i>
-                        <span>déconnexion</span>
-                    </a>
-                </li>
+                <!-- partie compte -->
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>

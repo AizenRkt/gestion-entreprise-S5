@@ -1,0 +1,64 @@
+Type de congés et absences
+1.1. Oui je veux séparer les tables congé et type de congé
+
+1.2. Les congés peuvent être classés en plusieurs types selon leur nature et leur objectif : 
+    1. Congés Payés 
+         Temps de repos obligatoire pendant lequel l’employé continue de percevoir son 
+        salaire. 
+         Exemple : 4 semaines minimum de congés payés annuels dans de nombreux pays. 
+    2. Congés Sans Solde 
+         Absence autorisée sans rémunération. 
+         Motifs variés : projets personnels, études, voyages, etc. 
+    3. Congés Spéciaux ou Exceptionnels 
+         Accordés pour des événements spécifiques : 
+        o Mariage. 
+        o Décès d’un proche. 
+        o Naissance ou adoption d’un enfant. 
+         Ces congés sont souvent réglementés par la loi. 
+    4. Congés Maladie 
+         Absence liée à une incapacité médicale temporaire ou prolongée. 
+         Nécessite généralement un certificat médical. 
+    5. Congé de Maternité, Paternité et Adoption 
+         Protège les droits des parents à s’occuper de leurs enfants lors de naissances ou 
+        d’adoptions. 
+         Durées et rémunérations varient selon les pays et politiques d’entreprise. 
+    6. Congés Sabbatiques 
+         Période prolongée d’absence pour poursuivre des projets personnels (formation, 
+        voyage, etc.). 
+         Souvent sans rémunération et soumis à certaines conditions (ancienneté, accord de 
+        l'employeur). 
+    7. Congés Formation 
+         Permettent à l'employé de suivre une formation pour développer ses compétences 
+        professionnelles. 
+         Généralement encadrés par des lois ou accords collectifs. 
+
+1.3. On va séparer la gestion des congés et des absences (planifié ou pas), pour ce faire créeons une tables absences et une table type d'absences
+
+solde de congés
+2.1. Oui on va gérer le solde de congé par année et par employé (chaque employé à 2,5 jours/mois cumulable pendant 3 ans )
+
+2.2 Le solde des congés sera cummulé
+
+2.3. on va avoir besoin d'une table demande_de_congé et d'une table validation_demande_congé, ensuite on a aura besoin 
+de calculé le solde de congé que si l'employé fait une demande de congé pour vérifier son solde
+
+workflow des demandes
+3.1. l'employé fait une demande de congé depuis son interface avec son compte
+
+3.2. le supérieur (manager) de son service valide, puis le RH ou le DRH validation_demande_de_congé
+
+3.3. on a pas besoin d'un état en attente mais de seulement approuvé, refusé et annuler.
+
+3.4. on stocke directement dans la table validation_demande_congé avec une colonne commentaire
+
+Integration calendrier :
+ne parlons pas de calendrier pour l'instant
+
+Alerte et suivi : 
+ne parlons pas d'alerte pour le moment
+
+Cas particulier :
+1. Non les employé en essaie n'ont pas droit au congé
+2. on n'efface rien même si l'employé quitte l'entreprise
+3. on peut prendre des demi-journées de congé 
+

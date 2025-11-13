@@ -14,6 +14,7 @@ class AuthController {
         Flight::render('auth/sign');        
     }
 
+    
     public function authVerif() {
         $username = $_POST['username'] ?? null;
         $password = $_POST['password'] ?? null;
@@ -21,12 +22,14 @@ class AuthController {
 
         if ($user && $password && $password === $user['pwd']) {
             $role = AuthModel::getUserRoleByUserId($user['id_user']);
-            $service =AuthModel::getServiceByUserId($user['id_user']);
+            $service = AuthModel::getServiceByUserId($user['id_user']);
+
             $_SESSION['user'] = [
                 'id_user' => $user['id_user'],
                 'username' => $user['username'],
                 'role' => $role,
-                'id_service' => $service
+                'id_service' => $service['id_service'] ?? null,
+                'nom_service' => $service['nom'] ?? null
             ]; 
             $mssg = "Bienvenue " . $user['username'] . "!";
             Flight::redirect('/backOffice?mssg=' . urlencode($mssg));
@@ -92,5 +95,12 @@ class AuthController {
         Flight::redirect('/log');
     }
 
+    public function authParametre() {
+        Flight::render('auth/user/parametre');        
+    }
+
+    public function disableUser($iduser) {
+        
+    }
 }
 ?>

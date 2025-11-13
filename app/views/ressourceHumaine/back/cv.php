@@ -36,9 +36,9 @@
                             <p class="text-subtitle text-muted">Cherchez et filtrer des cv dans la base</p>
                         </div>
                         <div class="col-12 col-md-6 order-md-2 order-first text-end">
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
-                                <i class="bi bi-file-earmark-excel"></i> exporter
-                            </button>
+                            <a href="<?= Flight::base() ?>/exportAllCv" class="btn btn-success">
+                                <i class="bi bi-file-earmark-excel"></i> Exporter
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -403,18 +403,17 @@ class CandidatController
     }
 
     public function candidatAllDetail() {
-        echo "caca";
-        // $model = new CandidatModel();
-        // $data = $model->cvApiAll();
+        $model = new CandidatModel();
+        $data = $model->cvApiAll();
 
-        // if (!$data) {
-        //     http_response_code(404);
-        //     echo json_encode(["error" => "pas de candidat trouvé"]);
-        //     return;
-        // }
+        if (!$data) {
+            http_response_code(404);
+            echo json_encode(["error" => "pas de candidat trouvé"]);
+            return;
+        }
 
-        // header('Content-Type: application/json');
-        // echo json_encode($data);
+        header('Content-Type: application/json');
+        echo json_encode($data);
     }
 
     public function exportCvToExcel($id)
@@ -435,6 +434,23 @@ class CandidatController
 
         $candidatModel->exportCvToExcel($data);
     }
+
+    public function exportAllCvToExcel()
+    {
+
+
+        $candidatModel = new CandidatModel();
+        $data = $candidatModel->cvApiAll();
+        if (!$data) {
+            http_response_code(404);
+            echo json_encode(["error" => "Candidat non trouvé"]);
+            return;
+        }
+
+        $candidatModel->exportAllCvToExcel($data);
+    }
+
+    
 
     public function detailCv()
     {

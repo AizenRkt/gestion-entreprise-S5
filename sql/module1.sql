@@ -279,6 +279,11 @@ CREATE TABLE menu_ui (
     id_menu INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     id_service INT NOT NULL,
-    
+    role VARCHAR(255),
     FOREIGN KEY (id_service) REFERENCES service(id_service)
 );
+
+
+
+INSERT INTO menu_ui (nom, id_service, role) VALUES('menuDirecteurRH', 8, 'Manager');
+INSERT INTO menu_ui (nom, id_service, role) VALUES('menuRH', 8, 'RH');
