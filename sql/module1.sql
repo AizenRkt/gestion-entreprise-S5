@@ -255,14 +255,6 @@ CREATE TABLE contrat_essai (
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
 );
 
--- CREATE TABLE renouvellement_essai (
---     id_renouvellement_essai INT AUTO_INCREMENT PRIMARY KEY,
---     id_contrat_essai INT NOT NULL,
---     date_renouvellement DATE NOT NULL,
---     date_fin DATE NOT NULL,
---     FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
--- );
-
 -- ======================
 -- permissions
 -- ======================
@@ -283,7 +275,87 @@ CREATE TABLE menu_ui (
     FOREIGN KEY (id_service) REFERENCES service(id_service)
 );
 
+-- ======= Partie 2 =========
+CREATE TABLE contrat_essai_statut (
+    id_statut_contrat_essai INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_essai INT,
+    statut ENUM('valider', 'annuler'),
+    date_statut DATE,
+    commentaire TEXT,
+    FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
+);
 
+CREATE TABLE contrat_essai_renouvellement (
+    id_renouvellement_essai INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_essai INT NOT NULL,
+    nouvelle_date_fin DATE,
+    date_renouvellement DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    commentaire TEXT,
+    FOREIGN KEY (id_contrat_essai) REFERENCES contrat_essai(id_contrat_essai)
+);
 
-INSERT INTO menu_ui (nom, id_service, role) VALUES('menuDirecteurRH', 8, 'Manager');
-INSERT INTO menu_ui (nom, id_service, role) VALUES('menuRH', 8, 'RH');
+-- partie contrat de travail CDI et CDD
+CREATE TABLE contrat_travail_type (
+    id_type_contrat INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(25),
+    duree_min INT,
+    duree_max INT,
+    renouvelable TINYINT,
+    max_duree_renouvellement INT,
+    max_nb_renouvellement INT
+);
+
+CREATE TABLE contrat_travail (
+    id_contrat_travail INT AUTO_INCREMENT PRIMARY KEY,
+    id_type_contrat INT NOT NULL,
+    id_employe INT NOT NULL,
+    debut DATE NOT NULL,
+    fin DATE,
+    salaire_base DECIMAL(10,2),
+    date_signature DATE,
+    date_creation DATE NOT NULL,
+    id_poste INT,
+    pathPdf VARCHAR(255),
+    FOREIGN KEY (id_type_contrat) REFERENCES contrat_travail_type(id_type_contrat),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE contrat_travail_renouvellement (
+    id_renouvellement INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_travail INT NOT NULL,
+    nouvelle_date_fin DATE,
+    commentaire TEXT,
+    date_renouvellement DATE NOT NULL,
+    date_creation DATE NOT NULL,
+    pathPdf VARCHAR(255),
+    FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
+);
+
+-- partie document
+CREATE TABLE document_type (
+    id_type_document INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE document (
+    id_document INT AUTO_INCREMENT PRIMARY KEY,
+    id_type_document INT NOT NULL,
+    id_employe INT NOT NULL,
+    titre VARCHAR(255) NOT NULL,
+    pathScan VARCHAR(255),
+    dateUpload DATE NOT NULL,
+    date_expiration DATE,
+    FOREIGN KEY (id_type_document) REFERENCES document_type(id_type_document)
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE document_statut (
+    id_statut_document INT AUTO_INCREMENT PRIMARY KEY,
+    id_document INT NOT NULL,
+    statut ENUM('valide', 'expire', 'annule') NOT NULL,
+    date_statut DATE NOT NULL,
+    commentaire TEXT,
+    FOREIGN KEY (id_document) REFERENCES document(id_document)
+);
