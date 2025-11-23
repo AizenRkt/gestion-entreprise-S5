@@ -87,12 +87,36 @@
 
                 <li class="sidebar-title">Emploi</li>
 
-                <li class="sidebar-item">
-                    <a href="<?= Flight::base() ?>/contratCrea" class='sidebar-link'>
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
                         <i class="bi bi-file-earmark-text-fill"></i>
-                        <span>Contrat</span>
+                        <span>Contrat d'essaie</span>
                     </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/contratCrea" class="submenu-link">création</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/contratListe" class="submenu-link">listing</a>
+                        </li>                                                  
+                    </ul>
                 </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-briefcase-fill"></i>
+                        <span>Contrat de travail</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/contratTravailCrea" class="submenu-link">création</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/" class="submenu-link">listing</a>
+                        </li>                                                  
+                    </ul>
+                </li>
+
 
                 <li class="sidebar-item  ">
                     <a href="<?= Flight::base() ?>/employes" class="sidebar-link">

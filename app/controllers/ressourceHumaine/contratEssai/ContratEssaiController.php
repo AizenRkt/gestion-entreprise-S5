@@ -3,10 +3,14 @@
 namespace app\controllers\ressourceHumaine\contratEssai;
 
 use app\models\ressourceHumaine\contratEssai\ContratEssaiModel;
+use app\models\ressourceHumaine\contratEssai\ContratEssaiStatutModel;
+use app\models\ressourceHumaine\contratEssai\ContratEssaiRenouvellementModel;
 use app\models\ressourceHumaine\entretien\EntretienModel;
 use app\models\ressourceHumaine\annonce\Annonce;
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use app\models\ressourceHumaine\employe\EmployeModel;
+
+use DateTime;
 
 require __DIR__ . '/../../../../vendor/fpdf186/fpdf.php';
 
@@ -15,13 +19,16 @@ use Flight;
 class ContratEssaiController
 {
     private $contratEssaiModel;
+    private $contratEssaiStatutModel;
+    private $contratEssaiRenouvellementModel;
     private $entretienModel;
     private $candidatModel;
-
 
     public function __construct()
     {
         $this->contratEssaiModel = new ContratEssaiModel();
+        $this->contratEssaiStatutModel = new ContratEssaiStatutModel();
+        $this->contratEssaiRenouvellementModel = new ContratEssaiRenouvellementModel();
         $this->entretienModel = new EntretienModel();
         $this->candidatModel = new CandidatModel();
     }
@@ -73,7 +80,8 @@ class ContratEssaiController
                         $candidat['genre'],
                         $date_embauche,
                         1,
-                        1
+                        1,
+                        $id_candidat
                     );
 
                     return ['success' => true];
@@ -245,11 +253,112 @@ class ContratEssaiController
         }
     }
 
+    public function contratEssaiList() {
+        Flight::render('ressourceHumaine/back/contratEssai/contratEssaiList',);
+    }
+
     /**
      * Helper pour gérer l'encodage UTF-8 dans FPDF
      */
     private function utf8_decode($str)
     {
         return mb_convert_encoding($str, 'ISO-8859-1', 'UTF-8');
+    }
+
+    // api
+    public function getAllContrat() {
+        $contrats = $this->contratEssaiModel->getAllDetail();
+        Flight::json([
+            'success' => true,
+            'data' => $contrats
+        ]);
+    }
+
+    public function getAllValider() {
+        $contrats = $this->contratEssaiModel->getAllValider();
+        Flight::json([
+            'success' => true,
+            'data' => $contrats
+        ]);
+    }
+
+    public function valider($id) {
+        try {
+            $commentaire = isset($_GET['commentaire']) && !empty($_GET['commentaire'])
+                ? $_GET['commentaire']
+                : 'Contrat validé';
+
+            $this->contratEssaiStatutModel->insert(
+                $id,                  
+                'valider',            
+                date('Y-m-d'),        
+                $commentaire
+            );
+
+            Flight::json(['success' => true, 'message' => 'Contrat validé avec succès.']);
+        } catch (\Exception $e) {
+            Flight::json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function annuler($id) {
+        try {
+            $commentaire = isset($_GET['commentaire']) && !empty($_GET['commentaire'])
+                ? $_GET['commentaire']
+                : 'Contrat annulé';
+
+            $this->contratEssaiStatutModel->insert(
+                $id,                  
+                'annuler',            
+                date('Y-m-d'),        
+                $commentaire
+            );
+
+            Flight::json(['success' => true, 'message' => 'Contrat annulé avec succès.']);
+        } catch (\Exception $e) {
+            Flight::json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function renouvellerContratEssai($id) {
+        try {
+            $nouvelle_date_fin = isset($_GET['nouvelle_date_fin']) ? $_GET['nouvelle_date_fin'] : null;
+            $date_renouvellement = isset($_GET['date_renouvellement']) ? $_GET['date_renouvellement'] : date('Y-m-d');
+            $date_fin = isset($_GET['date_fin']) ? $_GET['date_fin'] : null;
+            $commentaire = isset($_GET['commentaire']) ? $_GET['commentaire'] : null;
+
+            if (!$date_fin) {
+                Flight::json(['success' => false, 'message' => 'La date de fin est obligatoire.']);
+                return;
+            }
+
+            $renouvellements = $this->contratEssaiRenouvellementModel->getByContrat($id);
+            if (!empty($renouvellements)) {
+                Flight::json(['success' => false, 'message' => 'Le contrat a déjà été renouvelé.']);
+                return;
+            }
+
+            if ($nouvelle_date_fin) {
+                $dateFinObj = new DateTime($date_fin);
+                $nouvelleFinObj = new DateTime($nouvelle_date_fin);
+                $diff = $dateFinObj->diff($nouvelleFinObj);
+                if ($diff->m + $diff->y * 12 > 6) {
+                    Flight::json(['success' => false, 'message' => 'La durée du renouvellement ne peut pas dépasser 6 mois.']);
+                    return;
+                }
+            }
+
+            $this->contratEssaiRenouvellementModel->insert(
+                $id,
+                $date_fin,
+                $date_renouvellement,
+                $date_fin,
+                $commentaire
+            );
+
+            Flight::json(['success' => true, 'message' => 'Renouvellement du contrat effectué avec succès.']);
+        } catch (\Exception $e) {
+            Flight::json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 }

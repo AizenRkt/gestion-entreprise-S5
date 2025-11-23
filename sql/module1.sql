@@ -278,7 +278,7 @@ CREATE TABLE menu_ui (
 -- ======= Partie 2 =========
 CREATE TABLE contrat_essai_statut (
     id_statut_contrat_essai INT AUTO_INCREMENT PRIMARY KEY,
-    id_contrat_essai INT,
+    id_contrat_essai INT NOT NULL,
     statut ENUM('valider', 'annuler'),
     date_statut DATE,
     commentaire TEXT,
@@ -287,7 +287,7 @@ CREATE TABLE contrat_essai_statut (
 
 CREATE TABLE contrat_essai_renouvellement (
     id_renouvellement_essai INT AUTO_INCREMENT PRIMARY KEY,
-    id_contrat_essai INT NOT NULL,
+    id_contrat_essai INT NOT NULL NOT NULL,
     nouvelle_date_fin DATE,
     date_renouvellement DATE NOT NULL,
     date_fin DATE NOT NULL,
@@ -311,14 +311,16 @@ CREATE TABLE contrat_travail (
     id_type_contrat INT NOT NULL,
     id_employe INT NOT NULL,
     debut DATE NOT NULL,
-    fin DATE,
+    fin DATE NULL,
     salaire_base DECIMAL(10,2),
-    date_signature DATE,
-    date_creation DATE NOT NULL,
-    id_poste INT,
+    date_signature DATE NULL,
+    date_creation DATE NOT NULL DEFAULT CURRENT_DATE,
+    id_poste INT NULL,
     pathPdf VARCHAR(255),
+
     FOREIGN KEY (id_type_contrat) REFERENCES contrat_travail_type(id_type_contrat),
-    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
+    FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
 );
 
 CREATE TABLE contrat_travail_renouvellement (

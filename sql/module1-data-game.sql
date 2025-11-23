@@ -289,3 +289,7 @@ INSERT INTO reponse (id_question, texte, est_correcte) VALUES
 
 INSERT INTO menu_ui (nom, id_service, role) VALUES('menuDirecteurRH', 8, 'Manager');
 INSERT INTO menu_ui (nom, id_service, role) VALUES('menuRH', 8, 'RH');
+
+INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max_duree_renouvellement, max_nb_renouvellement) VALUES
+('CDI', NULL, NULL, 0, NULL, NULL),
+('CDD', 1, 24, 1, 18, 2);

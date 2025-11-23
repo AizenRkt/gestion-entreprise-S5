@@ -5,19 +5,18 @@ use Flight;
 use PDO;
 
 Class EmployeModel {
-    private $db;
 
     public function __construct() {
-        $this->db = Flight::db();
     }
 
-    public static function createEmploye($nom, $prenom, $email, $telephone, $genre, $date_embauche, $activite, $id_poste) {
+    public static function createEmploye($nom, $prenom, $email, $telephone, $genre, $date_embauche, $activite, $id_poste, $id_candidat = null) {
         $db = Flight::db();
         
         // 1. Insérer dans la table employe
-        $sql_employe = "INSERT INTO employe (nom, prenom, email, telephone, genre, date_embauche) VALUES (:nom, :prenom, :email, :telephone, :genre, :date_embauche)";
+        $sql_employe = "INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES (:id_candidat, :nom, :prenom, :email, :telephone, :genre, :date_embauche)";
         $stmt_employe = $db->prepare($sql_employe);
         $stmt_employe->execute([
+            ':id_candidat' => $id_candidat,
             ':nom' => $nom,
             ':prenom' => $prenom,
             ':email' => $email,
@@ -89,5 +88,29 @@ Class EmployeModel {
         $stmt = $db->query("SELECT id_poste, titre FROM poste");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getById($id) {
+        try {
+            $db = Flight::db();
+            $query = "
+                SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste
+                FROM employe e
+                JOIN employe_statut es ON e.id_employe = es.id_employe
+                JOIN poste p ON es.id_poste = p.id_poste
+                WHERE es.date_modification = (
+                    SELECT MAX(es2.date_modification)
+                    FROM employe_statut es2
+                    WHERE es2.id_employe = e.id_employe
+                )
+                AND e.id_employe = ?
+            ";
+            $stmt = $db->prepare($query);
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return null;
+        }
+    }
+
 
 }

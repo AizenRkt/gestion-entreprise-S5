@@ -14,6 +14,19 @@ $router->get('/contratCrea', [ $contratEssaiController, 'contratEssai' ]);
 
 $router->get('/contrat/creer', [ $contratEssaiController, 'creerContratOfficiel']);
 
+$router->get('/contratListe', [ $contratEssaiController, 'contratEssaiList' ]);
+
+// api 
+$router->get('/contrat/all', [ $contratEssaiController, 'getAllContrat']);
+$router->get('/contrat/valide/all', [ $contratEssaiController, 'getAllValider']);
+
+
+$router->get('/contrat/valider/@id', [ $contratEssaiController, 'valider']);
+$router->get('/contrat/rejeter/@id', [ $contratEssaiController, 'annuler']);
+
+$router->get('/contrat/renouveller/@id', [ $contratEssaiController, 'renouvellerContratEssai']);
+
+
 // // Accepter un contrat (AJAX)
 // $router->post('/contrat/accepter', [ $contratEssaiController, 'accepterContrat' ]);
 // // Générer le PDF du contrat

@@ -11,6 +11,7 @@ require __DIR__ . '/routes/ressourceHumaine/qcmRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/authRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/employeRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/contratRoute.php';
+require __DIR__ . '/routes/ressourceHumaine/contratTravailRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/entretienRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/back/creaAnnonce.php';
 require __DIR__ . '/routes/ressourceHumaine/annonce.php';
