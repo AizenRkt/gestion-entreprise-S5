@@ -35,6 +35,13 @@ class AuthModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public static function getById($id_user) {
+        $db = Flight::db();
+        $stmt = $db->prepare("SELECT * FROM user WHERE id_user = ?");
+        $stmt->execute([$id_user]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public static function getActiveUserByUsername($username) {
         $db = Flight::db();
         $stmt = $db->prepare(

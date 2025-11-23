@@ -1,7 +1,7 @@
-DROP DATABASE if exists gestion_entreprise_test;
-CREATE DATABASE if not exists gestion_entreprise_test;
+DROP DATABASE if exists gestion_entreprise;
+CREATE DATABASE if not exists gestion_entreprise;
 
-USE gestion_entreprise_test;
+USE gestion_entreprise;
 
 -- ======================
 -- utilisateur, role, métier
@@ -349,7 +349,7 @@ CREATE TABLE document (
     pathScan VARCHAR(255),
     dateUpload DATE NOT NULL,
     date_expiration DATE,
-    FOREIGN KEY (id_type_document) REFERENCES document_type(id_type_document)
+    FOREIGN KEY (id_type_document) REFERENCES document_type(id_type_document),
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
 );
 

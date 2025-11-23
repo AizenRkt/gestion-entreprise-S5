@@ -60,15 +60,24 @@ INSERT INTO poste (titre, id_service) VALUES
 
 INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
 ('Ravatomanga', 'Mamy', 'mamyRavato@gmail.com', '123456789', 'M', '2020-01-01'),
-('Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01');
+('Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01'),
+('alice', 'dupont', 'aliceDupont@gmail.com', '0348366414', 'F', '2020-01-01'),
+('Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '1995-05-15'),
+('George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '1993-08-20');
 
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
 (1, 'Ravatomanga', 'Mamy', 'mamyRavato@gmail.com', '123456789', 'M', '2020-01-01'),
-(2, 'Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01');
+(2, 'Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01'),
+(3, 'alice', 'dupont', 'aclieDupont@gmail.com', '0348366414', 'F', '2020-01-01'),
+(4, 'Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '2025-11-23'),
+(5, 'George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '2025-11-23');
 
 INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
 (1, 17, 1),  
-(2, 18, 1);  
+(2, 18, 1),
+(3, 2, 1),
+(4, 2, 1),  -- Zo Lalaina = Développeur Backend
+(5, 3, 1);  -- Andry George = Développeur Frontend
 
 INSERT INTO role (nom) VALUES
 ('Administrateur'),
@@ -79,26 +88,17 @@ INSERT INTO role (nom) VALUES
 
 INSERT INTO user (username, pwd, id_employe) VALUES
 ('mamy.ravato', '123', 1),
-('dj.rajojo', '123', 2);
+('dj.rajojo', '123', 2),
+('alice.dupont', '123', 3),
+('zo', '123', 4),
+('andry', '123', 5);
 
 INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
 (17, 2, '2020-01-15'),  -- Directeur RH = Manager
-(18, 4, '2018-06-10');  -- Responsable recrutement = RH
-
-INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
-('alice', 'dupont', 'aliceDupont@gmail.com', '0348366414', 'F', '2020-01-01');
-
-INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
-(3, 'alice', 'dupont', 'aclieDupont@gmail.com', '0348366414', 'F', '2020-01-01');
-
-INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(3, 2, 1);  
-
-INSERT INTO user (username, pwd, id_employe) VALUES
-('alice.dupont', '123', 3);
-
-INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
-(4, 2, '2020-01-01');  -- Chef de Projet IT = Manager 
+(18, 4, '2018-06-10'),  -- Responsable recrutement = RH
+(4, 2, '2020-01-01'),  -- Chef de Projet IT = Manager 
+(19, 3, '2025-11-23'),  -- Zo Lalaina = Employé
+(20, 3, '2025-11-23');  -- Andry George = Employé
 
 
 -- ======================

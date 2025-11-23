@@ -98,7 +98,6 @@ class AuthController {
     public function authParametre() {
         Flight::render('auth/user/parametre');        
     }
-
     public function disableUser($iduser) {
         
     }

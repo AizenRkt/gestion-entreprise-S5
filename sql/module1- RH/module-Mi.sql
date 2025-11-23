@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS gestion_entreprise;
 -- ======================
 -- Création de la base
 -- ======================
