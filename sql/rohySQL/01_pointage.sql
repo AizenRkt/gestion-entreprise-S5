@@ -58,7 +58,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 6),  -- Samedi
 
 
-
+INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('14:30:00', 'Heure normale', 10, 7); 
 
 

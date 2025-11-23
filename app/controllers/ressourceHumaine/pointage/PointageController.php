@@ -14,9 +14,12 @@ class PointageController
     {
         $this->pointageModel = new PointageModel();
     }
-
     protected function getEmployeId()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
+        }
+
         if (isset($_SESSION['user']['id_user'])) {
             $user = AuthModel::getById($_SESSION['user']['id_user']);
             return $user['id_employe'] ?? null;
@@ -28,7 +31,7 @@ class PointageController
     {
         $id_employe = $this->getEmployeId();
         if (!$id_employe) {
-            Flight::redirect('/log', ['error' => 'Veuillez vous connecter.']);
+            Flight::redirect('/log?error=Veuillez+vous+connecter.');
             return;
         }
 
@@ -91,4 +94,16 @@ class PointageController
             Flight::json(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du check-out.']);
         }
     }
+
+    public function getHistoriquePointage()
+    {
+        $id_employe = $this->getEmployeId();
+        if (!$id_employe) {
+            Flight::json(['success' => false, 'message' => 'Employé non identifié.'], 403);
+            return;
+        }
+        $historique = $this->pointageModel->getHistoriqueByEmployeId($id_employe);
+        Flight::json(['success' => true, 'data' => $historique]);
+    }
+
 }

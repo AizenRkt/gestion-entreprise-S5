@@ -165,4 +165,29 @@ class PointageModel
             $stmt->execute([$id_employe, $date, $id_checkin, $id_checkout, $duree_work, $retard_min]);
         }
     }
+    /**
+     * Récupère l'historique de pointage pour un employé.
+     * @param int $id_employe
+     * @return array
+     */
+    public function getHistoriqueByEmployeId($id_employe)
+    {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT
+                p.date_pointage,
+                p.duree_work,
+                p.retard_min,
+                ci.datetime_checkin,
+                co.datetime_checkout
+            FROM pointage p
+            LEFT JOIN checkin ci ON p.id_checkin = ci.id
+            LEFT JOIN checkout co ON p.id_checkout = co.id
+            WHERE p.id_employe = ?
+            ORDER BY p.date_pointage DESC"
+        );
+        $stmt->execute([$id_employe]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
