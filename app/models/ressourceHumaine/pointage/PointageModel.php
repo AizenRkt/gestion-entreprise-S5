@@ -175,6 +175,7 @@ class PointageModel
         $db = Flight::db();
         $stmt = $db->prepare(
             "SELECT
+                p.id_pointage,
                 p.date_pointage,
                 p.duree_work,
                 p.retard_min,
@@ -188,6 +189,123 @@ class PointageModel
         );
         $stmt->execute([$id_employe]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère l'historique de pointage pour tous les employés.
+     * @return array
+     */
+    public function getAllHistorique()
+    {
+        $db = Flight::db();
+        $stmt = $db->prepare(
+            "SELECT
+                p.id_pointage,
+                p.id_employe,
+                p.date_pointage,
+                p.duree_work,
+                p.retard_min,
+                ci.datetime_checkin,
+                co.datetime_checkout,
+                e.nom,
+                e.prenom
+            FROM pointage p
+            JOIN employe e ON p.id_employe = e.id_employe
+            LEFT JOIN checkin ci ON p.id_checkin = ci.id
+            LEFT JOIN checkout co ON p.id_checkout = co.id
+            ORDER BY p.date_pointage DESC, e.nom ASC"
+        );
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Met à jour un enregistrement de pointage, y compris les tables checkin/checkout.
+     * Si les enregistrements checkin/checkout n'existent pas, ils sont insérés.
+     * @param int $id_pointage
+     * @param string|null $datetime_checkin  format 'Y-m-d H:i:s' ou null
+     * @param string|null $datetime_checkout format 'Y-m-d H:i:s' ou null
+     * @return bool
+     */
+    public function updatePointageRecord($id_pointage, $datetime_checkin, $datetime_checkout)
+    {
+        $db = Flight::db();
+        $db->beginTransaction();
+        try {
+            // Récupérer le pointage
+            $stmt = $db->prepare("SELECT id_checkin, id_checkout, id_employe, date_pointage FROM pointage WHERE id_pointage = ?");
+            $stmt->execute([$id_pointage]);
+            $pointage = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$pointage) {
+                $db->rollBack();
+                return false;
+            }
+
+            $id_checkin = $pointage['id_checkin'];
+            $id_checkout = $pointage['id_checkout'];
+            $id_employe = $pointage['id_employe'];
+            $date_pointage = $pointage['date_pointage'];
+
+            // Update or insert checkin
+            if ($datetime_checkin) {
+                if ($id_checkin) {
+                    $stmt = $db->prepare("UPDATE checkin SET datetime_checkin = ? WHERE id = ?");
+                    $stmt->execute([$datetime_checkin, $id_checkin]);
+                } else {
+                    $stmt = $db->prepare("INSERT INTO checkin (id_employe, datetime_checkin) VALUES (?, ?)");
+                    $stmt->execute([$id_employe, $datetime_checkin]);
+                    $id_checkin = $db->lastInsertId();
+                }
+            }
+
+            // Update or insert checkout
+            if ($datetime_checkout) {
+                if ($id_checkout) {
+                    $stmt = $db->prepare("UPDATE checkout SET datetime_checkout = ? WHERE id = ?");
+                    $stmt->execute([$datetime_checkout, $id_checkout]);
+                } else {
+                    $stmt = $db->prepare("INSERT INTO checkout (id_employe, datetime_checkout) VALUES (?, ?)");
+                    $stmt->execute([$id_employe, $datetime_checkout]);
+                    $id_checkout = $db->lastInsertId();
+                }
+            }
+
+            // Recalculer duree_work et retard_min
+            $duree_work = null;
+            if ($datetime_checkin && $datetime_checkout) {
+                $dt1 = new DateTime($datetime_checkin);
+                $dt2 = new DateTime($datetime_checkout);
+                $interval = $dt1->diff($dt2);
+                $duree_work = $interval->format('%H:%I:%S');
+            }
+
+            $retard_min = 0;
+            if ($datetime_checkin) {
+                $retard_min = $this->calculateRetard(new DateTime($datetime_checkin));
+            }
+
+            // Mettre à jour la table pointage
+            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
+
+            $db->commit();
+
+            // Récupérer les valeurs mises à jour pour renvoyer au client
+            $stmt = $db->prepare(
+                "SELECT p.duree_work, p.retard_min, ci.datetime_checkin, co.datetime_checkout
+                 FROM pointage p
+                 LEFT JOIN checkin ci ON p.id_checkin = ci.id
+                 LEFT JOIN checkout co ON p.id_checkout = co.id
+                 WHERE p.id_pointage = ?"
+            );
+            $stmt->execute([$id_pointage]);
+            $updated = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $updated ?: true;
+        } catch (\Exception $e) {
+            $db->rollBack();
+            return false;
+        }
     }
 
 }
