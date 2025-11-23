@@ -128,13 +128,41 @@ class PointageModel
      * @param int $id_employe
      * @param string $date
      */
-    public function createOrUpdatePointage($id_employe, $date)
+    public function createOrUpdatePointage($id_employe, $date, $forceCheckinId = null, $forceCheckoutId = null)
     {
+        $db = Flight::db();
+        // Vérifier si un pointage existe déjà pour cet employé à cette date
+        $stmt = $db->prepare("SELECT * FROM pointage WHERE id_employe = ? AND date_pointage = ?");
+        $stmt->execute([$id_employe, $date]);
+        $existingPointage = $stmt->fetch(PDO::FETCH_ASSOC);
+
         $checkin = $this->getCheckinForDate($id_employe, $date);
         $checkout = $this->getCheckoutForDate($id_employe, $date);
 
+        // Si on a un ID forcé (retourné par saveCheckin/saveCheckout) mais que
+        // la recherche par date n'a pas trouvé la ligne, on la récupère par ID.
+        if ($forceCheckinId && empty($checkin)) {
+            $stmt = $db->prepare("SELECT * FROM checkin WHERE id = ? LIMIT 1");
+            $stmt->execute([$forceCheckinId]);
+            $checkin = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        if ($forceCheckoutId && empty($checkout)) {
+            $stmt = $db->prepare("SELECT * FROM checkout WHERE id = ? LIMIT 1");
+            $stmt->execute([$forceCheckoutId]);
+            $checkout = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
         $id_checkin = $checkin['id'] ?? null;
         $id_checkout = $checkout['id'] ?? null;
+
+        // Si c'est une mise à jour et qu'on n'a pas trouvé de checkin, utiliser celui qui existe déjà.
+        if ($existingPointage && empty($id_checkin) && !empty($existingPointage['id_checkin'])) {
+            $id_checkin = $existingPointage['id_checkin'];
+            // On a aussi besoin des détails du checkin pour les calculs
+            $stmt = $db->prepare("SELECT * FROM checkin WHERE id = ? LIMIT 1");
+            $stmt->execute([$id_checkin]);
+            $checkin = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
         
         $duree_work = null;
         if ($checkin && $checkout) {
@@ -149,16 +177,10 @@ class PointageModel
             $retard_min = $this->calculateRetard(new DateTime($checkin['datetime_checkin']));
         }
         
-        $db = Flight::db();
-        // Vérifier si un pointage existe déjà pour cet employé à cette date
-        $stmt = $db->prepare("SELECT id_pointage FROM pointage WHERE id_employe = ? AND date_pointage = ?");
-        $stmt->execute([$id_employe, $date]);
-        $id_pointage = $stmt->fetchColumn();
-
-        if ($id_pointage) {
+        if ($existingPointage) {
             // Mettre à jour le pointage existant
             $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
-            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $existingPointage['id_pointage']]);
         } else {
             // Insérer un nouveau pointage
             $stmt = $db->prepare("INSERT INTO pointage (id_employe, date_pointage, id_checkin, id_checkout, duree_work, retard_min) VALUES (?, ?, ?, ?, ?, ?)");

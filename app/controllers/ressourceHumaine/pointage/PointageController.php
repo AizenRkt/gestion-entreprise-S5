@@ -60,7 +60,7 @@ class PointageController
         $checkinId = $this->pointageModel->saveCheckin($id_employe);
 
         if ($checkinId) {
-            $this->pointageModel->createOrUpdatePointage($id_employe, date('Y-m-d'));
+            $this->pointageModel->createOrUpdatePointage($id_employe, date('Y-m-d'), $checkinId);
             Flight::json(['success' => true, 'message' => 'Check-in enregistré avec succès.']);
         } else {
             Flight::json(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du check-in.']);
@@ -88,52 +88,28 @@ class PointageController
         $checkoutId = $this->pointageModel->saveCheckout($id_employe);
 
         if ($checkoutId) {
-            $this->pointageModel->createOrUpdatePointage($id_employe, date('Y-m-d'));
+            $this->pointageModel->createOrUpdatePointage($id_employe, date('Y-m-d'), null, $checkoutId);
             Flight::json(['success' => true, 'message' => 'Check-out enregistré avec succès.']);
         } else {
             Flight::json(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du check-out.']);
         }
     }
 
-    /**
-     * Retourne tous les pointages (pour l'admin/backoffice) en JSON
-     */
-    public function getAllHistorique()
+
+    public function getMyHistorique()
     {
-        $historique = $this->pointageModel->getAllHistorique();
-        // Render a backoffice view showing all pointages
-        Flight::render('ressourceHumaine/back/pointage/pointageHistorique', [
-            'pointages' => $historique
-        ]);
-    }
-
-    /**
-     * Endpoint pour mettre à jour un enregistrement de pointage (checkin/checkout)
-     * Attendu en POST: id_pointage, datetime_checkin (Y-m-d H:i:s), datetime_checkout (Y-m-d H:i:s)
-     */
-    public function updatePointage()
-    {
-        $req = Flight::request();
-        $data = $req->data;
-
-        $id_pointage = $data['id_pointage'] ?? null;
-        $datetime_checkin = $data['datetime_checkin'] ?? null;
-        $datetime_checkout = $data['datetime_checkout'] ?? null;
-
-        if (!$id_pointage) {
-            Flight::json(['success' => false, 'message' => 'id_pointage manquant.'], 400);
+        $id_employe = $this->getEmployeId();
+        if (!$id_employe) {
+            Flight::json(['success' => false, 'message' => 'Employé non identifié.'], 403);
             return;
         }
 
-        $result = $this->pointageModel->updatePointageRecord($id_pointage, $datetime_checkin, $datetime_checkout);
-
-        if ($result && is_array($result)) {
-            Flight::json(['success' => true, 'message' => 'Pointage mis à jour.', 'updated' => $result]);
-        } elseif ($result === true) {
-            // fallback: success but no updated data
-            Flight::json(['success' => true, 'message' => 'Pointage mis à jour.']);
-        } else {
-            Flight::json(['success' => false, 'message' => 'Erreur lors de la mise à jour du pointage.'], 500);
+        try {
+            $historique = $this->pointageModel->getHistoriqueByEmployeId($id_employe);
+            Flight::json(['success' => true, 'data' => $historique]);
+        } catch (\Exception $e) {
+            // Log the error if possible
+            Flight::json(['success' => false, 'message' => 'Erreur du serveur lors de la récupération de l\'historique.'], 500);
         }
     }
 }

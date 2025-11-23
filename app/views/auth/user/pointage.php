@@ -9,6 +9,7 @@
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app-dark.css">
+    <link
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
 </head>
@@ -126,7 +127,7 @@
 
             async function loadDatatable() {
                 try {
-                    const response = await fetch(`<?= Flight::base() ?>/api/pointage/historique`);
+                    const response = await fetch(`<?= Flight::base() ?>/backOffice/user/pointage/historique`);
                     const result = await response.json();
 
                     if (!result.success) {
@@ -200,4 +201,7 @@
         });
     </script>
 </body>
+</html>
+datatables.js"></script>
+</html>
 </html>
