@@ -112,4 +112,38 @@ class PointageController
             Flight::json(['success' => false, 'message' => 'Erreur du serveur lors de la récupération de l\'historique.'], 500);
         }
     }
+    public function getAllHistorique()
+    {
+        $historique = $this->pointageModel->getAllHistorique();
+        Flight::render('ressourceHumaine/back/pointage/pointageHistorique', ['pointages' => $historique]);
+    }
+
+    public function updatePointage()
+    {
+        $id_pointage = Flight::request()->data->id_pointage;
+        $datetime_checkin = Flight::request()->data->datetime_checkin;
+        $datetime_checkout = Flight::request()->data->datetime_checkout;
+
+        if (empty($id_pointage)) {
+            Flight::json(['success' => false, 'message' => 'ID de pointage manquant.'], 400);
+            return;
+        }
+
+        // Sanitize inputs
+        $id_pointage = (int) $id_pointage;
+        $datetime_checkin = (string) $datetime_checkin ?: null;
+        $datetime_checkout = (string) $datetime_checkout ?: null;
+
+        try {
+            $updated = $this->pointageModel->updatePointageRecord($id_pointage, $datetime_checkin, $datetime_checkout);
+
+            if ($updated) {
+                Flight::json(['success' => true, 'message' => 'Pointage mis à jour avec succès.', 'updated' => $updated]);
+            } else {
+                Flight::json(['success' => false, 'message' => 'Impossible de mettre à jour le pointage.'], 500);
+            }
+        } catch (\Exception $e) {
+            Flight::json(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()], 500);
+        }
+    }
 }

@@ -35,9 +35,10 @@
                                 <thead>
                                     <tr>
                                         <th>Employé</th>
-                                        <th>Arrivée</th>
-                                        <th>Checkin</th>
-                                        <th>Checkout</th>
+                                        <th>Date</th>
+                                        <th>Heure d'arrivée</th>
+                                        <th>Heure de départ</th>
+                                        <th>Durée</th>
                                         <th>Retard (min)</th>
                                         <th>Actions</th>
                                     </tr>
@@ -46,19 +47,25 @@
                                     <?php if (!empty($pointages) && is_array($pointages)): ?>
                                         <?php foreach ($pointages as $p): ?>
                                             <tr>
-                                                <td><?= htmlspecialchars((isset($p['nom'])? $p['nom'] : '') . ' ' . (isset($p['prenom'])? $p['prenom'] : '')) ?></td>
-                                                <td><?= htmlspecialchars(isset($p['datetime_checkin']) ? $p['datetime_checkin'] : '') ?></td>
-                                                <td><?= htmlspecialchars(isset($p['datetime_checkout']) ? $p['datetime_checkout'] : '') ?></td>
-                                                <td><?= htmlspecialchars(isset($p['duree_work']) ? $p['duree_work'] : '') ?></td>
-                                                <td><?= htmlspecialchars(isset($p['retard_min']) ? $p['retard_min'] : '') ?></td>
+                                                <td><?= htmlspecialchars(($p['nom'] ?? '') . ' ' . ($p['prenom'] ?? '')) ?></td>
+                                                <td><?= !empty($p['date_pointage']) ? htmlspecialchars(date('d/m/Y', strtotime($p['date_pointage']))) : '' ?></td>
+                                                <td><?= !empty($p['datetime_checkin']) ? htmlspecialchars(date('H:i:s', strtotime($p['datetime_checkin']))) : '' ?></td>
+                                                <td><?= !empty($p['datetime_checkout']) ? htmlspecialchars(date('H:i:s', strtotime($p['datetime_checkout']))) : '' ?></td>
+                                                <td><?= htmlspecialchars($p['duree_work'] ?? '') ?></td>
                                                 <td>
-                                                    <button type="button" class="btn btn-sm btn-primary edit-pointage" data-id="<?= htmlspecialchars($p['id_pointage']) ?>" data-checkin="<?= htmlspecialchars(isset($p['datetime_checkin']) ? $p['datetime_checkin'] : '') ?>" data-checkout="<?= htmlspecialchars(isset($p['datetime_checkout']) ? $p['datetime_checkout'] : '') ?>">Modifier</button>
+                                                    <?php $retard = (int)($p['retard_min'] ?? 0); ?>
+                                                    <span class="badge <?= $retard > 0 ? 'bg-danger' : 'bg-success' ?>">
+                                                        <?= $retard ?> min
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-primary edit-pointage" data-id="<?= htmlspecialchars($p['id_pointage']) ?>" data-checkin="<?= htmlspecialchars($p['datetime_checkin'] ?? '') ?>" data-checkout="<?= htmlspecialchars($p['datetime_checkout'] ?? '') ?>">Modifier</button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="6">Aucun pointage trouvé.</td>
+                                            <td colspan="7">Aucun pointage trouvé.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -110,9 +117,24 @@
 
     <script>
     (function($){
+        // Helper to convert SQL DATETIME to an <input type="datetime-local"> value
         function toInputDatetime(sqlDt) {
             if (!sqlDt) return '';
             return sqlDt.replace(' ', 'T').slice(0,16);
+        }
+
+        // Helper to format SQL DATETIME to a HH:mm:ss display string
+        function toDisplayTime(sqlDt) {
+            if (!sqlDt) return '';
+            try {
+                // Using Date object is safer for parsing and formatting
+                return new Date(sqlDt).toLocaleTimeString('fr-FR', {
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+            } catch(e) {
+                // Fallback for older browsers or unexpected formats
+                return sqlDt.split(' ')[1] || '';
+            }
         }
 
         $(document).on('click', '.edit-pointage', function(){
@@ -139,16 +161,24 @@
 
             $.post('<?= Flight::base() ?>/pointage/update', data, function(resp){
                 if (resp && resp.success) {
-                    // close and update row dynamically if updated data provided
                     var updated = resp.updated || null;
                     var $btn = $('#editPointageModal').data('rowBtn');
                     if ($btn && updated) {
                         var $tr = $btn.closest('tr');
-                        // columns: 0=name,1=checkin,2=checkout,3=duree,4=retard,5=actions
-                        $tr.find('td').eq(1).text(updated.datetime_checkin || '');
-                        $tr.find('td').eq(2).text(updated.datetime_checkout || '');
-                        $tr.find('td').eq(3).text(updated.duree_work || '');
-                        $tr.find('td').eq(4).text((updated.retard_min !== null && updated.retard_min !== undefined) ? updated.retard_min : '');
+                        // Update table cells with correct indices
+                        $tr.find('td').eq(2).text(toDisplayTime(updated.datetime_checkin));
+                        $tr.find('td').eq(3).text(toDisplayTime(updated.datetime_checkout));
+                        $tr.find('td').eq(4).text(updated.duree_work || '');
+                        
+                        // Update retard with a badge
+                        var retard = (updated.retard_min !== null && updated.retard_min !== undefined) ? parseInt(updated.retard_min, 10) : 0;
+                        var badgeClass = retard > 0 ? 'bg-danger' : 'bg-success';
+                        var badgeHtml = `<span class="badge ${badgeClass}">${retard} min</span>`;
+                        $tr.find('td').eq(5).html(badgeHtml);
+
+                        // Also update the button's data attributes for the next edit
+                        $btn.data('checkin', updated.datetime_checkin || '');
+                        $btn.data('checkout', updated.datetime_checkout || '');
                     }
                     $('#editPointageModal').modal('hide');
                 } else {

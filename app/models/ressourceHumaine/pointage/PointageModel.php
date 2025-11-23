@@ -131,39 +131,58 @@ class PointageModel
     public function createOrUpdatePointage($id_employe, $date, $forceCheckinId = null, $forceCheckoutId = null)
     {
         $db = Flight::db();
-        // Vérifier si un pointage existe déjà pour cet employé à cette date
-        $stmt = $db->prepare("SELECT * FROM pointage WHERE id_employe = ? AND date_pointage = ?");
-        $stmt->execute([$id_employe, $date]);
-        $existingPointage = $stmt->fetch(PDO::FETCH_ASSOC);
+        $checkin = null;
+        $checkout = null;
+        $effectiveDate = null;
 
-        $checkin = $this->getCheckinForDate($id_employe, $date);
-        $checkout = $this->getCheckoutForDate($id_employe, $date);
-
-        // Si on a un ID forcé (retourné par saveCheckin/saveCheckout) mais que
-        // la recherche par date n'a pas trouvé la ligne, on la récupère par ID.
-        if ($forceCheckinId && empty($checkin)) {
+        if ($forceCheckinId) {
+            // A check-in just happened. The check-in itself is the source of truth.
             $stmt = $db->prepare("SELECT * FROM checkin WHERE id = ? LIMIT 1");
             $stmt->execute([$forceCheckinId]);
             $checkin = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
-        if ($forceCheckoutId && empty($checkout)) {
+
+            if (!$checkin) return; // Should not happen
+
+            $effectiveDate = date('Y-m-d', strtotime($checkin['datetime_checkin']));
+            // No checkout exists yet for this new pointage.
+            $checkout = null;
+
+        } elseif ($forceCheckoutId) {
+            // A check-out just happened. Find its details first.
             $stmt = $db->prepare("SELECT * FROM checkout WHERE id = ? LIMIT 1");
             $stmt->execute([$forceCheckoutId]);
             $checkout = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$checkout) return; // Should not happen
+
+            // Now, find the corresponding check-in. It must be the latest one that occurred before this checkout.
+            // This correctly handles overnight work.
+            $stmt = $db->prepare(
+                "SELECT * FROM checkin
+                 WHERE id_employe = ? AND datetime_checkin < ?
+                 ORDER BY datetime_checkin DESC LIMIT 1"
+            );
+            $stmt->execute([$id_employe, $checkout['datetime_checkout']]);
+            $checkin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$checkin) return; // Cannot find a check-in to associate with this check-out.
+
+            // The effective date is the date of the check-in.
+            $effectiveDate = date('Y-m-d', strtotime($checkin['datetime_checkin']));
+        } else {
+            // This function should not be called without a check-in or check-out ID.
+            return;
         }
 
+        // Using the determined effective date, find if a pointage record already exists.
+        $stmt = $db->prepare("SELECT id_pointage FROM pointage WHERE id_employe = ? AND date_pointage = ?");
+        $stmt->execute([$id_employe, $effectiveDate]);
+        $id_pointage = $stmt->fetchColumn();
+
+        // Calculate metrics
         $id_checkin = $checkin['id'] ?? null;
         $id_checkout = $checkout['id'] ?? null;
 
-        // Si c'est une mise à jour et qu'on n'a pas trouvé de checkin, utiliser celui qui existe déjà.
-        if ($existingPointage && empty($id_checkin) && !empty($existingPointage['id_checkin'])) {
-            $id_checkin = $existingPointage['id_checkin'];
-            // On a aussi besoin des détails du checkin pour les calculs
-            $stmt = $db->prepare("SELECT * FROM checkin WHERE id = ? LIMIT 1");
-            $stmt->execute([$id_checkin]);
-            $checkin = $stmt->fetch(PDO::FETCH_ASSOC);
-        }
-        
         $duree_work = null;
         if ($checkin && $checkout) {
             $datetime1 = new DateTime($checkin['datetime_checkin']);
@@ -176,15 +195,14 @@ class PointageModel
         if ($checkin) {
             $retard_min = $this->calculateRetard(new DateTime($checkin['datetime_checkin']));
         }
-        
-        if ($existingPointage) {
-            // Mettre à jour le pointage existant
+
+        // Insert or Update the pointage table
+        if ($id_pointage) {
             $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
-            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $existingPointage['id_pointage']]);
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
         } else {
-            // Insérer un nouveau pointage
             $stmt = $db->prepare("INSERT INTO pointage (id_employe, date_pointage, id_checkin, id_checkout, duree_work, retard_min) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$id_employe, $date, $id_checkin, $id_checkout, $duree_work, $retard_min]);
+            $stmt->execute([$id_employe, $effectiveDate, $id_checkin, $id_checkout, $duree_work, $retard_min]);
         }
     }
     /**
