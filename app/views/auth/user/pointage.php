@@ -145,9 +145,9 @@
                     const rows = result.data.map(item => {
                         let statusBadge;
                         if (item.duree_work === '00:00:00') {
-                            statusBadge = '<span class="badge bg-secondary">Absent</span>';
+                            statusBadge = '<span class="badge bg-danger">Absent</span>';
                         } else if (item.retard_min > 0) {
-                            statusBadge = `<span class="badge bg-danger">${item.retard_min} min de retard</span>`;
+                            statusBadge = `<span class="badge bg-secondary">${item.retard_min} min de retard</span>`;
                         } else {
                             statusBadge = '<span class="badge bg-success">À l\'heure</span>';
                         }

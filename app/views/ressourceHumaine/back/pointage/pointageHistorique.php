@@ -58,9 +58,9 @@
                                                         $retard = (int)($p['retard_min'] ?? 0); 
                                                     ?>
                                                     <?php if ($duree_work === '00:00:00'): ?>
-                                                        <span class="badge bg-secondary">Absent</span>
+                                                        <span class="badge bg-danger">Absent</span>
                                                     <?php else: ?>
-                                                        <span class="badge <?= $retard > 0 ? 'bg-danger' : 'bg-success' ?>">
+                                                        <span class="badge <?= $retard > 0 ? 'bg-secondary' : 'bg-success' ?>">
                                                             <?= $retard ?> min
                                                         </span>
                                                     <?php endif; ?>
@@ -180,10 +180,10 @@
                         // Update retard with a badge
                         var retardCell = $tr.find('td').eq(5);
                         if (updated.duree_work === '00:00:00') {
-                            retardCell.html('<span class="badge bg-secondary">Absent</span>');
+                            retardCell.html('<span class="badge bg-danger">Absent</span>');
                         } else {
                             var retard = (updated.retard_min !== null && updated.retard_min !== undefined) ? parseInt(updated.retard_min, 10) : 0;
-                            var badgeClass = retard > 0 ? 'bg-danger' : 'bg-success';
+                            var badgeClass = retard > 0 ? 'bg-secondary' : 'bg-success';
                             var badgeHtml = `<span class="badge ${badgeClass}">${retard} min</span>`;
                             retardCell.html(badgeHtml);
                         }
