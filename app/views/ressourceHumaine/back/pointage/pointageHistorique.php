@@ -53,10 +53,17 @@
                                                 <td><?= !empty($p['datetime_checkout']) ? htmlspecialchars(date('H:i:s', strtotime($p['datetime_checkout']))) : '' ?></td>
                                                 <td><?= htmlspecialchars($p['duree_work'] ?? '') ?></td>
                                                 <td>
-                                                    <?php $retard = (int)($p['retard_min'] ?? 0); ?>
-                                                    <span class="badge <?= $retard > 0 ? 'bg-danger' : 'bg-success' ?>">
-                                                        <?= $retard ?> min
-                                                    </span>
+                                                    <?php 
+                                                        $duree_work = $p['duree_work'] ?? '';
+                                                        $retard = (int)($p['retard_min'] ?? 0); 
+                                                    ?>
+                                                    <?php if ($duree_work === '00:00:00'): ?>
+                                                        <span class="badge bg-secondary">Absent</span>
+                                                    <?php else: ?>
+                                                        <span class="badge <?= $retard > 0 ? 'bg-danger' : 'bg-success' ?>">
+                                                            <?= $retard ?> min
+                                                        </span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn btn-sm btn-primary edit-pointage" data-id="<?= htmlspecialchars($p['id_pointage']) ?>" data-checkin="<?= htmlspecialchars($p['datetime_checkin'] ?? '') ?>" data-checkout="<?= htmlspecialchars($p['datetime_checkout'] ?? '') ?>">Modifier</button>
@@ -171,10 +178,15 @@
                         $tr.find('td').eq(4).text(updated.duree_work || '');
                         
                         // Update retard with a badge
-                        var retard = (updated.retard_min !== null && updated.retard_min !== undefined) ? parseInt(updated.retard_min, 10) : 0;
-                        var badgeClass = retard > 0 ? 'bg-danger' : 'bg-success';
-                        var badgeHtml = `<span class="badge ${badgeClass}">${retard} min</span>`;
-                        $tr.find('td').eq(5).html(badgeHtml);
+                        var retardCell = $tr.find('td').eq(5);
+                        if (updated.duree_work === '00:00:00') {
+                            retardCell.html('<span class="badge bg-secondary">Absent</span>');
+                        } else {
+                            var retard = (updated.retard_min !== null && updated.retard_min !== undefined) ? parseInt(updated.retard_min, 10) : 0;
+                            var badgeClass = retard > 0 ? 'bg-danger' : 'bg-success';
+                            var badgeHtml = `<span class="badge ${badgeClass}">${retard} min</span>`;
+                            retardCell.html(badgeHtml);
+                        }
 
                         // Also update the button's data attributes for the next edit
                         $btn.data('checkin', updated.datetime_checkin || '');

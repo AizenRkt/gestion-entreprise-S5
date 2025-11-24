@@ -206,6 +206,53 @@ class PointageModel
         }
     }
     /**
+     * Remplit les enregistrements de pointage manquants pour un employé à partir d'une date donnée.
+     * @param int $id_employe
+     */
+    public function fillMissingPointages($id_employe)
+    {
+        $db = Flight::db();
+
+        // 1. Trouver la dernière date de pointage ou utiliser la date de début par défaut.
+        $startDate = new DateTime('2025-11-01');
+        
+        $endDate = new DateTime();
+        $endDate->modify('-1 day'); // Jusqu'à hier
+
+        if ($startDate > $endDate) {
+            return; // Pas de jours à vérifier
+        }
+
+        // Itérer sur la plage de dates
+        $currentDate = clone $startDate;
+        while ($currentDate <= $endDate) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $dayOfWeek = $currentDate->format('N'); // 1 pour Lundi, 7 pour Dimanche
+
+            // Vérifier si c'est un jour ouvrable selon la table statut_pointage
+            $stmt = $db->prepare("SELECT COUNT(*) FROM statut_pointage WHERE jour = ?");
+            $stmt->execute([$dayOfWeek]);
+            $isWorkingDay = $stmt->fetchColumn() > 0;
+
+            if ($isWorkingDay) {
+                // Vérifier si un pointage existe déjà pour ce jour
+                $stmt = $db->prepare("SELECT COUNT(*) FROM pointage WHERE id_employe = ? AND date_pointage = ?");
+                $stmt->execute([$id_employe, $dateStr]);
+                $pointageExists = $stmt->fetchColumn() > 0;
+
+                if (!$pointageExists) {
+                    // Insérer un enregistrement d'absence
+                    $stmt_insert = $db->prepare(
+                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min) VALUES (?, ?, '00:00:00', 0)"
+                    );
+                    $stmt_insert->execute([$id_employe, $dateStr]);
+                }
+            }
+
+            $currentDate->modify('+1 day');
+        }
+    }
+    /**
      * Récupère l'historique de pointage pour un employé.
      * @param int $id_employe
      * @return array
@@ -259,14 +306,13 @@ class PointageModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Met à jour un enregistrement de pointage, y compris les tables checkin/checkout.
-     * Si les enregistrements checkin/checkout n'existent pas, ils sont insérés.
-     * @param int $id_pointage
-     * @param string|null $datetime_checkin  format 'Y-m-d H:i:s' ou null
-     * @param string|null $datetime_checkout format 'Y-m-d H:i:s' ou null
-     * @return bool
-     */
+    public function getAllEmployeIds()
+    {
+        $db = Flight::db();
+        $stmt = $db->prepare("SELECT id_employe FROM employe");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
     public function updatePointageRecord($id_pointage, $datetime_checkin, $datetime_checkout)
     {
         $db = Flight::db();

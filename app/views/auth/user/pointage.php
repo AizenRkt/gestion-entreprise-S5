@@ -70,7 +70,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">
-                                Mon Historique de Pointage
+                                Relevée de présence
                             </h5>
                         </div>
                         <div class="card-body">
@@ -80,7 +80,7 @@
                                         <th>Date</th>
                                         <th>Heure d'arrivée</th>
                                         <th>Heure de départ</th>
-                                        <th>Durée Totale</th>
+                                        <th>Durée de travail</th>
                                         <th>Statut</th>
                                     </tr>
                                 </thead>
@@ -144,7 +144,9 @@
                     
                     const rows = result.data.map(item => {
                         let statusBadge;
-                        if (item.retard_min > 0) {
+                        if (item.duree_work === '00:00:00') {
+                            statusBadge = '<span class="badge bg-secondary">Absent</span>';
+                        } else if (item.retard_min > 0) {
                             statusBadge = `<span class="badge bg-danger">${item.retard_min} min de retard</span>`;
                         } else {
                             statusBadge = '<span class="badge bg-success">À l\'heure</span>';

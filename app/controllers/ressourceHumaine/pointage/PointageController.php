@@ -35,6 +35,9 @@ class PointageController
             return;
         }
 
+        // Remplir les jours de pointage manquants avant d'afficher la page
+        $this->pointageModel->fillMissingPointages($id_employe);
+
         $hasCheckedIn = $this->pointageModel->hasCheckedInToday($id_employe);
         $hasCheckedOut = $this->pointageModel->hasCheckedOutToday($id_employe);
 
@@ -114,6 +117,14 @@ class PointageController
     }
     public function getAllHistorique()
     {
+        // Get all employee IDs
+        $employeIds = $this->pointageModel->getAllEmployeIds();
+
+        // Fill missing pointages for each employee
+        foreach ($employeIds as $id_employe) {
+            $this->pointageModel->fillMissingPointages($id_employe);
+        }
+
         $historique = $this->pointageModel->getAllHistorique();
         Flight::render('ressourceHumaine/back/pointage/pointageHistorique', ['pointages' => $historique]);
     }
