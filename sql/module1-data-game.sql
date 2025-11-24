@@ -204,10 +204,6 @@ INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/c
 -- scoring
 -- ======================
 
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/annonceListe', 'Administrateur', 8);
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/annonceListe', 'RH' , 8);
-
--- ======================
 -- scoring et qcm
 INSERT INTO type_scoring (nom) VALUES
 ('QCM'),
