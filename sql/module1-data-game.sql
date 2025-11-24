@@ -191,11 +191,11 @@ INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/c
 
 -- QCM existant (Gestion & Consultation)
 INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/seeAllQcm', 'Administrateur', 8);
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/seeAllQcm', 'RH');
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/seeAllQcm', 'RH', 8);
 
 -- Employés (Gestion)
 INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/employes', 'Manager', 8);
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/employes', 'RH');
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/employes', 'RH', 8);
 
 
 -- Contrats 
@@ -211,7 +211,7 @@ INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/a
 -- scoring et qcm
 INSERT INTO type_scoring (nom) VALUES
 ('QCM'),
-('entretien')
+('entretien');
 
 INSERT INTO question (enonce) VALUES
 ('Quel langage est principalement utilisé pour le développement backend web ?'),
