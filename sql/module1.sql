@@ -349,7 +349,7 @@ CREATE TABLE document (
     pathScan VARCHAR(255),
     dateUpload DATE NOT NULL,
     date_expiration DATE,
-    FOREIGN KEY (id_type_document) REFERENCES document_type(id_type_document)
+    FOREIGN KEY (id_type_document) REFERENCES document_type(id_type_document),
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
 );
 
@@ -360,4 +360,102 @@ CREATE TABLE document_statut (
     date_statut DATE NOT NULL,
     commentaire TEXT,
     FOREIGN KEY (id_document) REFERENCES document(id_document)
+);
+
+-- partie congé
+CREATE TABLE type_conge (
+    id_type_conge INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    description TEXT,
+    remuneree TINYINT(1) DEFAULT 0,
+    nb_jours_max INT DEFAULT NULL
+);
+
+CREATE TABLE demande_conge (
+    id_demande_conge INT AUTO_INCREMENT PRIMARY KEY,
+    id_type_conge INT NOT NULL,
+    id_employe INT NOT NULL,
+    date_debut DATETIME NOT NULL,
+    date_fin DATETIME NOT NULL,
+    nb_jours INT NOT NULL,
+    FOREIGN KEY (id_type_conge) REFERENCES type_conge(id_type_conge),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE validation_conge (
+    id_validation_conge INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_conge INT NOT NULL,
+    statut ENUM('valider', 'refuser'),
+    date_validation DATE,
+    FOREIGN KEY (id_demande_conge) REFERENCES demande_conge(id_demande_conge)
+);
+
+-- partie absence 
+CREATE TABLE type_absence (
+    id_type_absence INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    description TEXT,
+    isAutorise TINYINT(1) DEFAULT 0
+);
+
+CREATE TABLE absence (
+    id_absence INT AUTO_INCREMENT PRIMARY KEY,
+    id_type_absence INT NOT NULL,
+    id_employe INT NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    FOREIGN KEY (id_type_absence) REFERENCES type_absence(id_type_absence),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE documentation_absence (
+    id_documentation_absence INT AUTO_INCREMENT PRIMARY KEY,
+    type_documentation ENUM('justification', 'demande') NOT NULL,
+    id_employe INT NOT NULL,
+    motif TEXT,
+    date_debut DATE,
+    date_fin DATE,
+    date_documentation DATE NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE validation_documentation_absence (
+    id_validation_documentation_absence INT AUTO_INCREMENT PRIMARY KEY,
+    id_documentation_absence INT NOT NULL,
+    id_absence INT NOT NULL,
+    FOREIGN KEY (id_documentation_absence) REFERENCES documentation_absence(id_documentation_absence),
+    FOREIGN KEY (id_absence) REFERENCES absence(id_absence)
+);
+
+-- partie heure sup
+CREATE TABLE max_heure_sup (
+    id_max_heure_sup INT AUTO_INCREMENT PRIMARY KEY,
+    nb_heures_max_par_semaine INT NOT NULL,
+    date_application DATE NOT NULL
+);
+
+CREATE TABLE demande_heure_sup (
+    id_demande_heure_sup INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    date_demande DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE detail_heure_sup (
+    id_detail_heure_sup INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_heure_sup INT NOT NULL,
+    heure_debut TIME NOT NULL,
+    heure_fin TIME NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
+);
+
+CREATE TABLE validation_heure_sup (
+    id_validation_heure_sup INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_heure_sup INT NOT NULL,
+    commentaire TEXT,
+    statut ENUM('valide', 'refuse') NOT NULL,
+    date_validation DATE NOT NULL,
+    FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
