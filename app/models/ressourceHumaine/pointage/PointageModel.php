@@ -214,7 +214,7 @@ class PointageModel
         $db = Flight::db();
 
         // 1. Trouver la dernière date de pointage ou utiliser la date de début par défaut.
-        $startDate = new DateTime('2025-11-01');
+        $startDate = new DateTime('2025-11-23');
         
         $endDate = new DateTime();
         $endDate->modify('-1 day'); // Jusqu'à hier
