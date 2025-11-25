@@ -99,6 +99,23 @@
                         </li>                                         
                     </ul>
                 </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-alarm-fill"></i>
+                        <span>Gestion de temps</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/annonceCrea" class="submenu-link">Heure supp</a>
+                        </li>     
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/annonceListe" class="submenu-link">congés</a>
+                        </li>                        
+                    </ul>
+                </li>
+
+                
                 
                 <!-- partie compte -->
                 <?= Flight::userAccount() ?>
