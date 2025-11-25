@@ -1324,6 +1324,7 @@ INSERT INTO validation_documentation_absence (id_documentation_absence, id_absen
 
 CREATE OR REPLACE VIEW view_absence_details AS
 SELECT 
+    a.id_absence,
     e.id_employe,
     e.nom AS employe_nom,
     e.prenom AS employe_prenom,
@@ -1332,7 +1333,12 @@ SELECT
     a.date_fin AS absence_date_fin,
     da.type_documentation,
     da.motif,
-    da.date_documentation
+    da.date_documentation,
+    CASE 
+        WHEN v.id_documentation_absence IS NOT NULL THEN 'Validé'
+        WHEN v.id_documentation_absence IS NULL AND da.id_documentation_absence IS NOT NULL THEN 'En attente'
+        ELSE 'Archivé'
+    END AS validation_status
 FROM 
     employe e
 JOIN 
@@ -1340,4 +1346,6 @@ JOIN
 JOIN 
     type_absence ta ON a.id_type_absence = ta.id_type_absence
 JOIN 
-    documentation_absence da ON e.id_employe = da.id_employe;
+    documentation_absence da ON e.id_employe = da.id_employe
+LEFT JOIN 
+    validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;

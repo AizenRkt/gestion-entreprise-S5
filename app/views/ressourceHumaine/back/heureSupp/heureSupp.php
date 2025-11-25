@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Absences - Mazer</title>
-
+    <title>Gestion des Heures Supplémentaires - Mazer</title>
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app-dark.css">
-    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable.css">
 </head>
-
 <body>
-
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/initTheme.js"></script>
     <div id="app">
         <?= Flight::menuBackOffice() ?>
@@ -25,21 +20,19 @@
                     <i class="bi bi-justify fs-3"></i>
                 </a>
             </header>
-
             <div class="page-heading">
                 <div class="page-title">
                     <div class="row">
                         <div class="col-12 col-md-6 order-md-1 order-last">
-                            <h3>Liste des absences</h3>
-                            <p class="text-subtitle text-muted">Consultez toutes les absences enregistrées.</p>
+                            <h3>Liste des Heures Supplémentaires</h3>
+                            <p class="text-subtitle text-muted">Consultez toutes les demandes d'heures supplémentaires.</p>
                         </div>
                     </div>
                 </div>
-
                 <section class="section">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title">Toutes les absences</h5>
+                            <h5 class="card-title">Toutes les demandes</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -47,49 +40,39 @@
                                     <thead>
                                         <tr>
                                             <th>Employé</th>
-                                            <th>Type d'absence</th>
-                                            <th>Date de début</th>
-                                            <th>Date de fin</th>
-                                            <th>Motif</th>
-                                            <th>Type de document</th>
-                                            <th>Date du document</th>
+                                            <th>Date de demande</th>
+                                            <th>Heure début</th>
+                                            <th>Heure fin</th>
+                                            <th>Date début</th>
+                                            <th>Date fin</th>
                                             <th>Statut</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if (isset($absences) && is_array($absences) && !empty($absences)): ?>
-                                            <?php foreach ($absences as $absence): ?>
+                                        <?php if (isset($heuresSupp) && is_array($heuresSupp) && !empty($heuresSupp)): ?>
+                                            <?php foreach ($heuresSupp as $heureSupp): ?>
                                                 <tr>
-                                                    <td><?= htmlspecialchars($absence['employe_prenom'] . ' ' . $absence['employe_nom']) ?></td>
-                                                    <td><?= htmlspecialchars($absence['type_absence']) ?></td>
-                                                    <td><?= htmlspecialchars($absence['absence_date_debut']) ?></td>
-                                                    <td><?= htmlspecialchars($absence['absence_date_fin']) ?></td>
-                                                    <td><?= htmlspecialchars($absence['motif']) ?></td>
-                                                    <td><?= htmlspecialchars($absence['type_documentation']) ?></td>
-                                                    <td><?= htmlspecialchars($absence['date_documentation']) ?></td>
+                                                    <td><?= htmlspecialchars($heureSupp['employe_prenom'] . ' ' . $heureSupp['employe_nom']) ?></td>
+                                                    <td><?= htmlspecialchars($heureSupp['date_demande']) ?></td>
+                                                    <td><?= htmlspecialchars($heureSupp['heure_debut']) ?></td>
+                                                    <td><?= htmlspecialchars($heureSupp['heure_fin']) ?></td>
+                                                    <td><?= htmlspecialchars($heureSupp['date_heure_debut']) ?></td>
+                                                    <td><?= htmlspecialchars($heureSupp['date_heure_fin']) ?></td>
                                                     <td>
                                                         <?php
-                                                        $statut = htmlspecialchars($absence['validation_status']);
-                                                        $badgeClass = 'bg-secondary';
-
-                                                        if ($statut === 'Validé') {
-                                                            $badgeClass = 'bg-primary';
-                                                        } elseif ($statut === 'En attente') {
-                                                            $badgeClass = 'bg-light';
-                                                        } elseif ($statut === 'Archivé') {
-                                                            $badgeClass = 'bg-secondary';
-                                                        }
+                                                        $statut = htmlspecialchars($heureSupp['validation_statut']);
+                                                        $badgeClass = ($statut === 'Validé') ? 'bg-primary' : 'bg-light';
                                                         ?>
                                                         <span class="badge <?= $badgeClass ?>"><?= $statut ?></span>
                                                     </td>
                                                     <td class="action-buttons">
                                                         <!-- Buttons for validating and rejecting absence -->
-                                                        <a href="<?= Flight::base() ?>/absence/valider?id_absence=<?= $absence['id_absence'] ?>"
+                                                        <a href="<?= Flight::base() ?>/heureSupp/valider?id_heureSupp=<?= $heureSupp['id_demande_heure_sup'] ?>"
                                                             class="btn btn-sm btn-success validate-btn">
                                                             Valider
                                                         </a>
-                                                        <a href="<?= Flight::base() ?>/absence/refuser?id_absence=<?= $absence['id_absence'] ?>"
+                                                        <a href="<?= Flight::base() ?>/heureSupp/refuser?id_heureSupp=<?= $heureSupp['id_demande_heure_sup'] ?>"
                                                             class="btn btn-sm btn-danger refuse-btn">
                                                             Refuser
                                                         </a>
@@ -98,7 +81,7 @@
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <tr>
-                                                <td colspan="8">Aucune absence trouvée.</td>
+                                                <td colspan="7">Aucune demande d'heure supplémentaire trouvée.</td>
                                             </tr>
                                         <?php endif; ?>
                                     </tbody>
@@ -107,37 +90,14 @@
                         </div>
                     </div>
                 </section>
-
             </div>
         </div>
     </div>
-
-    <!-- JQuery doit être chargé avant ton script -->
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
-    
-    <script>
-        $(document).ready(function() {
-            // Hide action buttons based on validation status
-            $('tr').each(function() {
-                var statusCell = $(this).find('td:eq(7)'); // Adjust index if necessary, 7 is for 'Statut'
-                var actionButtons = $(this).find('.action-buttons');
-
-                if (actionButtons.length > 0 && statusCell.length > 0) {
-                    var status = statusCell.text().trim();
-                    if (status === 'Validé') {
-                        actionButtons.hide(); // Hide buttons if status is Validé
-                    }
-                }
-            });
-        });
-    </script>
 </body>
-
 </html>
