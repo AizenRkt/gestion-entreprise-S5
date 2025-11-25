@@ -113,7 +113,7 @@
                             <a href="<?= Flight::base() ?>/backOffice/heureSupp" class="submenu-link">Heure supp</a>
                         </li>     
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/annonceListe" class="submenu-link">congés</a>
+                            <a href="<?= Flight::base() ?>/backOffice/conge" class="submenu-link">congés</a>
                         </li>                        
                     </ul>
                 </li>
