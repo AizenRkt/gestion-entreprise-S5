@@ -1301,3 +1301,43 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 
 INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('14:30:00', 'Heure normale', 10, 7); 
+
+-- Inserting absences
+INSERT INTO absence (id_type_absence, id_employe, date_debut, date_fin) VALUES
+(1, 1, '2025-11-01', '2025-11-05'), -- Maladie for employé 1
+(2, 2, '2025-11-10', '2025-11-15'), -- Congé Annuel for employé 2
+(3, 3, '2025-11-20', '2025-11-30'), -- Congé Maternel for employé 3
+(4, 4, '2025-12-01', '2025-12-10'), -- Congé Paternité for employé 4
+(5, 5, '2025-11-25', '2025-11-27'); -- Absentéisme for employé 5
+
+-- Inserting documentation for absence
+INSERT INTO documentation_absence (type_documentation, id_employe, motif, date_debut, date_fin, date_documentation) VALUES
+('justification', 1, 'Sickness', '2025-11-01', '2025-11-05', '2025-11-01'),
+('demande', 2, 'Vacation', '2025-11-10', '2025-11-15', '2025-11-05'),
+('justification', 3, 'Maternity leave', '2025-11-20', '2025-11-30', '2025-11-20'),
+('demande', 4, 'Paternity leave', '2025-12-01', '2025-12-10', '2025-11-30'),
+('justification', 5, 'Unauthorized absence', '2025-11-25', '2025-11-27', '2025-11-25');
+
+-- Inserting validation of documentation for absence
+INSERT INTO validation_documentation_absence (id_documentation_absence, id_absence) VALUES
+(1, 1);  -- Validation for employé 1's sick leave
+
+CREATE OR REPLACE VIEW view_absence_details AS
+SELECT 
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    ta.nom AS type_absence,
+    a.date_debut AS absence_date_debut,
+    a.date_fin AS absence_date_fin,
+    da.type_documentation,
+    da.motif,
+    da.date_documentation
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+JOIN 
+    type_absence ta ON a.id_type_absence = ta.id_type_absence
+JOIN 
+    documentation_absence da ON e.id_employe = da.id_employe;

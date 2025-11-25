@@ -32,7 +32,7 @@
 
                     <form action="<?= Flight::base() ?>/auth/login" method="post">
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="text" name="username" class="form-control form-control-xl" placeholder="Username" required value="mamy.ravato">
+                            <input type="text" name="username" class="form-control form-control-xl" placeholder="Username" required value="dj.rajojo">
                             <div class="form-control-icon">
                                 <i class="bi bi-person"></i>
                             </div>

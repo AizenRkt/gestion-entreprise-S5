@@ -107,6 +107,9 @@
                     </a>
                     <ul class="submenu">
                         <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/backOffice/absence" class="submenu-link">Absence</a>
+                        </li>    
+                        <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/annonceCrea" class="submenu-link">Heure supp</a>
                         </li>     
                         <li class="submenu-item">
