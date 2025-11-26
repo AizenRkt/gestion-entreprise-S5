@@ -10,3 +10,5 @@ use flight\net\Router;
 $absenceController = new AbsenceController();
 
 $router->get('/backOffice/absence', [$absenceController, 'showAbsencePage']);
+$router->get('/backOffice/absence/valider', [$absenceController, 'validerAbsence']);
+$router->get('/backOffice/absence/refuser', [$absenceController, 'refuserAbsence']);

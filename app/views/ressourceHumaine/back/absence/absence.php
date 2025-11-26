@@ -85,11 +85,11 @@
                                                     </td>
                                                     <td class="action-buttons">
                                                         <!-- Buttons for validating and rejecting absence -->
-                                                        <a href="<?= Flight::base() ?>/absence/valider?id_absence=<?= $absence['id_absence'] ?>"
+                                                        <a href="<?= Flight::base() ?>/backOffice/absence/valider?id_absence=<?= $absence['id_absence'] ?>"
                                                             class="btn btn-sm btn-success validate-btn">
                                                             Valider
                                                         </a>
-                                                        <a href="<?= Flight::base() ?>/absence/refuser?id_absence=<?= $absence['id_absence'] ?>"
+                                                        <a href="<?= Flight::base() ?>/backOffice/absence/refuser?id_absence=<?= $absence['id_absence'] ?>"
                                                             class="btn btn-sm btn-danger refuse-btn">
                                                             Refuser
                                                         </a>
@@ -131,8 +131,8 @@
 
                 if (actionButtons.length > 0 && statusCell.length > 0) {
                     var status = statusCell.text().trim();
-                    if (status === 'Validé') {
-                        actionButtons.hide(); // Hide buttons if status is Validé
+                    if (status !== 'En attente') {
+                        actionButtons.hide(); // Hide buttons if status is not 'En attente'
                     }
                 }
             });

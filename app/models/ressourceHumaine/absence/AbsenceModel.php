@@ -26,4 +26,77 @@ class AbsenceModel
             return [];
         }
     }
+
+    public function validerAbsence(int $id_absence): bool
+    {
+        try {
+            $db = Flight::db();
+
+            // 1. Get absence details
+            $stmt_absence = $db->prepare("SELECT id_employe, date_debut, date_fin FROM absence WHERE id_absence = :id_absence");
+            $stmt_absence->execute(['id_absence' => $id_absence]);
+            $absence_details = $stmt_absence->fetch(PDO::FETCH_ASSOC);
+
+            if (!$absence_details) {
+                return false;
+            }
+
+            // 2. Find corresponding documentation
+            $stmt_doc = $db->prepare("SELECT id_documentation_absence FROM documentation_absence WHERE id_employe = :id_employe AND date_debut = :date_debut AND date_fin = :date_fin");
+            $stmt_doc->execute([
+                'id_employe' => $absence_details['id_employe'],
+                'date_debut' => $absence_details['date_debut'],
+                'date_fin' => $absence_details['date_fin']
+            ]);
+            $documentation = $stmt_doc->fetch(PDO::FETCH_ASSOC);
+
+            if (!$documentation) {
+                return false;
+            }
+            $id_documentation_absence = $documentation['id_documentation_absence'];
+            
+            // Check if already validated
+            $stmt_check = $db->prepare("SELECT 1 FROM validation_documentation_absence WHERE id_absence = :id_absence AND id_documentation_absence = :id_documentation_absence");
+            $stmt_check->execute([
+                'id_absence' => $id_absence,
+                'id_documentation_absence' => $id_documentation_absence
+            ]);
+            if ($stmt_check->fetch()) {
+                return true; // Already validated
+            }
+
+            // 3. Insert into validation table
+            $stmt_validation = $db->prepare("INSERT INTO validation_documentation_absence (id_documentation_absence, id_absence) VALUES (:id_documentation_absence, :id_absence)");
+            $stmt_validation->execute([
+                'id_documentation_absence' => $id_documentation_absence,
+                'id_absence' => $id_absence
+            ]);
+
+            return true;
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+    public function refuserAbsence(int $id_absence): bool
+    {
+        try {
+            $db = Flight::db();
+            $db->beginTransaction();
+
+            $stmt_delete_validation = $db->prepare("DELETE FROM validation_documentation_absence WHERE id_absence = :id_absence");
+            $stmt_delete_validation->execute(['id_absence' => $id_absence]);
+
+            $stmt_delete_absence = $db->prepare("DELETE FROM absence WHERE id_absence = :id_absence");
+            $stmt_delete_absence->execute(['id_absence' => $id_absence]);
+
+            $db->commit();
+            return true;
+        } catch (\PDOException $e) {
+            $db->rollBack();
+            error_log($e->getMessage());
+            return false;
+        }
+    }
 }
