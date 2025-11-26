@@ -46,6 +46,23 @@ class CongeModel
                 'date_validation' => $date_validation
             ]);
 
+            // Si le congé est validé, mettre à jour le statut dans la table de pointage
+            if ($statut === 'valide') {
+                $stmt_conge = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = :id_demande_conge");
+                $stmt_conge->execute(['id_demande_conge' => $id_demande_conge]);
+                $conge_details = $stmt_conge->fetch(PDO::FETCH_ASSOC);
+
+                if ($conge_details) {
+                    $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+                    $pointageModel->updatePointageStatusForDateRange(
+                        $conge_details['id_employe'],
+                        $conge_details['date_debut'],
+                        $conge_details['date_fin'],
+                        'Congé'
+                    );
+                }
+            }
+
             $db->commit();
             return true;
         } catch (\PDOException $e) {

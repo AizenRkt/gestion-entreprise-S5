@@ -994,10 +994,12 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
 (1, 1, '2023-11-01', '2023-11-10', 10),  -- Paid leave request
 (2, 2, '2023-11-15', '2023-11-20', 5),  -- Unpaid leave request
-(3, 3, '2023-12-01', '2023-12-05', 5);  -- Sick leave request
+(3, 3, '2025-11-23', '2025-11-29', 5);  -- Sick leave request
 
 -- Inserting validation of leave requests
+/*
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 
+*/
