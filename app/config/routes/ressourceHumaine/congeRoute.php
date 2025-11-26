@@ -10,4 +10,6 @@ use flight\net\Router;
 $congeController = new CongeController();
 
 $router->get('/backOffice/conge', [$congeController, 'showCongePage']);
+$router->post('/backOffice/conge/valider', [$congeController, 'validerConge']);
+$router->post('/backOffice/conge/refuser', [$congeController, 'refuserConge']);
 

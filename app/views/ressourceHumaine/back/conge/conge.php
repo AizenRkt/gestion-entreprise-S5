@@ -179,12 +179,12 @@
         $('#validationForm').on('submit', function(e){
             e.preventDefault();
             var data = {
-                id_conge: $('#validation_id_demande').val(),
+                id_demande_conge: $('#validation_id_demande').val(),
                 date_validation: $('#validation_date').val()
             };
             var $btn = $('#validationModal').data('rowBtn');
 
-            $.post('<?= Flight::base() ?>/conge/valider', data, function(resp){
+            $.post('<?= Flight::base() ?>/backOffice/conge/valider', data, function(resp){
                 if (resp && resp.success) {
                     var $tr = $btn.closest('tr');
                     $tr.find('td').eq(5).html('<span class="badge bg-primary">Validé</span>');
@@ -211,12 +211,12 @@
         $('#refusForm').on('submit', function(e){
             e.preventDefault();
             var data = {
-                id_conge: $('#refus_id_demande').val(),
+                id_demande_conge: $('#refus_id_demande').val(),
                 date_validation: $('#refus_date').val()
             };
             var $btn = $('#refusModal').data('rowBtn');
 
-            $.post('<?= Flight::base() ?>/conge/refuser', data, function(resp){
+            $.post('<?= Flight::base() ?>/backOffice/conge/refuser', data, function(resp){
                 if (resp && resp.success) {
                     var $tr = $btn.closest('tr');
                     $tr.find('td').eq(5).html('<span class="badge bg-danger">Refusé</span>');
