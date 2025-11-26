@@ -31,6 +31,7 @@ class AbsenceModel
     {
         try {
             $db = Flight::db();
+            $db->beginTransaction();
 
             // 1. Get absence details
             $stmt_absence = $db->prepare("SELECT id_employe, date_debut, date_fin FROM absence WHERE id_absence = :id_absence");
@@ -38,6 +39,7 @@ class AbsenceModel
             $absence_details = $stmt_absence->fetch(PDO::FETCH_ASSOC);
 
             if (!$absence_details) {
+                $db->rollBack();
                 return false;
             }
 
@@ -51,6 +53,7 @@ class AbsenceModel
             $documentation = $stmt_doc->fetch(PDO::FETCH_ASSOC);
 
             if (!$documentation) {
+                $db->rollBack();
                 return false;
             }
             $id_documentation_absence = $documentation['id_documentation_absence'];
@@ -62,6 +65,7 @@ class AbsenceModel
                 'id_documentation_absence' => $id_documentation_absence
             ]);
             if ($stmt_check->fetch()) {
+                $db->commit();
                 return true; // Already validated
             }
 
@@ -72,8 +76,21 @@ class AbsenceModel
                 'id_absence' => $id_absence
             ]);
 
+            // 4. Update pointage status
+            $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+            $pointageModel->updatePointageStatusForDateRange(
+                $absence_details['id_employe'],
+                $absence_details['date_debut'],
+                $absence_details['date_fin'],
+                'Absence justifiée'
+            );
+
+            $db->commit();
             return true;
         } catch (\PDOException $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             error_log($e->getMessage());
             return false;
         }
@@ -94,7 +111,9 @@ class AbsenceModel
             $db->commit();
             return true;
         } catch (\PDOException $e) {
-            $db->rollBack();
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
             error_log($e->getMessage());
             return false;
         }

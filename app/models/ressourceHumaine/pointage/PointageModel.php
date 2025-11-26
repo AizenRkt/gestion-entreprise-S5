@@ -408,4 +408,65 @@ class PointageModel
         }
     }
 
+    /**
+     * Updates the pointage status for a given employee over a date range.
+     * Creates pointage records if they do not exist.
+     * @param int $id_employe
+     * @param string $startDate
+     * @param string $endDate
+     * @param string $status
+     * @return bool
+     */
+    public function updatePointageStatusForDateRange(int $id_employe, string $startDate, string $endDate, string $status): bool
+    {
+        $db = Flight::db();
+        
+        $currentDate = new DateTime($startDate);
+        $lastDate = new DateTime($endDate);
+
+        while ($currentDate <= $lastDate) {
+            $dateStr = $currentDate->format('Y-m-d');
+
+            // Check if a pointage record exists
+            $stmt_check = $db->prepare("SELECT id_pointage, id_checkin, id_checkout FROM pointage WHERE id_employe = :id_employe AND date_pointage = :date_pointage");
+            $stmt_check->execute([
+                'id_employe' => $id_employe,
+                'date_pointage' => $dateStr
+            ]);
+            $pointage = $stmt_check->fetch(PDO::FETCH_ASSOC);
+
+            if ($pointage) {
+                // Update existing record
+                $stmt_update = $db->prepare("UPDATE pointage SET statut = :statut, duree_work = '00:00:00', retard_min = 0, id_checkin = NULL, id_checkout = NULL WHERE id_pointage = :id_pointage");
+                $stmt_update->execute([
+                    'statut' => $status,
+                    'id_pointage' => $pointage['id_pointage']
+                ]);
+                
+                if ($pointage['id_checkin']) {
+                    $stmt_delete_checkin = $db->prepare("DELETE FROM checkin WHERE id = :id_checkin");
+                    $stmt_delete_checkin->execute(['id_checkin' => $pointage['id_checkin']]);
+                }
+                if ($pointage['id_checkout']) {
+                    $stmt_delete_checkout = $db->prepare("DELETE FROM checkout WHERE id = :id_checkout");
+                    $stmt_delete_checkout->execute(['id_checkout' => $pointage['id_checkout']]);
+                }
+
+            } else {
+                // Insert new record
+                $stmt_insert = $db->prepare(
+                    "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min, statut) VALUES (:id_employe, :date_pointage, '00:00:00', 0, :statut)"
+                );
+                $stmt_insert->execute([
+                    'id_employe' => $id_employe,
+                    'date_pointage' => $dateStr,
+                    'statut' => $status
+                ]);
+            }
+
+            $currentDate->modify('+1 day');
+        }
+        
+        return true;
+    }
 }
