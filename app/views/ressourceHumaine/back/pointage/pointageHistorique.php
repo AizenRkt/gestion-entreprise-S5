@@ -181,23 +181,24 @@
                         $tr.find('td').eq(3).text(toDisplayTime(updated.datetime_checkout));
                         $tr.find('td').eq(4).text(updated.duree_work || '');
                         
-                        // Update status with a badge
-                        var statusCell = $tr.find('td').eq(5);
-                        var statut = updated.statut || '';
-                        var badgeClass = 'bg-info';
-                        var displayText = statut;
-
-                        if (statut === 'Absent') {
-                            badgeClass = 'bg-danger';
-                        } else if (statut === 'Retard') {
-                            badgeClass = 'bg-secondary';
-                            displayText += ' (' + (updated.retard_min || 0) + ' min)';
-                        } else if (statut === 'A l\'heure') {
-                            badgeClass = 'bg-success';
-                        }
+                                                    // Update status with a badge
+                                                    var statusCell = $tr.find('td').eq(5);
+                                                    var statut = updated.statut || '';
+                                                    var badgeClass = 'bg-info';
+                                                    var displayText = statut;
                         
-                        statusCell.html(`<span class="badge ${badgeClass}">${displayText}</span>`);
-
+                                                    if (statut === 'Absent') {
+                                                        badgeClass = 'bg-danger';
+                                                    } else if (statut === 'Retard') {
+                                                        badgeClass = 'bg-secondary';
+                                                        displayText += ' (' + (updated.retard_min || 0) + ' min)';
+                                                    } else if (statut === 'A l\'heure') {
+                                                        badgeClass = 'bg-success';
+                                                    } else if (statut === 'Absence justifiée') {
+                                                        badgeClass = 'bg-primary';
+                                                    }
+                                                    
+                                                    statusCell.html(`<span class="badge ${badgeClass}">${displayText}</span>`);
                         // Also update the button's data attributes for the next edit
                         $btn.data('checkin', updated.datetime_checkin || '');
                         $btn.data('checkout', updated.datetime_checkout || '');

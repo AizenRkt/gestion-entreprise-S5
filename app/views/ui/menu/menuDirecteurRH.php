@@ -113,10 +113,7 @@
                         </li>
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/" class="submenu-link">listing</a>
-                        </li>  
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/pointageHistorique" class="submenu-link">Présence</a>
-                        </li>                                                 
+                        </li>                                                
                     </ul>
                 </li>
 

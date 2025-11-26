@@ -105,7 +105,10 @@
                         <i class="bi bi-clock-fill"></i>
                         <span>Gestion de temps</span>
                     </a>
-                    <ul class="submenu">
+                    <ul class="submenu"> 
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/pointageHistorique" class="submenu-link">Fiche Présence</a>
+                        </li>  
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/backOffice/absence" class="submenu-link">Absence</a>
                         </li>    
