@@ -654,12 +654,12 @@ INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_emb
 (4, 'Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '2025-11-23'),
 (5, 'George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '2025-11-23');
 
-INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(1, 17, 1),  
-(2, 18, 1),
-(3, 2, 1),
-(4, 2, 1),  -- Zo Lalaina = Développeur Backend
-(5, 3, 1);  -- Andry George = Développeur Frontend
+INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES
+(1, 17, 1, NOW()),  -- Date de modification actuelle
+(2, 18, 1, '2025-11-23 00:00:00'),  -- Date de modification spécifique
+(3, 2, 1, '2025-11-25 00:00:00'),   -- Date de modification spécifique
+(4, 2, 1, '2025-11-26 00:00:00'),   -- Zo Lalaina = Développeur Backend
+(5, 3, 1, '2025-11-26 00:00:00');   -- Date de modification actuelle
 
 INSERT INTO role (nom) VALUES
 ('Administrateur'),
