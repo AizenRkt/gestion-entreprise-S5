@@ -23,4 +23,21 @@ class AbsenceController
         Flight::render('ressourceHumaine/back/absence/absence', ['absences' => $absences]);
     }
 
+    public function validerAbsence()
+    {
+        if (isset(Flight::request()->query['id_absence'])) {
+            $id_absence = Flight::request()->query['id_absence'];
+            $this->absenceModel->validerAbsence($id_absence);
+        }
+        Flight::redirect('/backOffice/absence');
+    }
+
+    public function refuserAbsence()
+    {
+        if (isset(Flight::request()->query['id_absence'])) {
+            $id_absence = Flight::request()->query['id_absence'];
+            $this->absenceModel->refuserAbsence($id_absence);
+        }
+        Flight::redirect('/backOffice/absence');
+    }
 }
