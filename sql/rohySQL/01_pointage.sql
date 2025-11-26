@@ -43,6 +43,7 @@ CREATE TABLE pointage (
     retard_min INT,
     duree_work TIME,
     date_pointage DATE NOT NULL,
+    statut VARCHAR(50),
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_checkin) REFERENCES checkin(id),
     FOREIGN KEY (id_checkout) REFERENCES checkout(id),

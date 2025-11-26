@@ -39,7 +39,7 @@
                                         <th>Heure d'arrivée</th>
                                         <th>Heure de départ</th>
                                         <th>Durée</th>
-                                        <th>Retard (min)</th>
+                                        <th>Statut</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -54,16 +54,20 @@
                                                 <td><?= htmlspecialchars($p['duree_work'] ?? '') ?></td>
                                                 <td>
                                                     <?php 
-                                                        $duree_work = $p['duree_work'] ?? '';
-                                                        $retard = (int)($p['retard_min'] ?? 0); 
+                                                        $statut = $p['statut'] ?? '';
+                                                        $badgeClass = 'bg-info';
+                                                        $displayText = $statut;
+
+                                                        if ($statut === 'Absent') {
+                                                            $badgeClass = 'bg-danger';
+                                                        } elseif ($statut === 'Retard') {
+                                                            $badgeClass = 'bg-secondary';
+                                                            $displayText .= ' (' . ($p['retard_min'] ?? 0) . ' min)';
+                                                        } elseif ($statut === 'A l\'heure') {
+                                                            $badgeClass = 'bg-success';
+                                                        }
                                                     ?>
-                                                    <?php if ($duree_work === '00:00:00'): ?>
-                                                        <span class="badge bg-danger">Absent</span>
-                                                    <?php else: ?>
-                                                        <span class="badge <?= $retard > 0 ? 'bg-secondary' : 'bg-success' ?>">
-                                                            <?= $retard ?> min
-                                                        </span>
-                                                    <?php endif; ?>
+                                                    <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($displayText) ?></span>
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn btn-sm btn-primary edit-pointage" data-id="<?= htmlspecialchars($p['id_pointage']) ?>" data-checkin="<?= htmlspecialchars($p['datetime_checkin'] ?? '') ?>" data-checkout="<?= htmlspecialchars($p['datetime_checkout'] ?? '') ?>">Modifier</button>
@@ -177,16 +181,22 @@
                         $tr.find('td').eq(3).text(toDisplayTime(updated.datetime_checkout));
                         $tr.find('td').eq(4).text(updated.duree_work || '');
                         
-                        // Update retard with a badge
-                        var retardCell = $tr.find('td').eq(5);
-                        if (updated.duree_work === '00:00:00') {
-                            retardCell.html('<span class="badge bg-danger">Absent</span>');
-                        } else {
-                            var retard = (updated.retard_min !== null && updated.retard_min !== undefined) ? parseInt(updated.retard_min, 10) : 0;
-                            var badgeClass = retard > 0 ? 'bg-secondary' : 'bg-success';
-                            var badgeHtml = `<span class="badge ${badgeClass}">${retard} min</span>`;
-                            retardCell.html(badgeHtml);
+                        // Update status with a badge
+                        var statusCell = $tr.find('td').eq(5);
+                        var statut = updated.statut || '';
+                        var badgeClass = 'bg-info';
+                        var displayText = statut;
+
+                        if (statut === 'Absent') {
+                            badgeClass = 'bg-danger';
+                        } else if (statut === 'Retard') {
+                            badgeClass = 'bg-secondary';
+                            displayText += ' (' + (updated.retard_min || 0) + ' min)';
+                        } else if (statut === 'A l\'heure') {
+                            badgeClass = 'bg-success';
                         }
+                        
+                        statusCell.html(`<span class="badge ${badgeClass}">${displayText}</span>`);
 
                         // Also update the button's data attributes for the next edit
                         $btn.data('checkin', updated.datetime_checkin || '');

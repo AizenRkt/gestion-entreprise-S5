@@ -195,14 +195,19 @@ class PointageModel
         if ($checkin) {
             $retard_min = $this->calculateRetard(new DateTime($checkin['datetime_checkin']));
         }
+        
+        $statut = 'A l\'heure';
+        if ($retard_min > 0) {
+            $statut = 'Retard';
+        }
 
         // Insert or Update the pointage table
         if ($id_pointage) {
-            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
-            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
+            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ?, statut = ? WHERE id_pointage = ?");
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $statut, $id_pointage]);
         } else {
-            $stmt = $db->prepare("INSERT INTO pointage (id_employe, date_pointage, id_checkin, id_checkout, duree_work, retard_min) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$id_employe, $effectiveDate, $id_checkin, $id_checkout, $duree_work, $retard_min]);
+            $stmt = $db->prepare("INSERT INTO pointage (id_employe, date_pointage, id_checkin, id_checkout, duree_work, retard_min, statut) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$id_employe, $effectiveDate, $id_checkin, $id_checkout, $duree_work, $retard_min, $statut]);
         }
     }
     /**
@@ -243,7 +248,7 @@ class PointageModel
                 if (!$pointageExists) {
                     // Insérer un enregistrement d'absence
                     $stmt_insert = $db->prepare(
-                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min) VALUES (?, ?, '00:00:00', 0)"
+                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min, statut) VALUES (?, ?, '00:00:00', 0, 'Absent')"
                     );
                     $stmt_insert->execute([$id_employe, $dateStr]);
                 }
@@ -266,6 +271,7 @@ class PointageModel
                 p.date_pointage,
                 p.duree_work,
                 p.retard_min,
+                p.statut,
                 ci.datetime_checkin,
                 co.datetime_checkout
             FROM pointage p
@@ -292,6 +298,7 @@ class PointageModel
                 p.date_pointage,
                 p.duree_work,
                 p.retard_min,
+                p.statut,
                 ci.datetime_checkin,
                 co.datetime_checkout,
                 e.nom,
@@ -370,15 +377,22 @@ class PointageModel
                 $retard_min = $this->calculateRetard(new DateTime($datetime_checkin));
             }
 
+            $statut = 'A l\'heure';
+            if (!$datetime_checkin) {
+                $statut = 'Absent';
+            } elseif ($retard_min > 0) {
+                $statut = 'Retard';
+            }
+
             // Mettre à jour la table pointage
-            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
-            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
+            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ?, statut = ? WHERE id_pointage = ?");
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $statut, $id_pointage]);
 
             $db->commit();
 
             // Récupérer les valeurs mises à jour pour renvoyer au client
             $stmt = $db->prepare(
-                "SELECT p.duree_work, p.retard_min, ci.datetime_checkin, co.datetime_checkout
+                "SELECT p.duree_work, p.retard_min, p.statut, ci.datetime_checkin, co.datetime_checkout
                  FROM pointage p
                  LEFT JOIN checkin ci ON p.id_checkin = ci.id
                  LEFT JOIN checkout co ON p.id_checkout = co.id
