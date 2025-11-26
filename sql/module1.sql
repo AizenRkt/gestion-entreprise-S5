@@ -385,7 +385,7 @@ CREATE TABLE demande_conge (
 CREATE TABLE validation_conge (
     id_validation_conge INT AUTO_INCREMENT PRIMARY KEY,
     id_demande_conge INT NOT NULL,
-    statut ENUM('valider', 'refuser'),
+    statut ENUM('valide', 'refuse') NOT NULL,
     date_validation DATE,
     FOREIGN KEY (id_demande_conge) REFERENCES demande_conge(id_demande_conge)
 );

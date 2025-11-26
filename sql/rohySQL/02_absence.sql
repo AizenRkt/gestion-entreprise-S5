@@ -105,3 +105,5 @@ JOIN
     documentation_absence da ON e.id_employe = da.id_employe
 LEFT JOIN 
     validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;
+
+    

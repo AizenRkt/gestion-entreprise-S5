@@ -60,21 +60,28 @@
                                                     <td>
                                                         <?php
                                                         $statut = htmlspecialchars($conge['validation_statut']);
-                                                        $badgeClass = ($statut === 'Validé') ? 'bg-primary' : 'bg-light';
+                                                        // Assign a class based on the status
+                                                        if ($statut === 'Validé') {
+                                                            $badgeClass = 'bg-primary'; 
+                                                        } elseif ($statut === 'Refusé') {
+                                                            $badgeClass = 'bg-secondary'; 
+                                                        } else {
+                                                            $badgeClass = 'bg-light';
+                                                        }
                                                         ?>
                                                         <span class="badge <?= $badgeClass ?>"><?= $statut ?></span>
                                                     </td>
                                                     <td class="action-buttons">
-                                                        <a href="<?= Flight::base() ?>/conge/valider?id_conge=<?= $conge['id_demande_conge'] ?>"
-                                                            class="btn btn-sm btn-success validate-btn" 
-                                                            style="<?= $statut === 'Validé' ? 'display: none;' : '' ?>">
+                                                        <button type="button" class="btn btn-sm btn-success validate-btn"
+                                                            data-id="<?= $conge['id_demande_conge'] ?>"
+                                                            style="<?= $statut === 'Validé' || $statut === 'Refusé' ? 'display: none;' : '' ?>">
                                                             Valider
-                                                        </a>
-                                                        <a href="<?= Flight::base() ?>/conge/refuser?id_conge=<?= $conge['id_demande_conge'] ?>"
-                                                            class="btn btn-sm btn-danger refuse-btn" 
-                                                            style="<?= $statut === 'Validé' ? 'display: none;' : '' ?>">
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-danger refuse-btn"
+                                                            data-id="<?= $conge['id_demande_conge'] ?>"
+                                                            style="<?= $statut === 'Validé' || $statut === 'Refusé' ? 'display: none;' : '' ?>">
                                                             Refuser
-                                                        </a>
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -98,5 +105,133 @@
     <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
+
+    <!-- Modal de validation -->
+    <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="validationModalLabel">Valider la demande de congé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="validationForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="validation_id_demande" name="id_demande_conge">
+                        <div class="mb-3">
+                            <label for="validation_date" class="form-label">Date de validation</label>
+                            <input type="date" class="form-control" id="validation_date" name="date_validation" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Valider</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de refus -->
+    <div class="modal fade" id="refusModal" tabindex="-1" aria-labelledby="refusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="refusModalLabel">Refuser la demande de congé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="refusForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="refus_id_demande" name="id_demande_conge">
+                        <div class="mb-3">
+                            <label for="refus_date" class="form-label">Date du refus</label>
+                            <input type="date" class="form-control" id="refus_date" name="date_validation" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Refuser</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function($){
+        // Helper to get current date as YYYY-MM-DD
+        function getCurrentDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // --- Validation Modal ---
+        $(document).on('click', 'button.validate-btn', function(){
+            var id = $(this).data('id');
+            $('#validationModal').data('rowBtn', $(this));
+            $('#validation_id_demande').val(id);
+            $('#validation_date').val(getCurrentDate());
+            $('#validationModal').modal('show');
+        });
+
+        $('#validationForm').on('submit', function(e){
+            e.preventDefault();
+            var data = {
+                id_conge: $('#validation_id_demande').val(),
+                date_validation: $('#validation_date').val()
+            };
+            var $btn = $('#validationModal').data('rowBtn');
+
+            $.post('<?= Flight::base() ?>/conge/valider', data, function(resp){
+                if (resp && resp.success) {
+                    var $tr = $btn.closest('tr');
+                    $tr.find('td').eq(5).html('<span class="badge bg-primary">Validé</span>');
+                    $btn.closest('.action-buttons').find('.refuse-btn').hide();
+                    $btn.hide();
+                    $('#validationModal').modal('hide');
+                } else {
+                    alert((resp && resp.message) ? resp.message : 'Erreur lors de la validation.');
+                }
+            }, 'json').fail(function(){
+                alert('Erreur de communication avec le serveur.');
+            });
+        });
+
+        // --- Refus Modal ---
+        $(document).on('click', 'button.refuse-btn', function(){
+            var id = $(this).data('id');
+            $('#refusModal').data('rowBtn', $(this));
+            $('#refus_id_demande').val(id);
+            $('#refus_date').val(getCurrentDate());
+            $('#refusModal').modal('show');
+        });
+
+        $('#refusForm').on('submit', function(e){
+            e.preventDefault();
+            var data = {
+                id_conge: $('#refus_id_demande').val(),
+                date_validation: $('#refus_date').val()
+            };
+            var $btn = $('#refusModal').data('rowBtn');
+
+            $.post('<?= Flight::base() ?>/conge/refuser', data, function(resp){
+                if (resp && resp.success) {
+                    var $tr = $btn.closest('tr');
+                    $tr.find('td').eq(5).html('<span class="badge bg-danger">Refusé</span>');
+                    $btn.closest('.action-buttons').find('.validate-btn').hide();
+                    $btn.hide();
+                    $('#refusModal').modal('hide');
+                } else {
+                    alert((resp && resp.message) ? resp.message : 'Erreur lors du refus.');
+                }
+            }, 'json').fail(function(){
+                alert('Erreur de communication avec le serveur.');
+            });
+        });
+
+    })(jQuery);
+    </script>
 </body>
 </html>

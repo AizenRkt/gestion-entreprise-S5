@@ -65,7 +65,10 @@ INSERT INTO detail_heure_sup (id_demande_heure_sup, heure_debut, heure_fin, date
 
 -- Inserting validation of overtime requests
 INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, date_validation) VALUES
-(1, 'Demande acceptée pour le 5 octobre.', 'valide', '2023-10-02');  -- Mamy's request validated
+(1, 'Demande acceptée pour le 5 octobre.', 'valide', '2023-10-02'),
+(2, 'Demande refusée pour le 5 octobre.', 'refuse', '2023-10-02');
+
+
 
 CREATE OR REPLACE VIEW view_heure_sup_details AS
 SELECT 
@@ -79,7 +82,8 @@ SELECT
     dh.date_debut AS date_heure_debut,
     dh.date_fin AS date_heure_fin,
     CASE 
-        WHEN v.id_validation_heure_sup IS NOT NULL THEN 'Validé'
+        WHEN v.statut = 'valide' THEN 'Validé'
+        WHEN v.statut = 'refuse' THEN 'Refusé'
         ELSE 'En attente'
     END AS validation_statut
 FROM 
@@ -90,3 +94,4 @@ JOIN
     detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
 LEFT JOIN 
     validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
+
