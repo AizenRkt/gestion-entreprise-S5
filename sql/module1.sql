@@ -460,10 +460,7 @@ CREATE TABLE validation_heure_sup (
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
 
-<<<<<<< Updated upstream
 --pointage
-=======
->>>>>>> Stashed changes
 CREATE TABLE statut_pointage (
     id INT AUTO_INCREMENT PRIMARY KEY,
     heure TIME,
@@ -495,21 +492,15 @@ CREATE TABLE pointage (
     retard_min INT,
     duree_work TIME,
     date_pointage DATE NOT NULL,
-<<<<<<< Updated upstream
-=======
     statut VARCHAR(50),
->>>>>>> Stashed changes
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_checkin) REFERENCES checkin(id),
     FOREIGN KEY (id_checkout) REFERENCES checkout(id),
     UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
 );
 
-<<<<<<< Updated upstream
 --view
 
-=======
->>>>>>> Stashed changes
 CREATE OR REPLACE VIEW view_absence_details AS
 SELECT 
     a.id_absence,
@@ -563,10 +554,7 @@ JOIN
 LEFT JOIN 
     validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 CREATE OR REPLACE VIEW view_conge_details AS
 SELECT 
     d.id_demande_conge,

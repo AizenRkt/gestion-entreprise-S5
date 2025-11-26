@@ -198,7 +198,7 @@
                 };
                 var $btn = $('#validationModal').data('rowBtn');
 
-                $.post('<?= Flight::base() ?>/heureSupp/valider', data, function(resp) {
+                $.post('<?= Flight::base() ?>/backOffice/heureSupp/valider', data, function(resp) {
                     if (resp && resp.success) {
                         var $tr = $btn.closest('tr');
                         $tr.find('td').eq(6).html('<span class="badge bg-primary">Validé</span>');
@@ -232,7 +232,7 @@
                 };
                 var $btn = $('#refusModal').data('rowBtn');
 
-                $.post('<?= Flight::base() ?>/heureSupp/refuser', data, function(resp) {
+                $.post('<?= Flight::base() ?>/backOffice/heureSupp/refuser', data, function(resp) {
                     if (resp && resp.success) {
                         var $tr = $btn.closest('tr');
                         $tr.find('td').eq(6).html('<span class="badge bg-danger">Refusé</span>');
