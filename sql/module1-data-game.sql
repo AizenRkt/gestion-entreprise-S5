@@ -289,3 +289,72 @@ INSERT INTO menu_ui (nom, id_service, role) VALUES('menuRH', 8, 'RH');
 INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max_duree_renouvellement, max_nb_renouvellement) VALUES
 ('CDI', NULL, NULL, 0, NULL, NULL),
 ('CDD', 1, 24, 1, 18, 2);
+
+
+
+
+--Fenitra
+-- Ajout de plus de candidats pour tester les statistiques
+INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
+('Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '1990-05-15'),
+('Martin', 'Pierre', 'pierre.martin@example.com', '0987654321', 'M', '1985-03-22'),
+('rain', 'Sophie', 'sophie.rain@example.com', '0567891234', 'F', '1992-11-08'),
+('Bernard', 'Jean', 'jean.bernard@example.com', '0456123789', 'M', '1988-07-30'),
+('Dubois', 'Claire', 'claire.dubois@example.com', '0345678912', 'F', '1995-01-12'),
+('Moreau', 'Luc', 'luc.moreau@example.com', '0765432198', 'M', '1980-09-05'),
+('Simon', 'Emma', 'emma.simon@example.com', '0654321987', 'F', '1993-04-18'),
+('Michel', 'Antoine', 'antoine.michel@example.com', '0876543210', 'M', '1987-12-25'),
+('Thomas', 'Julie', 'julie.thomas@example.com', '0234567891', 'F', '1991-06-14'),
+('Robert', 'Nicolas', 'nicolas.robert@example.com', '0987123456', 'M', '1984-08-09'),
+('Richard', 'Camille', 'camille.richard@example.com', '0345987123', 'F', '1994-02-28'),
+('Petit', 'Maxime', 'maxime.petit@example.com', '0765891234', 'M', '1989-10-17'),
+('Durand', 'Laura', 'laura.durand@example.com', '0456789123', 'F', '1996-03-07'),
+('Roux', 'Alexandre', 'alexandre.roux@example.com', '0876543298', 'M', '1982-11-20'),
+('Vincent', 'Chloé', 'chloe.vincent@example.com', '0234987654', 'F', '1997-05-03');
+
+-- Ajout d'employés correspondants
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(4, 'Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '2020-02-01'),
+(5, 'Martin', 'Pierre', 'pierre.martin@example.com', '0987654321', 'M', '2019-08-15'),
+(6, 'Leroy', 'Sophie', 'sophie.leroy@example.com', '0567891234', 'F', '2021-01-10'),
+(7, 'Bernard', 'Jean', 'jean.bernard@example.com', '0456123789', 'M', '2018-05-20'),
+(8, 'Dubois', 'Claire', 'claire.dubois@example.com', '0345678912', 'F', '2022-03-05'),
+(9, 'Moreau', 'Luc', 'luc.moreau@example.com', '0765432198', 'M', '2017-11-12'),
+(10, 'Simon', 'Emma', 'emma.simon@example.com', '0654321987', 'F', '2020-07-22'),
+(11, 'Michel', 'Antoine', 'antoine.michel@example.com', '0876543210', 'M', '2019-09-30'),
+(12, 'Thomas', 'Julie', 'julie.thomas@example.com', '0234567891', 'F', '2021-04-18'),
+(13, 'Robert', 'Nicolas', 'nicolas.robert@example.com', '0987123456', 'M', '2018-12-08'),
+(14, 'Richard', 'Camille', 'camille.richard@example.com', '0345987123', 'F', '2022-06-14'),
+(15, 'Petit', 'Maxime', 'maxime.petit@example.com', '0765891234', 'M', '2017-03-25'),
+(16, 'Durand', 'Laura', 'laura.durand@example.com', '0456789123', 'F', '2020-10-05'),
+(17, 'Roux', 'Alexandre', 'alexandre.roux@example.com', '0876543298', 'M', '2019-01-15'),
+(18, 'Vincent', 'Chloé', 'chloe.vincent@example.com', '0234987654', 'F', '2021-08-30');
+
+-- Ajout de statuts pour ces employés, en les répartissant dans différents services
+INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
+(4, 2, 1),   -- Marie Dupont: Développeur Backend (Développement Logiciel)
+(5, 3, 1),   -- Pierre Martin: Développeur Frontend (Développement Logiciel)
+(6, 5, 1),   -- Sophie Leroy: Technicien Support N1 (Support Technique)
+(7, 6, 1),   -- Jean Bernard: Administrateur Systèmes (Support Technique)
+(8, 7, 1),   -- Claire Dubois: Opérateur Machine (Chaîne de Montage)
+(9, 8, 1),   -- Luc Moreau: Chef d'Équipe Production (Chaîne de Montage)
+(10, 9, 1),  -- Emma Simon: Inspecteur Qualité (Contrôle Qualité)
+(11, 10, 1), -- Antoine Michel: Responsable Qualité (Contrôle Qualité)
+(12, 11, 1), -- Julie Thomas: Ingénieur R&D (Recherche & Développement)
+(13, 12, 1), -- Nicolas Robert: Chef de Projet Innovation (Recherche & Développement)
+(14, 13, 1), -- Camille Richard: Dessinateur Industriel (Bureau d'Études)
+(15, 14, 1), -- Maxime Petit: Ingénieur Conception (Bureau d'Études)
+(16, 15, 1), -- Laura Durand: Comptable (Comptabilité & Finance)
+(17, 16, 1), -- Alexandre Roux: Contrôleur de Gestion (Comptabilité & Finance)
+(18, 19, 1); -- Chloé Vincent: Responsable Formation (Ressources Humaines)
+
+-- Ajout de quelques employés inactifs pour diversifier
+UPDATE employe_statut SET activite = 0 WHERE id_employe IN (5, 10, 15);
+
+-- Ajout d'utilisateurs pour certains employés
+INSERT INTO user (username, pwd, id_employe) VALUES
+('marie.dupont', '123', 4),
+('pierre.martin', '123', 5),
+('sophie.leroy', '123', 6),
+('jean.bernard', '123', 7),
+('claire.dubois', '123', 8);

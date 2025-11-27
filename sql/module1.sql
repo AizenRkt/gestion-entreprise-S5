@@ -1,7 +1,7 @@
-DROP DATABASE if exists gestion_entreprise_test;
-CREATE DATABASE if not exists gestion_entreprise_test;
+DROP DATABASE if exists gestion_entreprise;
+CREATE DATABASE if not exists gestion_entreprise;
 
-USE gestion_entreprise_test;
+USE gestion_entreprise;
 
 -- ======================
 -- utilisateur, role, métier
@@ -33,7 +33,7 @@ CREATE TABLE candidat (
     telephone VARCHAR(20),
     genre VARCHAR(1),
     date_naissance DATE,
-    date_candidature DATE DEFAULT CURRENT_DATE
+    date_candidature DATE DEFAULT (CURRENT_DATE)
 );
 
 CREATE TABLE employe (
@@ -143,7 +143,7 @@ CREATE TABLE cv (
     id_cv INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_profil INT NOT NULL,
-    date_soumission DATE DEFAULT CURRENT_DATE,
+    date_soumission DATE DEFAULT (CURRENT_DATE),
     photo VARCHAR(255),
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
@@ -165,7 +165,7 @@ CREATE TABLE postulance (
     id_postulance INT AUTO_INCREMENT PRIMARY KEY,
     id_cv INT NOT NULL,
     id_annonce INT NOT NULL,
-    date_postulation DATE DEFAULT CURRENT_DATE,
+    date_postulation DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
     FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
 );
@@ -314,7 +314,7 @@ CREATE TABLE contrat_travail (
     fin DATE NULL,
     salaire_base DECIMAL(10,2),
     date_signature DATE NULL,
-    date_creation DATE NOT NULL DEFAULT CURRENT_DATE,
+    date_creation DATE NOT NULL DEFAULT (CURRENT_DATE),
     id_poste INT NULL,
     pathPdf VARCHAR(255),
 
