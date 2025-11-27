@@ -293,7 +293,7 @@ INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max
 
 
 
---Fenitra
+-- Fenitra
 -- Ajout de plus de candidats pour tester les statistiques
 INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
 ('Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '1990-05-15'),
@@ -367,7 +367,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
 ('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
---donne absenece
+-- donne absence
 
 -- partie absence 
 CREATE TABLE type_absence (
@@ -440,7 +440,7 @@ INSERT INTO validation_documentation_absence (id_documentation_absence, id_absen
 (1, 1);  -- Validation for employé 1's sick leave
 
     
---donne heureSupp
+-- donne heureSupp
 
 -- Inserting maximum allowable overtime hours
 INSERT INTO max_heure_sup (nb_heures_max_par_semaine, date_application) VALUES
@@ -469,7 +469,7 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 
 
 
---donne conge
+-- donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -485,6 +485,5 @@ INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_j
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
-(2, 'refuse', '2023-10-28');  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 

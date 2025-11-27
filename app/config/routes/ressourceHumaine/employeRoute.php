@@ -2,6 +2,7 @@
 
 use app\controllers\ressourceHumaine\employe\EmployeController;
 use app\controllers\ressourceHumaine\employe\EmployeStatistiqueController;
+use app\controllers\ressourceHumaine\employe\EmployeStatistiqueGlobalController;
 
 use flight\net\Router;
 
@@ -17,3 +18,6 @@ $router->post('/employe/update', [ $EmployeController, 'updateEmploye' ]); // Li
 
 $EmployeStatistiqueController = new EmployeStatistiqueController();
 $router->get('/employes/statistiques', [ $EmployeStatistiqueController, 'statistiques' ]); // Statistiques des employés
+
+$EmployeStatistiqueGlobalController = new EmployeStatistiqueGlobalController();
+$router->get('/employes/statistiques-globales', [ $EmployeStatistiqueGlobalController, 'statistiques' ]); // Statistiques globales des employés

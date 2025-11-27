@@ -140,7 +140,7 @@
                             <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">Statistiques employes</a>
                         </li>
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/resultatQcm" class="submenu-link">résultat QCM</a>
+                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">Statistiques globales</a>
                         </li>                                                  
                     </ul>
                 </li>
