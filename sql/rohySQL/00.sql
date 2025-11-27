@@ -1002,7 +1002,22 @@ INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 
-*/
 
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
 (1, 1, '2027-12-01', '2027-12-10', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 1, '2028-01-01', '2028-02-02', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 1, '2028-12-03', '2028-12-20', 26);  -- Paid leave request
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 1, '2029-01-01', '2029-02-02', 26);  -- Paid leave request
+
+*/
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 1, '2031-03-01', '2031-03-11', 26);  -- Paid leave request

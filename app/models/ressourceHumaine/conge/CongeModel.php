@@ -112,28 +112,36 @@ class CongeModel
 
         $activationDate = $actRow && !empty($actRow['date_modification']) ? new \DateTime($actRow['date_modification']) : $dateEmb;
 
-        // La période doit commencer à la date d'activation (ou date_embauche si pas d'activation),
-        // mais être limitée aux 36 derniers mois avant la date de fin demandée ($asOf).
+        // La période de calcul doit respecter la règle suivante :
+        // Si la date d'activation est antérieure à (date_fin_demande - 36 mois),
+        // alors la période de début est (date_fin_demande - 36 mois).
+        // Sinon, la période de début est la date d'activation.
         $maxPeriodStart = (clone $asOf)->modify('-36 months');
+        $effectivePeriodStart = $activationDate > $maxPeriodStart ? $activationDate : $maxPeriodStart;
 
-        // Le début effectif de la période considérée pour l'accumulation est le plus tardif entre activationDate et maxPeriodStart
-        $periodStartDateTime = $activationDate > $maxPeriodStart ? $activationDate : $maxPeriodStart;
-
-        // Nombre de mois dans la période considérée (entre periodStartDateTime et asOf)
-        $interval = $periodStartDateTime->diff($asOf);
+        // Nombre de mois dans la période considérée (entre effectivePeriodStart et asOf)
+        $interval = $effectivePeriodStart->diff($asOf);
         $monthsConsidered = ($interval->y * 12) + $interval->m;
 
         if ($monthsConsidered <= 0) {
             return ['accrued' => 0.0, 'taken' => 0.0, 'balance' => 0.0, 'period_start' => null, 'period_end' => $asOf->format('Y-m-d'), 'period_months' => 0, 'activation_date' => $activationDate->format('Y-m-d')];
         }
 
+        // Ne pas dépasser 36 mois même si la demande commence plus tôt
+        if ($monthsConsidered > 36) {
+            $monthsConsidered = 36;
+            $effectivePeriodStart = (clone $asOf)->modify('-36 months');
+        }
+
         $accrued = $monthsConsidered * 2.5; // jours
 
-        $periodStart = $periodStartDateTime->format('Y-m-d');
+        $periodStart = $effectivePeriodStart->format('Y-m-d');
 
-        // Si la demande fournit une date de début spécifique pour le comptage des jours pris,
-        // on compte les congés pris uniquement entre la date_debut_demande et la date_fin (asOf).
-        $takenStart = $demandeStart ? (new \DateTime($demandeStart))->format('Y-m-d') : $periodStart;
+        // Compter les jours de congé pris (pointage.statut = 'Congé') entre la date de début effective
+        // de la période (qui est max(activationDate, asOf-36months)) et la date de fin (asOf).
+        // Cela suit la règle: si activation_date >= asOf-36months alors interval = activation_date..asOf,
+        // sinon interval = (asOf-36months)..asOf.
+        $takenStart = $periodStart;
 
         // Compter les jours de congé pris (pointage.statut = 'Congé') dans l'intervalle approprié
         $stmt2 = $db->prepare(

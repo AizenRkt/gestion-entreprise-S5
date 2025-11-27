@@ -183,8 +183,7 @@
                 if (resp && resp.success) {
                     var d = resp.data;
                     var s = d.solde;
-                    // Affiche la date de début demandée si fournie, sinon activation_date, puis la date de fin (period_end)
-                    var displayStart = s.activation_date || s.request_start ||  s.period_start || '';
+                    var displayStart = s.period_start || '';
                     var html = '<p><strong>Congés acquis (période ' + displayStart + ' - ' + s.period_end + '):</strong> ' + s.accrued + ' jours</p>';
                     html += '<p><strong>Congés pris sur la période:</strong> ' + s.taken + ' jours</p>';
                     html += '<p><strong>Solde disponible:</strong> ' + s.balance + ' jours</p>';
