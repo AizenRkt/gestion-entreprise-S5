@@ -166,38 +166,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const chartService = new ApexCharts(document.querySelector("#chart-service"), optionsService);
     chartService.render();
 
-    // Chart Département - Area
+    // Chart Département - Bar (Comparison)
     const optionsDepartement = {
         series: [{
             name: 'Employés',
             data: statsDepartement.map(item => parseInt(item.count))
         }],
         chart: {
-            type: 'area',
-            height: 300,
-            zoom: {
-                enabled: false
-            }
+            type: 'bar',
+            height: 300
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            },
         },
         dataLabels: {
             enabled: false
         },
         stroke: {
-            curve: 'straight'
+            show: true,
+            width: 2,
+            colors: ['transparent']
         },
         xaxis: {
             categories: statsDepartement.map(item => item.departement),
         },
-        tooltip: {
-            x: {
-                format: 'dd/MM/yy HH:mm'
-            },
+        yaxis: {
+            title: {
+                text: 'Nombre d\'employés'
+            }
         },
+        fill: {
+            opacity: 1
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " employés"
+                }
+            }
+        }
     };
     const chartDepartement = new ApexCharts(document.querySelector("#chart-departement"), optionsDepartement);
     chartDepartement.render();
 
-    // Chart Poste - Line
+    // Chart Poste - Bar (Comparison)
     const optionsPoste = {
         series: [{
             name: 'Employés',
@@ -205,19 +221,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }],
         chart: {
             height: 300,
-            type: 'line',
-            zoom: {
-                enabled: false
+            type: 'bar'
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                horizontal: false,
             }
         },
         dataLabels: {
             enabled: false
         },
-        stroke: {
-            curve: 'straight'
-        },
         xaxis: {
             categories: statsPoste.map(item => item.poste),
+        },
+        yaxis: {
+            title: {
+                text: 'Nombre d\'employés'
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " employés"
+                }
+            }
         }
     };
     const chartPoste = new ApexCharts(document.querySelector("#chart-poste"), optionsPoste);
