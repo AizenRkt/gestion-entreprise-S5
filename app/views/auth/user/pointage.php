@@ -157,6 +157,9 @@
                             case 'Absence justifiée':
                                 statusBadge = '<span class="badge bg-primary">Absence justifiée</span>';
                                 break;
+                            case 'Congé':
+                                statusBadge = '<span class="badge bg-info">Congé</span>';
+                                break;
                             default:
                                 statusBadge = `<span class="badge bg-info">${item.statut || 'En cours'}</span>`;
                         }

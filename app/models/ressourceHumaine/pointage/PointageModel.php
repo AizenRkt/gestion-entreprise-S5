@@ -218,9 +218,20 @@ class PointageModel
     {
         $db = Flight::db();
 
-        // 1. Trouver la dernière date de pointage ou utiliser la date de début par défaut.
-        $startDate = new DateTime('2025-11-23');
+        // 1. Trouver la date d'activation de l'employé
+        $stmt_start_date = $db->prepare(
+            "SELECT MIN(date_modification) 
+             FROM employe_statut 
+             WHERE id_employe = :id_employe AND activite = 1"
+        );
+        $stmt_start_date->execute(['id_employe' => $id_employe]);
+        $startDateStr = $stmt_start_date->fetchColumn();
+
+        if (!$startDateStr) {
+            return; // Pas de date d'activation trouvée
+        }
         
+        $startDate = new DateTime($startDateStr);
         $endDate = new DateTime();
         $endDate->modify('-1 day'); // Jusqu'à hier
 
