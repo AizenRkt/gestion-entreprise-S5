@@ -1020,4 +1020,4 @@ INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_j
 
 
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2031-03-01', '2031-03-11', 26);  -- Paid leave request
+(1, 4, '2031-03-01', '2031-03-11', 26);  -- Paid leave request
