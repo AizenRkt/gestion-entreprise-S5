@@ -24,6 +24,7 @@ $router->post('/auth/sign', [ $AuthController, 'authInscription' ]); // Traite l
 
 // routes pour les paramètres d'user
 $router->get('/auth/parametre', [ $AuthController, 'authParametre' ]); 
+ 
 
 // deco
 $router->get('/deconnexion', [$AuthController, 'authDeconnexion']);
