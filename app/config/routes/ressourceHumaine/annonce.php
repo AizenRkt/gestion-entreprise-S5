@@ -6,6 +6,8 @@ Flight::route('GET /annonces', function() {
     $controller->getFilteredAnnonces(); 
 });
 
+
+
 Flight::route('GET /annoncePage', function() {
     $controller = new AnnonceController();
     $controller->getDetailAnnonces(); 

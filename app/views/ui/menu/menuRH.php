@@ -99,6 +99,29 @@
                         </li>                                         
                     </ul>
                 </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-clock-fill"></i>
+                        <span>Gestion de temps</span>
+                    </a>
+                    <ul class="submenu"> 
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/pointageHistorique" class="submenu-link">Fiche Présence</a>
+                        </li>  
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/backOffice/absence" class="submenu-link">Absence</a>
+                        </li>    
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/backOffice/heureSupp" class="submenu-link">Heure supp</a>
+                        </li>     
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/backOffice/conge" class="submenu-link">congés</a>
+                        </li>                        
+                    </ul>
+                </li>
+
+                
                 
                 <li class="sidebar-title">Statistique</li>
 

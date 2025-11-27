@@ -60,15 +60,24 @@ INSERT INTO poste (titre, id_service) VALUES
 
 INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
 ('Ravatomanga', 'Mamy', 'mamyRavato@gmail.com', '123456789', 'M', '2020-01-01'),
-('Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01');
+('Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01'),
+('alice', 'dupont', 'aliceDupont@gmail.com', '0348366414', 'F', '2020-01-01'),
+('Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '1995-05-15'),
+('George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '1993-08-20');
 
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
 (1, 'Ravatomanga', 'Mamy', 'mamyRavato@gmail.com', '123456789', 'M', '2020-01-01'),
-(2, 'Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01');
+(2, 'Rajoelina', 'Andry', 'andryRajojo@gmail.com', '987456321', 'M', '2020-01-01'),
+(3, 'alice', 'dupont', 'aclieDupont@gmail.com', '0348366414', 'F', '2020-01-01'),
+(4, 'Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '2025-11-23'),
+(5, 'George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '2025-11-23');
 
 INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
 (1, 17, 1),  
-(2, 18, 1);  
+(2, 18, 1),
+(3, 2, 1),
+(4, 2, 1),  -- Zo Lalaina = Développeur Backend
+(5, 3, 1);  -- Andry George = Développeur Frontend
 
 INSERT INTO role (nom) VALUES
 ('Administrateur'),
@@ -79,26 +88,17 @@ INSERT INTO role (nom) VALUES
 
 INSERT INTO user (username, pwd, id_employe) VALUES
 ('mamy.ravato', '123', 1),
-('dj.rajojo', '123', 2);
+('dj.rajojo', '123', 2),
+('alice.dupont', '123', 3),
+('zo', '123', 4),
+('andry', '123', 5);
 
 INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
 (17, 2, '2020-01-15'),  -- Directeur RH = Manager
-(18, 4, '2018-06-10');  -- Responsable recrutement = RH
-
-INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
-('alice', 'dupont', 'aliceDupont@gmail.com', '0348366414', 'F', '2020-01-01');
-
-INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
-(3, 'alice', 'dupont', 'aclieDupont@gmail.com', '0348366414', 'F', '2020-01-01');
-
-INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(3, 2, 1);  
-
-INSERT INTO user (username, pwd, id_employe) VALUES
-('alice.dupont', '123', 3);
-
-INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
-(4, 2, '2020-01-01');  -- Chef de Projet IT = Manager 
+(18, 4, '2018-06-10'),  -- Responsable recrutement = RH
+(4, 2, '2020-01-01'),  -- Chef de Projet IT = Manager 
+(19, 3, '2025-11-23'),  -- Zo Lalaina = Employé
+(20, 3, '2025-11-23');  -- Andry George = Employé
 
 
 -- ======================
@@ -358,3 +358,133 @@ INSERT INTO user (username, pwd, id_employe) VALUES
 ('sophie.leroy', '123', 6),
 ('jean.bernard', '123', 7),
 ('claire.dubois', '123', 8);
+-- donne presence statut heure d'arrivée
+INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
+('08:00:00', 'Heure normale', 10, 1),  -- Lundi
+('08:00:00', 'Heure normale', 10, 2),  -- Mardi
+('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
+('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
+('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
+('09:00:00', 'Heure normale', 10, 6);  -- Samedi
+
+--donne absenece
+
+-- partie absence 
+CREATE TABLE type_absence (
+    id_type_absence INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    description TEXT,
+    isAutorise TINYINT(1) DEFAULT 0
+);
+
+CREATE TABLE absence (
+    id_absence INT AUTO_INCREMENT PRIMARY KEY,
+    id_type_absence INT NOT NULL,
+    id_employe INT NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    FOREIGN KEY (id_type_absence) REFERENCES type_absence(id_type_absence),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE documentation_absence (
+    id_documentation_absence INT AUTO_INCREMENT PRIMARY KEY,
+    type_documentation ENUM('justification', 'demande') NOT NULL,
+    id_employe INT NOT NULL,
+    motif TEXT,
+    date_debut DATE,
+    date_fin DATE,
+    date_documentation DATE NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE validation_documentation_absence (
+    id_validation_documentation_absence INT AUTO_INCREMENT PRIMARY KEY,
+    id_documentation_absence INT NOT NULL,
+    id_absence INT NOT NULL,
+    FOREIGN KEY (id_documentation_absence) REFERENCES documentation_absence(id_documentation_absence),
+    FOREIGN KEY (id_absence) REFERENCES absence(id_absence)
+);
+('08:00:00', 'Heure normale', 10, 6);  -- Samedi
+
+
+INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
+('14:30:00', 'Heure normale', 10, 7); 
+
+-- Inserting types of absence
+INSERT INTO type_absence (nom, description, isAutorise) VALUES
+('Maladie', 'Absence due to sickness', 1),
+('Congé Annuel', 'Annual leave', 1),
+('Congé Maternel', 'Maternity leave', 1),
+('Congé Paternité', 'Paternity leave', 1),
+('Absentéisme', 'Unauthorized absence', 0);
+
+-- Inserting absences
+INSERT INTO absence (id_type_absence, id_employe, date_debut, date_fin) VALUES
+(1, 1, '2025-11-01', '2025-11-05'), -- Maladie for employé 1
+(2, 2, '2025-11-10', '2025-11-15'), -- Congé Annuel for employé 2
+(3, 3, '2025-11-20', '2025-11-30'), -- Congé Maternel for employé 3
+(4, 4, '2025-12-01', '2025-12-10'), -- Congé Paternité for employé 4
+(5, 5, '2025-11-25', '2025-11-27'); -- Absentéisme for employé 5
+
+-- Inserting documentation for absence
+INSERT INTO documentation_absence (type_documentation, id_employe, motif, date_debut, date_fin, date_documentation) VALUES
+('justification', 1, 'Sickness', '2025-11-01', '2025-11-05', '2025-11-01'),
+('demande', 2, 'Vacation', '2025-11-10', '2025-11-15', '2025-11-05'),
+('justification', 3, 'Maternity leave', '2025-11-20', '2025-11-30', '2025-11-20'),
+('demande', 4, 'Paternity leave', '2025-12-01', '2025-12-10', '2025-11-30'),
+('justification', 5, 'Unauthorized absence', '2025-11-25', '2025-11-27', '2025-11-25');
+
+-- Inserting validation of documentation for absence
+INSERT INTO validation_documentation_absence (id_documentation_absence, id_absence) VALUES
+(1, 1);  -- Validation for employé 1's sick leave
+
+    
+--donne heureSupp
+
+-- Inserting maximum allowable overtime hours
+INSERT INTO max_heure_sup (nb_heures_max_par_semaine, date_application) VALUES
+(8, '2025-01-01'),  
+(12, '2026-01-01'); 
+
+
+-- Inserting overtime requests
+INSERT INTO demande_heure_sup (id_employe, date_demande) VALUES
+(1, '2023-10-01 10:00:00'),  -- Mamy Ravatomanga's request
+(2, '2023-10-02 11:00:00'),  -- Andry Rajoelina's request
+(3, '2023-10-03 12:30:00');  -- Alice Dupont's request
+
+-- Inserting details of overtime requests
+INSERT INTO detail_heure_sup (id_demande_heure_sup, heure_debut, heure_fin, date_debut, date_fin) VALUES
+(1, '17:00:00', '20:00:00', '2023-10-05', '2023-10-05'),  -- Mamy's overtime
+(2, '18:00:00', '21:00:00', '2023-10-06', '2023-10-06'),  -- Andry's overtime
+(3, '16:00:00', '19:00:00', '2023-10-07', '2023-10-07');  -- Alice's overtime
+
+-- Inserting validation of overtime requests
+INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, date_validation) VALUES
+(1, 'Demande acceptée pour le 5 octobre.', 'valide', '2023-10-02'),
+(2, 'Demande refusée pour le 5 octobre.', 'refuse', '2023-10-02');
+
+
+
+
+
+--donne conge
+-- Inserting types of leave
+INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
+('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
+('Congé sans solde', 'Congé sans rémunération', 0, NULL),  -- Unpaid leave
+('Congé maladie', 'Congé pour raisons médicales', 1, 15);  -- Sick leave
+
+-- Inserting leave requests
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 1, '2023-11-01', '2023-11-10', 10),  -- Paid leave request
+(2, 2, '2023-11-15', '2023-11-20', 5),  -- Unpaid leave request
+(3, 3, '2023-12-01', '2023-12-05', 5);  -- Sick leave request
+
+-- Inserting validation of leave requests
+INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
+(1, 'valide', '2023-10-28'),  -- Approved leave
+(2, 'refuse', '2023-10-28');  -- Approved leave
+(2, 'refuse', '2023-10-28');  -- Approved leave
+

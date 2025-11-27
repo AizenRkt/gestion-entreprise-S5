@@ -113,7 +113,7 @@
                         </li>
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/" class="submenu-link">listing</a>
-                        </li>                                                  
+                        </li>                                                
                     </ul>
                 </li>
 
