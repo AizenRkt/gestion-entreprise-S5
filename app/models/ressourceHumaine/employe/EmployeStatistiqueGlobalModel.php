@@ -16,37 +16,25 @@ class EmployeStatistiqueGlobalModel
     }
     public function getTauxTurnover($annee = null)
     {
-        $annee = $annee ?? date('Y');
-        $debutAnnee = $annee . '-01-01';
-        $finAnnee = $annee . '-12-31';
+        // Nombre total d'employés
+        $queryTotal = "SELECT COUNT(*) as total FROM employe";
+        $total = $this->getDb()->query($queryTotal)->fetch()['total'];
 
-        // Nombre de départs (employés devenus inactifs dans l'année)
-        $queryDeparts = "
-            SELECT COUNT(DISTINCT es.id_employe) as departs
-            FROM employe_statut es
-            WHERE es.activite = 0
-            AND es.date_modification BETWEEN '$debutAnnee' AND '$finAnnee'
+        // Nombre d'employés inactifs (dernier statut inactif)
+        $queryInactifs = "
+            SELECT COUNT(*) as inactifs
+            FROM employe e
+            JOIN employe_statut es ON e.id_employe = es.id_employe
+            WHERE es.date_modification = (
+                SELECT MAX(es2.date_modification)
+                FROM employe_statut es2
+                WHERE es2.id_employe = e.id_employe
+            )
+            AND es.activite = 0
         ";
-        $departs = $this->getDb()->query($queryDeparts)->fetch()['departs'];
+        $inactifs = $this->getDb()->query($queryInactifs)->fetch()['inactifs'];
 
-        // Nombre moyen d'employés actifs (approximation : employés actifs au milieu de l'année)
-        $queryMoyenneEmployes = "
-            SELECT AVG(actifs) as moyenne
-            FROM (
-                SELECT COUNT(DISTINCT es.id_employe) as actifs
-                FROM employe_statut es
-                WHERE es.activite = 1
-                AND es.date_modification <= '$annee-06-30'
-                UNION ALL
-                SELECT COUNT(DISTINCT es.id_employe) as actifs
-                FROM employe_statut es
-                WHERE es.activite = 1
-                AND es.date_modification <= '$annee-12-31'
-            ) as sub
-        ";
-        $moyenneEmployes = $this->getDb()->query($queryMoyenneEmployes)->fetch()['moyenne'] ?? 1;
-
-        $taux = $moyenneEmployes > 0 ? ($departs / $moyenneEmployes) * 100 : 0;
+        $taux = $total > 0 ? ($inactifs / $total) * 100 : 0;
         return round($taux, 2);
     }
 

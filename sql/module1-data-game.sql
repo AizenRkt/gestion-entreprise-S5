@@ -314,39 +314,39 @@ INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALU
 
 -- Ajout d'employés correspondants
 INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
-(4, 'Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '2020-02-01'),
-(5, 'Martin', 'Pierre', 'pierre.martin@example.com', '0987654321', 'M', '2019-08-15'),
-(6, 'Leroy', 'Sophie', 'sophie.leroy@example.com', '0567891234', 'F', '2021-01-10'),
-(7, 'Bernard', 'Jean', 'jean.bernard@example.com', '0456123789', 'M', '2018-05-20'),
-(8, 'Dubois', 'Claire', 'claire.dubois@example.com', '0345678912', 'F', '2022-03-05'),
-(9, 'Moreau', 'Luc', 'luc.moreau@example.com', '0765432198', 'M', '2017-11-12'),
-(10, 'Simon', 'Emma', 'emma.simon@example.com', '0654321987', 'F', '2020-07-22'),
-(11, 'Michel', 'Antoine', 'antoine.michel@example.com', '0876543210', 'M', '2019-09-30'),
-(12, 'Thomas', 'Julie', 'julie.thomas@example.com', '0234567891', 'F', '2021-04-18'),
-(13, 'Robert', 'Nicolas', 'nicolas.robert@example.com', '0987123456', 'M', '2018-12-08'),
-(14, 'Richard', 'Camille', 'camille.richard@example.com', '0345987123', 'F', '2022-06-14'),
-(15, 'Petit', 'Maxime', 'maxime.petit@example.com', '0765891234', 'M', '2017-03-25'),
-(16, 'Durand', 'Laura', 'laura.durand@example.com', '0456789123', 'F', '2020-10-05'),
-(17, 'Roux', 'Alexandre', 'alexandre.roux@example.com', '0876543298', 'M', '2019-01-15'),
-(18, 'Vincent', 'Chloé', 'chloe.vincent@example.com', '0234987654', 'F', '2021-08-30');
+(6, 'Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '2020-02-01'),
+(7, 'Martin', 'Pierre', 'pierre.martin@example.com', '0987654321', 'M', '2019-08-15'),
+(8, 'Leroy', 'Sophie', 'sophie.leroy@example.com', '0567891234', 'F', '2021-01-10'),
+(9, 'Bernard', 'Jean', 'jean.bernard@example.com', '0456123789', 'M', '2018-05-20'),
+(10, 'Dubois', 'Claire', 'claire.dubois@example.com', '0345678912', 'F', '2022-03-05'),
+(11, 'Moreau', 'Luc', 'luc.moreau@example.com', '0765432198', 'M', '2017-11-12'),
+(12, 'Simon', 'Emma', 'emma.simon@example.com', '0654321987', 'F', '2020-07-22'),
+(13, 'Michel', 'Antoine', 'antoine.michel@example.com', '0876543210', 'M', '2019-09-30'),
+(14, 'Thomas', 'Julie', 'julie.thomas@example.com', '0234567891', 'F', '2021-04-18'),
+(15, 'Robert', 'Nicolas', 'nicolas.robert@example.com', '0987123456', 'M', '2018-12-08'),
+(16, 'Richard', 'Camille', 'camille.richard@example.com', '0345987123', 'F', '2022-06-14'),
+(17, 'Petit', 'Maxime', 'maxime.petit@example.com', '0765891234', 'M', '2017-03-25'),
+(18, 'Durand', 'Laura', 'laura.durand@example.com', '0456789123', 'F', '2020-10-05'),
+(19, 'Roux', 'Alexandre', 'alexandre.roux@example.com', '0876543298', 'M', '2019-01-15'),
+(20, 'Vincent', 'Chloé', 'chloe.vincent@example.com', '0234987654', 'F', '2021-08-30');
 
 -- Ajout de statuts pour ces employés, en les répartissant dans différents services
 INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(4, 2, 1),   -- Marie Dupont: Développeur Backend (Développement Logiciel)
-(5, 3, 1),   -- Pierre Martin: Développeur Frontend (Développement Logiciel)
-(6, 5, 1),   -- Sophie Leroy: Technicien Support N1 (Support Technique)
-(7, 6, 1),   -- Jean Bernard: Administrateur Systèmes (Support Technique)
-(8, 7, 1),   -- Claire Dubois: Opérateur Machine (Chaîne de Montage)
-(9, 8, 1),   -- Luc Moreau: Chef d'Équipe Production (Chaîne de Montage)
-(10, 9, 1),  -- Emma Simon: Inspecteur Qualité (Contrôle Qualité)
-(11, 10, 1), -- Antoine Michel: Responsable Qualité (Contrôle Qualité)
-(12, 11, 1), -- Julie Thomas: Ingénieur R&D (Recherche & Développement)
-(13, 12, 1), -- Nicolas Robert: Chef de Projet Innovation (Recherche & Développement)
-(14, 13, 1), -- Camille Richard: Dessinateur Industriel (Bureau d'Études)
-(15, 14, 1), -- Maxime Petit: Ingénieur Conception (Bureau d'Études)
-(16, 15, 1), -- Laura Durand: Comptable (Comptabilité & Finance)
-(17, 16, 1), -- Alexandre Roux: Contrôleur de Gestion (Comptabilité & Finance)
-(18, 19, 1); -- Chloé Vincent: Responsable Formation (Ressources Humaines)
+(6, 2, 1),   -- Marie Dupont: Développeur Backend (Développement Logiciel)
+(7, 3, 1),   -- Pierre Martin: Développeur Frontend (Développement Logiciel)
+(8, 5, 1),   -- Sophie Leroy: Technicien Support N1 (Support Technique)
+(9, 6, 1),   -- Jean Bernard: Administrateur Systèmes (Support Technique)
+(10, 7, 1),  -- Claire Dubois: Opérateur Machine (Chaîne de Montage)
+(11, 8, 1),  -- Luc Moreau: Chef d'Équipe Production (Chaîne de Montage)
+(12, 9, 1),  -- Emma Simon: Inspecteur Qualité (Contrôle Qualité)
+(13, 10, 1), -- Antoine Michel: Responsable Qualité (Contrôle Qualité)
+(14, 11, 1), -- Julie Thomas: Ingénieur R&D (Recherche & Développement)
+(15, 12, 1), -- Nicolas Robert: Chef de Projet Innovation (Recherche & Développement)
+(16, 13, 1), -- Camille Richard: Dessinateur Industriel (Bureau d'Études)
+(17, 14, 1), -- Maxime Petit: Ingénieur Conception (Bureau d'Études)
+(18, 15, 1), -- Laura Durand: Comptable (Comptabilité & Finance)
+(19, 16, 1), -- Alexandre Roux: Contrôleur de Gestion (Comptabilité & Finance)
+(20, 19, 1); -- Chloé Vincent: Responsable Formation (Ressources Humaines)
 
 -- Ajout de quelques employés inactifs pour diversifier
 UPDATE employe_statut SET activite = 0 WHERE id_employe IN (5, 10, 15);

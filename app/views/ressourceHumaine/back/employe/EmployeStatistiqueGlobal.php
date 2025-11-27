@@ -42,7 +42,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Taux de Turnover</h5>
                                     <h2 class="text-primary"><?php echo $data['taux_turnover']; ?>%</h2>
-                                    <p>Pourcentage d'employés ayant quitté l'entreprise</p>
+                                    <p>Pourcentage d'employés ayant démissioné</p>
                                     <div id="turnoverChart"></div>
                                 </div>
                             </div>
