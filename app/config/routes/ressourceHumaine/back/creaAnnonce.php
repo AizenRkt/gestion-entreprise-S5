@@ -13,6 +13,11 @@ Flight::route('GET /api/diplomes', function() {
     Flight::json($controller->getAllDiplome());
 });
 
+Flight::route('GET /competence', function() {
+    $controller = new \app\controllers\Controller();
+    $controller->Cartecompetence();
+});
+
 Flight::route('GET /api/competences', function() {
     $db = Flight::db();
     $controller = new creaAnnonce($db);

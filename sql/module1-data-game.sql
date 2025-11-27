@@ -290,64 +290,17 @@ INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max
 ('CDI', NULL, NULL, 0, NULL, NULL),
 ('CDD', 1, 24, 1, 18, 2);
 
-<<<<<<< Updated upstream
--- donne presence statut heure d'arrivée
-=======
->>>>>>> Stashed changes
 INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 1),  -- Lundi
 ('08:00:00', 'Heure normale', 10, 2),  -- Mardi
 ('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
 ('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
-<<<<<<< Updated upstream
-('09:00:00', 'Heure normale', 10, 6);  -- Samedi
-
---donne absenece
-
--- partie absence 
-CREATE TABLE type_absence (
-    id_type_absence INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(100) NOT NULL,
-    description TEXT,
-    isAutorise TINYINT(1) DEFAULT 0
-);
-
-CREATE TABLE absence (
-    id_absence INT AUTO_INCREMENT PRIMARY KEY,
-    id_type_absence INT NOT NULL,
-    id_employe INT NOT NULL,
-    date_debut DATE NOT NULL,
-    date_fin DATE NOT NULL,
-    FOREIGN KEY (id_type_absence) REFERENCES type_absence(id_type_absence),
-    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
-);
-
-CREATE TABLE documentation_absence (
-    id_documentation_absence INT AUTO_INCREMENT PRIMARY KEY,
-    type_documentation ENUM('justification', 'demande') NOT NULL,
-    id_employe INT NOT NULL,
-    motif TEXT,
-    date_debut DATE,
-    date_fin DATE,
-    date_documentation DATE NOT NULL,
-    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
-);
-
-CREATE TABLE validation_documentation_absence (
-    id_validation_documentation_absence INT AUTO_INCREMENT PRIMARY KEY,
-    id_documentation_absence INT NOT NULL,
-    id_absence INT NOT NULL,
-    FOREIGN KEY (id_documentation_absence) REFERENCES documentation_absence(id_documentation_absence),
-    FOREIGN KEY (id_absence) REFERENCES absence(id_absence)
-);
-=======
 ('08:00:00', 'Heure normale', 10, 6);  -- Samedi
 
 
 INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('14:30:00', 'Heure normale', 10, 7); 
->>>>>>> Stashed changes
 
 -- Inserting types of absence
 INSERT INTO type_absence (nom, description, isAutorise) VALUES
@@ -377,12 +330,6 @@ INSERT INTO documentation_absence (type_documentation, id_employe, motif, date_d
 INSERT INTO validation_documentation_absence (id_documentation_absence, id_absence) VALUES
 (1, 1);  -- Validation for employé 1's sick leave
 
-<<<<<<< Updated upstream
-    
---donne heureSupp
-
-=======
->>>>>>> Stashed changes
 -- Inserting maximum allowable overtime hours
 INSERT INTO max_heure_sup (nb_heures_max_par_semaine, date_application) VALUES
 (8, '2025-01-01'),  
@@ -407,13 +354,6 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 (2, 'Demande refusée pour le 5 octobre.', 'refuse', '2023-10-02');
 
 
-<<<<<<< Updated upstream
-
-
-
---donne conge
-=======
->>>>>>> Stashed changes
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -429,10 +369,4 @@ INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_j
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
-<<<<<<< Updated upstream
 (2, 'refuse', '2023-10-28');  -- Approved leave
-
-
-=======
-(2, 'refuse', '2023-10-28');  -- Approved leave
->>>>>>> Stashed changes

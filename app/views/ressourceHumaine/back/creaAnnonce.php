@@ -17,7 +17,7 @@
 </head>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  fetch("http://localhost/S5/gestion-entreprise-S5/api/diplomes")
+  fetch("<?= Flight::base() ?>/api/diplomes")
     .then(res => res.json())
     .then(data => {
       let container = document.getElementById("diplomeContainer"); 
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-  fetch("http://localhost/S5/gestion-entreprise-S5/api/competences")
+  fetch("<?= Flight::base() ?>/api/competences")
   .then(res => res.json())
   .then(data => {
     let select = document.getElementById("competence-select");
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-fetch("http://localhost/S5/gestion-entreprise-S5/api/profil")
+fetch("<?= Flight::base() ?>/api/profil")
   .then(res => res.json())
   .then(data => {
     let select = document.getElementById("profil-select");
@@ -66,7 +66,7 @@ fetch("http://localhost/S5/gestion-entreprise-S5/api/profil")
     });
   });
 
-fetch("http://localhost/S5/gestion-entreprise-S5/api/ville")
+fetch("<?= Flight::base() ?>/api/ville")
   .then(res => res.json())
   .then(data => {
     let select = document.getElementById("ville-select");
@@ -257,7 +257,7 @@ document.getElementById("annonceForm").addEventListener("submit", async function
 
     console.log("Payload envoyé :", data);
 
-    let res = await fetch("http://localhost/S5/gestion-entreprise-S5/annonce/create", {
+    let res = await fetch("<?= Flight::base() ?>/annonce/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
