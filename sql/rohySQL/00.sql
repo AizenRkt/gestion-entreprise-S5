@@ -935,11 +935,11 @@ INSERT INTO type_absence (nom, description, isAutorise) VALUES
 
 -- Inserting absences
 INSERT INTO absence (id_type_absence, id_employe, date_debut, date_fin) VALUES
-(1, 1, '2025-11-01', '2025-11-05'), -- Maladie for employé 1
-(2, 2, '2025-11-10', '2025-11-15'), -- Congé Annuel for employé 2
-(3, 3, '2025-11-20', '2025-11-30'), -- Congé Maternel for employé 3
-(4, 4, '2025-12-01', '2025-12-10'), -- Congé Paternité for employé 4
-(5, 5, '2025-11-25', '2025-11-27'); -- Absentéisme for employé 5
+(1, 1, '2026-02-01', '2026-02-05'), -- Maladie for employé 1
+(2, 2, '2026-02-10', '2026-02-15'), -- Congé Annuel for employé 2
+(3, 3, '2026-02-20', '2026-02-10'), -- Congé Maternel for employé 3
+(4, 4, '2026-12-01', '2026-12-10'), -- Congé Paternité for employé 4
+(5, 5, '2026-02-25', '2026-02-21'); -- Absentéisme for employé 5
 
 -- Inserting documentation for absence
 INSERT INTO documentation_absence (type_documentation, id_employe, motif, date_debut, date_fin, date_documentation) VALUES
@@ -991,32 +991,32 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé maladie', 'Congé pour raisons médicales', 1, 15);  -- Sick leave
 
 -- Inserting leave requests
+/*
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
 (1, 1, '2027-01-01', '2027-01-10', 10),  -- Paid leave request
 (2, 2, '2027-01-15', '2027-01-20', 5),  -- Unpaid leave request
 (3, 3, '2027-01-23', '2027-01-29', 5);  -- Sick leave request
 
 -- Inserting validation of leave requests
-/*
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2027-12-01', '2027-12-10', 26);  -- Paid leave request
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2028-01-01', '2028-02-02', 26);  -- Paid leave request
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2028-12-03', '2028-12-20', 26);  -- Paid leave request
-
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2029-01-01', '2029-02-02', 26);  -- Paid leave request
-
 */
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2027-12-01', '2027-12-10', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2028-01-01', '2028-02-02', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2028-12-03', '2028-12-20', 26);  -- Paid leave request
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2029-01-01', '2029-02-02', 26);  -- Paid leave request
+
 
 
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES

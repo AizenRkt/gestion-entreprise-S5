@@ -2,6 +2,7 @@
 
 namespace app\models\ressourceHumaine\absence;
 
+use app\models\ressourceHumaine\conge\CongeModel;
 use Flight;
 use PDO;
 use DateTime;
@@ -27,70 +28,114 @@ class AbsenceModel
         }
     }
 
-    public function validerAbsence(int $id_absence): bool
+    /**
+     * Valide une absence, la convertit en congé et met à jour tous les enregistrements associés.
+     * @param int $id_absence
+     * @param string $date_validation
+     * @return array ['success' => bool, 'message' => string]
+     */
+    public function validerEtConvertirEnConge(int $id_absence, string $date_validation): array
     {
+        $db = Flight::db();
         try {
-            $db = Flight::db();
             $db->beginTransaction();
 
             // 1. Get absence details
-            $stmt_absence = $db->prepare("SELECT id_employe, date_debut, date_fin FROM absence WHERE id_absence = :id_absence");
-            $stmt_absence->execute(['id_absence' => $id_absence]);
-            $absence_details = $stmt_absence->fetch(PDO::FETCH_ASSOC);
-
-            if (!$absence_details) {
+            $absence = $this->getAbsenceById($id_absence);
+            if (!$absence) {
                 $db->rollBack();
-                return false;
+                return ['success' => false, 'message' => 'Absence introuvable.'];
             }
 
-            // 2. Find corresponding documentation
-            $stmt_doc = $db->prepare("SELECT id_documentation_absence FROM documentation_absence WHERE id_employe = :id_employe AND date_debut = :date_debut AND date_fin = :date_fin");
+            // 2. Server-side check of leave balance
+            $congeModel = new CongeModel();
+            $solde = $congeModel->calculateSoldeConge((int)$absence['id_employe'], $absence['date_fin'], $absence['date_debut']);
+            
+            $d1 = new \DateTime($absence['date_debut']);
+            $d2 = new \DateTime($absence['date_fin']);
+            $days = $d1->diff($d2)->days + 1;
+
+            if ($solde['balance'] < $days) {
+                $db->rollBack();
+                return ['success' => false, 'message' => 'Solde de congé insuffisant. Vérification côté serveur.'];
+            }
+
+            // 3. Create a new demande_conge (assuming type_conge 1 = Congé payé)
+            $stmt_insert_conge = $db->prepare(
+                "INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours)
+                 VALUES (1, :id_employe, :date_debut, :date_fin, :nb_jours)"
+            );
+            $stmt_insert_conge->execute([
+                'id_employe' => $absence['id_employe'],
+                'date_debut' => $absence['date_debut'],
+                'date_fin' => $absence['date_fin'],
+                'nb_jours' => $days
+            ]);
+            $id_demande_conge = $db->lastInsertId();
+
+            // 4. Validate the new leave request
+            $stmt_validate_conge = $db->prepare(
+                "INSERT INTO validation_conge (id_demande_conge, statut, date_validation)
+                 VALUES (:id_demande_conge, 'valide', :date_validation)"
+            );
+            $stmt_validate_conge->execute([
+                'id_demande_conge' => $id_demande_conge,
+                'date_validation' => $date_validation
+            ]);
+
+            // 5. Update pointage status to 'Congé'
+            $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+            $pointageModel->updatePointageStatusForDateRange(
+                $absence['id_employe'],
+                $absence['date_debut'],
+                $absence['date_fin'],
+                'Congé'
+            );
+
+            // 6. Delete the original absence and its documentation links
+            // Find corresponding documentation
+            $stmt_doc = $db->prepare("SELECT id_documentation_absence FROM documentation_absence WHERE id_employe = :id_employe AND date_debut = :date_debut AND date_fin = :date_fin LIMIT 1");
             $stmt_doc->execute([
-                'id_employe' => $absence_details['id_employe'],
-                'date_debut' => $absence_details['date_debut'],
-                'date_fin' => $absence_details['date_fin']
+                'id_employe' => $absence['id_employe'],
+                'date_debut' => $absence['date_debut'],
+                'date_fin' => $absence['date_fin']
             ]);
             $documentation = $stmt_doc->fetch(PDO::FETCH_ASSOC);
 
-            if (!$documentation) {
-                $db->rollBack();
-                return false;
+            if ($documentation) {
+                 $stmt_delete_validation = $db->prepare("DELETE FROM validation_documentation_absence WHERE id_absence = :id_absence");
+                 $stmt_delete_validation->execute(['id_absence' => $id_absence]);
             }
-            $id_documentation_absence = $documentation['id_documentation_absence'];
             
-            // Check if already validated
-            $stmt_check = $db->prepare("SELECT 1 FROM validation_documentation_absence WHERE id_absence = :id_absence AND id_documentation_absence = :id_documentation_absence");
-            $stmt_check->execute([
-                'id_absence' => $id_absence,
-                'id_documentation_absence' => $id_documentation_absence
-            ]);
-            if ($stmt_check->fetch()) {
-                $db->commit();
-                return true; // Already validated
-            }
-
-            // 3. Insert into validation table
-            $stmt_validation = $db->prepare("INSERT INTO validation_documentation_absence (id_documentation_absence, id_absence) VALUES (:id_documentation_absence, :id_absence)");
-            $stmt_validation->execute([
-                'id_documentation_absence' => $id_documentation_absence,
-                'id_absence' => $id_absence
-            ]);
-
-            // 4. Update pointage status
-            $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
-            $pointageModel->updatePointageStatusForDateRange(
-                $absence_details['id_employe'],
-                $absence_details['date_debut'],
-                $absence_details['date_fin'],
-                'Absence justifiée'
-            );
+            $stmt_delete_absence = $db->prepare("DELETE FROM absence WHERE id_absence = :id_absence");
+            $stmt_delete_absence->execute(['id_absence' => $id_absence]);
 
             $db->commit();
-            return true;
+            return ['success' => true, 'message' => 'Absence validée et convertie en congé avec succès.'];
+
         } catch (\PDOException $e) {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
+            error_log($e->getMessage());
+            return ['success' => false, 'message' => 'Une erreur de base de données est survenue.'];
+        } catch (\Exception $e) {
+             if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log($e->getMessage());
+            return ['success' => false, 'message' => 'Une erreur inattendue est survenue.'];
+        }
+    }
+
+    public function getAbsenceById(int $id_absence)
+    {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare("SELECT * FROM absence WHERE id_absence = ? LIMIT 1");
+            $stmt->execute([$id_absence]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
             error_log($e->getMessage());
             return false;
         }
