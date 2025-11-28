@@ -460,7 +460,7 @@ CREATE TABLE validation_heure_sup (
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
 
---pointage
+-- pointage
 CREATE TABLE statut_pointage (
     id INT AUTO_INCREMENT PRIMARY KEY,
     heure TIME,
