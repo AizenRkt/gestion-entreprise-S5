@@ -35,6 +35,28 @@ Class EmployeModel {
             ':activite' => $activite
         ]);
 
+        if ($id_candidat !== null) {
+            $sql_migrate = "
+                INSERT INTO employe_competence (id_employe, id_competence)
+                SELECT :id_employe, dc.id_item
+                FROM detail_cv dc
+                JOIN cv c ON c.id_cv = dc.id_cv
+                WHERE c.id_candidat = :id_candidat
+                AND dc.type = 'competence'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM employe_competence ec
+                    WHERE ec.id_employe = :id_employe
+                        AND ec.id_competence = dc.id_item
+                )
+            ";
+            $stmt_migrate = $db->prepare($sql_migrate);
+            $stmt_migrate->execute([
+                ':id_employe' => $id_employe,
+                ':id_candidat' => $id_candidat
+            ]);
+        }
+
         return $id_employe;
     }
 

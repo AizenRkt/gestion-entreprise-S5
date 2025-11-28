@@ -69,6 +69,11 @@ class Controller
         Flight::render('ressourceHumaine/back/creaAnnonce');
     }
 
+    public function Cartecompetence()
+    {
+        Flight::render('ressourceHumaine/back/competences/cartographie');
+    }
+
     public function candidature()
     {
         $diplomeModel = new \app\models\ressourceHumaine\diplome\DiplomeModel();
