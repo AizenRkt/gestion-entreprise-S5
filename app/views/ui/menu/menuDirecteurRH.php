@@ -101,6 +101,26 @@
                         </li>                                                  
                     </ul>
                 </li>
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
+                        <span>Statistique</span>
+                    </a>
+                    <ul class="submenu">
+                        <!-- <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>
+                        </li>      -->
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">statistiques employes</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">résultat QCM</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/competence" class="submenu-link">Cartographie des competences</a>
+                        </li>                                                 
+                    </ul>
+                </li>
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
@@ -125,25 +145,6 @@
                     </a>
                 </li>
 
-                <li class="sidebar-title">Statistique</li>
-
-                <li class="sidebar-item has-sub">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
-                        <span>Statistique</span>
-                    </a>
-                    <ul class="submenu">
-                        <!-- <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/organiserEntretien" class="submenu-link">Organiser</a>
-                        </li>      -->
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">Statistiques employes</a>
-                        </li>
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">Statistiques globales</a>
-                        </li>                                                  
-                    </ul>
-                </li>
                 
                 <!-- partie compte -->
                 <?= Flight::userAccount() ?>
