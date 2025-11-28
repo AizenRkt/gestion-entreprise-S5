@@ -48,7 +48,7 @@ class CongeModel
         return $result ? $result['solde_restant'] : 0;
     }
 
-    public function createDemandeConge($idEmploye, $idTypeConge, $dateDebut, $dateFin, $motif = '')
+    public function createDemandeConge($idEmploye, $idTypeConge, $dateDebut, $dateFin)
     {
         try {
             $db = Flight::db();
@@ -56,46 +56,96 @@ class CongeModel
             // Calculer le nombre de jours (excluant les week-ends)
             $nbJours = $this->calculateWorkingDays($dateDebut, $dateFin);
 
-            // Vérifier le solde disponible
-            $soldeRestant = $this->getSoldeConge($idEmploye);
-            if ($nbJours > $soldeRestant) {
-                return ['success' => false, 'message' => 'Solde de congés insuffisant'];
+            // Convertir les dates en format datetime (ajouter l'heure)
+            $dateDebutDatetime = $dateDebut . ' 00:00:00';
+            $dateFinDatetime = $dateFin . ' 23:59:59';
+
+            // Debug: Afficher les données
+            error_log("=== DEBUG DEMANDE CONGE ===");
+            error_log("ID Employe: " . $idEmploye);
+            error_log("ID Type Conge: " . $idTypeConge);
+            error_log("Date Début: " . $dateDebutDatetime);
+            error_log("Date Fin: " . $dateFinDatetime);
+            error_log("Nb Jours: " . $nbJours);
+
+            // Vérifier que le type de congé existe
+            $stmtCheck = $db->prepare("SELECT COUNT(*) as count FROM type_conge WHERE id_type_conge = ?");
+            $stmtCheck->execute([$idTypeConge]);
+            $typeExists = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+            if ($typeExists['count'] == 0) {
+                error_log("ERREUR: Type de congé invalide: " . $idTypeConge);
+                return ['success' => false, 'message' => 'Type de congé invalide'];
             }
 
-            // Insérer la demande
-            $sql = "INSERT INTO demande_conge (id_employe, id_type_conge, date_debut, date_fin, nb_jours, motif) 
-                    VALUES (?, ?, ?, ?, ?, ?)";
+            // Option 1: Insérer sans le motif (si la colonne n'existe pas)
+            $sql = "INSERT INTO demande_conge (id_employe, id_type_conge, date_debut, date_fin, nb_jours) 
+                    VALUES (?, ?, ?, ?, ?)";
+
+            error_log("SQL: " . $sql);
 
             $stmt = $db->prepare($sql);
             $success = $stmt->execute([
                 $idEmploye,
                 $idTypeConge,
-                $dateDebut,
-                $dateFin,
-                $nbJours,
-                $motif
+                $dateDebutDatetime,
+                $dateFinDatetime,
+                $nbJours
             ]);
 
             if ($success) {
-                // Mettre à jour l'historique des congés
-                $this->updateHistoriqueConge($idEmploye, $stmt->lastInsertId(), $nbJours);
+                $lastInsertId = $db->lastInsertId();
+                error_log("SUCCES: Demande créée avec ID: " . $lastInsertId);
 
-                return ['success' => true, 'message' => 'Demande créée avec succès'];
+                // Si vous voulez enregistrer le motif ailleurs, vous pouvez le faire ici
+                if (!empty($motif)) {
+                    $this->saveMotif($lastInsertId, $motif);
+                }
+
+                return ['success' => true, 'message' => 'Demande de congé soumise avec succès'];
             } else {
-                return ['success' => false, 'message' => 'Erreur lors de la création de la demande'];
+                $errorInfo = $stmt->errorInfo();
+                error_log("ERREUR SQL: " . print_r($errorInfo, true));
+                return ['success' => false, 'message' => 'Erreur lors de la création de la demande: ' . $errorInfo[2]];
             }
 
         } catch (\PDOException $e) {
-            error_log("Erreur création demande congé: " . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur technique'];
+            error_log("ERREUR PDO création demande congé: " . $e->getMessage());
+            error_log("Code erreur: " . $e->getCode());
+            return ['success' => false, 'message' => 'Erreur technique: ' . $e->getMessage()];
         }
     }
+    public function canRequestConge($idEmploye)
+    {
+        $db = Flight::db();
 
-    private function calculateWorkingDays($startDate, $endDate)
+        $stmt = $db->prepare("
+            SELECT date_embauche 
+            FROM employe 
+            WHERE id_employe = ?
+        ");
+        $stmt->execute([$idEmploye]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$result || empty($result['date_embauche'])) {
+            return false;
+        }
+
+        $dateEmbauche = new \DateTime($result['date_embauche']);
+        $today = new \DateTime();
+        $interval = $dateEmbauche->diff($today);
+
+        // Vérifier si au moins 1 an d'ancienneté
+        return $interval->y >= 1;
+    }
+
+    public function calculateWorkingDays($startDate, $endDate)
     {
         $start = new \DateTime($startDate);
         $end = new \DateTime($endDate);
-        $end->modify('+1 day'); // Inclure le dernier jour
+
+        // Pour inclure le dernier jour dans le calcul
+        $end->modify('+1 day');
 
         $interval = new \DateInterval('P1D');
         $period = new \DatePeriod($start, $interval, $end);
@@ -103,7 +153,8 @@ class CongeModel
         $workingDays = 0;
         foreach ($period as $date) {
             // Exclure les samedis (6) et dimanches (7)
-            if ($date->format('N') < 6) {
+            $dayOfWeek = $date->format('N');
+            if ($dayOfWeek < 6) {
                 $workingDays++;
             }
         }
@@ -245,10 +296,11 @@ class CongeModel
         );
         $stmt2->execute([$id_employe, $takenStart, $asOf->format('Y-m-d')]);
         $takenRow = $stmt2->fetch(PDO::FETCH_ASSOC);
-        $taken = isset($takenRow['taken']) ? (int)$takenRow['taken'] : 0;
+        $taken = isset($takenRow['taken']) ? (int) $takenRow['taken'] : 0;
 
         $balance = $accrued - $taken;
-        if ($balance < 0) $balance = 0.0;
+        if ($balance < 0)
+            $balance = 0.0;
 
         return [
             'accrued' => round($accrued, 2),

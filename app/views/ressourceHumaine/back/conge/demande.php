@@ -42,6 +42,16 @@
             </div>
 
             <section class="section">
+                <?php if (!$canRequestConge): ?>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Demande non autorisée</h4>
+                            <p class="mb-0">Vous ne pouvez pas faire de demande de congé pendant votre première année de contrat.</p>
+                        </div>
+                    </div>
+                </div>
+                <?php else: ?>
                 <div class="row">
                     <div class="col-12 col-lg-8">
                         <div class="card">
@@ -49,7 +59,11 @@
                                 <h5>Nouvelle demande de congé</h5>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i> 
-                                    Votre solde actuel : <strong><?= htmlspecialchars($soldeActuel ?? '0') ?> jours</strong>
+                                    <strong>Règles importantes :</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Demande à faire au moins <strong>15 jours</strong> avant la date de début</li>
+                                        <li>Les week-ends ne sont pas comptabilisés</li>
+                                    </ul>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -69,7 +83,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Jours estimés</label>
+                                            <label class="form-label">Jours ouvrés estimés</label>
                                             <input type="text" class="form-control" id="joursEstimes" readonly value="0 jour(s)">
                                         </div>
                                     </div>
@@ -77,7 +91,9 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Date de début *</label>
-                                            <input type="date" class="form-control" name="date_debut" id="date_debut" required min="<?= date('Y-m-d') ?>">
+                                            <input type="date" class="form-control" name="date_debut" id="date_debut" required 
+                                                   min="<?= date('Y-m-d', strtotime('+15 days')) ?>">
+                                            <div class="form-text">Minimum 15 jours à partir d'aujourd'hui</div>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Date de fin *</label>
@@ -111,21 +127,22 @@
                             </div>
                             <div class="card-body">
                                 <div class="alert alert-light-primary">
-                                    <h6><i class="bi bi-clock"></i> Délai de traitement</h6>
-                                    <p class="mb-0">Votre demande sera traitée sous 48h ouvrées.</p>
+                                    <h6><i class="bi bi-clock"></i> Délai de préavis</h6>
+                                    <p class="mb-0">Toute demande doit être faite <strong>au moins 15 jours</strong> avant le début du congé.</p>
                                 </div>
                                 <div class="alert alert-light-warning">
-                                    <h6><i class="bi bi-exclamation-triangle"></i> Attention</h6>
-                                    <p class="mb-0">Vérifiez votre solde avant de soumettre votre demande.</p>
+                                    <h6><i class="bi bi-calendar-x"></i> Période d'essai</h6>
+                                    <p class="mb-0">Aucune demande de congé n'est autorisée pendant la première année de contrat.</p>
                                 </div>
                                 <div class="alert alert-light-info">
-                                    <h6><i class="bi bi-calendar-check"></i> Rappel</h6>
-                                    <p class="mb-0">Les week-ends ne sont pas comptabilisés dans le calcul des jours.</p>
+                                    <h6><i class="bi bi-calendar-check"></i> Calcul des jours</h6>
+                                    <p class="mb-0">Les samedis et dimanches ne sont pas comptabilisés dans le calcul.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </section>
         </div>
 
@@ -152,46 +169,47 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('formDemandeConge');
+    if (!form) return; // Si le formulaire n'existe pas (demande non autorisée)
+    
     const dateDebut = document.getElementById('date_debut');
     const dateFin = document.getElementById('date_fin');
     const joursEstimes = document.getElementById('joursEstimes');
 
-    // Fonction pour calculer les jours ouvrés entre deux dates
-    function calculerJoursOuvres(startDate, endDate) {
+    // Fonction pour calculer les jours ouvrés via l'API
+    function calculerJoursOuvresAPI(startDate, endDate) {
         if (!startDate || !endDate) return 0;
         
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        
-        if (start > end) return 0;
-        
-        let count = 0;
-        const current = new Date(start);
-        
-        while (current <= end) {
-            const dayOfWeek = current.getDay();
-            // 0 = Dimanche, 6 = Samedi
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-                count++;
-            }
-            current.setDate(current.getDate() + 1);
-        }
-        
-        return count;
+        return fetch('<?= Flight::base() ?>/conge/calcul-jours', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `date_debut=${startDate}&date_fin=${endDate}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            return data.success ? data.nbJours : 0;
+        })
+        .catch(error => {
+            console.error('Erreur calcul jours:', error);
+            return 0;
+        });
     }
 
     // Mettre à jour les jours estimés
-    function mettreAJourJoursEstimes() {
-        const nbJours = calculerJoursOuvres(dateDebut.value, dateFin.value);
-        joursEstimes.value = nbJours + ' jour(s)';
-        
-        // Changer la couleur selon le nombre de jours
-        if (nbJours > 0) {
-            joursEstimes.classList.remove('is-invalid');
-            joursEstimes.classList.add('is-valid');
-        } else {
-            joursEstimes.classList.remove('is-valid');
-            joursEstimes.classList.add('is-invalid');
+    async function mettreAJourJoursEstimes() {
+        if (dateDebut.value && dateFin.value) {
+            const nbJours = await calculerJoursOuvresAPI(dateDebut.value, dateFin.value);
+            joursEstimes.value = nbJours + ' jour(s)';
+            
+            // Changer la couleur selon le nombre de jours
+            if (nbJours > 0) {
+                joursEstimes.classList.remove('is-invalid');
+                joursEstimes.classList.add('is-valid');
+            } else {
+                joursEstimes.classList.remove('is-valid');
+                joursEstimes.classList.add('is-invalid');
+            }
         }
     }
 
@@ -231,6 +249,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 text: "La date de fin doit être après la date de début",
                 backgroundColor: "red",
                 duration: 3000
+            }).showToast();
+            return;
+        }
+
+        // Vérification délai de 15 jours côté client
+        const dateDebutObj = new Date(dateDebut.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diffTime = dateDebutObj - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays < 15) {
+            Toastify({
+                text: "La demande doit être faite au moins 15 jours avant la date de début",
+                backgroundColor: "red",
+                duration: 5000
             }).showToast();
             return;
         }
@@ -299,9 +333,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialiser la date minimum
-    const today = new Date().toISOString().split('T')[0];
-    dateDebut.min = today;
+    // Initialiser la date minimum (15 jours à partir d'aujourd'hui)
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 15);
+    const minDateString = minDate.toISOString().split('T')[0];
+    dateDebut.min = minDateString;
     
     // Si la date de début est définie, mettre à jour le min de la date de fin
     if (dateDebut.value) {
