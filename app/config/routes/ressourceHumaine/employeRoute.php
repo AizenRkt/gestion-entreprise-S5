@@ -12,3 +12,6 @@ use flight\net\Router;
 $EmployeController = new EmployeController();
 $router->get('/employes', [ $EmployeController, 'listEmployes' ]); // Liste tous les employés
 $router->post('/employe/update', [ $EmployeController, 'updateEmploye' ]); // Liste tous les employés
+
+$router->get('/backOffice/user/parametre', [$EmployeController, 'getUserProfile']);
+$router->post('/backOffice/user/update', [$EmployeController, 'updateUserProfile']);

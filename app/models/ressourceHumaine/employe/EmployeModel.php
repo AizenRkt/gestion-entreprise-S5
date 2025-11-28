@@ -92,22 +92,34 @@ Class EmployeModel {
     public function getById($id) {
         try {
             $db = Flight::db();
+            
+            // Version simplifiée et plus fiable
             $query = "
-                SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste
+                SELECT 
+                    e.id_employe,
+                    e.nom,
+                    e.prenom,
+                    e.email,
+                    e.telephone,
+                    e.genre,
+                    e.date_embauche,
+                    p.titre AS poste_titre,
+                    es.activite
                 FROM employe e
-                JOIN employe_statut es ON e.id_employe = es.id_employe
-                JOIN poste p ON es.id_poste = p.id_poste
-                WHERE es.date_modification = (
-                    SELECT MAX(es2.date_modification)
-                    FROM employe_statut es2
-                    WHERE es2.id_employe = e.id_employe
-                )
-                AND e.id_employe = ?
+                LEFT JOIN employe_statut es ON e.id_employe = es.id_employe
+                LEFT JOIN poste p ON es.id_poste = p.id_poste
+                WHERE e.id_employe = ?
+                ORDER BY es.date_modification DESC
+                LIMIT 1
             ";
+            
             $stmt = $db->prepare($query);
             $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result;
         } catch (\PDOException $e) {
+            error_log("Erreur EmployeModel getById: " . $e->getMessage());
             return null;
         }
     }
