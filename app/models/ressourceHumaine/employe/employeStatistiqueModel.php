@@ -16,7 +16,6 @@ class EmployeStatistiqueModel {
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
-            )
         ";
         $params = [];
         if ($year) {
@@ -25,10 +24,12 @@ class EmployeStatistiqueModel {
             } else {
                 $endDate = "$year-12-31";
             }
-            $query .= " AND es.date_modification <= ?";
+            $query .= " AND es2.date_modification <= ?";
             $params[] = $endDate;
         }
-        $query .= " GROUP BY e.genre";
+        $query .= "
+            ) AND es.activite = 1
+            GROUP BY e.genre";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -46,7 +47,6 @@ class EmployeStatistiqueModel {
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
-            )
         ";
         $params = [];
         if ($year) {
@@ -55,10 +55,12 @@ class EmployeStatistiqueModel {
             } else {
                 $endDate = "$year-12-31";
             }
-            $query .= " AND es.date_modification <= ?";
+            $query .= " AND es2.date_modification <= ?";
             $params[] = $endDate;
         }
-        $query .= " GROUP BY s.id_service";
+        $query .= "
+            ) AND es.activite = 1
+            GROUP BY s.id_service";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -77,7 +79,6 @@ class EmployeStatistiqueModel {
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
-            )
         ";
         $params = [];
         if ($year) {
@@ -86,10 +87,12 @@ class EmployeStatistiqueModel {
             } else {
                 $endDate = "$year-12-31";
             }
-            $query .= " AND es.date_modification <= ?";
+            $query .= " AND es2.date_modification <= ?";
             $params[] = $endDate;
         }
-        $query .= " GROUP BY d.id_dept";
+        $query .= "
+            ) AND es.activite = 1
+            GROUP BY d.id_dept";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -106,7 +109,6 @@ class EmployeStatistiqueModel {
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
-            )
         ";
         $params = [];
         if ($year) {
@@ -115,10 +117,12 @@ class EmployeStatistiqueModel {
             } else {
                 $endDate = "$year-12-31";
             }
-            $query .= " AND es.date_modification <= ?";
+            $query .= " AND es2.date_modification <= ?";
             $params[] = $endDate;
         }
-        $query .= " GROUP BY p.id_poste";
+        $query .= "
+            ) AND es.activite = 1
+            GROUP BY p.id_poste";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -134,7 +138,6 @@ class EmployeStatistiqueModel {
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
-            )
         ";
         $params = [];
         if ($year) {
@@ -143,10 +146,12 @@ class EmployeStatistiqueModel {
             } else {
                 $endDate = "$year-12-31";
             }
-            $query .= " AND es.date_modification <= ?";
+            $query .= " AND es2.date_modification <= ?";
             $params[] = $endDate;
         }
-        $query .= " GROUP BY es.activite";
+        $query .= "
+            )
+            GROUP BY es.activite";
         $stmt = $db->prepare($query);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
