@@ -63,7 +63,7 @@ Class EmployeModel {
     public static function getAllEmployes($filters = []) {
         $db = Flight::db();
         $query = "
-            SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste, s.nom AS service_nom, d.nom AS dept_nom
+            SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste, s.nom AS service_nom, d.nom AS dept_nom, ct.fin AS contrat_fin
             FROM employe e
             LEFT JOIN employe_statut es ON e.id_employe = es.id_employe
             AND es.date_modification = (
@@ -74,6 +74,7 @@ Class EmployeModel {
             LEFT JOIN poste p ON es.id_poste = p.id_poste
             LEFT JOIN service s ON p.id_service = s.id_service
             LEFT JOIN departement d ON s.id_dept = d.id_dept
+            LEFT JOIN contrat_travail ct ON e.id_employe = ct.id_employe
         ";
         
         $params = [];

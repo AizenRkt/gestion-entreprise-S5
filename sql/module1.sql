@@ -314,7 +314,7 @@ CREATE TABLE contrat_travail (
     fin DATE NULL,
     salaire_base DECIMAL(10,2),
     date_signature DATE NULL,
-    date_creation DATE NOT NULL DEFAULT CURRENT_DATE,
+    date_creation DATE NOT NULL DEFAULT (CURRENT_DATE),
     id_poste INT NULL,
     pathPdf VARCHAR(255),
 

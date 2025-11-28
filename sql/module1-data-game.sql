@@ -580,4 +580,11 @@ INSERT INTO employe_competence (id_employe, id_competence) VALUES
 (LAST_INSERT_ID(), 1),  -- Programmation
 (LAST_INSERT_ID(), 3);  -- Gestion de Projet
 
+-- Contrats de travail
+INSERT INTO contrat_travail (id_employe, id_type_contrat, debut, fin, salaire_base, date_signature, id_poste) VALUES
+(1, 1, '2020-01-01', NULL, 1500000, '2020-01-01', 17),  -- CDI, pas de fin
+(2, 1, '2018-06-10', NULL, 1200000, '2018-06-10', 18),  -- CDI
+(3, 1, '2020-01-01', NULL, 2000000, '2020-01-01', 2),  -- CDI
+(4, 2, '2025-11-23', '2025-12-23', 800000, '2025-11-23', 2),  -- CDD fin décembre 2025
+(5, 2, '2025-11-23', '2026-01-23', 900000, '2025-11-23', 3);  -- CDD fin janvier 2026
 
