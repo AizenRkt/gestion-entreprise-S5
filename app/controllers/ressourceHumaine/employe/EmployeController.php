@@ -61,4 +61,68 @@ class EmployeController {
             Flight::redirect('/employes');
         }
     }
+    public function getUserProfile() {
+        // Debug: Afficher les données de session
+        error_log("Session user data: " . print_r($_SESSION['user'] ?? 'No session', true));
+        
+        if (!isset($_SESSION['user']['id_employe'])) {
+            error_log("No id_employe in session, redirecting to /log");
+            Flight::redirect('/log');
+            return;
+        }
+
+        $model = new EmployeModel();
+        $employe = $model->getById($_SESSION['user']['id_employe']);
+        
+        // Debug: Afficher les données récupérées
+        error_log("Employe data from DB: " . print_r($employe, true));
+        
+        if (!$employe) {
+            error_log("No employe found with id: " . $_SESSION['user']['id_employe']);
+            Flight::error('Employé non trouvé');
+            return;
+        }
+
+        // Debug: Vérifier que les données sont passées à la vue
+        error_log("Passing employe data to view");
+        
+        Flight::render('auth/user/parametre', [
+            'employe' => $employe
+        ]);
+    }
+
+    public function updateUserProfile() {
+        if (Flight::request()->method == 'POST' && isset($_SESSION['user']['id_employe'])) {
+            $model = new EmployeModel();
+            $data = Flight::request()->data;
+            
+            $id = $_SESSION['user']['id_employe'];
+            $nom = $data['nom'];
+            $prenom = $data['prenom'];
+            $email = $data['email'];
+            $telephone = $data['telephone'];
+            $genre = $data['genre'];
+
+            // Mettre à jour seulement les informations de base (pas le poste ou l'activité)
+            $db = Flight::db();
+            $sql = "UPDATE employe SET nom = :nom, prenom = :prenom, email = :email, telephone = :telephone, genre = :genre WHERE id_employe = :id_employe";
+            $stmt = $db->prepare($sql);
+            $success = $stmt->execute([
+                ':nom' => $nom,
+                ':prenom' => $prenom,
+                ':email' => $email,
+                ':telephone' => $telephone,
+                ':genre' => $genre,
+                ':id_employe' => $id
+            ]);
+
+            if ($success) {
+                // Mettre à jour la session
+                $_SESSION['user']['username'] = $data['username'];
+                Flight::json(['success' => true, 'message' => 'Profil mis à jour avec succès']);
+            } else {
+                Flight::json(['success' => false, 'message' => 'Erreur lors de la mise à jour']);
+            }
+        }
+    }
 }

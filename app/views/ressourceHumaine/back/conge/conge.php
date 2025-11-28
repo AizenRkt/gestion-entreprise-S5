@@ -117,6 +117,9 @@
                 <form id="validationForm">
                     <div class="modal-body">
                         <input type="hidden" id="validation_id_demande" name="id_demande_conge">
+                        <div id="soldeInfo" class="mb-3" style="display:none;">
+                            <!-- Rempli dynamiquement -->
+                        </div>
                         <div class="mb-3">
                             <label for="validation_date" class="form-label">Date de validation</label>
                             <input type="date" class="form-control" id="validation_date" name="date_validation" required>
@@ -124,7 +127,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Valider</button>
+                        <button type="submit" id="validationSubmitBtn" class="btn btn-primary">Valider</button>
                     </div>
                 </form>
             </div>
@@ -173,18 +176,46 @@
             $('#validationModal').data('rowBtn', $(this));
             $('#validation_id_demande').val(id);
             $('#validation_date').val(getCurrentDate());
-            $('#validationModal').modal('show');
+            // fetch solde info before showing modal
+            $('#soldeInfo').hide().html('Chargement du solde...').show();
+            $('#validationSubmitBtn').prop('disabled', true);
+            $.get('<?= Flight::base() ?>/api/conge/solde', { id: id }, function(resp){
+                if (resp && resp.success) {
+                    var d = resp.data;
+                    var s = d.solde;
+                    var displayStart = s.period_start || '';
+                    var html = '<p><strong>Congés acquis (période ' + displayStart + ' - ' + s.period_end + '):</strong> ' + s.accrued + ' jours</p>';
+                    html += '<p><strong>Congés pris sur la période:</strong> ' + s.taken + ' jours</p>';
+                    html += '<p><strong>Solde disponible:</strong> ' + s.balance + ' jours</p>';
+                    html += '<p><strong>Jours demandés:</strong> ' + d.days + ' jour(s)</p>';
+                    if (d.canValidate) {
+                        html += '<p class="text-success"><strong>Validation possible</strong></p>';
+                        $('#validationSubmitBtn').prop('disabled', false);
+                    } else {
+                        html += '<p class="text-danger"><strong>Solde insuffisant — Validation désactivée</strong></p>';
+                        $('#validationSubmitBtn').prop('disabled', true);
+                    }
+                    $('#soldeInfo').html(html).show();
+                    $('#validationModal').modal('show');
+                } else {
+                    alert((resp && resp.message) ? resp.message : 'Impossible de récupérer le solde.');
+                    $('#soldeInfo').hide();
+                }
+            }, 'json').fail(function(){
+                alert('Erreur lors de la récupération du solde.');
+                $('#soldeInfo').hide();
+            });
         });
 
         $('#validationForm').on('submit', function(e){
             e.preventDefault();
             var data = {
-                id_conge: $('#validation_id_demande').val(),
+                id_demande_conge: $('#validation_id_demande').val(),
                 date_validation: $('#validation_date').val()
             };
             var $btn = $('#validationModal').data('rowBtn');
 
-            $.post('<?= Flight::base() ?>/conge/valider', data, function(resp){
+            $.post('<?= Flight::base() ?>/backOffice/conge/valider', data, function(resp){
                 if (resp && resp.success) {
                     var $tr = $btn.closest('tr');
                     $tr.find('td').eq(5).html('<span class="badge bg-primary">Validé</span>');
@@ -211,12 +242,12 @@
         $('#refusForm').on('submit', function(e){
             e.preventDefault();
             var data = {
-                id_conge: $('#refus_id_demande').val(),
+                id_demande_conge: $('#refus_id_demande').val(),
                 date_validation: $('#refus_date').val()
             };
             var $btn = $('#refusModal').data('rowBtn');
 
-            $.post('<?= Flight::base() ?>/conge/refuser', data, function(resp){
+            $.post('<?= Flight::base() ?>/backOffice/conge/refuser', data, function(resp){
                 if (resp && resp.success) {
                     var $tr = $btn.closest('tr');
                     $tr.find('td').eq(5).html('<span class="badge bg-danger">Refusé</span>');

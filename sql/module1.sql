@@ -33,7 +33,7 @@ CREATE TABLE candidat (
     telephone VARCHAR(20),
     genre VARCHAR(1),
     date_naissance DATE,
-    date_candidature DATE DEFAULT (CURRENT_DATE)
+    date_candidature DATE DEFAULT CURRENT_DATE
 );
 
 CREATE TABLE employe (
@@ -143,7 +143,7 @@ CREATE TABLE cv (
     id_cv INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_profil INT NOT NULL,
-    date_soumission DATE DEFAULT (CURRENT_DATE),
+    date_soumission DATE DEFAULT CURRENT_DATE,
     photo VARCHAR(255),
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
@@ -165,7 +165,7 @@ CREATE TABLE postulance (
     id_postulance INT AUTO_INCREMENT PRIMARY KEY,
     id_cv INT NOT NULL,
     id_annonce INT NOT NULL,
-    date_postulation DATE DEFAULT (CURRENT_DATE),
+    date_postulation DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
     FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
 );
@@ -314,7 +314,7 @@ CREATE TABLE contrat_travail (
     fin DATE NULL,
     salaire_base DECIMAL(10,2),
     date_signature DATE NULL,
-    date_creation DATE NOT NULL DEFAULT (CURRENT_DATE),
+    date_creation DATE NOT NULL DEFAULT CURRENT_DATE,
     id_poste INT NULL,
     pathPdf VARCHAR(255),
 
@@ -460,7 +460,7 @@ CREATE TABLE validation_heure_sup (
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
 
--- pointage
+--pointage
 CREATE TABLE statut_pointage (
     id INT AUTO_INCREMENT PRIMARY KEY,
     heure TIME,
@@ -492,13 +492,14 @@ CREATE TABLE pointage (
     retard_min INT,
     duree_work TIME,
     date_pointage DATE NOT NULL,
+    statut VARCHAR(50),
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_checkin) REFERENCES checkin(id),
     FOREIGN KEY (id_checkout) REFERENCES checkout(id),
     UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
 );
 
--- view
+--view
 
 CREATE OR REPLACE VIEW view_absence_details AS
 SELECT 
@@ -552,6 +553,7 @@ JOIN
     detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
 LEFT JOIN 
     validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
+
 
 CREATE OR REPLACE VIEW view_conge_details AS
 SELECT 

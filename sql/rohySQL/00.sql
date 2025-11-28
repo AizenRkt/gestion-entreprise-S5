@@ -460,6 +460,126 @@ CREATE TABLE validation_heure_sup (
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
 
+--pointage
+CREATE TABLE statut_pointage (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    heure TIME,
+    remarque VARCHAR(255),
+    tolerance INT,
+    jour INT CHECK (jour BETWEEN 1 AND 7)  -- 1 = lundi, 7 = dimanche
+);
+
+CREATE TABLE checkin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    datetime_checkin DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE checkout (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    datetime_checkout DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+
+CREATE TABLE pointage (
+    id_pointage INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_checkin INT,
+    id_checkout INT,
+    retard_min INT,
+    duree_work TIME,
+    date_pointage DATE NOT NULL,
+    statut VARCHAR(50),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
+    FOREIGN KEY (id_checkin) REFERENCES checkin(id),
+    FOREIGN KEY (id_checkout) REFERENCES checkout(id),
+    UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
+);
+
+--view
+
+CREATE OR REPLACE VIEW view_absence_details AS
+SELECT 
+    a.id_absence,
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    ta.nom AS type_absence,
+    a.date_debut AS absence_date_debut,
+    a.date_fin AS absence_date_fin,
+    da.type_documentation,
+    da.motif,
+    da.date_documentation,
+    CASE 
+        WHEN v.id_documentation_absence IS NOT NULL THEN 'Validé'
+        WHEN v.id_documentation_absence IS NULL AND da.id_documentation_absence IS NOT NULL THEN 'En attente'
+        ELSE 'Archivé'
+    END AS validation_status
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+JOIN 
+    type_absence ta ON a.id_type_absence = ta.id_type_absence
+JOIN 
+    documentation_absence da ON e.id_employe = da.id_employe
+LEFT JOIN 
+    validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;
+
+CREATE OR REPLACE VIEW view_heure_sup_details AS
+SELECT 
+    d.id_demande_heure_sup,
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    d.date_demande,
+    dh.heure_debut,
+    dh.heure_fin,
+    dh.date_debut AS date_heure_debut,
+    dh.date_fin AS date_heure_fin,
+    CASE 
+        WHEN v.statut = 'valide' THEN 'Validé'
+        WHEN v.statut = 'refuse' THEN 'Refusé'
+        ELSE 'En attente'
+    END AS validation_statut
+FROM 
+    demande_heure_sup d
+JOIN 
+    employe e ON d.id_employe = e.id_employe
+JOIN 
+    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
+LEFT JOIN 
+    validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
+
+
+CREATE OR REPLACE VIEW view_conge_details AS
+SELECT 
+    d.id_demande_conge,
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    d.date_debut,
+    d.date_fin,
+    d.nb_jours,
+    t.nom AS type_conge_nom,
+    CASE 
+        WHEN v.statut = 'valide' THEN 'Validé'
+        WHEN v.statut = 'refuse' THEN 'Refusé'
+        ELSE 'En attente'
+    END AS validation_statut
+FROM 
+    demande_conge d
+JOIN 
+    employe e ON d.id_employe = e.id_employe
+JOIN 
+    type_conge t ON d.id_type_conge = t.id_type_conge
+LEFT JOIN 
+    validation_conge v ON d.id_demande_conge = v.id_demande_conge;
+
+
 INSERT INTO departement (nom) VALUES
 ('Informatique'),
 ('Production'),
@@ -534,12 +654,12 @@ INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_emb
 (4, 'Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '2025-11-23'),
 (5, 'George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '2025-11-23');
 
-INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(1, 17, 1),  
-(2, 18, 1),
-(3, 2, 1),
-(4, 2, 1),  -- Zo Lalaina = Développeur Backend
-(5, 3, 1);  -- Andry George = Développeur Frontend
+INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES
+(1, 17, 1, NOW()),  -- Date de modification actuelle
+(2, 18, 1, '2025-11-23 00:00:00'),  -- Date de modification spécifique
+(3, 2, 1, '2025-11-25 00:00:00'),   -- Date de modification spécifique
+(4, 2, 1, '2025-11-26 00:00:00'),   -- Zo Lalaina = Développeur Backend
+(5, 3, 1, '2025-11-26 00:00:00');   -- Date de modification actuelle
 
 INSERT INTO role (nom) VALUES
 ('Administrateur'),
@@ -751,97 +871,17 @@ INSERT INTO menu_ui (nom, id_service, role) VALUES('menuRH', 8, 'RH');
 INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max_duree_renouvellement, max_nb_renouvellement) VALUES
 ('CDI', NULL, NULL, 0, NULL, NULL),
 ('CDD', 1, 24, 1, 18, 2);
-/*
-CREATE TABLE employe (
-    id_employe INT AUTO_INCREMENT PRIMARY KEY,
-    id_candidat INT UNIQUE,
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    telephone VARCHAR(20),
-    genre VARCHAR(1),
-    date_embauche DATE,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
-);
-*/
 
-CREATE TABLE statut_pointage (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    heure TIME,
-    remarque VARCHAR(255),
-    tolerance INT,
-    jour INT CHECK (jour BETWEEN 1 AND 7)  -- 1 = lundi, 7 = dimanche
-);
-
-CREATE TABLE checkin (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_employe INT NOT NULL,
-    datetime_checkin DATETIME NOT NULL,
-    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
-);
-
-CREATE TABLE checkout (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_employe INT NOT NULL,
-    datetime_checkout DATETIME NOT NULL,
-    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
-);
-
-
-CREATE TABLE pointage (
-    id_pointage INT AUTO_INCREMENT PRIMARY KEY,
-    id_employe INT NOT NULL,
-    id_checkin INT,
-    id_checkout INT,
-    retard_min INT,
-    duree_work TIME,
-    date_pointage DATE NOT NULL,
-    statut VARCHAR(50),
-    FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
-    FOREIGN KEY (id_checkin) REFERENCES checkin(id),
-    FOREIGN KEY (id_checkout) REFERENCES checkout(id),
-    UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
-);
-
+-- donne presence statut heure d'arrivée
 INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 1),  -- Lundi
 ('08:00:00', 'Heure normale', 10, 2),  -- Mardi
 ('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
 ('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
-('08:00:00', 'Heure normale', 10, 6);  -- Samedi
+('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
-
-INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
-('14:30:00', 'Heure normale', 10, 7); 
-
-
-INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
-('08:00:00', 'Heure normale', 10, 1),  -- Lundi
-('08:00:00', 'Heure normale', 10, 2),  -- Mardi
-('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
-('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
-('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
-('08:00:00', 'Heure normale', 10, 6);  -- Samedi
-
-
-INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
-('14:30:00', 'Heure normale', 10, 7); 
-
-/*
-CREATE TABLE employe (
-    id_employe INT AUTO_INCREMENT PRIMARY KEY,
-    id_candidat INT UNIQUE,
-    nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    telephone VARCHAR(20),
-    genre VARCHAR(1),
-    date_embauche DATE,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
-);
-*/
-
+--donne absenece
 
 -- partie absence 
 CREATE TABLE type_absence (
@@ -879,6 +919,11 @@ CREATE TABLE validation_documentation_absence (
     FOREIGN KEY (id_documentation_absence) REFERENCES documentation_absence(id_documentation_absence),
     FOREIGN KEY (id_absence) REFERENCES absence(id_absence)
 );
+('08:00:00', 'Heure normale', 10, 6);  -- Samedi
+
+
+INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
+('14:30:00', 'Heure normale', 10, 7); 
 
 -- Inserting types of absence
 INSERT INTO type_absence (nom, description, isAutorise) VALUES
@@ -890,11 +935,11 @@ INSERT INTO type_absence (nom, description, isAutorise) VALUES
 
 -- Inserting absences
 INSERT INTO absence (id_type_absence, id_employe, date_debut, date_fin) VALUES
-(1, 1, '2025-11-01', '2025-11-05'), -- Maladie for employé 1
-(2, 2, '2025-11-10', '2025-11-15'), -- Congé Annuel for employé 2
-(3, 3, '2025-11-20', '2025-11-30'), -- Congé Maternel for employé 3
-(4, 4, '2025-12-01', '2025-12-10'), -- Congé Paternité for employé 4
-(5, 5, '2025-11-25', '2025-11-27'); -- Absentéisme for employé 5
+(1, 1, '2026-02-01', '2026-02-05'), -- Maladie for employé 1
+(2, 2, '2026-02-10', '2026-02-15'), -- Congé Annuel for employé 2
+(3, 3, '2026-02-20', '2026-02-10'), -- Congé Maternel for employé 3
+(4, 4, '2026-12-01', '2026-12-10'), -- Congé Paternité for employé 4
+(5, 5, '2026-02-25', '2026-02-21'); -- Absentéisme for employé 5
 
 -- Inserting documentation for absence
 INSERT INTO documentation_absence (type_documentation, id_employe, motif, date_debut, date_fin, date_documentation) VALUES
@@ -908,35 +953,9 @@ INSERT INTO documentation_absence (type_documentation, id_employe, motif, date_d
 INSERT INTO validation_documentation_absence (id_documentation_absence, id_absence) VALUES
 (1, 1);  -- Validation for employé 1's sick leave
 
-CREATE OR REPLACE VIEW view_absence_details AS
-SELECT 
-    a.id_absence,
-    e.id_employe,
-    e.nom AS employe_nom,
-    e.prenom AS employe_prenom,
-    ta.nom AS type_absence,
-    a.date_debut AS absence_date_debut,
-    a.date_fin AS absence_date_fin,
-    da.type_documentation,
-    da.motif,
-    da.date_documentation,
-    CASE 
-        WHEN v.id_documentation_absence IS NOT NULL THEN 'Validé'
-        WHEN v.id_documentation_absence IS NULL AND da.id_documentation_absence IS NOT NULL THEN 'En attente'
-        ELSE 'Archivé'
-    END AS validation_status
-FROM 
-    employe e
-JOIN 
-    absence a ON e.id_employe = a.id_employe
-JOIN 
-    type_absence ta ON a.id_type_absence = ta.id_type_absence
-JOIN 
-    documentation_absence da ON e.id_employe = da.id_employe
-LEFT JOIN 
-    validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;
-
     
+--donne heureSupp
+
 -- Inserting maximum allowable overtime hours
 INSERT INTO max_heure_sup (nb_heures_max_par_semaine, date_application) VALUES
 (8, '2025-01-01'),  
@@ -962,33 +981,9 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 
 
 
-CREATE OR REPLACE VIEW view_heure_sup_details AS
-SELECT 
-    d.id_demande_heure_sup,
-    e.id_employe,
-    e.nom AS employe_nom,
-    e.prenom AS employe_prenom,
-    d.date_demande,
-    dh.heure_debut,
-    dh.heure_fin,
-    dh.date_debut AS date_heure_debut,
-    dh.date_fin AS date_heure_fin,
-    CASE 
-        WHEN v.statut = 'valide' THEN 'Validé'
-        WHEN v.statut = 'refuse' THEN 'Refusé'
-        ELSE 'En attente'
-    END AS validation_statut
-FROM 
-    demande_heure_sup d
-JOIN 
-    employe e ON d.id_employe = e.id_employe
-JOIN 
-    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
-LEFT JOIN 
-    validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
 
 
-
+--donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -996,37 +991,33 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé maladie', 'Congé pour raisons médicales', 1, 15);  -- Sick leave
 
 -- Inserting leave requests
+/*
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2023-11-01', '2023-11-10', 10),  -- Paid leave request
-(2, 2, '2023-11-15', '2023-11-20', 5),  -- Unpaid leave request
-(3, 3, '2023-12-01', '2023-12-05', 5);  -- Sick leave request
+(1, 1, '2027-01-01', '2027-01-10', 10),  -- Paid leave request
+(2, 2, '2027-01-15', '2027-01-20', 5),  -- Unpaid leave request
+(3, 3, '2027-01-23', '2027-01-29', 5);  -- Sick leave request
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 
+*/
 
-CREATE OR REPLACE VIEW view_conge_details AS
-SELECT 
-    d.id_demande_conge,
-    e.id_employe,
-    e.nom AS employe_nom,
-    e.prenom AS employe_prenom,
-    d.date_debut,
-    d.date_fin,
-    d.nb_jours,
-    t.nom AS type_conge_nom,
-    CASE 
-        WHEN v.statut = 'valide' THEN 'Validé'
-        WHEN v.statut = 'refuse' THEN 'Refusé'
-        ELSE 'En attente'
-    END AS validation_statut
-FROM 
-    demande_conge d
-JOIN 
-    employe e ON d.id_employe = e.id_employe
-JOIN 
-    type_conge t ON d.id_type_conge = t.id_type_conge
-LEFT JOIN 
-    validation_conge v ON d.id_demande_conge = v.id_demande_conge;
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2027-12-01', '2027-12-10', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2028-01-01', '2028-02-02', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2028-12-03', '2028-12-20', 26);  -- Paid leave request
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2029-01-01', '2029-02-02', 26);  -- Paid leave request
+
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2031-03-01', '2031-03-11', 26);  -- Paid leave request

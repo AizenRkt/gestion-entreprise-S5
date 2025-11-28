@@ -72,12 +72,12 @@ INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_emb
 (4, 'Lalaina', 'Zo', 'zo.lalaina@gmail.com', '0341234567', 'M', '2025-11-23'),
 (5, 'George', 'Andry', 'andry.george@gmail.com', '0347654321', 'M', '2025-11-23');
 
-INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(1, 17, 1),  
-(2, 18, 1),
-(3, 2, 1),
-(4, 2, 1),  -- Zo Lalaina = Développeur Backend
-(5, 3, 1);  -- Andry George = Développeur Frontend
+INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES
+(1, 17, 1, NOW()),  -- Date de modification actuelle
+(2, 18, 1, '2025-11-23 00:00:00'),  -- Date de modification spécifique
+(3, 2, 1, '2025-11-25 00:00:00'),   -- Date de modification spécifique
+(4, 2, 1, '2025-11-26 00:00:00'),   -- Zo Lalaina = Développeur Backend
+(5, 3, 1, '2025-11-26 00:00:00');   -- Date de modification actuelle
 
 INSERT INTO role (nom) VALUES
 ('Administrateur'),
@@ -290,74 +290,6 @@ INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max
 ('CDI', NULL, NULL, 0, NULL, NULL),
 ('CDD', 1, 24, 1, 18, 2);
 
-
-
-
--- Fenitra
--- Ajout de plus de candidats pour tester les statistiques
-INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
-('Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '1990-05-15'),
-('Martin', 'Pierre', 'pierre.martin@example.com', '0987654321', 'M', '1985-03-22'),
-('rain', 'Sophie', 'sophie.rain@example.com', '0567891234', 'F', '1992-11-08'),
-('Bernard', 'Jean', 'jean.bernard@example.com', '0456123789', 'M', '1988-07-30'),
-('Dubois', 'Claire', 'claire.dubois@example.com', '0345678912', 'F', '1995-01-12'),
-('Moreau', 'Luc', 'luc.moreau@example.com', '0765432198', 'M', '1980-09-05'),
-('Simon', 'Emma', 'emma.simon@example.com', '0654321987', 'F', '1993-04-18'),
-('Michel', 'Antoine', 'antoine.michel@example.com', '0876543210', 'M', '1987-12-25'),
-('Thomas', 'Julie', 'julie.thomas@example.com', '0234567891', 'F', '1991-06-14'),
-('Robert', 'Nicolas', 'nicolas.robert@example.com', '0987123456', 'M', '1984-08-09'),
-('Richard', 'Camille', 'camille.richard@example.com', '0345987123', 'F', '1994-02-28'),
-('Petit', 'Maxime', 'maxime.petit@example.com', '0765891234', 'M', '1989-10-17'),
-('Durand', 'Laura', 'laura.durand@example.com', '0456789123', 'F', '1996-03-07'),
-('Roux', 'Alexandre', 'alexandre.roux@example.com', '0876543298', 'M', '1982-11-20'),
-('Vincent', 'Chloé', 'chloe.vincent@example.com', '0234987654', 'F', '1997-05-03');
-
--- Ajout d'employés correspondants
-INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
-(6, 'Dupont', 'Marie', 'marie.dupont@example.com', '0123456789', 'F', '2020-02-01'),
-(7, 'Martin', 'Pierre', 'pierre.martin@example.com', '0987654321', 'M', '2019-08-15'),
-(8, 'Leroy', 'Sophie', 'sophie.leroy@example.com', '0567891234', 'F', '2021-01-10'),
-(9, 'Bernard', 'Jean', 'jean.bernard@example.com', '0456123789', 'M', '2018-05-20'),
-(10, 'Dubois', 'Claire', 'claire.dubois@example.com', '0345678912', 'F', '2022-03-05'),
-(11, 'Moreau', 'Luc', 'luc.moreau@example.com', '0765432198', 'M', '2017-11-12'),
-(12, 'Simon', 'Emma', 'emma.simon@example.com', '0654321987', 'F', '2020-07-22'),
-(13, 'Michel', 'Antoine', 'antoine.michel@example.com', '0876543210', 'M', '2019-09-30'),
-(14, 'Thomas', 'Julie', 'julie.thomas@example.com', '0234567891', 'F', '2021-04-18'),
-(15, 'Robert', 'Nicolas', 'nicolas.robert@example.com', '0987123456', 'M', '2018-12-08'),
-(16, 'Richard', 'Camille', 'camille.richard@example.com', '0345987123', 'F', '2022-06-14'),
-(17, 'Petit', 'Maxime', 'maxime.petit@example.com', '0765891234', 'M', '2017-03-25'),
-(18, 'Durand', 'Laura', 'laura.durand@example.com', '0456789123', 'F', '2020-10-05'),
-(19, 'Roux', 'Alexandre', 'alexandre.roux@example.com', '0876543298', 'M', '2019-01-15'),
-(20, 'Vincent', 'Chloé', 'chloe.vincent@example.com', '0234987654', 'F', '2021-08-30');
-
--- Ajout de statuts pour ces employés, en les répartissant dans différents services
-INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
-(6, 2, 1),   -- Marie Dupont: Développeur Backend (Développement Logiciel)
-(7, 3, 1),   -- Pierre Martin: Développeur Frontend (Développement Logiciel)
-(8, 5, 1),   -- Sophie Leroy: Technicien Support N1 (Support Technique)
-(9, 6, 1),   -- Jean Bernard: Administrateur Systèmes (Support Technique)
-(10, 7, 1),  -- Claire Dubois: Opérateur Machine (Chaîne de Montage)
-(11, 8, 1),  -- Luc Moreau: Chef d'Équipe Production (Chaîne de Montage)
-(12, 9, 1),  -- Emma Simon: Inspecteur Qualité (Contrôle Qualité)
-(13, 10, 1), -- Antoine Michel: Responsable Qualité (Contrôle Qualité)
-(14, 11, 1), -- Julie Thomas: Ingénieur R&D (Recherche & Développement)
-(15, 12, 1), -- Nicolas Robert: Chef de Projet Innovation (Recherche & Développement)
-(16, 13, 1), -- Camille Richard: Dessinateur Industriel (Bureau d'Études)
-(17, 14, 1), -- Maxime Petit: Ingénieur Conception (Bureau d'Études)
-(18, 15, 1), -- Laura Durand: Comptable (Comptabilité & Finance)
-(19, 16, 1), -- Alexandre Roux: Contrôleur de Gestion (Comptabilité & Finance)
-(20, 19, 1); -- Chloé Vincent: Responsable Formation (Ressources Humaines)
-
--- Ajout de quelques employés inactifs pour diversifier
-UPDATE employe_statut SET activite = 0 WHERE id_employe IN (5, 10, 15);
-
--- Ajout d'utilisateurs pour certains employés
-INSERT INTO user (username, pwd, id_employe) VALUES
-('marie.dupont', '123', 4),
-('pierre.martin', '123', 5),
-('sophie.leroy', '123', 6),
-('jean.bernard', '123', 7),
-('claire.dubois', '123', 8);
 -- donne presence statut heure d'arrivée
 INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 1),  -- Lundi
@@ -367,7 +299,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
 ('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
--- donne absence
+--donne absenece
 
 -- partie absence 
 CREATE TABLE type_absence (
@@ -440,7 +372,7 @@ INSERT INTO validation_documentation_absence (id_documentation_absence, id_absen
 (1, 1);  -- Validation for employé 1's sick leave
 
     
--- donne heureSupp
+--donne heureSupp
 
 -- Inserting maximum allowable overtime hours
 INSERT INTO max_heure_sup (nb_heures_max_par_semaine, date_application) VALUES
@@ -469,7 +401,7 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 
 
 
--- donne conge
+--donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -478,9 +410,9 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 
 -- Inserting leave requests
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2023-11-01', '2023-11-10', 10),  -- Paid leave request
-(2, 2, '2023-11-15', '2023-11-20', 5),  -- Unpaid leave request
-(3, 3, '2023-12-01', '2023-12-05', 5);  -- Sick leave request
+(1, 1, '2026-01-01', '2026-01-10', 10),  -- Paid leave request
+(2, 2, '2026-01-15', '2026-01-20', 5),  -- Unpaid leave request
+(3, 3, '2026-01-23', '2026-01-29', 5);  -- Sick leave request
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES

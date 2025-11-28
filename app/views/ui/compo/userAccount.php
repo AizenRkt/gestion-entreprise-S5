@@ -15,6 +15,13 @@
 </li>
 
 <li class="sidebar-item">
+    <a href="<?= Flight::base() ?>/conge/demande" class="sidebar-link">
+        <i class="bi bi-calendar-plus"></i>
+        <span>Demander congé</span>
+    </a>
+</li>
+
+<li class="sidebar-item">
     <a href="<?= Flight::base() ?>/deconnexion" class="sidebar-link">
         <i class="bi bi-door-closed-fill"></i>
         <span>déconnexion</span>
