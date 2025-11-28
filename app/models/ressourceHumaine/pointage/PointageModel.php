@@ -195,14 +195,19 @@ class PointageModel
         if ($checkin) {
             $retard_min = $this->calculateRetard(new DateTime($checkin['datetime_checkin']));
         }
+        
+        $statut = 'A l\'heure';
+        if ($retard_min > 0) {
+            $statut = 'Retard';
+        }
 
         // Insert or Update the pointage table
         if ($id_pointage) {
-            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
-            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
+            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ?, statut = ? WHERE id_pointage = ?");
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $statut, $id_pointage]);
         } else {
-            $stmt = $db->prepare("INSERT INTO pointage (id_employe, date_pointage, id_checkin, id_checkout, duree_work, retard_min) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$id_employe, $effectiveDate, $id_checkin, $id_checkout, $duree_work, $retard_min]);
+            $stmt = $db->prepare("INSERT INTO pointage (id_employe, date_pointage, id_checkin, id_checkout, duree_work, retard_min, statut) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$id_employe, $effectiveDate, $id_checkin, $id_checkout, $duree_work, $retard_min, $statut]);
         }
     }
     /**
@@ -213,9 +218,20 @@ class PointageModel
     {
         $db = Flight::db();
 
-        // 1. Trouver la dernière date de pointage ou utiliser la date de début par défaut.
-        $startDate = new DateTime('2025-11-23');
+        // 1. Trouver la date d'activation de l'employé
+        $stmt_start_date = $db->prepare(
+            "SELECT MIN(date_modification) 
+             FROM employe_statut 
+             WHERE id_employe = :id_employe AND activite = 1"
+        );
+        $stmt_start_date->execute(['id_employe' => $id_employe]);
+        $startDateStr = $stmt_start_date->fetchColumn();
+
+        if (!$startDateStr) {
+            return; // Pas de date d'activation trouvée
+        }
         
+        $startDate = new DateTime($startDateStr);
         $endDate = new DateTime();
         $endDate->modify('-1 day'); // Jusqu'à hier
 
@@ -243,7 +259,7 @@ class PointageModel
                 if (!$pointageExists) {
                     // Insérer un enregistrement d'absence
                     $stmt_insert = $db->prepare(
-                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min) VALUES (?, ?, '00:00:00', 0)"
+                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min, statut) VALUES (?, ?, '00:00:00', 0, 'Absent')"
                     );
                     $stmt_insert->execute([$id_employe, $dateStr]);
                 }
@@ -266,6 +282,7 @@ class PointageModel
                 p.date_pointage,
                 p.duree_work,
                 p.retard_min,
+                p.statut,
                 ci.datetime_checkin,
                 co.datetime_checkout
             FROM pointage p
@@ -292,6 +309,7 @@ class PointageModel
                 p.date_pointage,
                 p.duree_work,
                 p.retard_min,
+                p.statut,
                 ci.datetime_checkin,
                 co.datetime_checkout,
                 e.nom,
@@ -370,15 +388,22 @@ class PointageModel
                 $retard_min = $this->calculateRetard(new DateTime($datetime_checkin));
             }
 
+            $statut = 'A l\'heure';
+            if (!$datetime_checkin) {
+                $statut = 'Absent';
+            } elseif ($retard_min > 0) {
+                $statut = 'Retard';
+            }
+
             // Mettre à jour la table pointage
-            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ? WHERE id_pointage = ?");
-            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $id_pointage]);
+            $stmt = $db->prepare("UPDATE pointage SET id_checkin = ?, id_checkout = ?, duree_work = ?, retard_min = ?, statut = ? WHERE id_pointage = ?");
+            $stmt->execute([$id_checkin, $id_checkout, $duree_work, $retard_min, $statut, $id_pointage]);
 
             $db->commit();
 
             // Récupérer les valeurs mises à jour pour renvoyer au client
             $stmt = $db->prepare(
-                "SELECT p.duree_work, p.retard_min, ci.datetime_checkin, co.datetime_checkout
+                "SELECT p.duree_work, p.retard_min, p.statut, ci.datetime_checkin, co.datetime_checkout
                  FROM pointage p
                  LEFT JOIN checkin ci ON p.id_checkin = ci.id
                  LEFT JOIN checkout co ON p.id_checkout = co.id
@@ -394,4 +419,65 @@ class PointageModel
         }
     }
 
+    /**
+     * Updates the pointage status for a given employee over a date range.
+     * Creates pointage records if they do not exist.
+     * @param int $id_employe
+     * @param string $startDate
+     * @param string $endDate
+     * @param string $status
+     * @return bool
+     */
+    public function updatePointageStatusForDateRange(int $id_employe, string $startDate, string $endDate, string $status): bool
+    {
+        $db = Flight::db();
+        
+        $currentDate = new DateTime($startDate);
+        $lastDate = new DateTime($endDate);
+
+        while ($currentDate <= $lastDate) {
+            $dateStr = $currentDate->format('Y-m-d');
+
+            // Check if a pointage record exists
+            $stmt_check = $db->prepare("SELECT id_pointage, id_checkin, id_checkout FROM pointage WHERE id_employe = :id_employe AND date_pointage = :date_pointage");
+            $stmt_check->execute([
+                'id_employe' => $id_employe,
+                'date_pointage' => $dateStr
+            ]);
+            $pointage = $stmt_check->fetch(PDO::FETCH_ASSOC);
+
+            if ($pointage) {
+                // Update existing record
+                $stmt_update = $db->prepare("UPDATE pointage SET statut = :statut, duree_work = '00:00:00', retard_min = 0, id_checkin = NULL, id_checkout = NULL WHERE id_pointage = :id_pointage");
+                $stmt_update->execute([
+                    'statut' => $status,
+                    'id_pointage' => $pointage['id_pointage']
+                ]);
+                
+                if ($pointage['id_checkin']) {
+                    $stmt_delete_checkin = $db->prepare("DELETE FROM checkin WHERE id = :id_checkin");
+                    $stmt_delete_checkin->execute(['id_checkin' => $pointage['id_checkin']]);
+                }
+                if ($pointage['id_checkout']) {
+                    $stmt_delete_checkout = $db->prepare("DELETE FROM checkout WHERE id = :id_checkout");
+                    $stmt_delete_checkout->execute(['id_checkout' => $pointage['id_checkout']]);
+                }
+
+            } else {
+                // Insert new record
+                $stmt_insert = $db->prepare(
+                    "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min, statut) VALUES (:id_employe, :date_pointage, '00:00:00', 0, :statut)"
+                );
+                $stmt_insert->execute([
+                    'id_employe' => $id_employe,
+                    'date_pointage' => $dateStr,
+                    'statut' => $status
+                ]);
+            }
+
+            $currentDate->modify('+1 day');
+        }
+        
+        return true;
+    }
 }

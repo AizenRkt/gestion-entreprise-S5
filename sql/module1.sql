@@ -385,7 +385,7 @@ CREATE TABLE demande_conge (
 CREATE TABLE validation_conge (
     id_validation_conge INT AUTO_INCREMENT PRIMARY KEY,
     id_demande_conge INT NOT NULL,
-    statut ENUM('valider', 'refuser'),
+    statut ENUM('valide', 'refuse') NOT NULL,
     date_validation DATE,
     FOREIGN KEY (id_demande_conge) REFERENCES demande_conge(id_demande_conge)
 );
@@ -459,3 +459,122 @@ CREATE TABLE validation_heure_sup (
     date_validation DATE NOT NULL,
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
+
+--pointage
+CREATE TABLE statut_pointage (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    heure TIME,
+    remarque VARCHAR(255),
+    tolerance INT,
+    jour INT CHECK (jour BETWEEN 1 AND 7)  -- 1 = lundi, 7 = dimanche
+);
+
+CREATE TABLE checkin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    datetime_checkin DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE checkout (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    datetime_checkout DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+
+CREATE TABLE pointage (
+    id_pointage INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_checkin INT,
+    id_checkout INT,
+    retard_min INT,
+    duree_work TIME,
+    date_pointage DATE NOT NULL,
+    statut VARCHAR(50),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
+    FOREIGN KEY (id_checkin) REFERENCES checkin(id),
+    FOREIGN KEY (id_checkout) REFERENCES checkout(id),
+    UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
+);
+
+--view
+
+CREATE OR REPLACE VIEW view_absence_details AS
+SELECT 
+    a.id_absence,
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    ta.nom AS type_absence,
+    a.date_debut AS absence_date_debut,
+    a.date_fin AS absence_date_fin,
+    da.type_documentation,
+    da.motif,
+    da.date_documentation,
+    CASE 
+        WHEN v.id_documentation_absence IS NOT NULL THEN 'Validé'
+        WHEN v.id_documentation_absence IS NULL AND da.id_documentation_absence IS NOT NULL THEN 'En attente'
+        ELSE 'Archivé'
+    END AS validation_status
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+JOIN 
+    type_absence ta ON a.id_type_absence = ta.id_type_absence
+JOIN 
+    documentation_absence da ON e.id_employe = da.id_employe
+LEFT JOIN 
+    validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;
+
+CREATE OR REPLACE VIEW view_heure_sup_details AS
+SELECT 
+    d.id_demande_heure_sup,
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    d.date_demande,
+    dh.heure_debut,
+    dh.heure_fin,
+    dh.date_debut AS date_heure_debut,
+    dh.date_fin AS date_heure_fin,
+    CASE 
+        WHEN v.statut = 'valide' THEN 'Validé'
+        WHEN v.statut = 'refuse' THEN 'Refusé'
+        ELSE 'En attente'
+    END AS validation_statut
+FROM 
+    demande_heure_sup d
+JOIN 
+    employe e ON d.id_employe = e.id_employe
+JOIN 
+    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
+LEFT JOIN 
+    validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
+
+
+CREATE OR REPLACE VIEW view_conge_details AS
+SELECT 
+    d.id_demande_conge,
+    e.id_employe,
+    e.nom AS employe_nom,
+    e.prenom AS employe_prenom,
+    d.date_debut,
+    d.date_fin,
+    d.nb_jours,
+    t.nom AS type_conge_nom,
+    CASE 
+        WHEN v.statut = 'valide' THEN 'Validé'
+        WHEN v.statut = 'refuse' THEN 'Refusé'
+        ELSE 'En attente'
+    END AS validation_statut
+FROM 
+    demande_conge d
+JOIN 
+    employe e ON d.id_employe = e.id_employe
+JOIN 
+    type_conge t ON d.id_type_conge = t.id_type_conge
+LEFT JOIN 
+    validation_conge v ON d.id_demande_conge = v.id_demande_conge;

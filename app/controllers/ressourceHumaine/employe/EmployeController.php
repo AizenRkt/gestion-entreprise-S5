@@ -7,11 +7,37 @@ use PDO;
 class EmployeController {
     public function listEmployes() {
         $model = new EmployeModel();
-        $employes = $model->getAllEmployes();
-        $postes = $model->getAllPostes(); // Récupérer les postes
+        $filters = [];
+        
+        if (Flight::request()->method == 'POST') {
+            $data = Flight::request()->data;
+            if (!empty($data['genre'])) {
+                $filters['genre'] = $data['genre'];
+            }
+            if (!empty($data['date_debut'])) {
+                $filters['date_debut'] = $data['date_debut'];
+            }
+            if (!empty($data['date_fin'])) {
+                $filters['date_fin'] = $data['date_fin'];
+            }
+            if (!empty($data['id_dept'])) {
+                $filters['id_dept'] = $data['id_dept'];
+            }
+            if (!empty($data['id_service'])) {
+                $filters['id_service'] = $data['id_service'];
+            }
+        }
+        
+        $employes = $model->getAllEmployes($filters);
+        $postes = $model->getAllPostes();
+        $departements = $model->getAllDepartements();
+        $services = $model->getAllServices();
+        
         Flight::render('ressourceHumaine/back/employe/listemploye', [
             'employes' => $employes,
-            'postes' => $postes // Passer les postes à la vue
+            'postes' => $postes,
+            'departements' => $departements,
+            'services' => $services
         ]);
     }
 

@@ -43,6 +43,7 @@ CREATE TABLE pointage (
     retard_min INT,
     duree_work TIME,
     date_pointage DATE NOT NULL,
+    statut VARCHAR(50),
     FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
     FOREIGN KEY (id_checkin) REFERENCES checkin(id),
     FOREIGN KEY (id_checkout) REFERENCES checkout(id),
@@ -55,10 +56,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
 ('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
-('08:00:00', 'Heure normale', 10, 6);  -- Samedi
+('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
-
-INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
-('14:30:00', 'Heure normale', 10, 7); 
 
 

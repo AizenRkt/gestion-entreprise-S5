@@ -20,6 +20,7 @@
 
 <body>
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/initTheme.js"></script>
+
 <div id="app">
         <?= Flight::menuBackOffice() ?>
         <div id="main">
@@ -31,6 +32,59 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <!-- Formulaire de filtrage -->
+                        <form method="post" action="">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Genre</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="genre[]" value="M" id="genreM">
+                                        <label class="form-check-label" for="genreM">Masculin</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="genre[]" value="F" id="genreF">
+                                        <label class="form-check-label" for="genreF">Féminin</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Date d'embauche début</label>
+                                    <input type="date" class="form-control" name="date_debut">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Date d'embauche fin</label>
+                                    <input type="date" class="form-control" name="date_fin">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Département</label>
+                                    <select class="form-select" name="id_dept">
+                                        <option value="">Tous</option>
+                                        <?php if (isset($departements) && is_array($departements)): ?>
+                                            <?php foreach ($departements as $dept): ?>
+                                                <option value="<?= $dept['id_dept'] ?>"><?= htmlspecialchars($dept['nom']) ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Service</label>
+                                    <select class="form-select" name="id_service">
+                                        <option value="">Tous</option>
+                                        <?php if (isset($services) && is_array($services)): ?>
+                                            <?php foreach ($services as $serv): ?>
+                                                <option value="<?= $serv['id_service'] ?>"><?= htmlspecialchars($serv['nom']) ?></option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary me-2">Filtrer</button>
+                                    <a href="" class="btn btn-secondary">Réinitialiser</a>
+                                </div>
+                            </div>
+                        </form>
+                        <hr>
                         <div class="table-responsive">
                             <table class="table" id="table1">
                                 <thead>
@@ -39,6 +93,8 @@
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Genre</th>
+                                        <th>Département</th>
+                                        <th>Service</th>
                                         <th>Poste</th>
                                         <th>Date d'embauche</th>
                                         <th>Status</th>
@@ -53,6 +109,8 @@
                                                 <td><?= htmlspecialchars($emp['email']) ?></td>
                                                 <td><?= htmlspecialchars($emp['telephone']) ?></td>
                                                 <td><?= htmlspecialchars($emp['genre']) ?></td>
+                                                <td><?= htmlspecialchars($emp['dept_nom']) ?></td>
+                                                <td><?= htmlspecialchars($emp['service_nom']) ?></td>
                                                 <td><?= htmlspecialchars($emp['poste_titre']) ?></td>
                                                 <td><?= htmlspecialchars($emp['date_embauche']) ?></td>
                                                 <td>

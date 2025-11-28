@@ -32,13 +32,13 @@
 
                     <form action="<?= Flight::base() ?>/auth/login" method="post">
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="text" name="username" class="form-control form-control-xl" placeholder="Username" required value="dj.rajojo">
+                            <input type="text" name="username" class="form-control form-control-xl" placeholder="Username" required value="mamy.ravato">
                             <div class="form-control-icon">
                                 <i class="bi bi-person"></i>
                             </div>
                         </div>
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="password" name="password" class="form-control form-control-xl" value="123" placeholder="Password" required >
+                            <input type="password" name="password" class="form-control form-control-xl" placeholder="Password" required value="123">
                             <div class="form-control-icon">
                                 <i class="bi bi-shield-lock"></i>
                             </div>

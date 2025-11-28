@@ -39,7 +39,7 @@
                                         <th>Heure d'arrivée</th>
                                         <th>Heure de départ</th>
                                         <th>Durée</th>
-                                        <th>Retard (min)</th>
+                                        <th>Statut</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -54,154 +54,172 @@
                                                 <td><?= htmlspecialchars($p['duree_work'] ?? '') ?></td>
                                                 <td>
                                                     <?php 
-                                                        $duree_work = $p['duree_work'] ?? '';
-                                                        $retard = (int)($p['retard_min'] ?? 0); 
-                                                    ?>
-                                                    <?php if ($duree_work === '00:00:00'): ?>
-                                                        <span class="badge bg-danger">Absent</span>
-                                                    <?php else: ?>
-                                                        <span class="badge <?= $retard > 0 ? 'bg-secondary' : 'bg-success' ?>">
-                                                            <?= $retard ?> min
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-sm btn-primary edit-pointage" data-id="<?= htmlspecialchars($p['id_pointage']) ?>" data-checkin="<?= htmlspecialchars($p['datetime_checkin'] ?? '') ?>" data-checkout="<?= htmlspecialchars($p['datetime_checkout'] ?? '') ?>">Modifier</button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="7">Aucun pointage trouvé.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+                                                        $statut = $p['statut'] ?? '';
+                                                        $badgeClass = 'bg-info';
+                                                        $displayText = $statut;
 
-            <!-- Modal d'édition unique pour checkin/checkout -->
-            <div class="modal fade" id="editPointageModal" tabindex="-1" aria-labelledby="editPointageLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editPointageLabel">Modifier pointage</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form id="editPointageForm">
-                            <div class="modal-body">
-                                <input type="hidden" id="ep_id_pointage" name="id_pointage" value="">
-                                <div class="mb-3">
-                                    <label class="form-label">Arrivée (checkin)</label>
-                                    <input type="datetime-local" id="ep_datetime_checkin" name="datetime_checkin" class="form-control" value="">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Départ (checkout)</label>
-                                    <input type="datetime-local" id="ep_datetime_checkout" name="datetime_checkout" class="form-control" value="">
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                <button type="submit" class="btn btn-primary">Enregistrer</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>    
-</body>
-    <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
-
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
-    <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
-
-    <script>
-    (function($){
-        // Helper to convert SQL DATETIME to an <input type="datetime-local"> value
-        function toInputDatetime(sqlDt) {
-            if (!sqlDt) return '';
-            return sqlDt.replace(' ', 'T').slice(0,16);
-        }
-
-        // Helper to format SQL DATETIME to a HH:mm:ss display string
-        function toDisplayTime(sqlDt) {
-            if (!sqlDt) return '';
-            try {
-                // Using Date object is safer for parsing and formatting
-                return new Date(sqlDt).toLocaleTimeString('fr-FR', {
-                    hour: '2-digit', minute: '2-digit', second: '2-digit'
-                });
-            } catch(e) {
-                // Fallback for older browsers or unexpected formats
-                return sqlDt.split(' ')[1] || '';
-            }
-        }
-
-        $(document).on('click', '.edit-pointage', function(){
-            var id = $(this).data('id');
-            var checkin = $(this).data('checkin') || '';
-            var checkout = $(this).data('checkout') || '';
-            // store the clicked button for later DOM update
-            $('#editPointageModal').data('rowBtn', $(this));
-            $('#ep_id_pointage').val(id);
-            $('#ep_datetime_checkin').val(toInputDatetime(checkin));
-            $('#ep_datetime_checkout').val(toInputDatetime(checkout));
-            $('#editPointageModal').modal('show');
-        });
-
-        $('#editPointageForm').on('submit', function(e){
-            e.preventDefault();
-            var data = {
-                id_pointage: $('#ep_id_pointage').val(),
-                datetime_checkin: $('#ep_datetime_checkin').val(),
-                datetime_checkout: $('#ep_datetime_checkout').val()
-            };
-            if (data.datetime_checkin) data.datetime_checkin = data.datetime_checkin.replace('T',' ') + (data.datetime_checkin.length===16?':00':'');
-            if (data.datetime_checkout) data.datetime_checkout = data.datetime_checkout.replace('T',' ') + (data.datetime_checkout.length===16?':00':'');
-
-            $.post('<?= Flight::base() ?>/pointage/update', data, function(resp){
-                if (resp && resp.success) {
-                    var updated = resp.updated || null;
-                    var $btn = $('#editPointageModal').data('rowBtn');
-                    if ($btn && updated) {
-                        var $tr = $btn.closest('tr');
-                        // Update table cells with correct indices
-                        $tr.find('td').eq(2).text(toDisplayTime(updated.datetime_checkin));
-                        $tr.find('td').eq(3).text(toDisplayTime(updated.datetime_checkout));
-                        $tr.find('td').eq(4).text(updated.duree_work || '');
-                        
-                        // Update retard with a badge
-                        var retardCell = $tr.find('td').eq(5);
-                        if (updated.duree_work === '00:00:00') {
-                            retardCell.html('<span class="badge bg-danger">Absent</span>');
-                        } else {
-                            var retard = (updated.retard_min !== null && updated.retard_min !== undefined) ? parseInt(updated.retard_min, 10) : 0;
-                            var badgeClass = retard > 0 ? 'bg-secondary' : 'bg-success';
-                            var badgeHtml = `<span class="badge ${badgeClass}">${retard} min</span>`;
-                            retardCell.html(badgeHtml);
-                        }
-
-                        // Also update the button's data attributes for the next edit
-                        $btn.data('checkin', updated.datetime_checkin || '');
-                        $btn.data('checkout', updated.datetime_checkout || '');
-                    }
-                    $('#editPointageModal').modal('hide');
-                } else {
-                    alert((resp && resp.message) ? resp.message : 'Erreur lors de la mise à jour');
-                }
-            }, 'json').fail(function(){
-                alert('Erreur lors de la requête');
-            });
-        });
-
-    })(jQuery);
+                                                        if ($statut === 'Absent') {
+                                                            $badgeClass = 'bg-danger';
+                                                        } elseif ($statut === 'Retard') {
+                                                            $badgeClass = 'bg-secondary';
+                                                            $displayText .= ' (' . ($p['retard_min'] ?? 0) . ' min)';
+                                                                                                                } elseif ($statut === 'A l\'heure') {
+                                                                                                                    $badgeClass = 'bg-success';
+                                                                                                                } elseif ($statut === 'Absence justifiée') {
+                                                                                                                    $badgeClass = 'bg-warning';
+                                                                                                                } elseif ($statut === 'Congé') {
+                                                                                                                    $badgeClass = 'bg-info';
+                                                                                                                }
+                                                                                                            ?>
+                                                                                                            <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($displayText) ?></span>
+                                                                                                        </td>
+                                                                                                        <td>
+                                                                                                            <button type="button" class="btn btn-sm btn-primary edit-pointage" data-id="<?= htmlspecialchars($p['id_pointage']) ?>" data-checkin="<?= htmlspecialchars($p['datetime_checkin'] ?? '') ?>" data-checkout="<?= htmlspecialchars($p['datetime_checkout'] ?? '') ?>">Modifier</button>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                <?php endforeach; ?>
+                                                                                            <?php else: ?>
+                                                                                                <tr>
+                                                                                                    <td colspan="7">Aucun pointage trouvé.</td>
+                                                                                                </tr>
+                                                                                            <?php endif; ?>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                            </div>
+                                                                        </section>
+                                                        
+                                                                    <!-- Modal d'édition unique pour checkin/checkout -->
+                                                                    <div class="modal fade" id="editPointageModal" tabindex="-1" aria-labelledby="editPointageLabel" aria-hidden="true">
+                                                                        <div class="modal-dialog">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title" id="editPointageLabel">Modifier pointage</h5>
+                                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                </div>
+                                                                                <form id="editPointageForm">
+                                                                                    <div class="modal-body">
+                                                                                        <input type="hidden" id="ep_id_pointage" name="id_pointage" value="">
+                                                                                        <div class="mb-3">
+                                                                                            <label class="form-label">Arrivée (checkin)</label>
+                                                                                            <input type="datetime-local" id="ep_datetime_checkin" name="datetime_checkin" class="form-control" value="">
+                                                                                        </div>
+                                                                                        <div class="mb-3">
+                                                                                            <label class="form-label">Départ (checkout)</label>
+                                                                                            <input type="datetime-local" id="ep_datetime_checkout" name="datetime_checkout" class="form-control" value="">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="modal-footer">
+                                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                                                    </div>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>    
+                                                        </body>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
+                                                        
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
+                                                            <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
+                                                        
+                                                            <script>
+                                                            (function($){
+                                                                // Helper to convert SQL DATETIME to an <input type="datetime-local"> value
+                                                                function toInputDatetime(sqlDt) {
+                                                                    if (!sqlDt) return '';
+                                                                    return sqlDt.replace(' ', 'T').slice(0,16);
+                                                                }
+                                                        
+                                                                // Helper to format SQL DATETIME to a HH:mm:ss display string
+                                                                function toDisplayTime(sqlDt) {
+                                                                    if (!sqlDt) return '';
+                                                                    try {
+                                                                        // Using Date object is safer for parsing and formatting
+                                                                        return new Date(sqlDt).toLocaleTimeString('fr-FR', {
+                                                                            hour: '2-digit', minute: '2-digit', second: '2-digit'
+                                                                        });
+                                                                    } catch(e) {
+                                                                        // Fallback for older browsers or unexpected formats
+                                                                        return sqlDt.split(' ')[1] || '';
+                                                                    }
+                                                                }
+                                                        
+                                                                $(document).on('click', '.edit-pointage', function(){
+                                                                    var id = $(this).data('id');
+                                                                    var checkin = $(this).data('checkin') || '';
+                                                                    var checkout = $(this).data('checkout') || '';
+                                                                    // store the clicked button for later DOM update
+                                                                    $('#editPointageModal').data('rowBtn', $(this));
+                                                                    $('#ep_id_pointage').val(id);
+                                                                    $('#ep_datetime_checkin').val(toInputDatetime(checkin));
+                                                                    $('#ep_datetime_checkout').val(toInputDatetime(checkout));
+                                                                    $('#editPointageModal').modal('show');
+                                                                });
+                                                        
+                                                                $('#editPointageForm').on('submit', function(e){
+                                                                    e.preventDefault();
+                                                                    var data = {
+                                                                        id_pointage: $('#ep_id_pointage').val(),
+                                                                        datetime_checkin: $('#ep_datetime_checkin').val(),
+                                                                        datetime_checkout: $('#ep_datetime_checkout').val()
+                                                                    };
+                                                                    if (data.datetime_checkin) data.datetime_checkin = data.datetime_checkin.replace('T',' ') + (data.datetime_checkin.length===16?':00':'');
+                                                                    if (data.datetime_checkout) data.datetime_checkout = data.datetime_checkout.replace('T',' ') + (data.datetime_checkout.length===16?':00':'');
+                                                        
+                                                                    $.post('<?= Flight::base() ?>/pointage/update', data, function(resp){
+                                                                        if (resp && resp.success) {
+                                                                            var updated = resp.updated || null;
+                                                                            var $btn = $('#editPointageModal').data('rowBtn');
+                                                                            if ($btn && updated) {
+                                                                                var $tr = $btn.closest('tr');
+                                                                                // Update table cells with correct indices
+                                                                                $tr.find('td').eq(2).text(toDisplayTime(updated.datetime_checkin));
+                                                                                $tr.find('td').eq(3).text(toDisplayTime(updated.datetime_checkout));
+                                                                                $tr.find('td').eq(4).text(updated.duree_work || '');
+                                                                                
+                                                                                // Update status with a badge
+                                                                                var statusCell = $tr.find('td').eq(5);
+                                                                                var statut = updated.statut || '';
+                                                                                var badgeClass = 'bg-info';
+                                                                                var displayText = statut;
+                                                        
+                                                                                if (statut === 'Absent') {
+                                                                                    badgeClass = 'bg-danger';
+                                                                                } else if (statut === 'Retard') {
+                                                                                    badgeClass = 'bg-secondary';
+                                                                                    displayText += ' (' + (updated.retard_min || 0) + ' min)';
+                                                                                } else if (statut === 'A l\'heure') {
+                                                                                    badgeClass = 'bg-success';
+                                                                                } else if (statut === 'Absence justifiée') {
+                                                                                    badgeClass = 'bg-primary';
+                                                                                } else if (statut === 'Congé') {
+                                                                                    badgeClass = 'bg-info';
+                                                                                }
+                                                                                
+                                                                                statusCell.html(`<span class="badge ${badgeClass}">${displayText}</span>`);
+                                                        
+                                                                                // Also update the button's data attributes for the next edit
+                                                                                $btn.data('checkin', updated.datetime_checkin || '');
+                                                                                $btn.data('checkout', updated.datetime_checkout || '');
+                                                                            }
+                                                                            $('#editPointageModal').modal('hide');
+                                                                        } else {
+                                                                            alert((resp && resp.message) ? resp.message : 'Erreur lors de la mise à jour');
+                                                                        }
+                                                                    }, 'json').fail(function(){
+                                                                        alert('Erreur lors de la requête');
+                                                                    });
+                                                                });
+                                                        
+                                                            })(jQuery);
     </script>
 
 </html>

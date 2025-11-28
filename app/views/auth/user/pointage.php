@@ -144,12 +144,24 @@
                     
                     const rows = result.data.map(item => {
                         let statusBadge;
-                        if (item.duree_work === '00:00:00') {
-                            statusBadge = '<span class="badge bg-danger">Absent</span>';
-                        } else if (item.retard_min > 0) {
-                            statusBadge = `<span class="badge bg-secondary">${item.retard_min} min de retard</span>`;
-                        } else {
-                            statusBadge = '<span class="badge bg-success">À l\'heure</span>';
+                        switch (item.statut) {
+                            case 'Absent':
+                                statusBadge = '<span class="badge bg-danger">Absent</span>';
+                                break;
+                            case 'Retard':
+                                statusBadge = `<span class="badge bg-secondary">Retard (${item.retard_min} min)</span>`;
+                                break;
+                            case 'A l\'heure':
+                                statusBadge = '<span class="badge bg-success">À l\'heure</span>';
+                                break;
+                            case 'Absence justifiée':
+                                statusBadge = '<span class="badge bg-primary">Absence justifiée</span>';
+                                break;
+                            case 'Congé':
+                                statusBadge = '<span class="badge bg-info">Congé</span>';
+                                break;
+                            default:
+                                statusBadge = `<span class="badge bg-info">${item.statut || 'En cours'}</span>`;
                         }
 
                         return [
@@ -171,7 +183,7 @@
 
             async function handlePointage(action) {
                 try {
-                    const response = await fetch(`<?= Flight::base() ?>/backOffice/user/${action}`);
+                    const response = await fetch(`<?= Flight::base() ?>/backOffice/user/pointage/${action}`);
                     const data = await response.json();
 
                     if (data.success) {

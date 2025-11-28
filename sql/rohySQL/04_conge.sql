@@ -35,7 +35,7 @@ CREATE TABLE demande_conge (
 CREATE TABLE validation_conge (
     id_validation_conge INT AUTO_INCREMENT PRIMARY KEY,
     id_demande_conge INT NOT NULL,
-    statut ENUM('valider', 'refuser'),
+    statut ENUM('valide', 'refuse') NOT NULL,
     date_validation DATE,
     FOREIGN KEY (id_demande_conge) REFERENCES demande_conge(id_demande_conge)
 );
@@ -49,13 +49,14 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 
 -- Inserting leave requests
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2023-11-01', '2023-11-10', 10),  -- Paid leave request
-(2, 2, '2023-11-15', '2023-11-20', 5),  -- Unpaid leave request
-(3, 3, '2023-12-01', '2023-12-05', 5);  -- Sick leave request
+(1, 1, '2026-01-01', '2026-01-10', 10),  -- Paid leave request
+(2, 2, '2026-01-15', '2026-01-20', 5),  -- Unpaid leave request
+(3, 3, '2026-01-23', '2026-01-29', 5);  -- Sick leave request
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
-(1, 'valider', '2023-10-28');  -- Approved leave
+(1, 'valide', '2023-10-28'),  -- Approved leave
+(2, 'refuse', '2023-10-28');  -- Approved leave
 
 
 CREATE OR REPLACE VIEW view_conge_details AS
@@ -69,7 +70,8 @@ SELECT
     d.nb_jours,
     t.nom AS type_conge_nom,
     CASE 
-        WHEN v.id_demande_conge IS NOT NULL THEN 'Validé'
+        WHEN v.statut = 'valide' THEN 'Validé'
+        WHEN v.statut = 'refuse' THEN 'Refusé'
         ELSE 'En attente'
     END AS validation_statut
 FROM 

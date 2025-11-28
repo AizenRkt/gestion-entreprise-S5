@@ -85,11 +85,11 @@
                                                     </td>
                                                     <td class="action-buttons">
                                                         <!-- Buttons for validating and rejecting absence -->
-                                                        <a href="<?= Flight::base() ?>/absence/valider?id_absence=<?= $absence['id_absence'] ?>"
-                                                            class="btn btn-sm btn-success validate-btn">
+                                                        <button type="button" class="btn btn-sm btn-success validate-btn"
+                                                            data-id="<?= $absence['id_absence'] ?>">
                                                             Valider
-                                                        </a>
-                                                        <a href="<?= Flight::base() ?>/absence/refuser?id_absence=<?= $absence['id_absence'] ?>"
+                                                        </button>
+                                                        <a href="<?= Flight::base() ?>/backOffice/absence/refuser?id_absence=<?= $absence['id_absence'] ?>"
                                                             class="btn btn-sm btn-danger refuse-btn">
                                                             Refuser
                                                         </a>
@@ -98,7 +98,7 @@
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <tr>
-                                                <td colspan="8">Aucune absence trouvée.</td>
+                                                <td colspan="9">Aucune absence trouvée.</td>
                                             </tr>
                                         <?php endif; ?>
                                     </tbody>
@@ -108,6 +108,34 @@
                     </div>
                 </section>
 
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de validation -->
+    <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="validationModalLabel">Valider l'absence et convertir en congé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="validationForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="validation_id_absence" name="id_absence">
+                        <div id="soldeInfo" class="mb-3" style="display:none;">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                        <div class="mb-3">
+                            <label for="validation_date" class="form-label">Date de validation</label>
+                            <input type="date" class="form-control" id="validation_date" name="date_validation" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" id="validationSubmitBtn" class="btn btn-primary">Valider et convertir</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -123,20 +151,92 @@
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
     
     <script>
+    (function($){
+        // Helper to get current date as YYYY-MM-DD
+        function getCurrentDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // --- Validation Modal ---
+        $(document).on('click', 'button.validate-btn', function(){
+            var id = $(this).data('id');
+            $('#validationModal').data('rowBtn', $(this));
+            $('#validation_id_absence').val(id);
+            $('#validation_date').val(getCurrentDate());
+            // fetch solde info before showing modal
+            $('#soldeInfo').hide().html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>').show();
+            $('#validationSubmitBtn').prop('disabled', true);
+
+            $.get('<?= Flight::base() ?>/api/absence/solde', { id: id }, function(resp){
+                if (resp && resp.success) {
+                    var d = resp.data;
+                    var s = d.solde;
+                    var displayStart = s.period_start || '';
+                    var html = '<p><strong>Congés acquis (période ' + displayStart + ' - ' + s.period_end + '):</strong> ' + s.accrued + ' jours</p>';
+                    html += '<p><strong>Congés pris sur la période:</strong> ' + s.taken + ' jours</p>';
+                    html += '<p><strong>Solde disponible:</strong> ' + s.balance + ' jours</p>';
+                    html += '<hr>';
+                    html += '<p><strong>Jours d\'absence:</strong> ' + d.days + ' jour(s)</p>';
+                    if (d.canValidate) {
+                        html += '<p class="text-success"><strong>Solde suffisant. La conversion en congé est possible.</strong></p>';
+                        $('#validationSubmitBtn').prop('disabled', false);
+                    } else {
+                        html += '<p class="text-danger"><strong>Solde insuffisant — Conversion en congé impossible.</strong></p>';
+                        $('#validationSubmitBtn').prop('disabled', true);
+                    }
+                    $('#soldeInfo').html(html);
+                } else {
+                    $('#soldeInfo').html('<p class="text-danger">' + ((resp && resp.message) ? resp.message : 'Impossible de récupérer le solde.') + '</p>');
+                }
+                $('#validationModal').modal('show');
+            }, 'json').fail(function(){
+                $('#soldeInfo').html('<p class="text-danger">Erreur de communication lors de la récupération du solde.</p>');
+                $('#validationModal').modal('show');
+            });
+        });
+        
+        $('#validationForm').on('submit', function(e){
+            e.preventDefault();
+            var data = {
+                id_absence: $('#validation_id_absence').val(),
+                date_validation: $('#validation_date').val()
+            };
+            var $btn = $('#validationModal').data('rowBtn');
+
+            $.post('<?= Flight::base() ?>/backOffice/absence/valider', data, function(resp){
+                if (resp && resp.success) {
+                    var $tr = $btn.closest('tr');
+                    $tr.find('td').eq(7).html('<span class="badge bg-primary">Congé</span>'); // Statut
+                    $btn.closest('.action-buttons').find('.refuse-btn').hide();
+                    $btn.hide();
+                    $('#validationModal').modal('hide');
+                } else {
+                    alert((resp && resp.message) ? resp.message : 'Erreur lors de la validation.');
+                }
+            }, 'json').fail(function(){
+                alert('Erreur de communication avec le serveur.');
+            });
+        });
+
         $(document).ready(function() {
             // Hide action buttons based on validation status
-            $('tr').each(function() {
-                var statusCell = $(this).find('td:eq(7)'); // Adjust index if necessary, 7 is for 'Statut'
+            $('#table1 tbody tr').each(function() {
+                var statusCell = $(this).find('td:eq(7)'); 
                 var actionButtons = $(this).find('.action-buttons');
 
                 if (actionButtons.length > 0 && statusCell.length > 0) {
                     var status = statusCell.text().trim();
-                    if (status === 'Validé') {
-                        actionButtons.hide(); // Hide buttons if status is Validé
+                    if (status !== 'En attente') {
+                        actionButtons.hide(); // Hide buttons if status is not 'En attente'
                     }
                 }
             });
         });
+    })(jQuery);
     </script>
 </body>
 

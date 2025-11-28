@@ -38,20 +38,48 @@ Class EmployeModel {
         return $id_employe;
     }
 
-    public static function getAllEmployes() {
+    public static function getAllEmployes($filters = []) {
         $db = Flight::db();
         $query = "
-            SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste
+            SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste, s.nom AS service_nom, d.nom AS dept_nom
             FROM employe e
-            JOIN employe_statut es ON e.id_employe = es.id_employe
-            JOIN poste p ON es.id_poste = p.id_poste
-            WHERE es.date_modification = (
+            LEFT JOIN employe_statut es ON e.id_employe = es.id_employe
+            AND es.date_modification = (
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
             )
+            LEFT JOIN poste p ON es.id_poste = p.id_poste
+            LEFT JOIN service s ON p.id_service = s.id_service
+            LEFT JOIN departement d ON s.id_dept = d.id_dept
         ";
-        $stmt = $db->query($query);
+        
+        $params = [];
+        
+        if (!empty($filters['genre'])) {
+            $placeholders = str_repeat('?,', count($filters['genre']) - 1) . '?';
+            $query .= " AND e.genre IN ($placeholders)";
+            $params = array_merge($params, $filters['genre']);
+        }
+        
+        if (!empty($filters['date_debut']) && !empty($filters['date_fin'])) {
+            $query .= " AND e.date_embauche BETWEEN :date_debut AND :date_fin";
+            $params[':date_debut'] = $filters['date_debut'];
+            $params[':date_fin'] = $filters['date_fin'];
+        }
+        
+        if (!empty($filters['id_dept'])) {
+            $query .= " AND d.id_dept = :id_dept";
+            $params[':id_dept'] = $filters['id_dept'];
+        }
+        
+        if (!empty($filters['id_service'])) {
+            $query .= " AND s.id_service = :id_service";
+            $params[':id_service'] = $filters['id_service'];
+        }
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -86,6 +114,18 @@ Class EmployeModel {
     public static function getAllPostes() {
         $db = Flight::db();
         $stmt = $db->query("SELECT id_poste, titre FROM poste");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getAllDepartements() {
+        $db = Flight::db();
+        $stmt = $db->query("SELECT id_dept, nom FROM departement");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getAllServices() {
+        $db = Flight::db();
+        $stmt = $db->query("SELECT id_service, nom FROM service");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

@@ -2,7 +2,7 @@
 
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/backOffice/user/pointage" class="sidebar-link">
-        <i class="bi bi-person-bounding-box"></i>
+        <i class="bi bi-person-check-fill"></i>
         <span>pointage</span>
     </a>
 </li>
