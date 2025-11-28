@@ -20,7 +20,6 @@ class CongeController
         $conges = $this->congeModel->getAllCongeDetails();
         Flight::render('ressourceHumaine/back/conge/conge', ['conges' => $conges]);
     }
-
     public function showDemandeForm()
     {
         // Vérifier que l'utilisateur est connecté
@@ -31,43 +30,56 @@ class CongeController
 
         $model = new CongeModel();
         $typesConge = $model->getAllTypesConge();
-        $soldeActuel = $model->getSoldeConge($_SESSION['user']['id_employe']);
+        
+        // Vérifier si l'employé a au moins 1 an d'ancienneté
+        $canRequestConge = $model->canRequestConge($_SESSION['user']['id_employe']);
 
         Flight::render('ressourceHumaine/back/conge/demande', [
             'typesConge' => $typesConge,
-            'soldeActuel' => $soldeActuel
+            'canRequestConge' => $canRequestConge
         ]);
     }
-  
+
     private function validateDemande($data)
     {
         $errors = [];
 
         // Vérification type de congé
         if (empty($data['id_type_conge'])) {
-            $errors['id_type_conge'] = "Le type de congé est obligatoire.";
+            $errors[] = "Le type de congé est obligatoire.";
         }
 
         // Vérification date début
         if (empty($data['date_debut'])) {
-            $errors['date_debut'] = "La date de début est obligatoire.";
+            $errors[] = "La date de début est obligatoire.";
         }
 
         // Vérification date fin
         if (empty($data['date_fin'])) {
-            $errors['date_fin'] = "La date de fin est obligatoire.";
+            $errors[] = "La date de fin est obligatoire.";
         }
 
         // Vérification cohérence des dates
         if (!empty($data['date_debut']) && !empty($data['date_fin'])) {
             if (strtotime($data['date_fin']) < strtotime($data['date_debut'])) {
-                $errors['dates'] = "La date de fin doit être après la date de début.";
+                $errors[] = "La date de fin doit être après la date de début.";
+            }
+        }
+
+        // Vérification délai de 15 jours
+        if (!empty($data['date_debut'])) {
+            $dateDebut = new \DateTime($data['date_debut']);
+            $today = new \DateTime();
+            $today->setTime(0, 0, 0);
+            $interval = $today->diff($dateDebut);
+            
+            if ($interval->days < 15 || $interval->invert == 1) {
+                $errors[] = "La demande doit être faite au moins 15 jours avant la date de début.";
             }
         }
 
         return $errors;
     }
-
 
     public function submitDemande()
     {
@@ -82,6 +94,14 @@ class CongeController
             return;
         }
 
+        $model = new CongeModel();
+        
+        // Vérifier si l'employé a au moins 1 an d'ancienneté
+        if (!$model->canRequestConge($_SESSION['user']['id_employe'])) {
+            Flight::json(['success' => false, 'message' => 'Vous ne pouvez pas faire de demande de congé pendant votre première année de contrat.']);
+            return;
+        }
+
         $data = Flight::request()->data;
 
         // Validation des données
@@ -91,13 +111,11 @@ class CongeController
             return;
         }
 
-        $model = new CongeModel();
         $result = $model->createDemandeConge(
             $_SESSION['user']['id_employe'],
             $data['id_type_conge'],
             $data['date_debut'],
-            $data['date_fin'],
-            $data['motif'] ?? ''
+            $data['date_fin']
         );
 
         if ($result['success']) {
@@ -106,6 +124,25 @@ class CongeController
             Flight::json(['success' => false, 'message' => $result['message']]);
         }
     }
+
+    public function calculerJoursOuvrees()
+    {
+        $data = Flight::request()->data;
+        $dateDebut = $data['date_debut'] ?? '';
+        $dateFin = $data['date_fin'] ?? '';
+
+        if (empty($dateDebut) || empty($dateFin)) {
+            Flight::json(['success' => false, 'nbJours' => 0]);
+            return;
+        }
+
+        $model = new CongeModel();
+        $nbJours = $model->calculateWorkingDays($dateDebut, $dateFin);
+        
+        Flight::json(['success' => true, 'nbJours' => $nbJours]);
+    }
+
+
     public function validerConge()
     {
         $data = Flight::request()->data;
