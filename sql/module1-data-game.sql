@@ -293,3 +293,66 @@ INSERT INTO menu_ui (nom, id_service, role) VALUES('menuRH', 8, 'RH');
 INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max_duree_renouvellement, max_nb_renouvellement) VALUES
 ('CDI', NULL, NULL, 0, NULL, NULL),
 ('CDD', 1, 24, 1, 18, 2);
+
+INSERT INTO document_type (nom) VALUES 
+('contrat d''essai'),
+('contrat de travail'),
+('CIN'),
+('certificat de résidence');
+
+INSERT INTO document (
+    id_type_document,
+    id_employe,
+    titre,
+    pathScan,
+    dateUpload,
+    date_expiration
+) VALUES (
+    4,               -- certificat de résidence
+    14,              -- employé id=14
+    'Certificat de résidence',
+    'certificat_residence.jpg',            -- pas de scan pour l’instant
+    CURRENT_DATE,    -- date d’upload = aujourd’hui
+    NULL             -- pas d’expiration
+);
+
+INSERT INTO document_statut (
+    id_document,
+    statut,
+    date_statut,
+    commentaire
+) VALUES (
+    LAST_INSERT_ID(),
+    'valide',
+    CURRENT_DATE,
+    'Document enregistré manuellement'
+);
+
+
+INSERT INTO document (
+    id_type_document,
+    id_employe,
+    titre,
+    pathScan,
+    dateUpload,
+    date_expiration
+) VALUES (
+    3,               -- CIN
+    14,              -- employé id=14
+    'CIN',
+    'CIN.png',            -- pas de scan pour l’instant
+    CURRENT_DATE,    -- date d’upload = aujourd’hui
+    NULL             -- pas d’expiration
+);
+
+INSERT INTO document_statut (
+    id_document,
+    statut,
+    date_statut,
+    commentaire
+) VALUES (
+    LAST_INSERT_ID(),
+    'valide',
+    CURRENT_DATE,
+    'Document enregistré manuellement'
+);

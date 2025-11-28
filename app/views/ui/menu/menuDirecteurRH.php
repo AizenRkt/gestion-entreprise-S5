@@ -90,7 +90,7 @@
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-file-earmark-text-fill"></i>
-                        <span>Contrat d'essaie</span>
+                        <span>Contrat d'essai</span>
                     </a>
                     <ul class="submenu">
                         <li class="submenu-item">
@@ -112,7 +112,7 @@
                             <a href="<?= Flight::base() ?>/contratTravailCrea" class="submenu-link">création</a>
                         </li>
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/" class="submenu-link">listing</a>
+                            <a href="<?= Flight::base() ?>/contratTravailList" class="submenu-link">listing</a>
                         </li>                                                  
                     </ul>
                 </li>

@@ -112,5 +112,7 @@ Class EmployeModel {
         }
     }
 
-
+    public function ficheEmploye($id) {
+        
+    }
 }

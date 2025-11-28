@@ -31,7 +31,6 @@
                         <table class="table" id="tableContrats">
                             <thead>
                                 <tr>
-                                    <th>ID Contrat</th>
                                     <th>Candidat</th>
                                     <th>Date début</th>
                                     <th>Date fin</th>
@@ -103,7 +102,16 @@ $(document).ready(function () {
                 if (data.success && data.data.length > 0) {
                     let rows = [];
                     data.data.forEach(c => {
-                        let peutRenouveler = !(c.statut);
+                        
+                        // si le contrat d'essai a été renouvellé
+                        let statut = c.statut;
+                        let dateFIN = c.fin;
+                        if(c.date_fin_renouvellement != null) {
+                            statut = 'renouveller';
+                            dateFIN = c.date_fin_renouvellement;
+                        }
+                        
+                        let peutRenouveler = !(statut === 'renouveller');
 
                         let actions = `
                             <button class="btn btn-success btn-sm valider-contrat" data-id="${c.id_contrat_essai}">Valider</button>
@@ -112,14 +120,16 @@ $(document).ready(function () {
                                 ${!peutRenouveler ? "disabled" : ""}>
                                 Renouveler
                             </button>
+                                <a href="<?= Flight::base() ?>/public/uploads/data/document/${c.pathPdf}" target="_blank" class="btn btn-info btn-sm" style="margin-top: 5px;">
+                                Voir contrat
+                            </a>
                         `;
-
+                    
                         rows.push([
-                            c.id_contrat_essai,
                             c.nom + ' ' + c.prenom,
                             c.debut,
-                            c.fin,
-                            c.statut || 'En attente',
+                            dateFIN,
+                            statut || 'En attente',
                             actions
                         ]);
                     });

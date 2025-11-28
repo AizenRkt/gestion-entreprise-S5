@@ -334,6 +334,15 @@ CREATE TABLE contrat_travail_renouvellement (
     FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
 );
 
+CREATE TABLE contrat_migration_cdd_cdi(
+    id_migration INT AUTO_INCREMENT PRIMARY KEY,
+    id_cdd INT NOT NULL,
+    id_cdi INT NOT NULL,
+    date_migration DATETIME,
+    FOREIGN KEY (id_cdd) REFERENCES contrat_travail(id_contrat_travail),
+    FOREIGN KEY (id_cdi) REFERENCES contrat_travail(id_contrat_travail)
+);
+
 -- partie document
 CREATE TABLE document_type (
     id_type_document INT AUTO_INCREMENT PRIMARY KEY,

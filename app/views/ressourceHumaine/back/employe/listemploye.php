@@ -64,7 +64,7 @@
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn icon btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-<?= $emp['id_employe'] ?>"><i class="bi bi-pencil"></i></button>
-                                                    <!--<a href="#" class="btn icon btn-danger"><i class="bi bi-x"></i></a>-->
+                                                    <a href="<?= Flight::base() ?>/ficheEmploye?id=<?= $emp['id_employe'] ?>"><button type="button" class="btn icon btn-primary"><i class="bi bi-eye"></i></button></a>
                                                 </td>
                                             </tr>
 

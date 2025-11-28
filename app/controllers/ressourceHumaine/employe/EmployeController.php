@@ -35,4 +35,8 @@ class EmployeController {
             Flight::redirect('/employes');
         }
     }
+
+    public function ficheEmploye() {
+        Flight::render('ressourceHumaine/back/employe/ficheEmploye');
+    }
 }
