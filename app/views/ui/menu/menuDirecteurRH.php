@@ -114,7 +114,7 @@
                             <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">statistiques employes</a>
                         </li>
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">résultat QCM</a>
+                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">Statistique globales</a>
                         </li>
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/competence" class="submenu-link">Cartographie des competences</a>
