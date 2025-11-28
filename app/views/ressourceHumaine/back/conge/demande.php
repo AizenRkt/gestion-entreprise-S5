@@ -134,10 +134,6 @@
                                     <h6><i class="bi bi-calendar-x"></i> Période d'essai</h6>
                                     <p class="mb-0">Aucune demande de congé n'est autorisée pendant la première année de contrat.</p>
                                 </div>
-                                <div class="alert alert-light-info">
-                                    <h6><i class="bi bi-calendar-check"></i> Calcul des jours</h6>
-                                    <p class="mb-0">Les samedis et dimanches ne sont pas comptabilisés dans le calcul.</p>
-                                </div>
                             </div>
                         </div>
                     </div>
