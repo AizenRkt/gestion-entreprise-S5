@@ -18,8 +18,11 @@ class EmployeStatistiqueGlobalController extends Controller
 
     public function statistiques()
     {
-        $annee = Flight::request()->query['annee'] ?? date('Y');
-        $data = $this->model->getStatistiquesGlobales($annee);
+        $month = Flight::request()->query['month'] ?? null;
+        $year = Flight::request()->query['year'] ?? null;
+        if ($month === '') $month = null;
+
+        $data = $this->model->getStatistiquesGlobales($month, $year);
 
         // Préparer les données pour les graphiques
         $chartData = [
@@ -39,7 +42,9 @@ class EmployeStatistiqueGlobalController extends Controller
 
         Flight::render('ressourceHumaine/back/employe/EmployeStatistiqueGlobal', [
             'data' => $data,
-            'chartData' => $chartData
+            'chartData' => $chartData,
+            'selectedMonth' => $month,
+            'selectedYear' => $year
         ]);
     }
 }

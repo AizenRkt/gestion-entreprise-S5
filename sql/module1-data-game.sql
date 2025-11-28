@@ -487,3 +487,26 @@ INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 
+-- Modifications pour tester le filtre de date sur les statistiques
+-- Mise à jour des dates de modification pour diversifier les périodes
+UPDATE employe_statut SET date_modification = '2023-01-15' WHERE id_employe = 1;
+UPDATE employe_statut SET date_modification = '2024-06-20' WHERE id_employe = 2;
+UPDATE employe_statut SET date_modification = '2023-03-10' WHERE id_employe = 3;
+UPDATE employe_statut SET date_modification = '2025-11-01' WHERE id_employe = 4;
+UPDATE employe_statut SET date_modification = '2024-09-05' WHERE id_employe = 5;
+UPDATE employe_statut SET date_modification = '2023-02-28' WHERE id_employe = 6;
+UPDATE employe_statut SET date_modification = '2024-07-12' WHERE id_employe = 7;
+UPDATE employe_statut SET date_modification = '2023-04-18' WHERE id_employe = 8;
+UPDATE employe_statut SET date_modification = '2025-10-22' WHERE id_employe = 9;
+UPDATE employe_statut SET date_modification = '2024-08-30' WHERE id_employe = 10;
+UPDATE employe_statut SET date_modification = '2023-05-14' WHERE id_employe = 11;
+UPDATE employe_statut SET date_modification = '2024-12-03' WHERE id_employe = 12;
+UPDATE employe_statut SET date_modification = '2023-06-25' WHERE id_employe = 13;
+UPDATE employe_statut SET date_modification = '2025-09-17' WHERE id_employe = 14;
+UPDATE employe_statut SET date_modification = '2024-11-08' WHERE id_employe = 15;
+UPDATE employe_statut SET date_modification = '2023-07-09' WHERE id_employe = 16;
+UPDATE employe_statut SET date_modification = '2024-10-19' WHERE id_employe = 17;
+UPDATE employe_statut SET date_modification = '2023-08-21' WHERE id_employe = 18;
+UPDATE employe_statut SET date_modification = '2025-08-13' WHERE id_employe = 19;
+UPDATE employe_statut SET date_modification = '2024-05-27' WHERE id_employe = 20;
+

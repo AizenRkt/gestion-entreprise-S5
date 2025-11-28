@@ -42,6 +42,34 @@
             </div>
 
             <section class="section">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <form method="get" action="">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="month" class="form-label">Mois</label>
+                                    <select name="month" id="month" class="form-control">
+                                        <option value="" <?php echo (!$selectedMonth) ? 'selected' : ''; ?>>Tous</option>
+                                        <?php
+                                        $months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+                                        for ($i = 1; $i <= 12; $i++):
+                                        ?>
+                                        <option value="<?php echo $i; ?>" <?php echo ($selectedMonth == $i) ? 'selected' : ''; ?>><?php echo $months[$i-1]; ?></option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="year" class="form-label">Année</label>
+                                    <input type="number" name="year" id="year" class="form-control" value="<?php echo isset($selectedYear) ? $selectedYear : date('Y'); ?>" min="2000" max="2030">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <a href="?" class="btn btn-secondary me-2">Réinitialiser</a>
+                                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="card">
