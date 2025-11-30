@@ -419,3 +419,13 @@ INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
 (2, 'refuse', '2023-10-28');  -- Approved leave
 
+INSERT INTO jour_ferie (date, description, recurrence) VALUES
+('2025-01-01', 'Nouvel An', 'annuel'),
+('2025-01-01', '10eme anniversaire de lentreprise', 'fixe'),
+('2025-02-08', 'Jour de la République', 'annuel'),
+('2025-04-07', 'Fête de la Liberté', 'annuel'),
+('2025-05-01', 'Fête du Travail', 'annuel'),
+('2025-06-26', 'Fête de lIndépendance', 'annuel'),
+('2025-08-15', 'Assomption', 'annuel'),
+('2025-11-01', 'Toussaint', 'annuel'),
+('2025-12-25', 'Noël', 'annuel');
