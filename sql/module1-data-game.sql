@@ -299,7 +299,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
 ('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
---donne absenece
+-- donne absence
 
 -- partie absence 
 CREATE TABLE type_absence (
@@ -401,7 +401,7 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 
 
 
---donne conge
+-- donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -410,14 +410,189 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 
 -- Inserting leave requests
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2026-01-01', '2026-01-10', 10),  -- Paid leave request
-(2, 2, '2026-01-15', '2026-01-20', 5),  -- Unpaid leave request
-(3, 3, '2026-01-23', '2026-01-29', 5);  -- Sick leave request
+(1, 1, '2025-01-01', '2025-01-10', 10),  -- Paid leave request for 2025
+(2, 2, '2025-02-15', '2025-02-20', 5),  -- Unpaid leave request for 2025
+(3, 3, '2025-03-23', '2025-03-29', 5),  -- Sick leave request for 2025
+(1, 4, '2025-04-01', '2025-04-05', 5),  -- Paid leave for Zo Lalaina
+(1, 5, '2025-05-10', '2025-05-15', 6);  -- Paid leave for Andry George
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
-(1, 'valide', '2023-10-28'),  -- Approved leave
-(2, 'refuse', '2023-10-28');  -- Approved leave
+(1, 'valide', '2024-12-15'),  -- Approved leave for 2025
+(2, 'refuse', '2024-12-16'),  -- Refused leave
+(3, 'valide', '2024-12-17'),  -- Approved leave
+(4, 'valide', '2024-12-18'),  -- Approved leave
+(5, 'valide', '2024-12-19');  -- Approved leave
+
+-- Modifications pour tester le filtre de date sur les statistiques
+-- Mise à jour des dates de modification pour diversifier les périodes
+UPDATE employe_statut SET date_modification = '2023-01-15' WHERE id_employe = 1;
+UPDATE employe_statut SET date_modification = '2024-06-20' WHERE id_employe = 2;
+UPDATE employe_statut SET date_modification = '2023-03-10' WHERE id_employe = 3;
+UPDATE employe_statut SET date_modification = '2025-11-01' WHERE id_employe = 4;
+UPDATE employe_statut SET date_modification = '2024-09-05' WHERE id_employe = 5;
+UPDATE employe_statut SET date_modification = '2023-02-28' WHERE id_employe = 6;
+UPDATE employe_statut SET date_modification = '2024-07-12' WHERE id_employe = 7;
+UPDATE employe_statut SET date_modification = '2023-04-18' WHERE id_employe = 8;
+UPDATE employe_statut SET date_modification = '2025-10-22' WHERE id_employe = 9;
+UPDATE employe_statut SET date_modification = '2024-08-30' WHERE id_employe = 10;
+UPDATE employe_statut SET date_modification = '2023-05-14' WHERE id_employe = 11;
+UPDATE employe_statut SET date_modification = '2024-12-03' WHERE id_employe = 12;
+UPDATE employe_statut SET date_modification = '2023-06-25' WHERE id_employe = 13;
+UPDATE employe_statut SET date_modification = '2025-09-17' WHERE id_employe = 14;
+UPDATE employe_statut SET date_modification = '2024-11-08' WHERE id_employe = 15;
+UPDATE employe_statut SET date_modification = '2023-07-09' WHERE id_employe = 16;
+UPDATE employe_statut SET date_modification = '2024-10-19' WHERE id_employe = 17;
+UPDATE employe_statut SET date_modification = '2023-08-21' WHERE id_employe = 18;
+UPDATE employe_statut SET date_modification = '2025-08-13' WHERE id_employe = 19;
+UPDATE employe_statut SET date_modification = '2024-05-27' WHERE id_employe = 20;
+
+-- Poste: Développeur Backend (id_poste = 2)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(2, 1),  -- Programmation
+(2, 3),  -- Gestion de Projet
+(2, 30); -- Travail en Équipe
+
+-- Poste: Développeur Frontend (id_poste = 3)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(3, 1),   -- Programmation
+(3, 9),   -- Communication
+(3, 30);  -- Travail en Équipe
+
+-- Poste: Chef de Projet IT (id_poste = 4)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(4, 3),   -- Gestion de Projet
+(4, 10),  -- Leadership
+(4, 30);  -- Travail en Équipe
+
+-- Poste: Technicien Support N1 (id_poste = 5)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(5, 2),   -- Administration Systèmes
+(5, 16),  -- Maintenance Industrielle / Informatique
+(5, 17);  -- Support Technique
+
+-- Poste: Administrateur Systèmes (id_poste = 6)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(6, 2),  -- Administration Systèmes
+(6, 5),  -- Cybersécurité
+(6, 10); -- Leadership
+
+-- Poste: Inspecteur Qualité (id_poste = 9)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(9, 8),  -- Contrôle Qualité
+(9, 4),  -- Analyse de Données
+(9, 30); -- Travail en Équipe
+
+-- Poste: Responsable Qualité (id_poste = 10)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(10, 8),  -- Contrôle Qualité
+(10, 10), -- Leadership
+(10, 9);  -- Communication
+
+-- Poste: Ingénieur R&D (id_poste = 11)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(11, 1),  -- Programmation
+(11, 19), -- Innovation & Créativité
+(11, 30); -- Travail en Équipe
+
+-- Poste: Chef de Projet Innovation (id_poste = 12)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(12, 3),  -- Gestion de Projet
+(12, 10), -- Leadership
+(12, 19); -- Innovation & Créativité
+
+-- Poste: Dessinateur Industriel (id_poste = 13)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(13, 7),  -- Conception Mécanique
+(13, 14), -- Rédaction Technique
+(13, 30); -- Travail en Équipe
+
+-- Poste: Ingénieur Conception (id_poste = 14)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(14, 7),  -- Conception Mécanique
+(14, 10), -- Leadership
+(14, 19); -- Innovation & Créativité
+
+-- Poste: Comptable (id_poste = 15)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(15, 12), -- Comptabilité
+(15, 13), -- Analyse Financière
+(15, 30); -- Travail en Équipe
+
+-- Poste: Responsable Formation (id_poste = 20)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(20, 24), -- Gestion des compétences et relations employé
+(20, 25), -- Planification Logistique
+(20, 30); -- Travail en Équipe
+
+
+-- =========================
+-- Assigning competences to employees
+-- =========================
+
+-- Mamy Ravatomanga (id_employe = 1)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(1, 1),  -- Programmation
+(1, 3),  -- Gestion de Projet
+(1, 10), -- Leadership
+(1, 12); -- Comptabilité
+
+-- Andry Rajoelina (id_employe = 2)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(2, 2),  -- Administration Systèmes
+(2, 17), -- Support Technique
+(2, 5),  -- Cybersécurité
+(2, 18); -- Service Client
+
+-- Alice Dupont (id_employe = 3)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(3, 1),  -- Programmation
+(3, 23), -- Planification Stratégique
+(3, 19), -- Marketing Digital
+(3, 24); -- Gestion des Risques
+
+-- Zo Lalaina (id_employe = 4)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(4, 1),  -- Programmation
+(4, 3),  -- Gestion de Projet
+(4, 4),  -- Analyse de Données
+(4, 20); -- Travail en Équipe
+
+-- Andry George (id_employe = 5)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(5, 1),  -- Programmation
+(5, 3),  -- Gestion de Projet
+(5, 10), -- Leadership
+(5, 17); -- Support Technique
+
+
+-- Add a new candidate
+INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
+('Rakoto', 'Jean', 'jean.rakoto@gmail.com', '0321234567', 'M', '1995-07-10');
+
+-- Add the candidate as an employee
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(LAST_INSERT_ID(), 'Rakoto', 'Jean', 'jean.rakoto@gmail.com', '0321234567', 'M', '2025-11-28');
+
+-- Assign the employee to a poste: Développeur Backend (id_poste = 2)
+INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
+(LAST_INSERT_ID(), 2, 1);
+
+-- Assign some competences, but leave one missing
+-- Développeur Backend requires: 1 (Programmation), 3 (Gestion de Projet), 30 (Travail en Équipe)
+-- We give only 1 and 3, missing 30
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(LAST_INSERT_ID(), 1),  -- Programmation
+(LAST_INSERT_ID(), 3);  -- Gestion de Projet
+
+-- Contrats de travail
+INSERT INTO contrat_travail (id_employe, id_type_contrat, debut, fin, salaire_base, date_signature, id_poste) VALUES
+(1, 1, '2020-01-01', NULL, 1500000, '2020-01-01', 17),  -- CDI, pas de fin
+(2, 1, '2018-06-10', NULL, 1200000, '2018-06-10', 18),  -- CDI
+(3, 1, '2020-01-01', NULL, 2000000, '2020-01-01', 2),  -- CDI
+(4, 2, '2025-11-23', '2025-12-23', 800000, '2025-11-23', 2),  -- CDD fin décembre 2025
+(5, 2, '2025-11-23', '2026-01-23', 900000, '2025-11-23', 3),  -- CDD fin janvier 2026
+(6, 2, '2025-11-28', '2025-12-28', 700000, '2025-11-28', 2); -- CDD pour Rakoto Jean
 
 INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-01-01', 'Nouvel An', 'annuel'),

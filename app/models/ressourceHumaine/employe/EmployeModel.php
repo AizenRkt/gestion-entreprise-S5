@@ -35,23 +35,74 @@ Class EmployeModel {
             ':activite' => $activite
         ]);
 
+        if ($id_candidat !== null) {
+            $sql_migrate = "
+                INSERT INTO employe_competence (id_employe, id_competence)
+                SELECT :id_employe, dc.id_item
+                FROM detail_cv dc
+                JOIN cv c ON c.id_cv = dc.id_cv
+                WHERE c.id_candidat = :id_candidat
+                AND dc.type = 'competence'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM employe_competence ec
+                    WHERE ec.id_employe = :id_employe
+                        AND ec.id_competence = dc.id_item
+                )
+            ";
+            $stmt_migrate = $db->prepare($sql_migrate);
+            $stmt_migrate->execute([
+                ':id_employe' => $id_employe,
+                ':id_candidat' => $id_candidat
+            ]);
+        }
+
         return $id_employe;
     }
 
-    public static function getAllEmployes() {
+    public static function getAllEmployes($filters = []) {
         $db = Flight::db();
         $query = "
-            SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste
+            SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste, s.nom AS service_nom, d.nom AS dept_nom, ct.fin AS contrat_fin
             FROM employe e
-            JOIN employe_statut es ON e.id_employe = es.id_employe
-            JOIN poste p ON es.id_poste = p.id_poste
-            WHERE es.date_modification = (
+            LEFT JOIN employe_statut es ON e.id_employe = es.id_employe
+            AND es.date_modification = (
                 SELECT MAX(es2.date_modification)
                 FROM employe_statut es2
                 WHERE es2.id_employe = e.id_employe
             )
+            LEFT JOIN poste p ON es.id_poste = p.id_poste
+            LEFT JOIN service s ON p.id_service = s.id_service
+            LEFT JOIN departement d ON s.id_dept = d.id_dept
+            LEFT JOIN contrat_travail ct ON e.id_employe = ct.id_employe
         ";
-        $stmt = $db->query($query);
+        
+        $params = [];
+        
+        if (!empty($filters['genre'])) {
+            $placeholders = str_repeat('?,', count($filters['genre']) - 1) . '?';
+            $query .= " AND e.genre IN ($placeholders)";
+            $params = array_merge($params, $filters['genre']);
+        }
+        
+        if (!empty($filters['date_debut']) && !empty($filters['date_fin'])) {
+            $query .= " AND e.date_embauche BETWEEN :date_debut AND :date_fin";
+            $params[':date_debut'] = $filters['date_debut'];
+            $params[':date_fin'] = $filters['date_fin'];
+        }
+        
+        if (!empty($filters['id_dept'])) {
+            $query .= " AND d.id_dept = :id_dept";
+            $params[':id_dept'] = $filters['id_dept'];
+        }
+        
+        if (!empty($filters['id_service'])) {
+            $query .= " AND s.id_service = :id_service";
+            $params[':id_service'] = $filters['id_service'];
+        }
+        
+        $stmt = $db->prepare($query);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -89,27 +140,138 @@ Class EmployeModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public static function getAllDepartements() {
+        $db = Flight::db();
+        $stmt = $db->query("SELECT id_dept, nom FROM departement");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getAllServices() {
+        $db = Flight::db();
+        $stmt = $db->query("SELECT id_service, nom FROM service");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getById($id) {
         try {
             $db = Flight::db();
+            
+            // Version simplifiée et plus fiable
             $query = "
-                SELECT e.*, es.activite, es.date_modification, p.titre AS poste_titre, p.id_poste
+                SELECT 
+                    e.id_employe,
+                    e.nom,
+                    e.prenom,
+                    e.email,
+                    e.telephone,
+                    e.genre,
+                    e.date_embauche,
+                    p.titre AS poste_titre,
+                    es.activite
                 FROM employe e
-                JOIN employe_statut es ON e.id_employe = es.id_employe
-                JOIN poste p ON es.id_poste = p.id_poste
-                WHERE es.date_modification = (
-                    SELECT MAX(es2.date_modification)
-                    FROM employe_statut es2
-                    WHERE es2.id_employe = e.id_employe
-                )
-                AND e.id_employe = ?
+                LEFT JOIN employe_statut es ON e.id_employe = es.id_employe
+                LEFT JOIN poste p ON es.id_poste = p.id_poste
+                WHERE e.id_employe = ?
+                ORDER BY es.date_modification DESC
+                LIMIT 1
             ";
+            
             $stmt = $db->prepare($query);
             $stmt->execute([$id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result;
         } catch (\PDOException $e) {
+            error_log("Erreur EmployeModel getById: " . $e->getMessage());
             return null;
         }
+    }
+
+    public static function getCongesNonPris($idEmploye, $annee = null) {
+        $db = Flight::db();
+        $annee = $annee ?? date('Y');
+        
+        // Récupérer les droits annuels depuis type_conge (congé payé = 30 jours)
+        $stmtDroits = $db->prepare("SELECT nb_jours_max FROM type_conge WHERE id_type_conge = 1"); // Congé payé
+        $stmtDroits->execute();
+        $droits = $stmtDroits->fetch(PDO::FETCH_ASSOC);
+        $joursDroits = $droits ? $droits['nb_jours_max'] : 30; // Défaut 30 si pas trouvé
+        
+        // Calculer les jours pris (demandes validées pour congé payé)
+        $stmt = $db->prepare("
+            SELECT COALESCE(SUM(dc.nb_jours), 0) AS jours_pris
+            FROM demande_conge dc
+            JOIN validation_conge vc ON dc.id_demande_conge = vc.id_demande_conge
+            WHERE dc.id_employe = ? AND vc.statut = 'valide' AND dc.id_type_conge = 1 AND YEAR(dc.date_debut) = ?
+        ");
+        $stmt->execute([$idEmploye, $annee]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $joursPris = $result['jours_pris'];
+        
+        return max(0, $joursDroits - $joursPris);
+    }
+
+    public static function getAlertes() {
+        $db = Flight::db();
+        $employes = self::getAllEmployes();
+        $alertes = [];
+
+        foreach ($employes as $emp) {
+            $alerte = [
+                'id_employe' => $emp['id_employe'],
+                'nom' => $emp['nom'],
+                'prenom' => $emp['prenom'],
+                'contrat' => null,
+                'conge' => null,
+                'score' => 0
+            ];
+
+            // Get contract
+            $stmt = $db->prepare("SELECT fin FROM contrat_travail WHERE id_employe = ?");
+            $stmt->execute([$emp['id_employe']]);
+            $contrat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($contrat) {
+                $alerte['contrat'] = $contrat['fin'];
+                $fin = $contrat['fin'];
+                if ($fin === null) {
+                    $alerte['score'] += 0; // CDI low
+                } else {
+                    $diff = (new \DateTime($fin))->diff(new \DateTime());
+                    $jours = $diff->invert ? -$diff->days : $diff->days;
+                    if ($jours <= 0) {
+                        $alerte['score'] += 100;
+                    } elseif ($jours <= 30) {
+                        $alerte['score'] += 50;
+                    } elseif ($jours <= 90) {
+                        $alerte['score'] += 20;
+                    } elseif ($jours <= 180) {
+                        $alerte['score'] += 10;
+                    } else {
+                        $alerte['score'] += 1;
+                    }
+                }
+            }
+
+            // Get conge
+            $joursRestants = self::getCongesNonPris($emp['id_employe']);
+            if ($joursRestants > 0) {
+                $alerte['conge'] = $joursRestants;
+                if ($joursRestants <= 5) {
+                    $alerte['score'] += 50;
+                } else {
+                    $alerte['score'] += 10;
+                }
+            }
+
+            $alertes[] = $alerte;
+        }
+
+        // Sort by score desc
+        usort($alertes, function($a, $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        return $alertes;
     }
 
 

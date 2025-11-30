@@ -27,6 +27,7 @@ class AuthController {
             $_SESSION['user'] = [
                 'id_user' => $user['id_user'],
                 'username' => $user['username'],
+                'id_employe' => $user['id_employe'],
                 'role' => $role,
                 'id_service' => $service['id_service'] ?? null,
                 'nom_service' => $service['nom'] ?? null

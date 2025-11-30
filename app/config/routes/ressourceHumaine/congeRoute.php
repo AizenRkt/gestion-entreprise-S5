@@ -21,3 +21,10 @@ $router->post('/api/conge/update', [$congeController, 'updateCongeDate']);
 // API pour la suppression de congé
 $router->post('/api/conge/delete', [$congeController, 'deleteConge']);
 
+$router->get('/conge/demande', [$congeController, 'showDemandeForm']);
+
+// Route pour soumettre la demande
+$router->post('/conge/demande', [$congeController, 'submitDemande']);
+
+// Route pour calculer les jours ouvrés (optionnel)
+$router->post('/conge/calcul-jours', [$congeController, 'calculerJoursOuvrees']);

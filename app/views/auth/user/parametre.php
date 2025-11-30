@@ -48,12 +48,61 @@
                                 <h5>Informations personnelles</h5>
                             </div>
                             <div class="card-body">
-                                <form id="formCompte" action="<?= Flight::base() ?>/backOffice/user/update" method="POST" enctype="multipart/form-data">
+                                <form id="formCompte" action="<?= Flight::base() ?>/backOffice/user/update" method="POST">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">username</label>
-                                            <input type="text" class="form-control" name="username" value="<?= $_SESSION['user']['username'] ?>" required>
+                                            <label class="form-label">Nom</label>
+                                            <input type="text" class="form-control" name="nom" value="<?= htmlspecialchars($employe['nom'] ?? '') ?>" required>
                                         </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Prénom</label>
+                                            <input type="text" class="form-control" name="prenom" value="<?= htmlspecialchars($employe['prenom'] ?? '') ?>" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($employe['email'] ?? '') ?>" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Téléphone</label>
+                                            <input type="text" class="form-control" name="telephone" value="<?= htmlspecialchars($employe['telephone'] ?? '') ?>">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Username</label>
+                                            <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($_SESSION['user']['username'] ?? '') ?>" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Genre</label>
+                                            <select class="form-select" name="genre">
+                                                <option value="M" <?= ($employe['genre'] ?? '') == 'M' ? 'selected' : '' ?>>Masculin</option>
+                                                <option value="F" <?= ($employe['genre'] ?? '') == 'F' ? 'selected' : '' ?>>Féminin</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Poste</label>
+                                            <input type="text" class="form-control" value="<?= htmlspecialchars($employe['poste_titre'] ?? '') ?>" readonly disabled>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Date d'embauche</label>
+                                            <input type="text" class="form-control" value="<?= htmlspecialchars($employe['date_embauche'] ?? '') ?>" readonly disabled>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle"></i> Mettre à jour
+                                        </button>
+                                        <a href="<?= Flight::base() ?>/backOffice" class="btn btn-secondary">
+                                            <i class="bi bi-arrow-left"></i> Retour
+                                        </a>
                                     </div>
                                 </form>
                             </div>
@@ -64,9 +113,9 @@
                                 <h5 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Zone de danger</h5>
                             </div>
                             <div class="card-body">
-                                <p>vous pouvez descativer votre compte. Cette action ne peut être réversible que par l'admin</p>
+                                <p>Vous pouvez désactiver votre compte. Cette action ne peut être réversible que par l'admin.</p>
                                 <button class="btn btn-outline-danger" id="disableAccount">
-                                    <i class="bi bi-plugin"></i> désactiver mon compte
+                                    <i class="bi bi-plugin"></i> Désactiver mon compte
                                 </button>
                             </div>
                         </div>
@@ -83,25 +132,53 @@
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.js"></script>
 
 <script>
-document.getElementById('btnDeleteAccount').addEventListener('click', function () {
-    if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ?")) {
-        fetch("<?= Flight::base() ?>/backOffice/user/delete", { method: "POST" })
-            .then(() => {
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion de la soumission du formulaire
+    document.getElementById('formCompte').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch("<?= Flight::base() ?>/backOffice/user/update", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
                 Toastify({
-                    text: "Compte supprimé avec succès",
-                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    text: data.message,
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
                     duration: 3000
                 }).showToast();
-                setTimeout(() => window.location.href = "<?= Flight::base() ?>/logout", 1500);
-            })
-            .catch(() => {
+            } else {
                 Toastify({
-                    text: "Erreur lors de la suppression du compte",
+                    text: data.message,
                     backgroundColor: "red",
                     duration: 3000
                 }).showToast();
-            });
-    }
+            }
+        })
+        .catch(error => {
+            Toastify({
+                text: "Erreur lors de la mise à jour",
+                backgroundColor: "red",
+                duration: 3000
+            }).showToast();
+        });
+    });
+
+    // Gestion de la désactivation du compte
+    document.getElementById('disableAccount').addEventListener('click', function() {
+        if (confirm("Êtes-vous sûr de vouloir désactiver votre compte ?")) {
+            // Ici vous pouvez ajouter la logique pour désactiver le compte
+            Toastify({
+                text: "Fonctionnalité de désactivation à implémenter",
+                backgroundColor: "orange",
+                duration: 3000
+            }).showToast();
+        }
+    });
 });
 </script>
 

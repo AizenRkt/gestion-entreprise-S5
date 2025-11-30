@@ -2,6 +2,7 @@
 
 use app\controllers\Controller;
 use app\controllers\ressourceHumaine\AuthController;
+use app\controllers\ressourceHumaine\employe\EmployeController;
 use flight\net\Router;
 
 /** 
@@ -14,6 +15,7 @@ $router->get('/log', [ $Controller, 'log' ]);
 $router->get('/sign', [ $Controller, 'sign' ]);
 
 $AuthController = new AuthController();
+$EmployeController = new EmployeController();
 
 $router->get('/auth/login', [ $AuthController, 'log' ]); // Affiche le formulaire de connexion
 $router->post('/auth/login', [ $AuthController, 'authVerif' ]); // Vérifie la connexion
@@ -23,7 +25,7 @@ $router->get('/auth/sign', [ $AuthController, 'sign' ]); // Affiche le formulair
 $router->post('/auth/sign', [ $AuthController, 'authInscription' ]); // Traite l'inscription
 
 // routes pour les paramètres d'user
-$router->get('/auth/parametre', [ $AuthController, 'authParametre' ]); 
+$router->get('/auth/parametre',  [$EmployeController, 'getUserProfile']); 
  
 
 // deco

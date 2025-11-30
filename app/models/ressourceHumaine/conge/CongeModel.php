@@ -18,7 +18,7 @@ class CongeModel
             $sql = "SELECT * FROM view_conge_details";
             $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (	PDOException $e) {
+        } catch (\PDOException $e) {
             // Gérer l'erreur, par exemple en loggant ou en retournant un tableau vide
             error_log($e->getMessage());
             return [];
@@ -36,12 +36,155 @@ class CongeModel
             $sql = "SELECT * FROM view_conge_details WHERE validation_statut = 'Validé'";
             $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (	PDOException $e) {
+        } catch (\PDOException $e) {
             error_log($e->getMessage());
             return [];
         }
     }
 
+    public function getAllTypesConge()
+    {
+        $db = Flight::db();
+        $stmt = $db->query("SELECT * FROM type_conge WHERE nom != 'admin'");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getSoldeConge($idEmploye)
+    {
+        $db = Flight::db();
+        $currentYear = date('Y');
+
+        $stmt = $db->prepare("
+            SELECT solde_restant 
+            FROM solde_conge 
+            WHERE id_employe = ? AND annee = ?
+        ");
+        $stmt->execute([$idEmploye, $currentYear]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ? $result['solde_restant'] : 0;
+    }
+
+    public function createDemandeConge($idEmploye, $idTypeConge, $dateDebut, $dateFin)
+    {
+        try {
+            $db = Flight::db();
+
+            // Calculer le nombre de jours (excluant les week-ends)
+            $nbJours = $this->calculateWorkingDays($dateDebut, $dateFin);
+
+            // Convertir les dates en format datetime (ajouter l'heure)
+            $dateDebutDatetime = $dateDebut . ' 00:00:00';
+            $dateFinDatetime = $dateFin . ' 23:59:59';
+
+            // Debug: Afficher les données
+            error_log("=== DEBUG DEMANDE CONGE ===");
+            error_log("ID Employe: " . $idEmploye);
+            error_log("ID Type Conge: " . $idTypeConge);
+            error_log("Date Début: " . $dateDebutDatetime);
+            error_log("Date Fin: " . $dateFinDatetime);
+            error_log("Nb Jours: " . $nbJours);
+
+            // Vérifier que le type de congé existe
+            $stmtCheck = $db->prepare("SELECT COUNT(*) as count FROM type_conge WHERE id_type_conge = ?");
+            $stmtCheck->execute([$idTypeConge]);
+            $typeExists = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+            if ($typeExists['count'] == 0) {
+                error_log("ERREUR: Type de congé invalide: " . $idTypeConge);
+                return ['success' => false, 'message' => 'Type de congé invalide'];
+            }
+
+            // Option 1: Insérer sans le motif (si la colonne n'existe pas)
+            $sql = "INSERT INTO demande_conge (id_employe, id_type_conge, date_debut, date_fin, nb_jours) 
+                    VALUES (?, ?, ?, ?, ?)";
+
+            error_log("SQL: " . $sql);
+
+            $stmt = $db->prepare($sql);
+            $success = $stmt->execute([
+                $idEmploye,
+                $idTypeConge,
+                $dateDebutDatetime,
+                $dateFinDatetime,
+                $nbJours
+            ]);
+
+            if ($success) {
+                $lastInsertId = $db->lastInsertId();
+                error_log("SUCCES: Demande créée avec ID: " . $lastInsertId);
+
+
+                return ['success' => true, 'message' => 'Demande de congé soumise avec succès'];
+            } else {
+                $errorInfo = $stmt->errorInfo();
+                error_log("ERREUR SQL: " . print_r($errorInfo, true));
+                return ['success' => false, 'message' => 'Erreur lors de la création de la demande: ' . $errorInfo[2]];
+            }
+
+        } catch (\PDOException $e) {
+            error_log("ERREUR PDO création demande congé: " . $e->getMessage());
+            error_log("Code erreur: " . $e->getCode());
+            return ['success' => false, 'message' => 'Erreur technique: ' . $e->getMessage()];
+        }
+    }
+    public function canRequestConge($idEmploye)
+    {
+        $db = Flight::db();
+
+        $stmt = $db->prepare("
+            SELECT date_embauche 
+            FROM employe 
+            WHERE id_employe = ?
+        ");
+        $stmt->execute([$idEmploye]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$result || empty($result['date_embauche'])) {
+            return false;
+        }
+
+        $dateEmbauche = new \DateTime($result['date_embauche']);
+        $today = new \DateTime();
+        $interval = $dateEmbauche->diff($today);
+
+        // Vérifier si au moins 1 an d'ancienneté
+        return $interval->y >= 1;
+    }
+
+    public function calculateWorkingDays($startDate, $endDate)
+    {
+        $start = new \DateTime($startDate);
+        $end = new \DateTime($endDate);
+
+        // Pour inclure le dernier jour dans le calcul
+        $end->modify('+1 day');
+
+        $interval = new \DateInterval('P1D');
+        $period = new \DatePeriod($start, $interval, $end);
+
+        $workingDays = 0;
+        foreach ($period as $date) {
+            // Exclure les samedis (6) et dimanches (7)
+            $dayOfWeek = $date->format('N');
+            if ($dayOfWeek < 6) {
+                $workingDays++;
+            }
+        }
+
+        return $workingDays;
+    }
+
+    private function updateHistoriqueConge($idEmploye, $idDemandeConge, $nbJours)
+    {
+        $db = Flight::db();
+
+        $sql = "INSERT INTO historique_conge (id_employe, id_demande_conge, type_mouvement, nb_jours, date_mouvement, motif) 
+                VALUES (?, ?, 'prise', ?, CURDATE(), 'Demande de congé soumise')";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$idEmploye, $idDemandeConge, $nbJours]);
+    }
     public function processValidation(int $id_demande_conge, string $statut, string $date_validation): bool
     {
         try {
@@ -82,7 +225,7 @@ class CongeModel
 
             $db->commit();
             return true;
-        } catch (	PDOException $e) {
+        } catch (\PDOException $e) {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
@@ -134,7 +277,7 @@ class CongeModel
             $db->commit();
             return true;
     
-        } catch (	Exception $e) {
+        } catch (\Exception $e) {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
@@ -260,10 +403,11 @@ class CongeModel
         );
         $stmt2->execute([$id_employe, $takenStart, $asOf->format('Y-m-d')]);
         $takenRow = $stmt2->fetch(PDO::FETCH_ASSOC);
-        $taken = isset($takenRow['taken']) ? (int)$takenRow['taken'] : 0;
+        $taken = isset($takenRow['taken']) ? (int) $takenRow['taken'] : 0;
 
         $balance = $accrued - $taken;
-        if ($balance < 0) $balance = 0.0;
+        if ($balance < 0)
+            $balance = 0.0;
 
         return [
             'accrued' => round($accrued, 2),

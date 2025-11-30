@@ -1025,3 +1025,20 @@ INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-11-01', 'Toussaint', 'annuel'),
 ('2025-12-25', 'Noël', 'annuel');
 
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2027-12-01', '2027-12-10', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2028-01-01', '2028-02-02', 26);  -- Paid leave request
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2028-12-03', '2028-12-20', 26);  -- Paid leave request
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2029-01-01', '2029-02-02', 26);  -- Paid leave request
+
+
+
+INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
+(1, 4, '2031-03-01', '2031-03-11', 26);  -- Paid leave request
