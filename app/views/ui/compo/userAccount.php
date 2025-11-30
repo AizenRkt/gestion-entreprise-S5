@@ -30,16 +30,14 @@
 
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/backOffice/user/pointage" class="sidebar-link">
-        <i class="bi bi-person-check-fill"></i>
-        <span>pointage</span>
+        <i class="bi bi-fingerprint"></i>
+        <span>Pointage</span>
         <?php if (Flight::checkinStatus() === 'checkin-needed'): ?>
             <span class="notification-dot" title="Check-in requis"></span>
         <?php endif; ?>
-        <i class="bi bi-fingerprint"></i>
-        <span>Pointage</span>
     </a>
 </li>
-
+s
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/auth/parametre" class="sidebar-link">
         <i class="bi bi-gear-fill"></i>
