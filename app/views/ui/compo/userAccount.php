@@ -22,6 +22,21 @@
 </li>
 
 <li class="sidebar-item">
+    <a href="<?= Flight::base() ?>/absence/demande" class="sidebar-link">
+        <i class="bi bi-calendar-plus"></i>
+        <span>Demander absence</span>
+    </a>
+</li>
+
+<li class="sidebar-item">
+    <a href="<?= Flight::base() ?>/heureSupp/demande" class="sidebar-link">
+        <i class="bi bi-calendar-plus"></i>
+        <span>Demander heureSupp</span>
+    </a>
+</li>
+
+
+<li class="sidebar-item">
     <a href="<?= Flight::base() ?>/deconnexion" class="sidebar-link">
         <i class="bi bi-door-closed-fill"></i>
         <span>déconnexion</span>
