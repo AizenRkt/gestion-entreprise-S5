@@ -41,6 +41,15 @@ class EmployeController {
         ]);
     }
 
+    public function alertesEmployes() {
+        $model = new EmployeModel();
+        $alertes = $model->getAlertes();
+        
+        Flight::render('ressourceHumaine/back/employe/AlerteEmploye', [
+            'alertes' => $alertes
+        ]);
+    }
+
     public function updateEmploye() {
         if (Flight::request()->method == 'POST') {
             $model = new EmployeModel();

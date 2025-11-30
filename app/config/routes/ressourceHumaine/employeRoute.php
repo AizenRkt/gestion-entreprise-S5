@@ -14,6 +14,9 @@ use flight\net\Router;
 $EmployeController = new EmployeController();
 $router->get('/employes', [ $EmployeController, 'listEmployes' ]);
 
+// Route pour les alertes
+$router->get('/employes/alertes', [ $EmployeController, 'alertesEmployes' ]);
+
 // Routes de update (présentes dans les deux branches)
 $router->post('/employes', [ $EmployeController, 'listEmployes' ]);
 $router->post('/employe/update', [ $EmployeController, 'updateEmploye' ]);

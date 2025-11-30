@@ -97,10 +97,6 @@ class CongeModel
                 $lastInsertId = $db->lastInsertId();
                 error_log("SUCCES: Demande créée avec ID: " . $lastInsertId);
 
-                // Si vous voulez enregistrer le motif ailleurs, vous pouvez le faire ici
-                if (!empty($motif)) {
-                    $this->saveMotif($lastInsertId, $motif);
-                }
 
                 return ['success' => true, 'message' => 'Demande de congé soumise avec succès'];
             } else {

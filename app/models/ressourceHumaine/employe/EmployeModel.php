@@ -187,5 +187,92 @@ Class EmployeModel {
         }
     }
 
+    public static function getCongesNonPris($idEmploye, $annee = null) {
+        $db = Flight::db();
+        $annee = $annee ?? date('Y');
+        
+        // Récupérer les droits annuels depuis type_conge (congé payé = 30 jours)
+        $stmtDroits = $db->prepare("SELECT nb_jours_max FROM type_conge WHERE id_type_conge = 1"); // Congé payé
+        $stmtDroits->execute();
+        $droits = $stmtDroits->fetch(PDO::FETCH_ASSOC);
+        $joursDroits = $droits ? $droits['nb_jours_max'] : 30; // Défaut 30 si pas trouvé
+        
+        // Calculer les jours pris (demandes validées pour congé payé)
+        $stmt = $db->prepare("
+            SELECT COALESCE(SUM(dc.nb_jours), 0) AS jours_pris
+            FROM demande_conge dc
+            JOIN validation_conge vc ON dc.id_demande_conge = vc.id_demande_conge
+            WHERE dc.id_employe = ? AND vc.statut = 'valide' AND dc.id_type_conge = 1 AND YEAR(dc.date_debut) = ?
+        ");
+        $stmt->execute([$idEmploye, $annee]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $joursPris = $result['jours_pris'];
+        
+        return max(0, $joursDroits - $joursPris);
+    }
+
+    public static function getAlertes() {
+        $db = Flight::db();
+        $employes = self::getAllEmployes();
+        $alertes = [];
+
+        foreach ($employes as $emp) {
+            $alerte = [
+                'id_employe' => $emp['id_employe'],
+                'nom' => $emp['nom'],
+                'prenom' => $emp['prenom'],
+                'contrat' => null,
+                'conge' => null,
+                'score' => 0
+            ];
+
+            // Get contract
+            $stmt = $db->prepare("SELECT fin FROM contrat_travail WHERE id_employe = ?");
+            $stmt->execute([$emp['id_employe']]);
+            $contrat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($contrat) {
+                $alerte['contrat'] = $contrat['fin'];
+                $fin = $contrat['fin'];
+                if ($fin === null) {
+                    $alerte['score'] += 0; // CDI low
+                } else {
+                    $diff = (new \DateTime($fin))->diff(new \DateTime());
+                    $jours = $diff->invert ? -$diff->days : $diff->days;
+                    if ($jours <= 0) {
+                        $alerte['score'] += 100;
+                    } elseif ($jours <= 30) {
+                        $alerte['score'] += 50;
+                    } elseif ($jours <= 90) {
+                        $alerte['score'] += 20;
+                    } elseif ($jours <= 180) {
+                        $alerte['score'] += 10;
+                    } else {
+                        $alerte['score'] += 1;
+                    }
+                }
+            }
+
+            // Get conge
+            $joursRestants = self::getCongesNonPris($emp['id_employe']);
+            if ($joursRestants > 0) {
+                $alerte['conge'] = $joursRestants;
+                if ($joursRestants <= 5) {
+                    $alerte['score'] += 50;
+                } else {
+                    $alerte['score'] += 10;
+                }
+            }
+
+            $alertes[] = $alerte;
+        }
+
+        // Sort by score desc
+        usort($alertes, function($a, $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        return $alertes;
+    }
+
 
 }
