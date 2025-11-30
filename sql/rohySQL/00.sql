@@ -1007,6 +1007,8 @@ INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_j
 (1, 3, '2027-08-01', '2027-08-10', 10),  -- Congé payé pour employé 3 (Alice)
 (2, 4, '2027-08-15', '2027-08-17', 3),   -- Congé sans solde pour employé 4 (Lalaina)
 (3, 5, '2027-08-20', '2027-08-25', 6);   -- Congé maladie pour employé 5 (George)
+
+
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2023-10-28'),  -- Approved leave
@@ -1022,3 +1024,4 @@ INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-08-15', 'Assomption', 'annuel'),
 ('2025-11-01', 'Toussaint', 'annuel'),
 ('2025-12-25', 'Noël', 'annuel');
+
