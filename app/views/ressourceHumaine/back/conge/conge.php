@@ -11,9 +11,7 @@
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable.css">
     
-    <!-- FullCalendar CSS -->
     <script src='<?= Flight::base() ?>/public/plugin/fullcalendar-6.1.19/dist/index.global.min.js'></script>
-
 </head>
 <body>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/initTheme.js"></script>
@@ -21,9 +19,7 @@
         <?= Flight::menuBackOffice() ?>
         <div id="main">
             <header class="mb-3">
-                <a href="#" class="burger-btn d-block d-xl-none">
-                    <i class="bi bi-justify fs-3"></i>
-                </a>
+                <a href="#" class="burger-btn d-block d-xl-none"><i class="bi bi-justify fs-3"></i></a>
             </header>
             <div class="page-heading">
                 <div class="page-title">
@@ -35,77 +31,48 @@
                     </div>
                 </div>
 
-                <!-- Section Calendrier -->
                 <section class="section">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Planning des congés validés</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="calendar"></div>
-                        </div>
+                        <div class="card-header"><h5 class="card-title">Planning des congés validés</h5></div>
+                        <div class="card-body"><div id="calendar"></div></div>
                     </div>
                 </section>
 
-                <!-- Section Table des Demandes -->
                 <section class="section">
                     <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Toutes les demandes de congé</h5>
-                        </div>
+                        <div class="card-header"><h5 class="card-title">Toutes les demandes de congé</h5></div>
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
-                                            <th>Employé</th>
-                                            <th>Type de congé</th>
-                                            <th>Date début</th>
-                                            <th>Date fin</th>
-                                            <th>Nombre de jours</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
+                                            <th>Employé</th><th>Type</th><th>Début</th><th>Fin</th><th>Jours</th><th>Statut</th><th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if (isset($conges) && is_array($conges) && !empty($conges)): ?>
-                                            <?php foreach ($conges as $conge): ?>
-                                                <tr>
-                                                    <td><?= htmlspecialchars($conge['employe_prenom'] . ' ' . $conge['employe_nom']) ?></td>
-                                                    <td><?= htmlspecialchars($conge['type_conge_nom']) ?></td>
-                                                    <td><?= htmlspecialchars($conge['date_debut']) ?></td>
-                                                    <td><?= htmlspecialchars($conge['date_fin']) ?></td>
-                                                    <td><?= htmlspecialchars($conge['nb_jours']) ?></td>
-                                                    <td>
-                                                        <?php
-                                                        $statut = htmlspecialchars($conge['validation_statut']);
-                                                        $badgeClass = 'bg-light';
-                                                        if ($statut === 'Validé') {
-                                                            $badgeClass = 'bg-primary'; 
-                                                        } elseif ($statut === 'Refusé') {
-                                                            $badgeClass = 'bg-danger'; 
-                                                        }
-                                                        ?>
-                                                        <span class="badge <?= $badgeClass ?>"><?= $statut ?></span>
-                                                    </td>
-                                                    <td class="action-buttons">
-                                                        <button type="button" class="btn btn-sm btn-success validate-btn"
-                                                            data-id="<?= $conge['id_demande_conge'] ?>"
-                                                            style="<?= $statut === 'Validé' || $statut === 'Refusé' ? 'display: none;' : '' ?>">
-                                                            Valider
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-danger refuse-btn"
-                                                            data-id="<?= $conge['id_demande_conge'] ?>"
-                                                            style="<?= $statut === 'Validé' || $statut === 'Refusé' ? 'display: none;' : '' ?>">
-                                                            Refuser
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
+                                        <?php if (isset($conges) && !empty($conges)): foreach ($conges as $conge): ?>
                                             <tr>
-                                                <td colspan="7">Aucune demande de congé trouvée.</td>
+                                                <td><?= htmlspecialchars($conge['employe_prenom'] . ' ' . $conge['employe_nom']) ?></td>
+                                                <td><?= htmlspecialchars($conge['type_conge_nom']) ?></td>
+                                                <td><?= htmlspecialchars($conge['date_debut']) ?></td>
+                                                <td><?= htmlspecialchars($conge['date_fin']) ?></td>
+                                                <td><?= htmlspecialchars($conge['nb_jours']) ?></td>
+                                                <td>
+                                                    <?php
+                                                    $statut = htmlspecialchars($conge['validation_statut']);
+                                                    $badgeClass = 'bg-light';
+                                                    if ($statut === 'Validé') $badgeClass = 'bg-primary'; 
+                                                    elseif ($statut === 'Refusé') $badgeClass = 'bg-danger';
+                                                    ?>
+                                                    <span class="badge <?= $badgeClass ?>"><?= $statut ?></span>
+                                                </td>
+                                                <td class="action-buttons">
+                                                    <button type="button" class="btn btn-sm btn-success validate-btn" data-id="<?= $conge['id_demande_conge'] ?>" style="<?= $statut !== 'En attente' ? 'display: none;' : '' ?>">Valider</button>
+                                                    <button type="button" class="btn btn-sm btn-danger refuse-btn" data-id="<?= $conge['id_demande_conge'] ?>" style="<?= $statut !== 'En attente' ? 'display: none;' : '' ?>">Refuser</button>
+                                                </td>
                                             </tr>
+                                        <?php endforeach; else: ?>
+                                            <tr><td colspan="7">Aucune demande de congé trouvée.</td></tr>
                                         <?php endif; ?>
                                     </tbody>
                                 </table>
@@ -117,7 +84,6 @@
         </div>
     </div>
     
-    <!-- Scripts JS -->
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
@@ -125,52 +91,50 @@
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
 
-    <!-- Modal de validation -->
-    <div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+    <!-- Modals -->
+    <div class="modal fade" id="validationModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="validationModalLabel">Valider la demande de congé</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                <div class="modal-header"><h5 class="modal-title">Valider la demande</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <form id="validationForm">
                     <div class="modal-body">
                         <input type="hidden" id="validation_id_demande" name="id_demande_conge">
-                        <div id="soldeInfo" class="mb-3" style="display:none;"></div>
-                        <div class="mb-3">
-                            <label for="validation_date" class="form-label">Date de validation</label>
-                            <input type="date" class="form-control" id="validation_date" name="date_validation" required>
-                        </div>
+                        <div id="soldeInfo" class="mb-3"></div>
+                        <div class="mb-3"><label for="validation_date" class="form-label">Date de validation</label><input type="date" class="form-control" id="validation_date" name="date_validation" required></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" id="validationSubmitBtn" class="btn btn-primary">Valider</button>
-                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" id="validationSubmitBtn" class="btn btn-primary">Valider</button></div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal de refus -->
-    <div class="modal fade" id="refusModal" tabindex="-1" aria-labelledby="refusModalLabel" aria-hidden="true">
+    <div class="modal fade" id="refusModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="refusModalLabel">Refuser la demande de congé</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                <div class="modal-header"><h5 class="modal-title">Refuser la demande</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <form id="refusForm">
+                    <div class="modal-body"><input type="hidden" id="refus_id_demande" name="id_demande_conge"><div class="mb-3"><label for="refus_date" class="form-label">Date du refus</label><input type="date" class="form-control" id="refus_date" name="date_validation" required></div></div>
+                    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-danger">Refuser</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editCongeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title" id="editModalTitle">Modifier le congé</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form id="editCongeForm">
                     <div class="modal-body">
-                        <input type="hidden" id="refus_id_demande" name="id_demande_conge">
-                        <div class="mb-3">
-                            <label for="refus_date" class="form-label">Date du refus</label>
-                            <input type="date" class="form-control" id="refus_date" name="date_validation" required>
+                        <input type="hidden" id="edit_id_demande" name="id_demande_conge">
+                        <p><strong>Employé :</strong> <span id="editEmployeNom"></span></p>
+                        <div id="soldeInfoEdit" class="mb-3"></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3"><label for="edit_date_debut" class="form-label">Date de début</label><input type="date" class="form-control" id="edit_date_debut" name="new_start" required></div>
+                            <div class="col-md-6 mb-3"><label for="edit_date_fin" class="form-label">Date de fin</label><input type="date" class="form-control" id="edit_date_fin" name="new_end" required></div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-danger">Refuser</button>
-                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-danger me-auto" id="deleteCongeBtn">Supprimer</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="submit" class="btn btn-primary">Enregistrer</button></div>
                 </form>
             </div>
         </div>
@@ -178,116 +142,101 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // --- Initialisation de FullCalendar ---
+        const BASE_URL = '<?= Flight::base() ?>';
+
+        function updateConge(info) {
+            const event = info.event;
+            let endDate = new Date(event.endStr);
+            endDate.setDate(endDate.getDate() - 1);
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            $.post(`${BASE_URL}/api/conge/update`, {
+                id_demande_conge: event.id, new_start: event.startStr, new_end: endDateStr
+            }, (res) => { if (!res.success) { alert('Erreur: ' + res.message); info.revert(); } location.reload(); })
+            .fail(() => { alert('Erreur serveur.'); info.revert(); });
+        }
+
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             themeSystem: 'bootstrap5',
-            headerToolbar: {
-                left: 'prevYear,prev,next,nextYear today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,listWeek'
-            },
-            events: '<?= Flight::base() ?>/api/conges/planning',
-            eventDidMount: function(info) {
-                var tooltip = new bootstrap.Tooltip(info.el, {
-                    title: info.event.extendedProps.type,
-                    placement: 'top',
-                    trigger: 'hover',
-                    container: 'body'
+            headerToolbar: { left: 'prevYear,prev,next,nextYear today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+            events: `${BASE_URL}/api/conges/planning`,
+            editable: true,
+            eventDrop: updateConge,
+            eventResize: updateConge,
+            eventClick: function(info) {
+                const event = info.event;
+                const modal = new bootstrap.Modal(document.getElementById('editCongeModal'));
+                
+                document.getElementById('edit_id_demande').value = event.id;
+                document.getElementById('editEmployeNom').textContent = event.title;
+                document.getElementById('edit_date_debut').value = event.startStr;
+                
+                let endDate = new Date(event.endStr);
+                endDate.setDate(endDate.getDate() - 1);
+                document.getElementById('edit_date_fin').value = endDate.toISOString().split('T')[0];
+
+                const soldeInfoDiv = document.getElementById('soldeInfoEdit');
+                soldeInfoDiv.innerHTML = 'Chargement du solde...';
+
+                $.get(`${BASE_URL}/api/conge/solde`, { id: event.id }, (resp) => {
+                    if (resp.success) {
+                        const { solde, days } = resp.data;
+                        soldeInfoDiv.innerHTML = `<p class="mb-1"><strong>Solde disponible :</strong> ${solde.balance} jours</p>`;
+                    } else {
+                        soldeInfoDiv.innerHTML = '<p class="text-danger">Impossible de charger le solde.</p>';
+                    }
                 });
+
+                modal.show();
+            },
+            eventDidMount: function(info) {
+                new bootstrap.Tooltip(info.el, { title: info.event.extendedProps.type, placement: 'top', trigger: 'hover', container: 'body' });
             }
         });
         calendar.render();
 
-        // --- Logique des Modals (jQuery) ---
+        // --- Logique Modals (jQuery) ---
         (function($){
-            function getCurrentDate() {
-                const today = new Date();
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
-                return `${yyyy}-${mm}-${dd}`;
-            }
+            const getCurrentDate = () => new Date().toISOString().split('T')[0];
 
-            $(document).on('click', 'button.validate-btn', function(){
-                var id = $(this).data('id');
-                $('#validationModal').data('rowBtn', $(this));
+            $(document).on('click', '.validate-btn', function() {
+                const id = $(this).data('id');
                 $('#validation_id_demande').val(id);
                 $('#validation_date').val(getCurrentDate());
-                $('#soldeInfo').hide().html('Chargement du solde...').show();
+                $('#soldeInfo').html('Chargement...');
                 $('#validationSubmitBtn').prop('disabled', true);
                 
-                $.get('<?= Flight::base() ?>/api/conge/solde', { id: id }, function(resp){
-                    if (resp && resp.success) {
-                        var d = resp.data;
-                        var s = d.solde;
-                        var displayStart = s.period_start || '';
-                        var html = `<p><strong>Congés acquis (période ${displayStart} - ${s.period_end}):</strong> ${s.accrued} jours</p>`;
-                        html += `<p><strong>Congés pris sur la période:</strong> ${s.taken} jours</p>`;
-                        html += `<p><strong>Solde disponible:</strong> ${s.balance} jours</p>`;
-                        html += `<p><strong>Jours demandés:</strong> ${d.days} jour(s)</p>`;
-                        if (d.canValidate) {
-                            html += '<p class="text-success"><strong>Validation possible</strong></p>';
-                            $('#validationSubmitBtn').prop('disabled', false);
-                        } else {
-                            html += '<p class="text-danger"><strong>Solde insuffisant — Validation désactivée</strong></p>';
-                            $('#validationSubmitBtn').prop('disabled', true);
-                        }
-                        $('#soldeInfo').html(html).show();
-                        $('#validationModal').modal('show');
+                $.get(`${BASE_URL}/api/conge/solde`, { id }, (resp) => {
+                    if (resp.success) {
+                        const { solde, days, canValidate } = resp.data;
+                        let html = `<p><strong>Solde disponible:</strong> ${solde.balance} j</p><p><strong>Jours demandés:</strong> ${days} j</p>`;
+                        html += canValidate ? '<p class="text-success">Validation possible</p>' : '<p class="text-danger">Solde insuffisant</p>';
+                        $('#soldeInfo').html(html);
+                        $('#validationSubmitBtn').prop('disabled', !canValidate);
                     } else {
-                        alert((resp && resp.message) ? resp.message : 'Impossible de récupérer le solde.');
-                        $('#soldeInfo').hide();
+                        $('#soldeInfo').html(`<p class="text-danger">${resp.message || 'Erreur solde.'}</p>`);
                     }
-                }).fail(function(){
-                    alert('Erreur lors de la récupération du solde.');
                 });
+                new bootstrap.Modal('#validationModal').show();
             });
 
-            $('#validationForm').on('submit', function(e){
+            $('#validationForm').on('submit', function(e) { e.preventDefault(); $.post(`${BASE_URL}/backOffice/conge/valider`, $(this).serialize(), (r) => { if(r.success) location.reload(); else alert(r.message); }).fail(() => alert('Erreur serveur.')); });
+
+            $(document).on('click', '.refuse-btn', function() { $('#refus_id_demande').val($(this).data('id')); $('#refus_date').val(getCurrentDate()); new bootstrap.Modal('#refusModal').show(); });
+            $('#refusForm').on('submit', function(e) { e.preventDefault(); $.post(`${BASE_URL}/backOffice/conge/refuser`, $(this).serialize(), (r) => { if(r.success) location.reload(); else alert(r.message); }).fail(() => alert('Erreur serveur.')); });
+
+            $('#editCongeForm').on('submit', function(e) {
                 e.preventDefault();
-                var data = $(this).serialize();
-                var $btn = $('#validationModal').data('rowBtn');
-
-                $.post('<?= Flight::base() ?>/backOffice/conge/valider', data, function(resp){
-                    if (resp && resp.success) {
-                        // Recharger la page pour mettre à jour la table et le calendrier
-                        location.reload();
-                    } else {
-                        alert((resp && resp.message) ? resp.message : 'Erreur lors de la validation.');
-                    }
-                }).fail(function(){
-                    alert('Erreur de communication avec le serveur.');
-                });
-});
-
-            $(document).on('click', 'button.refuse-btn', function(){
-                var id = $(this).data('id');
-                $('#refusModal').data('rowBtn', $(this));
-                $('#refus_id_demande').val(id);
-                $('#refus_date').val(getCurrentDate());
-                $('#refusModal').modal('show');
+                const data = { id_demande_conge: $('#edit_id_demande').val(), new_start: $('#edit_date_debut').val(), new_end: $('#edit_date_fin').val() };
+                $.post(`${BASE_URL}/api/conge/update`, data, (res) => { if (res.success) location.reload(); else alert(res.message); }).fail(() => alert('Erreur serveur.'));
             });
 
-            $('#refusForm').on('submit', function(e){
-                e.preventDefault();
-                var data = $(this).serialize();
-                var $btn = $('#refusModal').data('rowBtn');
-
-                $.post('<?= Flight::base() ?>/backOffice/conge/refuser', data, function(resp){
-                    if (resp && resp.success) {
-                        var $tr = $btn.closest('tr');
-                        $tr.find('td').eq(5).html('<span class="badge bg-danger">Refusé</span>');
-                        $btn.closest('.action-buttons').find('.validate-btn').hide();
-                        $btn.hide();
-                        $('#refusModal').modal('hide');
-                    } else {
-                        alert((resp && resp.message) ? resp.message : 'Erreur lors du refus.');
-                    }
-                }).fail(function(){
-                    alert('Erreur de communication avec le serveur.');
-                });
+            $('#deleteCongeBtn').on('click', function() {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce congé ? Cette action est irréversible.')) {
+                    $.post(`${BASE_URL}/api/conge/delete`, { id_demande_conge: $('#edit_id_demande').val() }, (res) => { if (res.success) location.reload(); else alert(res.message); }).fail(() => alert('Erreur serveur.'));
+                }
             });
 
         })(jQuery);

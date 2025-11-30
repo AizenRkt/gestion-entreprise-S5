@@ -109,6 +109,7 @@ class CongeController
             $color = $this->stringToColor($conge['id_employe']);
             
             $events[] = [
+                'id'    => $conge['id_demande_conge'],
                 'title' => $conge['employe_prenom'] . ' ' . $conge['employe_nom'],
                 'start' => $conge['date_debut'],
                 'end' => $dateFin->format('Y-m-d'),
@@ -122,6 +123,53 @@ class CongeController
         }
         Flight::json($events);
     }
+
+    /**
+     * API: met à jour les dates d'un congé suite à un drag-and-drop
+     */
+    public function updateCongeDate()
+    {
+        $data = Flight::request()->data;
+        $id = $data['id_demande_conge'] ?? null;
+        $start = $data['new_start'] ?? null;
+        $end = $data['new_end'] ?? null;
+
+        if (!$id || !$start || !$end) {
+            Flight::json(['success' => false, 'message' => 'Données manquantes.'], 400);
+            return;
+        }
+
+        $result = $this->congeModel->updateCongeDates((int)$id, $start, $end);
+
+        if ($result) {
+            Flight::json(['success' => true, 'message' => 'Congé mis à jour avec succès.']);
+        } else {
+            Flight::json(['success' => false, 'message' => 'Erreur lors de la mise à jour du congé.'], 500);
+        }
+    }
+
+    /**
+     * API: supprime une demande de congé
+     */
+    public function deleteConge()
+    {
+        $data = Flight::request()->data;
+        $id = $data['id_demande_conge'] ?? null;
+
+        if (!$id) {
+            Flight::json(['success' => false, 'message' => 'ID manquant.'], 400);
+            return;
+        }
+
+        $result = $this->congeModel->deleteConge((int)$id);
+
+        if ($result) {
+            Flight::json(['success' => true, 'message' => 'Congé supprimé avec succès.']);
+        } else {
+            Flight::json(['success' => false, 'message' => 'Erreur lors de la suppression du congé.'], 500);
+        }
+    }
+
 
     /**
      * Génère une couleur HSL unique et consistante à partir d'une chaîne (ex: ID de l'employé).

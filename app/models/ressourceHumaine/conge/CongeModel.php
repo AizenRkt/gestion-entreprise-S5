@@ -18,7 +18,7 @@ class CongeModel
             $sql = "SELECT * FROM view_conge_details";
             $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
+        } catch (	PDOException $e) {
             // Gérer l'erreur, par exemple en loggant ou en retournant un tableau vide
             error_log($e->getMessage());
             return [];
@@ -36,7 +36,7 @@ class CongeModel
             $sql = "SELECT * FROM view_conge_details WHERE validation_statut = 'Validé'";
             $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
+        } catch (	PDOException $e) {
             error_log($e->getMessage());
             return [];
         }
@@ -82,7 +82,7 @@ class CongeModel
 
             $db->commit();
             return true;
-        } catch (\PDOException $e) {
+        } catch (	PDOException $e) {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
@@ -90,6 +90,100 @@ class CongeModel
             return false;
         }
     }
+
+    /**
+     * Met à jour les dates d'un congé et ajuste les pointages correspondants.
+     * @param int $id_demande_conge
+     * @param string $newStartDate
+     * @param string $newEndDate
+     * @return bool
+     */
+    public function updateCongeDates(int $id_demande_conge, string $newStartDate, string $newEndDate): bool
+    {
+        $db = Flight::db();
+        try {
+            $db->beginTransaction();
+    
+            // 1. Récupérer les anciennes informations du congé
+            $stmt_old = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_old->execute([$id_demande_conge]);
+            $old_conge = $stmt_old->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$old_conge) {
+                $db->rollBack();
+                return false;
+            }
+            $id_employe = $old_conge['id_employe'];
+    
+            // 2. Mettre à jour la demande de congé avec les nouvelles dates
+            $new_start_dt = new \DateTime($newStartDate);
+            $new_end_dt = new \DateTime($newEndDate);
+            $nb_jours = $new_start_dt->diff($new_end_dt)->days + 1;
+    
+            $stmt_update = $db->prepare("UPDATE demande_conge SET date_debut = ?, date_fin = ?, nb_jours = ? WHERE id_demande_conge = ?");
+            $stmt_update->execute([$newStartDate, $newEndDate, $nb_jours, $id_demande_conge]);
+    
+            // 3. Mettre à jour les enregistrements de pointage
+            $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+            
+            // Réinitialiser le statut pour l'ancienne période de congé
+            $pointageModel->updatePointageStatusForDateRange($id_employe, $old_conge['date_debut'], $old_conge['date_fin'], 'Absent');
+            // Appliquer le statut "Congé" pour la nouvelle période
+            $pointageModel->updatePointageStatusForDateRange($id_employe, $newStartDate, $newEndDate, 'Congé');
+    
+            $db->commit();
+            return true;
+    
+        } catch (	Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log("Erreur lors de la mise à jour du congé : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Supprime un congé et réinitialise les pointages.
+     * @param int $id_demande_conge
+     * @return bool
+     */
+    public function deleteConge(int $id_demande_conge): bool
+    {
+        $db = Flight::db();
+        try {
+            $db->beginTransaction();
+
+            // 1. Récupérer les infos du congé avant suppression
+            $stmt_old = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_old->execute([$id_demande_conge]);
+            $old_conge = $stmt_old->fetch(PDO::FETCH_ASSOC);
+
+            if ($old_conge) {
+                // 2. Réinitialiser le pointage
+                $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+                $pointageModel->updatePointageStatusForDateRange($old_conge['id_employe'], $old_conge['date_debut'], $old_conge['date_fin'], 'Absent');
+            }
+            
+            // 3. Supprimer la validation et la demande
+            $stmt_del_val = $db->prepare("DELETE FROM validation_conge WHERE id_demande_conge = ?");
+            $stmt_del_val->execute([$id_demande_conge]);
+
+            $stmt_del_dem = $db->prepare("DELETE FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_del_dem->execute([$id_demande_conge]);
+
+            $db->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log("Erreur lors de la suppression du congé : " . $e->getMessage());
+            return false;
+        }
+    }
+
 
     /**
      * Calcule le solde de congé pour un employé à une date donnée.
