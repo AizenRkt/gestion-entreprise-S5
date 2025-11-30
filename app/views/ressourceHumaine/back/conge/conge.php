@@ -184,7 +184,7 @@
             initialView: 'dayGridMonth',
             themeSystem: 'bootstrap5',
             headerToolbar: {
-                left: 'prev,next today',
+                left: 'prevYear,prev,next,nextYear today',
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,listWeek'
             },
