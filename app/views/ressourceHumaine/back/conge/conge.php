@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Congés - Mazer</title>
+    
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app-dark.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable.css">
+    
+    <!-- FullCalendar CSS -->
+    <script src='<?= Flight::base() ?>/public/plugin/fullcalendar-6.1.19/dist/index.global.min.js'></script>
+
 </head>
 <body>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/initTheme.js"></script>
@@ -24,15 +29,29 @@
                 <div class="page-title">
                     <div class="row">
                         <div class="col-12 col-md-6 order-md-1 order-last">
-                            <h3>Liste des Congés</h3>
-                            <p class="text-subtitle text-muted">Consultez toutes les demandes de congé.</p>
+                            <h3>Gestion des Congés</h3>
+                            <p class="text-subtitle text-muted">Validez les demandes et consultez le planning.</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Section Calendrier -->
                 <section class="section">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title">Toutes les demandes</h5>
+                            <h5 class="card-title">Planning des congés validés</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section Table des Demandes -->
+                <section class="section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Toutes les demandes de congé</h5>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -60,13 +79,11 @@
                                                     <td>
                                                         <?php
                                                         $statut = htmlspecialchars($conge['validation_statut']);
-                                                        // Assign a class based on the status
+                                                        $badgeClass = 'bg-light';
                                                         if ($statut === 'Validé') {
                                                             $badgeClass = 'bg-primary'; 
                                                         } elseif ($statut === 'Refusé') {
-                                                            $badgeClass = 'bg-secondary'; 
-                                                        } else {
-                                                            $badgeClass = 'bg-light';
+                                                            $badgeClass = 'bg-danger'; 
                                                         }
                                                         ?>
                                                         <span class="badge <?= $badgeClass ?>"><?= $statut ?></span>
@@ -99,6 +116,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- Scripts JS -->
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
@@ -117,9 +136,7 @@
                 <form id="validationForm">
                     <div class="modal-body">
                         <input type="hidden" id="validation_id_demande" name="id_demande_conge">
-                        <div id="soldeInfo" class="mb-3" style="display:none;">
-                            <!-- Rempli dynamiquement -->
-                        </div>
+                        <div id="soldeInfo" class="mb-3" style="display:none;"></div>
                         <div class="mb-3">
                             <label for="validation_date" class="form-label">Date de validation</label>
                             <input type="date" class="form-control" id="validation_date" name="date_validation" required>
@@ -160,109 +177,121 @@
     </div>
 
     <script>
-    (function($){
-        // Helper to get current date as YYYY-MM-DD
-        function getCurrentDate() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd}`;
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Initialisation de FullCalendar ---
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            themeSystem: 'bootstrap5',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,listWeek'
+            },
+            events: '<?= Flight::base() ?>/api/conges/planning',
+            eventDidMount: function(info) {
+                var tooltip = new bootstrap.Tooltip(info.el, {
+                    title: info.event.extendedProps.type,
+                    placement: 'top',
+                    trigger: 'hover',
+                    container: 'body'
+                });
+            }
+        });
+        calendar.render();
 
-        // --- Validation Modal ---
-        $(document).on('click', 'button.validate-btn', function(){
-            var id = $(this).data('id');
-            $('#validationModal').data('rowBtn', $(this));
-            $('#validation_id_demande').val(id);
-            $('#validation_date').val(getCurrentDate());
-            // fetch solde info before showing modal
-            $('#soldeInfo').hide().html('Chargement du solde...').show();
-            $('#validationSubmitBtn').prop('disabled', true);
-            $.get('<?= Flight::base() ?>/api/conge/solde', { id: id }, function(resp){
-                if (resp && resp.success) {
-                    var d = resp.data;
-                    var s = d.solde;
-                    var displayStart = s.period_start || '';
-                    var html = '<p><strong>Congés acquis (période ' + displayStart + ' - ' + s.period_end + '):</strong> ' + s.accrued + ' jours</p>';
-                    html += '<p><strong>Congés pris sur la période:</strong> ' + s.taken + ' jours</p>';
-                    html += '<p><strong>Solde disponible:</strong> ' + s.balance + ' jours</p>';
-                    html += '<p><strong>Jours demandés:</strong> ' + d.days + ' jour(s)</p>';
-                    if (d.canValidate) {
-                        html += '<p class="text-success"><strong>Validation possible</strong></p>';
-                        $('#validationSubmitBtn').prop('disabled', false);
+        // --- Logique des Modals (jQuery) ---
+        (function($){
+            function getCurrentDate() {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
+            }
+
+            $(document).on('click', 'button.validate-btn', function(){
+                var id = $(this).data('id');
+                $('#validationModal').data('rowBtn', $(this));
+                $('#validation_id_demande').val(id);
+                $('#validation_date').val(getCurrentDate());
+                $('#soldeInfo').hide().html('Chargement du solde...').show();
+                $('#validationSubmitBtn').prop('disabled', true);
+                
+                $.get('<?= Flight::base() ?>/api/conge/solde', { id: id }, function(resp){
+                    if (resp && resp.success) {
+                        var d = resp.data;
+                        var s = d.solde;
+                        var displayStart = s.period_start || '';
+                        var html = `<p><strong>Congés acquis (période ${displayStart} - ${s.period_end}):</strong> ${s.accrued} jours</p>`;
+                        html += `<p><strong>Congés pris sur la période:</strong> ${s.taken} jours</p>`;
+                        html += `<p><strong>Solde disponible:</strong> ${s.balance} jours</p>`;
+                        html += `<p><strong>Jours demandés:</strong> ${d.days} jour(s)</p>`;
+                        if (d.canValidate) {
+                            html += '<p class="text-success"><strong>Validation possible</strong></p>';
+                            $('#validationSubmitBtn').prop('disabled', false);
+                        } else {
+                            html += '<p class="text-danger"><strong>Solde insuffisant — Validation désactivée</strong></p>';
+                            $('#validationSubmitBtn').prop('disabled', true);
+                        }
+                        $('#soldeInfo').html(html).show();
+                        $('#validationModal').modal('show');
                     } else {
-                        html += '<p class="text-danger"><strong>Solde insuffisant — Validation désactivée</strong></p>';
-                        $('#validationSubmitBtn').prop('disabled', true);
+                        alert((resp && resp.message) ? resp.message : 'Impossible de récupérer le solde.');
+                        $('#soldeInfo').hide();
                     }
-                    $('#soldeInfo').html(html).show();
-                    $('#validationModal').modal('show');
-                } else {
-                    alert((resp && resp.message) ? resp.message : 'Impossible de récupérer le solde.');
-                    $('#soldeInfo').hide();
-                }
-            }, 'json').fail(function(){
-                alert('Erreur lors de la récupération du solde.');
-                $('#soldeInfo').hide();
+                }).fail(function(){
+                    alert('Erreur lors de la récupération du solde.');
+                });
             });
-        });
 
-        $('#validationForm').on('submit', function(e){
-            e.preventDefault();
-            var data = {
-                id_demande_conge: $('#validation_id_demande').val(),
-                date_validation: $('#validation_date').val()
-            };
-            var $btn = $('#validationModal').data('rowBtn');
+            $('#validationForm').on('submit', function(e){
+                e.preventDefault();
+                var data = $(this).serialize();
+                var $btn = $('#validationModal').data('rowBtn');
 
-            $.post('<?= Flight::base() ?>/backOffice/conge/valider', data, function(resp){
-                if (resp && resp.success) {
-                    var $tr = $btn.closest('tr');
-                    $tr.find('td').eq(5).html('<span class="badge bg-primary">Validé</span>');
-                    $btn.closest('.action-buttons').find('.refuse-btn').hide();
-                    $btn.hide();
-                    $('#validationModal').modal('hide');
-                } else {
-                    alert((resp && resp.message) ? resp.message : 'Erreur lors de la validation.');
-                }
-            }, 'json').fail(function(){
-                alert('Erreur de communication avec le serveur.');
+                $.post('<?= Flight::base() ?>/backOffice/conge/valider', data, function(resp){
+                    if (resp && resp.success) {
+                        // Recharger la page pour mettre à jour la table et le calendrier
+                        location.reload();
+                    } else {
+                        alert((resp && resp.message) ? resp.message : 'Erreur lors de la validation.');
+                    }
+                }).fail(function(){
+                    alert('Erreur de communication avec le serveur.');
+                });
+});
+
+            $(document).on('click', 'button.refuse-btn', function(){
+                var id = $(this).data('id');
+                $('#refusModal').data('rowBtn', $(this));
+                $('#refus_id_demande').val(id);
+                $('#refus_date').val(getCurrentDate());
+                $('#refusModal').modal('show');
             });
-        });
 
-        // --- Refus Modal ---
-        $(document).on('click', 'button.refuse-btn', function(){
-            var id = $(this).data('id');
-            $('#refusModal').data('rowBtn', $(this));
-            $('#refus_id_demande').val(id);
-            $('#refus_date').val(getCurrentDate());
-            $('#refusModal').modal('show');
-        });
+            $('#refusForm').on('submit', function(e){
+                e.preventDefault();
+                var data = $(this).serialize();
+                var $btn = $('#refusModal').data('rowBtn');
 
-        $('#refusForm').on('submit', function(e){
-            e.preventDefault();
-            var data = {
-                id_demande_conge: $('#refus_id_demande').val(),
-                date_validation: $('#refus_date').val()
-            };
-            var $btn = $('#refusModal').data('rowBtn');
-
-            $.post('<?= Flight::base() ?>/backOffice/conge/refuser', data, function(resp){
-                if (resp && resp.success) {
-                    var $tr = $btn.closest('tr');
-                    $tr.find('td').eq(5).html('<span class="badge bg-danger">Refusé</span>');
-                    $btn.closest('.action-buttons').find('.validate-btn').hide();
-                    $btn.hide();
-                    $('#refusModal').modal('hide');
-                } else {
-                    alert((resp && resp.message) ? resp.message : 'Erreur lors du refus.');
-                }
-            }, 'json').fail(function(){
-                alert('Erreur de communication avec le serveur.');
+                $.post('<?= Flight::base() ?>/backOffice/conge/refuser', data, function(resp){
+                    if (resp && resp.success) {
+                        var $tr = $btn.closest('tr');
+                        $tr.find('td').eq(5).html('<span class="badge bg-danger">Refusé</span>');
+                        $btn.closest('.action-buttons').find('.validate-btn').hide();
+                        $btn.hide();
+                        $('#refusModal').modal('hide');
+                    } else {
+                        alert((resp && resp.message) ? resp.message : 'Erreur lors du refus.');
+                    }
+                }).fail(function(){
+                    alert('Erreur de communication avec le serveur.');
+                });
             });
-        });
 
-    })(jQuery);
+        })(jQuery);
+    });
     </script>
 </body>
 </html>

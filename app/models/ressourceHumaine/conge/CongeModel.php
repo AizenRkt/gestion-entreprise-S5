@@ -25,6 +25,23 @@ class CongeModel
         }
     }
 
+    /**
+     * Récupère uniquement les congés validés pour le planning.
+     * @return array
+     */
+    public function getValidatedConges(): array
+    {
+        try {
+            $db = Flight::db();
+            $sql = "SELECT * FROM view_conge_details WHERE validation_statut = 'Validé'";
+            $stmt = $db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
+
     public function processValidation(int $id_demande_conge, string $statut, string $date_validation): bool
     {
         try {

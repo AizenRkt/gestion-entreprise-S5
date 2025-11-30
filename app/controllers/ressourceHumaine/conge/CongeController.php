@@ -93,4 +93,44 @@ class CongeController
 
         Flight::json(['success' => true, 'data' => ['solde' => $solde, 'days' => $days, 'canValidate' => $canValidate]]);
     }
+
+    /**
+     * API: retourne les congés validés pour l'affichage dans FullCalendar
+     */
+    public function getCongesForPlanning()
+    {
+        $conges = $this->congeModel->getValidatedConges();
+        $events = [];
+        foreach ($conges as $conge) {
+            // Pour que la date de fin soit inclusive dans FullCalendar, il faut ajouter 1 jour.
+            $dateFin = new \DateTime($conge['date_fin']);
+            $dateFin->modify('+1 day');
+
+            $color = $this->stringToColor($conge['id_employe']);
+            
+            $events[] = [
+                'title' => $conge['employe_prenom'] . ' ' . $conge['employe_nom'],
+                'start' => $conge['date_debut'],
+                'end' => $dateFin->format('Y-m-d'),
+                'allDay' => true,
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'extendedProps' => [
+                    'type' => $conge['type_conge_nom']
+                ]
+            ];
+        }
+        Flight::json($events);
+    }
+
+    /**
+     * Génère une couleur HSL unique et consistante à partir d'une chaîne (ex: ID de l'employé).
+     * @param string $str
+     * @return string
+     */
+    private function stringToColor($str) {
+        $hash = crc32($str);
+        $hue = $hash % 360;
+        return "hsl({$hue}, 70%, 50%)";
+    }
 }
