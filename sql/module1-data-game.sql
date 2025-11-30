@@ -299,7 +299,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
 ('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
---donne absenece
+-- donne absence
 
 -- partie absence 
 CREATE TABLE type_absence (
@@ -401,7 +401,7 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 
 
 
---donne conge
+-- donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -410,14 +410,19 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 
 -- Inserting leave requests
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2026-01-01', '2026-01-10', 10),  -- Paid leave request
-(2, 2, '2026-01-15', '2026-01-20', 5),  -- Unpaid leave request
-(3, 3, '2026-01-23', '2026-01-29', 5);  -- Sick leave request
+(1, 1, '2025-01-01', '2025-01-10', 10),  -- Paid leave request for 2025
+(2, 2, '2025-02-15', '2025-02-20', 5),  -- Unpaid leave request for 2025
+(3, 3, '2025-03-23', '2025-03-29', 5),  -- Sick leave request for 2025
+(1, 4, '2025-04-01', '2025-04-05', 5),  -- Paid leave for Zo Lalaina
+(1, 5, '2025-05-10', '2025-05-15', 6);  -- Paid leave for Andry George
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
-(1, 'valide', '2023-10-28'),  -- Approved leave
-(2, 'refuse', '2023-10-28');  -- Approved leave
+(1, 'valide', '2024-12-15'),  -- Approved leave for 2025
+(2, 'refuse', '2024-12-16'),  -- Refused leave
+(3, 'valide', '2024-12-17'),  -- Approved leave
+(4, 'valide', '2024-12-18'),  -- Approved leave
+(5, 'valide', '2024-12-19');  -- Approved leave
 
 -- Modifications pour tester le filtre de date sur les statistiques
 -- Mise à jour des dates de modification pour diversifier les périodes
@@ -586,5 +591,6 @@ INSERT INTO contrat_travail (id_employe, id_type_contrat, debut, fin, salaire_ba
 (2, 1, '2018-06-10', NULL, 1200000, '2018-06-10', 18),  -- CDI
 (3, 1, '2020-01-01', NULL, 2000000, '2020-01-01', 2),  -- CDI
 (4, 2, '2025-11-23', '2025-12-23', 800000, '2025-11-23', 2),  -- CDD fin décembre 2025
-(5, 2, '2025-11-23', '2026-01-23', 900000, '2025-11-23', 3);  -- CDD fin janvier 2026
+(5, 2, '2025-11-23', '2026-01-23', 900000, '2025-11-23', 3),  -- CDD fin janvier 2026
+(6, 2, '2025-11-28', '2025-12-28', 700000, '2025-11-28', 2); -- CDD pour Rakoto Jean
 

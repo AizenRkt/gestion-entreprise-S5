@@ -145,6 +145,24 @@
                     </a>
                 </li>
 
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
+                        <span>Team</span>
+                    </a>
+                    <ul class="submenu">
+                        <!-- <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>
+                        </li>      -->
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes" class="submenu-link">Team</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes/alertes" class="submenu-link">Team alerte</a>
+                        </li>                                               
+                    </ul>
+                </li>
+
                 
                 <!-- partie compte -->
                 <?= Flight::userAccount() ?>
