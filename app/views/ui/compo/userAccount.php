@@ -37,7 +37,6 @@
         <?php endif; ?>
     </a>
 </li>
-s
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/auth/parametre" class="sidebar-link">
         <i class="bi bi-gear-fill"></i>
