@@ -97,7 +97,8 @@
                                         <th>Service</th>
                                         <th>Poste</th>
                                         <th>Date d'embauche</th>
-                                        <th>Fin de contrat</th>
+                                        <!--<th>Fin de contrat</th>
+                                        <th>Congés non pris</th>-->
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -114,39 +115,52 @@
                                                 <td><?= htmlspecialchars($emp['service_nom']) ?></td>
                                                 <td><?= htmlspecialchars($emp['poste_titre']) ?></td>
                                                 <td><?= htmlspecialchars($emp['date_embauche']) ?></td>
-                                                <td>
-                                                    <?php
-                                                    $fin = $emp['contrat_fin'];
-                                                    if ($fin) {
-                                                        $now = new DateTime();
-                                                        $end = new DateTime($fin);
-                                                        if ($end > $now) {
-                                                            $interval = $now->diff($end);
-                                                            $days = $interval->days;
-                                                            if ($days <= 30) {
-                                                                $text = $days . ' jour(s) restant(s)';
-                                                            } elseif ($days <= 365) {
-                                                                $months = floor($days / 30);
-                                                                $text = $months . ' mois restant(s)';
+                                                    <!--<td>
+                                                        <?php
+                                                        $fin = $emp['contrat_fin'];
+                                                        if ($fin) {
+                                                            $now = new DateTime();
+                                                            $end = new DateTime($fin);
+                                                            if ($end > $now) {
+                                                                $interval = $now->diff($end);
+                                                                $days = $interval->days;
+                                                                if ($days <= 30) {
+                                                                    $text = $days . ' jour(s) restant(s)';
+                                                                } elseif ($days <= 365) {
+                                                                    $months = floor($days / 30);
+                                                                    $text = $months . ' mois restant(s)';
+                                                                } else {
+                                                                    $years = floor($days / 365);
+                                                                    $text = $years . ' an(s) restant(s)';
+                                                                }
+                                                                if ($days <= 30) $class = 'text-danger fw-bold';
+                                                                elseif ($days <= 90) $class = 'text-warning';
+                                                                elseif ($days <= 180) $class = 'text-info';
+                                                                else $class = 'text-success';
                                                             } else {
-                                                                $years = floor($days / 365);
-                                                                $text = $years . ' an(s) restant(s)';
+                                                                $text = 'Expiré';
+                                                                $class = 'text-danger fw-bold';
                                                             }
-                                                            if ($days <= 30) $class = 'text-danger fw-bold';
-                                                            elseif ($days <= 90) $class = 'text-warning';
-                                                            elseif ($days <= 180) $class = 'text-info';
-                                                            else $class = 'text-success';
                                                         } else {
-                                                            $text = 'Expiré';
-                                                            $class = 'text-danger fw-bold';
+                                                            $text = 'CDI';
+                                                            $class = 'text-success fw-bold';
                                                         }
-                                                    } else {
-                                                        $text = 'N/A';
-                                                        $class = '';
-                                                    }
-                                                    ?>
-                                                    <span class="<?= $class ?>"><?= $text ?></span>
-                                                </td>
+                                                        ?>
+                                                        <span class="<?= $class ?>"><?= $text ?></span>                              
+                                                </td>-->
+                                                <!--<td>
+                                                        
+                                                        <?php
+                                                        $joursRestants = \app\models\ressourceHumaine\employe\EmployeModel::getCongesNonPris($emp['id_employe']);
+                                                        if ($joursRestants > 0) {
+                                                            $class = ($joursRestants < 5) ? 'text-danger fw-bold' : 'text-warning';
+                                                            echo "<span class='$class'>$joursRestants jour(s) restant(s)</span>";
+                                                        } else {
+                                                            echo "<span class='text-success'>Tous pris</span>";
+                                                        }
+                                                        ?>
+                                                        
+                                                </td>-->
                                                 <td>
                                                     <?php if (isset($emp['activite']) && $emp['activite'] == 1): ?>
                                                         <span class="badge bg-success">Active</span>

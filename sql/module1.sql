@@ -33,7 +33,7 @@ CREATE TABLE candidat (
     telephone VARCHAR(20),
     genre VARCHAR(1),
     date_naissance DATE,
-    date_candidature DATE DEFAULT CURRENT_DATE
+    date_candidature DATE DEFAULT (CURRENT_DATE)
 );
 
 CREATE TABLE employe (
@@ -143,7 +143,7 @@ CREATE TABLE cv (
     id_cv INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_profil INT NOT NULL,
-    date_soumission DATE DEFAULT CURRENT_DATE,
+    date_soumission DATE DEFAULT (CURRENT_DATE),
     photo VARCHAR(255),
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
@@ -165,7 +165,7 @@ CREATE TABLE postulance (
     id_postulance INT AUTO_INCREMENT PRIMARY KEY,
     id_cv INT NOT NULL,
     id_annonce INT NOT NULL,
-    date_postulation DATE DEFAULT CURRENT_DATE,
+    date_postulation DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
     FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
 );
@@ -596,7 +596,7 @@ CREATE TABLE employe_formation (
     id_employe_formation SERIAL PRIMARY KEY,
     id_employe INT NOT NULL,
     id_formation INT NOT NULL,
-    date_assigned DATE NOT NULL DEFAULT CURRENT_DATE,
+    date_assigned DATE NOT NULL DEFAULT (CURRENT_DATE),
     date_completed DATE,
     status VARCHAR(20) DEFAULT 'ASSIGNED'
 );
