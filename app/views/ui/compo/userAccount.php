@@ -14,23 +14,25 @@
     </a>
 </li>
 
+
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/conge/demande" class="sidebar-link">
-        <i class="bi bi-calendar-plus"></i>
+        <i class="bi bi-calendar2-check"></i>
         <span>Demander congé</span>
     </a>
 </li>
 
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/absence/demande" class="sidebar-link">
-        <i class="bi bi-calendar-plus"></i>
+        <i class="bi bi-person-x-fill"></i>
         <span>Demander absence</span>
     </a>
 </li>
 
+
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/heureSupp/demande" class="sidebar-link">
-        <i class="bi bi-calendar-plus"></i>
+        <i class="bi bi-alarm-fill"></i>
         <span>Demander heureSupp</span>
     </a>
 </li>
