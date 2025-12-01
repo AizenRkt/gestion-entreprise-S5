@@ -81,14 +81,19 @@ Class EmployeModel {
             LEFT JOIN service s ON p.id_service = s.id_service
             LEFT JOIN departement d ON s.id_dept = d.id_dept
             LEFT JOIN contrat_travail ct ON e.id_employe = ct.id_employe
+            WHERE 1=1
         ";
         
         $params = [];
         
         if (!empty($filters['genre'])) {
-            $placeholders = str_repeat('?,', count($filters['genre']) - 1) . '?';
-            $query .= " AND e.genre IN ($placeholders)";
-            $params = array_merge($params, $filters['genre']);
+            $placeholders = [];
+            foreach ($filters['genre'] as $index => $value) {
+                $paramName = ":genre$index";
+                $placeholders[] = $paramName;
+                $params[$paramName] = $value;
+            }
+            $query .= " AND e.genre IN (" . implode(',', $placeholders) . ")";
         }
         
         if (!empty($filters['date_debut']) && !empty($filters['date_fin'])) {
