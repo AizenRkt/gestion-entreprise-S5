@@ -9,6 +9,7 @@ use app\models\ressourceHumaine\entretien\EntretienModel;
 use app\models\ressourceHumaine\annonce\Annonce;
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use app\models\ressourceHumaine\employe\EmployeModel;
+use app\models\ressourceHumaine\document\DocumentModel;
 
 use DateTime;
 

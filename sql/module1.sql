@@ -1,7 +1,10 @@
-DROP DATABASE if exists gestion_entreprise_test;
-CREATE DATABASE if not exists gestion_entreprise_test;
+-- DROP DATABASE if exists gestion_entreprise_test;
+-- CREATE DATABASE if not exists gestion_entreprise_test;
 
-USE gestion_entreprise_test;
+DROP DATABASE if exists gestion_entreprise_prod;
+CREATE DATABASE if not exists gestion_entreprise_prod;
+
+USE gestion_entreprise_prod;
 
 -- ======================
 -- utilisateur, role, métier
@@ -343,6 +346,15 @@ CREATE TABLE contrat_migration_cdd_cdi(
     FOREIGN KEY (id_cdi) REFERENCES contrat_travail(id_contrat_travail)
 );
 
+CREATE TABLE contrat_employe_statut(
+    id_contrat_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_travail INT NOT NULL,
+    id_employe_statut INT NOT NULL,
+    date_ajout DATE NOT NULL,
+    FOREIGN KEY (id_employe_statut) REFERENCES employe_statut(id_employe_statut),
+    FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
+);
+
 -- partie document
 CREATE TABLE document_type (
     id_type_document INT AUTO_INCREMENT PRIMARY KEY,
@@ -467,4 +479,12 @@ CREATE TABLE validation_heure_sup (
     statut ENUM('valide', 'refuse') NOT NULL,
     date_validation DATE NOT NULL,
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
+);
+
+-- partie artifice 
+CREATE TABLE poste_responsabilite (
+    id_poste_responsabilite INT AUTO_INCREMENT PRIMARY KEY,
+    id_poste INT NOT NULL,
+    libelle VARCHAR(255),
+    FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
 );

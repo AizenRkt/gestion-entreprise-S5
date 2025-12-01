@@ -7,6 +7,8 @@ use app\models\ressourceHumaine\document\DocumentModel;
 use Flight;
 use DateTime;
 
+use app\utils\FileUtils;
+
 class DocumentController
 {
     public function getDocumentsEmploye($id)
@@ -52,7 +54,6 @@ class DocumentController
         $titre            = $_POST['titre'] ?? null;
         $statut           = $_POST['statut'] ?? 'valide';
         $commentaire      = $_POST['commentaire'] ?? null;
-        $pathScan         = $_POST['pathScan'] ?? null;
         $date_expiration  = $_POST['date_expiration'] ?? null;
 
         if (!$id_type_document || !$id_employe || !$titre) {
@@ -63,6 +64,26 @@ class DocumentController
             return;
         }
 
+        $pathScan = null;
+        $uploadDir = __DIR__ . '/../../../../public/uploads/data/document';
+        if (isset($_FILES['file'])) {
+            $uploadResult = FileUtils::upload(
+                $uploadDir, 
+                $_FILES['file'],
+                ['application/pdf', 'image/jpg', 'image/png'], 
+                10 * 1024 * 1024 
+            );
+
+            if ($uploadResult === null) {
+                Flight::json([
+                    "success" => false,
+                    "message" => "Erreur lors de l'upload du fichier."
+                ], 500);
+                return;
+            }
+
+            $pathScan = $uploadResult;
+        }
 
         $id_document = DocumentModel::insertDocument(
             $id_type_document,
@@ -99,7 +120,8 @@ class DocumentController
             "message" => "Document et statut créés avec succès.",
             "data" => [
                 "id_document" => $id_document,
-                "statut" => $statut
+                "statut" => $statut,
+                "pathScan" => $pathScan
             ]
         ]);
     }

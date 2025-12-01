@@ -121,4 +121,51 @@ class DocumentModel {
             return null;
         }
     }
+
+    public static function insertValableDocument($id_type_document, $id_employe, $titre, $pathScan = null, $date_expiration = null, $statut = 'valide', $commentaire = null) {
+        try {
+            $db = Flight::db();
+            $db->beginTransaction();
+
+            $stmtDoc = $db->prepare("
+                INSERT INTO document (
+                    id_type_document, id_employe, titre, pathScan, dateUpload, date_expiration
+                ) VALUES (?, ?, ?, ?, CURRENT_DATE, ?)
+            ");
+            $stmtDoc->execute([
+                $id_type_document,
+                $id_employe,
+                $titre,
+                $pathScan,
+                $date_expiration
+            ]);
+
+            $id_document = $db->lastInsertId();
+            if (!$id_document) {
+                $db->rollBack();
+                return null;
+            }
+
+            $stmtStatut = $db->prepare("
+                INSERT INTO document_statut (id_document, statut, date_statut, commentaire)
+                VALUES (?, ?, CURRENT_DATE, ?)
+            ");
+            $success = $stmtStatut->execute([$id_document, $statut, $commentaire]);
+
+            if (!$success) {
+                $db->rollBack();
+                return null;
+            }
+
+            $db->commit();
+            return $id_document;
+
+        } catch (\PDOException $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            return null;
+        }
+    }
+
 }

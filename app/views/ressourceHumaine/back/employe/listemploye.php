@@ -29,6 +29,9 @@
                         <h5 class="card-title">
                             Liste des employes 
                         </h5>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRecrutement">
+                            Recruter un employé
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -65,6 +68,12 @@
                                                 <td>
                                                     <button type="button" class="btn icon btn-primary" data-bs-toggle="modal" data-bs-target="#editModal-<?= $emp['id_employe'] ?>"><i class="bi bi-pencil"></i></button>
                                                     <a href="<?= Flight::base() ?>/ficheEmploye?id=<?= $emp['id_employe'] ?>"><button type="button" class="btn icon btn-primary"><i class="bi bi-eye"></i></button></a>
+                                                    <button type="button"
+                                                        class="btn icon btn-warning"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalChangePoste-<?= $emp['id_employe'] ?>">
+                                                        <i class="bi bi-briefcase"></i> changer poste
+                                                    </button>                                                        
                                                 </td>
                                             </tr>
 
@@ -134,6 +143,77 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <!-- Modal : Changer de poste -->
+                                            <div class="modal fade" id="modalChangePoste-<?= $emp['id_employe'] ?>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Changer le poste — <?= htmlspecialchars($emp['nom'] . ' ' . $emp['prenom']) ?></h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <input type="hidden" id="empId-<?= $emp['id_employe'] ?>" value="<?= $emp['id_employe'] ?>">
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Nouveau poste</label>
+                                                                <select id="newPoste-<?= $emp['id_employe'] ?>" class="form-select">
+                                                                    <option value="">--Sélectionner--</option>
+                                                                    <?php foreach ($postes as $pst): ?>
+                                                                        <option value="<?= $pst['id_poste'] ?>" <?= ($pst['id_poste'] == $emp['id_poste']) ? 'selected' : '' ?>>
+                                                                            <?= htmlspecialchars($pst['titre']) ?>
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+
+                                                            <hr>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Type de contrat</label>
+                                                                <select id="newContratType-<?= $emp['id_employe'] ?>" class="form-select">
+                                                                    <option value="CDI">CDI</option>
+                                                                    <option value="CDD">CDD</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="row g-2">
+                                                                <div class="col-6 mb-3">
+                                                                    <label class="form-label">Date début</label>
+                                                                    <input type="date" id="newDateDebut-<?= $emp['id_employe'] ?>" class="form-control">
+                                                                </div>
+
+                                                                <div class="col-6 mb-3">
+                                                                    <label class="form-label">Date fin (si CDD)</label>
+                                                                    <input type="date" id="newDateFin-<?= $emp['id_employe'] ?>" class="form-control">
+                                                                </div>
+
+                                                                <div class="col-6 mb-3">
+                                                                    <label class="form-label">Salaire de base</label>
+                                                                    <input type="number" id="newSalaire-<?= $emp['id_employe'] ?>" class="form-control" step="0.01" min="0">
+                                                                </div>
+
+                                                                <div class="col-6 mb-3">
+                                                                    <label class="form-label">Date signature</label>
+                                                                    <input type="date" id="newDateSignature-<?= $emp['id_employe'] ?>" class="form-control">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-text">Remplis la partie contrat si tu veux créer un contrat associé au changement de poste.</div>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <button id="btnChangePoste-<?= $emp['id_employe'] ?>" class="btn btn-warning"
+                                                                onclick="changerPoste(<?= $emp['id_employe'] ?>)">Valider</button>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </tbody>
@@ -143,7 +223,142 @@
                 </div>
             </section>
         </div>
-    </div>    
+    </div>
+    <!-- modal recrutement -->
+    <div class="modal fade" id="modalRecrutement" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Recrutement d'un employé</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <!-- Stepper -->
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="step-employe-tab" data-bs-toggle="pill"
+                    data-bs-target="#step-employe" type="button" role="tab">
+                    1. Infos Employé
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="step-contrat-tab" data-bs-toggle="pill"
+                    data-bs-target="#step-contrat" type="button" role="tab">
+                    2. Infos Contrat
+                    </button>
+                </li>
+                </ul>
+
+                <div class="tab-content">
+
+                <!-- ÉTAPE 1 -->
+                <div class="tab-pane fade show active" id="step-employe" role="tabpanel">
+                    <div class="row">
+                    <div class="col-md-6">
+                        <label>Nom</label>
+                        <input type="text" id="emp_nom" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Prénom</label>
+                        <input type="text" id="emp_prenom" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Email</label>
+                        <input type="email" id="emp_email" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Téléphone</label>
+                        <input type="text" id="emp_tel" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Genre</label>
+                        <select id="emp_genre" class="form-control">
+                        <option value="">Choisir</option>
+                        <option value="M">Homme</option>
+                        <option value="F">Femme</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Date de naissance</label>
+                        <input type="date" id="emp_date_naissance" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Date d'embauche</label>
+                        <input type="date" id="emp_date_embauche" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Poste</label>
+                        <select id="emp_poste" name="id_poste" class="form-select">
+                            <?php if (isset($postes) && is_array($postes)): ?>
+                                    <option value="">--Sélectionner un poste--</option>
+                                <?php foreach ($postes as $poste): ?>
+                                    <option value="<?= $poste['id_poste'] ?>" <?= ($poste['id_poste'] == $emp['id_poste']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($poste['titre']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" onclick="goToContratStep()">Suivant →</button>
+                </div>
+
+                <!-- ÉTAPE 2 -->
+                <div class="tab-pane fade" id="step-contrat" role="tabpanel">
+                    <div class="row">
+                    <div class="col-md-6">
+                        <label>Type contrat</label>
+                        <select id="ct_type" class="form-control">
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Salaire de base</label>
+                        <input type="number" id="ct_salaire" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Date début</label>
+                        <input type="date" id="ct_debut" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Date fin (si CDD)</label>
+                        <input type="date" id="ct_fin" class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label>Date signature</label>
+                        <input type="date" id="ct_signature" class="form-control">
+                    </div>
+                    </div>
+
+                    <button class="btn btn-secondary mt-3" onclick="goToEmployeeStep()">← Retour</button>
+                    <button class="btn btn-success mt-3 float-end" onclick="submitRecrutement()">Valider le recrutement</button>
+
+                </div>
+                </div>
+
+            </div>
+
+            </div>
+        </div>
+    </div>
+    
 </body>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
@@ -154,5 +369,118 @@
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/umd/simple-datatables.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/simple-datatables.js"></script>
+
+    <!-- recruter un nouveau employé -->
+    <!-- navigation -->
+    <script>
+        function goToContratStep() {
+            document.getElementById("step-contrat-tab").click();
+        }
+
+        function goToEmployeeStep() {
+            document.getElementById("step-employe-tab").click();
+        }
+    </script>
+
+    <!-- soummision form -->
+    <script>
+        function submitRecrutement() {
+
+            const data = {
+                nom: document.getElementById("emp_nom").value,
+                prenom: document.getElementById("emp_prenom").value,
+                email: document.getElementById("emp_email").value,
+                telephone: document.getElementById("emp_tel").value,
+                genre: document.getElementById("emp_genre").value,
+                date_embauche: document.getElementById("emp_date_embauche").value,
+                date_naissance: document.getElementById("emp_date_naissance").value,
+                id_poste: document.getElementById("emp_poste").value,
+
+                type_contrat: document.getElementById("ct_type").value,
+                date_debut: document.getElementById("ct_debut").value,
+                date_fin: document.getElementById("ct_fin").value,
+                salaire_base: document.getElementById("ct_salaire").value,
+                date_signature: document.getElementById("ct_signature").value
+            };
+
+            fetch("<?= Flight::base() ?>/employe/recruter", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    alert("Employé recruté avec succès !");
+                    location.reload();
+                } else {
+                    alert("Erreur : " + res.message);
+                }
+            })
+            .catch(err => alert("Erreur serveur"));
+        }
+    </script>
+
+    <!-- changer le poste d'un employé -->
+    <script>
+        async function changerPoste(id) {
+            const btn = document.getElementById(`btnChangePoste-${id}`);
+            btn.disabled = true;
+            btn.textContent = "En cours...";
+
+            const payload = {
+                id_poste: document.getElementById(`newPoste-${id}`).value || null,
+                type_contrat: document.getElementById(`newContratType-${id}`).value || null,
+                date_debut: document.getElementById(`newDateDebut-${id}`).value || null,
+                date_fin: document.getElementById(`newDateFin-${id}`).value || null,
+                salaire_base: document.getElementById(`newSalaire-${id}`).value || null,
+                date_signature: document.getElementById(`newDateSignature-${id}`).value || null
+            };
+
+            if (!payload.id_poste) {
+                alert("Vous devez choisir un poste.");
+                btn.disabled = false;
+                btn.textContent = "Valider";
+                return;
+            }
+
+            try {
+                const res = await fetch(`<?= Flight::base() ?>/employe/${id}/changerPoste`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.message || "Erreur serveur");
+                    btn.disabled = false;
+                    btn.textContent = "Valider";
+                    return;
+                }
+
+                if (!data.success) {
+                    alert(data.message || "Échec");
+                    btn.disabled = false;
+                    btn.textContent = "Valider";
+                    return;
+                }
+
+                const modalEl = document.getElementById(`modalChangePoste-${id}`);
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+
+                alert("Poste changé avec succès.");
+                location.reload();
+            } catch (err) {
+                console.error(err);
+                alert("Erreur réseau ou serveur.");
+                btn.disabled = false;
+                btn.textContent = "Valider";
+            }
+        }
+    </script>
+
 
 </html>

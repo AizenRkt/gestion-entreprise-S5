@@ -7,6 +7,8 @@ use app\models\ressourceHumaine\contratTravail\ContratTravailTypeModel;
 use app\models\ressourceHumaine\contratTravail\ContratTravailModel;
 use app\models\ressourceHumaine\poste;
 use app\models\ressourceHumaine\poste\PosteModel;
+use app\models\ressourceHumaine\document\DocumentModel;
+
 use Flight;
 
 use DateTime;
@@ -75,6 +77,8 @@ class ContratTravailController
             $pdf
         );
 
+        DocumentModel::insertValableDocument(2, $id, $pdf, $pdf);
+
         if ($idContrat) {
             Flight::json(['success' => true, 'message' => 'CDI créé avec succès', 'id_contrat' => $idContrat]);
         } else {
@@ -126,6 +130,8 @@ class ContratTravailController
             $poste,
             $pdf
         );
+
+        DocumentModel::insertValableDocument(2, $id, $pdf, $pdf);
 
         if ($idContrat) {
             

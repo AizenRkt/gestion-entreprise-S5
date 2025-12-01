@@ -20,3 +20,7 @@ $DocumentController = new DocumentController();
 $router->get('/employe/@id/documents', [$DocumentController, 'getDocumentsEmploye']);
 $router->post('/employe/@id/document/create', [$DocumentController, 'createDocumentAvecStatut']);
 
+$router->get('/employe/@id', [$EmployeController, 'statutEmpNow']);
+$router->get('/employe/@id/historique', [$EmployeController, 'statutEmpHistorique']);
+$router->post('/employe/recruter', [$EmployeController, 'recruterEmploye']);
+$router->post('/employe/@id/changerPoste', [$EmployeController, 'changerPosteEmploye']);

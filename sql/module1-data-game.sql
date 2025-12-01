@@ -211,7 +211,7 @@ INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/a
 -- scoring et qcm
 INSERT INTO type_scoring (nom) VALUES
 ('QCM'),
-('entretien')
+('entretien');
 
 INSERT INTO question (enonce) VALUES
 ('Quel langage est principalement utilisé pour le développement backend web ?'),
@@ -300,59 +300,59 @@ INSERT INTO document_type (nom) VALUES
 ('CIN'),
 ('certificat de résidence');
 
-INSERT INTO document (
-    id_type_document,
-    id_employe,
-    titre,
-    pathScan,
-    dateUpload,
-    date_expiration
-) VALUES (
-    4,               -- certificat de résidence
-    14,              -- employé id=14
-    'Certificat de résidence',
-    'certificat_residence.jpg',            -- pas de scan pour l’instant
-    CURRENT_DATE,    -- date d’upload = aujourd’hui
-    NULL             -- pas d’expiration
-);
+-- INSERT INTO document (
+--     id_type_document,
+--     id_employe,
+--     titre,
+--     pathScan,
+--     dateUpload,
+--     date_expiration
+-- ) VALUES (
+--     4,               -- certificat de résidence
+--     14,              -- employé id=14
+--     'Certificat de résidence',
+--     'certificat_residence.jpg',            -- pas de scan pour l’instant
+--     CURRENT_DATE,    -- date d’upload = aujourd’hui
+--     NULL             -- pas d’expiration
+-- );
 
-INSERT INTO document_statut (
-    id_document,
-    statut,
-    date_statut,
-    commentaire
-) VALUES (
-    LAST_INSERT_ID(),
-    'valide',
-    CURRENT_DATE,
-    'Document enregistré manuellement'
-);
+-- INSERT INTO document_statut (
+--     id_document,
+--     statut,
+--     date_statut,
+--     commentaire
+-- ) VALUES (
+--     LAST_INSERT_ID(),
+--     'valide',
+--     CURRENT_DATE,
+--     'Document enregistré manuellement'
+-- );
 
 
-INSERT INTO document (
-    id_type_document,
-    id_employe,
-    titre,
-    pathScan,
-    dateUpload,
-    date_expiration
-) VALUES (
-    3,               -- CIN
-    14,              -- employé id=14
-    'CIN',
-    'CIN.png',            -- pas de scan pour l’instant
-    CURRENT_DATE,    -- date d’upload = aujourd’hui
-    NULL             -- pas d’expiration
-);
+-- INSERT INTO document (
+--     id_type_document,
+--     id_employe,
+--     titre,
+--     pathScan,
+--     dateUpload,
+--     date_expiration
+-- ) VALUES (
+--     3,               -- CIN
+--     14,              -- employé id=14
+--     'CIN',
+--     'CIN.png',            -- pas de scan pour l’instant
+--     CURRENT_DATE,    -- date d’upload = aujourd’hui
+--     NULL             -- pas d’expiration
+-- );
 
-INSERT INTO document_statut (
-    id_document,
-    statut,
-    date_statut,
-    commentaire
-) VALUES (
-    LAST_INSERT_ID(),
-    'valide',
-    CURRENT_DATE,
-    'Document enregistré manuellement'
-);
+-- INSERT INTO document_statut (
+--     id_document,
+--     statut,
+--     date_statut,
+--     commentaire
+-- ) VALUES (
+--     LAST_INSERT_ID(),
+--     'valide',
+--     CURRENT_DATE,
+--     'Document enregistré manuellement'
+-- );
