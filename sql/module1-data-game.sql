@@ -337,11 +337,6 @@ CREATE TABLE validation_documentation_absence (
     FOREIGN KEY (id_documentation_absence) REFERENCES documentation_absence(id_documentation_absence),
     FOREIGN KEY (id_absence) REFERENCES absence(id_absence)
 );
-('08:00:00', 'Heure normale', 10, 6);  -- Samedi
-
-
-INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
-('14:30:00', 'Heure normale', 10, 7); 
 
 -- Inserting types of absence
 INSERT INTO type_absence (nom, description, isAutorise) VALUES
