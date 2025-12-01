@@ -82,7 +82,8 @@ class AbsenceModel
                 $pointageModel->updatePointageStatusForDateRange($id_employe, $date_debut_absence, $date_fin_absence, $STATUT_CONGE_PAYE);
                 $message = 'Absence entièrement convertie en congé.';
 
-            } elseif ($solde_disponible > 0) {
+            }
+            elseif ($solde_disponible > 0) {
                 // Cas 2: Solde partiel
                 $jours_payes = floor($solde_disponible);
                 $jours_sans_solde = $jours_absence - $jours_payes;
@@ -109,11 +110,15 @@ class AbsenceModel
                 $message = 'Solde insuffisant. Absence entièrement convertie en congé non payé.';
             }
 
-            // 5. Nettoyage : Supprimer la demande d'absence originale et sa validation
+            // 5. Nettoyage : L'absence originale et sa validation sont conservées pour l'historique.
+            // On ne supprime plus les enregistrements.
+            /*
             $stmt_delete_validation = $db->prepare("DELETE FROM validation_documentation_absence WHERE id_absence = :id_absence");
             $stmt_delete_validation->execute(['id_absence' => $id_absence]);
+            
             $stmt_delete_absence = $db->prepare("DELETE FROM absence WHERE id_absence = :id_absence");
             $stmt_delete_absence->execute(['id_absence' => $id_absence]);
+            */
 
             $db->commit();
             return ['success' => true, 'message' => $message];
