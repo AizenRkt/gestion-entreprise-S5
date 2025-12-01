@@ -213,7 +213,7 @@ class CongeController
         // Exposer la date_debut de la demande pour affichage clair dans la modal
         $solde['request_start'] = $demande['date_debut'];
 
-        Flight::json(['success' => true, 'data' => ['solde' => $solde, 'days' => $days, 'canValidate' => $canValidate]]);
+        Flight::json(['success' => true, 'data' => ['solde' => $solde, 'days' => $days, 'canValidate' => $canValidate, 'taken_during_period' => $solde['taken']]]);
     }
 
     /**

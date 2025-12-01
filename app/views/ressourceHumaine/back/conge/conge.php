@@ -210,9 +210,15 @@
                 
                 $.get(`${BASE_URL}/api/conge/solde`, { id }, (resp) => {
                     if (resp.success) {
-                        const { solde, days, canValidate } = resp.data;
+                        const { solde, days, canValidate, taken_during_period } = resp.data;
                         let html = `<p><strong>Solde disponible:</strong> ${solde.balance} j</p><p><strong>Jours demandés:</strong> ${days} j</p>`;
-                        html += canValidate ? '<p class="text-success">Validation possible</p>' : '<p class="text-danger">Solde insuffisant</p>';
+                        if (typeof taken_during_period !== 'undefined') {
+                            html += `<p><strong>Jours pris sur la période:</strong> ${taken_during_period} j</p>`;
+                        }
+                        if (solde.period_start && solde.period_end) {
+                            html += `<p class="mt-2"><small>Calculé sur la période du <strong>${solde.period_start}</strong> au <strong>${solde.period_end}</strong>.</small></p>`;
+                        }
+                        html += canValidate ? '<p class="text-success mt-2">Validation possible</p>' : '<p class="text-danger mt-2">Solde insuffisant</p>';
                         $('#soldeInfo').html(html);
                         $('#validationSubmitBtn').prop('disabled', !canValidate);
                     } else {

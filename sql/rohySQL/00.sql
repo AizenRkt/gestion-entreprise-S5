@@ -1197,7 +1197,6 @@ INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
 (1, 'valide', '2024-12-15'),  -- Approved leave for 2025
 (2, 'refuse', '2024-12-16'),  -- Refused leave
 (3, 'valide', '2024-12-17'),  -- Approved leave
-(4, 'valide', '2024-12-18'),  -- Approved leave
 (5, 'valide', '2024-12-19');  -- Approved leave
 
 -- Modifications pour tester le filtre de date sur les statistiques
