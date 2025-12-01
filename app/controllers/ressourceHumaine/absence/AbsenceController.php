@@ -66,23 +66,26 @@ class AbsenceController
             return;
         }
 
-        // calculer nombre de jours demandés (inclusif)
-        try {
-            $d1 = new \DateTime($absence['date_debut']);
-            $d2 = new \DateTime($absence['date_fin']);
-            $days = $d1->diff($d2)->days + 1;
-        } catch (\Exception $e) {
-            $days = 0;
-        }
+        // Utiliser la méthode qui calcule les jours ouvrés
+        $days = $this->congeModel->calculateWorkingDays($absence['date_debut'], $absence['date_fin']);
 
         // La période prise en compte doit se terminer à la date de fin de la demande
         $solde = $this->congeModel->calculateSoldeConge((int)$absence['id_employe'], $absence['date_fin'], $absence['date_debut']);
 
-        $canValidate = ($solde['balance'] >= $days);
+        // Déterminer la répartition
+        $paid_days = 0;
+        $unpaid_days = 0;
+        if ($solde['balance'] >= $days) {
+            $paid_days = $days;
+        } elseif ($solde['balance'] > 0) {
+            $paid_days = $solde['balance'];
+            $unpaid_days = $days - $solde['balance'];
+        } else {
+            $unpaid_days = $days;
+        }
 
-        // Exposer la date_debut de la demande pour affichage clair dans la modal
-        $solde['request_start'] = $absence['date_debut'];
+        $breakdown = ['paid_days' => $paid_days, 'unpaid_days' => $unpaid_days];
 
-        Flight::json(['success' => true, 'data' => ['solde' => $solde, 'days' => $days, 'canValidate' => $canValidate]]);
+        Flight::json(['success' => true, 'data' => ['solde' => $solde, 'days' => $days, 'breakdown' => $breakdown]]);
     }
 }

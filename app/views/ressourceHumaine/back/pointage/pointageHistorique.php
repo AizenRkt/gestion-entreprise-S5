@@ -65,10 +65,12 @@
                                                             $displayText .= ' (' . ($p['retard_min'] ?? 0) . ' min)';
                                                                                                                 } elseif ($statut === 'A l\'heure') {
                                                                                                                     $badgeClass = 'bg-success';
-                                                                                                                } elseif ($statut === 'Absence justifiée') {
+                                                                                                                } elseif ($statut === 'Congé non payé') {
                                                                                                                     $badgeClass = 'bg-warning';
                                                                                                                 } elseif ($statut === 'Congé') {
                                                                                                                     $badgeClass = 'bg-info';
+                                                                                                                }elseif ($statut === 'Jour Férié') {
+                                                                                                                    $badgeClass = 'bg-dark';
                                                                                                                 }
                                                                                                             ?>
                                                                                                             <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($displayText) ?></span>
@@ -202,6 +204,10 @@
                                                                                     badgeClass = 'bg-primary';
                                                                                 } else if (statut === 'Congé') {
                                                                                     badgeClass = 'bg-info';
+                                                                                } else if (statut === 'Congé non payé') {
+                                                                                    badgeClass = 'bg-light';
+                                                                                } else if (statut === 'Jour Férié') {
+                                                                                    badgeClass = 'bg-dark';
                                                                                 }
                                                                                 
                                                                                 statusCell.html(`<span class="badge ${badgeClass}">${displayText}</span>`);

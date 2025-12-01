@@ -164,31 +164,30 @@
         // --- Validation Modal ---
         $(document).on('click', 'button.validate-btn', function(){
             var id = $(this).data('id');
-            $('#validationModal').data('rowBtn', $(this));
             $('#validation_id_absence').val(id);
             $('#validation_date').val(getCurrentDate());
-            // fetch solde info before showing modal
             $('#soldeInfo').hide().html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>').show();
-            $('#validationSubmitBtn').prop('disabled', true);
+            $('#validationSubmitBtn').prop('disabled', true); // Désactivé pendant le chargement
 
             $.get('<?= Flight::base() ?>/api/absence/solde', { id: id }, function(resp){
                 if (resp && resp.success) {
                     var d = resp.data;
                     var s = d.solde;
-                    var displayStart = s.period_start || '';
-                    var html = '<p><strong>Congés acquis (période ' + displayStart + ' - ' + s.period_end + '):</strong> ' + s.accrued + ' jours</p>';
-                    html += '<p><strong>Congés pris sur la période:</strong> ' + s.taken + ' jours</p>';
-                    html += '<p><strong>Solde disponible:</strong> ' + s.balance + ' jours</p>';
-                    html += '<hr>';
-                    html += '<p><strong>Jours d\'absence:</strong> ' + d.days + ' jour(s)</p>';
-                    if (d.canValidate) {
-                        html += '<p class="text-success"><strong>Solde suffisant. La conversion en congé est possible.</strong></p>';
-                        $('#validationSubmitBtn').prop('disabled', false);
+                    var b = d.breakdown;
+                    
+                    var html = `<p><strong>Solde disponible :</strong> ${s.balance} jour(s)</p>`;
+                    html += `<p><strong>Jours d'absence (ouvrés) :</strong> ${d.days} jour(s)</p><hr>`;
+                    
+                    if (b.unpaid_days === 0) {
+                        html += `<p class="text-success"><strong>Le solde est suffisant.</strong> L'absence sera convertie en <strong>${b.paid_days} jour(s) de congé payé.</strong></p>`;
+                    } else if (b.paid_days === 0) {
+                        html += `<p class="text-warning"><strong>Le solde est insuffisant.</strong> L'absence sera convertie en <strong>${b.unpaid_days} jour(s) de congé sans solde.</strong></p>`;
                     } else {
-                        html += '<p class="text-danger"><strong>Solde insuffisant — Conversion en congé impossible.</strong></p>';
-                        $('#validationSubmitBtn').prop('disabled', true);
+                        html += `<p class="text-info"><strong>Le solde est partiel.</strong> L'absence sera convertie en :<ul><li><strong>${b.paid_days} jour(s) de congé payé</strong></li><li><strong>${b.unpaid_days} jour(s) de congé sans solde</strong></li></ul></p>`;
                     }
+
                     $('#soldeInfo').html(html);
+                    $('#validationSubmitBtn').prop('disabled', false); // Toujours activer si la requête réussit
                 } else {
                     $('#soldeInfo').html('<p class="text-danger">' + ((resp && resp.message) ? resp.message : 'Impossible de récupérer le solde.') + '</p>');
                 }
@@ -201,24 +200,24 @@
         
         $('#validationForm').on('submit', function(e){
             e.preventDefault();
+            $('#validationSubmitBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Traitement...');
+
             var data = {
                 id_absence: $('#validation_id_absence').val(),
                 date_validation: $('#validation_date').val()
             };
-            var $btn = $('#validationModal').data('rowBtn');
 
             $.post('<?= Flight::base() ?>/backOffice/absence/valider', data, function(resp){
                 if (resp && resp.success) {
-                    var $tr = $btn.closest('tr');
-                    $tr.find('td').eq(7).html('<span class="badge bg-primary">Congé</span>'); // Statut
-                    $btn.closest('.action-buttons').find('.refuse-btn').hide();
-                    $btn.hide();
-                    $('#validationModal').modal('hide');
+                    alert(resp.message);
+                    location.reload();
                 } else {
                     alert((resp && resp.message) ? resp.message : 'Erreur lors de la validation.');
+                    $('#validationSubmitBtn').prop('disabled', false).text('Valider et convertir');
                 }
             }, 'json').fail(function(){
                 alert('Erreur de communication avec le serveur.');
+                $('#validationSubmitBtn').prop('disabled', false).text('Valider et convertir');
             });
         });
 

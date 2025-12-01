@@ -63,6 +63,9 @@
                                                     $badgeClass = 'bg-light';
                                                     if ($statut === 'Validé') $badgeClass = 'bg-primary'; 
                                                     elseif ($statut === 'Refusé') $badgeClass = 'bg-danger';
+                                                    elseif ($statut === 'Congé') $badgeClass = 'bg-danger';
+                                                    elseif ($statut === 'Congé non payé') $badgeClass = 'bg-light';
+                                                    elseif ($statut === 'Jour Ferié') $badgeClass = 'bg-dark';
                                                     ?>
                                                     <span class="badge <?= $badgeClass ?>"><?= $statut ?></span>
                                                 </td>
