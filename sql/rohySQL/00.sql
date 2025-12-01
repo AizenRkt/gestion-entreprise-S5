@@ -721,6 +721,54 @@ CREATE TABLE poste_responsabilite (
     FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
 );
 
+CREATE OR REPLACE VIEW view_total_absences AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(a.date_debut) AS annee,
+    MONTH(a.date_debut) AS mois,
+    SUM(DATEDIFF(a.date_fin, a.date_debut) + 1) AS total_absences  -- "+ 1" pour inclure le jour de fin
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;
+
+CREATE OR REPLACE VIEW view_total_heures_supp AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_demande) AS annee,
+    MONTH(d.date_demande) AS mois,
+    SUM(TIMESTAMPDIFF(HOUR, dh.heure_debut, dh.heure_fin)) AS total_heures_supp
+FROM 
+    employe e
+JOIN 
+    demande_heure_sup d ON e.id_employe = d.id_employe
+JOIN 
+    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
+GROUP BY 
+    e.id_employe, annee, mois;
+
+CREATE OR REPLACE VIEW view_total_conges AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_debut) AS annee,
+    MONTH(d.date_debut) AS mois,
+    SUM(DATEDIFF(d.date_fin, d.date_debut) + 1) AS total_jours_conges
+FROM 
+    employe e
+JOIN 
+    demande_conge d ON e.id_employe = d.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;
+
+
 INSERT INTO departement (nom) VALUES
 ('Informatique'),
 ('Production'),
@@ -1136,8 +1184,13 @@ INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_j
 (1, 1, '2025-01-01', '2025-01-10', 10),  -- Paid leave request for 2025
 (2, 2, '2025-02-15', '2025-02-20', 5),  -- Unpaid leave request for 2025
 (3, 3, '2025-03-23', '2025-03-29', 5),  -- Sick leave request for 2025
-(1, 4, '2025-04-01', '2025-04-05', 5),  -- Paid leave for Zo Lalaina
-(1, 5, '2025-05-10', '2025-05-15', 6);  -- Paid leave for Andry George
+(1, 4, '2027-03-01', '2027-03-05', 5),  -- Paid leave for Zo Lalaina
+(1, 5, '2025-05-10', '2025-05-15', 6),  -- Paid leave for Andry George
+(1, 4, '2026-12-01', '2027-03-05', 5),  -- Paid leave for Zo Lalaina
+(1, 4, '2027-11-01', '2027-11-05', 5),  -- Paid leave for Zo Lalaina
+(1, 4, '2028-04-01', '2028-04-05', 5),  -- Paid leave for Zo Lalaina
+(1, 4, '2032-01-01', '2032-01-05', 5);  -- Paid leave for Zo Lalaina
+
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
