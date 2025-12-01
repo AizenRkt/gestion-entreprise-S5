@@ -73,7 +73,7 @@
                                 <span class="badge bg-light-success">Actif</span>
                             </div>
                             <div class="col-md-3 text-md-end mt-3 mt-md-0">
-                                <button class="btn btn-outline-secondary btn-sm">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
                                     <i class="bi bi-printer"></i> Imprimer
                                 </button>
                             </div>
