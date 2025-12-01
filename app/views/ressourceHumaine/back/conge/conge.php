@@ -140,113 +140,384 @@
         </div>
     </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const BASE_URL = '<?= Flight::base() ?>';
+        <script>
 
-        function updateConge(info) {
-            const event = info.event;
-            let endDate = new Date(event.endStr);
-            endDate.setDate(endDate.getDate() - 1);
-            const endDateStr = endDate.toISOString().split('T')[0];
+        document.addEventListener('DOMContentLoaded', function() {
 
-            $.post(`${BASE_URL}/api/conge/update`, {
-                id_demande_conge: event.id, new_start: event.startStr, new_end: endDateStr
-            }, (res) => { if (!res.success) { alert('Erreur: ' + res.message); info.revert(); } location.reload(); })
-            .fail(() => { alert('Erreur serveur.'); info.revert(); });
-        }
+            const BASE_URL = '<?= Flight::base() ?>';
 
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            themeSystem: 'bootstrap5',
-            headerToolbar: { left: 'prevYear,prev,next,nextYear today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
-            events: `${BASE_URL}/api/conges/planning`,
-            editable: true,
-            eventDrop: updateConge,
-            eventResize: updateConge,
-            eventClick: function(info) {
-                const event = info.event;
-                const modal = new bootstrap.Modal(document.getElementById('editCongeModal'));
-                
-                document.getElementById('edit_id_demande').value = event.id;
-                document.getElementById('editEmployeNom').textContent = event.title;
-                document.getElementById('edit_date_debut').value = event.startStr;
-                
-                let endDate = new Date(event.endStr);
-                endDate.setDate(endDate.getDate() - 1);
-                document.getElementById('edit_date_fin').value = endDate.toISOString().split('T')[0];
+    
 
-                const soldeInfoDiv = document.getElementById('soldeInfoEdit');
-                soldeInfoDiv.innerHTML = 'Chargement du solde...';
+            // --- Logique Modals (jQuery) ---
 
-                $.get(`${BASE_URL}/api/conge/solde`, { id: event.id }, (resp) => {
-                    if (resp.success) {
-                        const { solde, days } = resp.data;
-                        soldeInfoDiv.innerHTML = `<p class="mb-1"><strong>Solde disponible :</strong> ${solde.balance} jours</p>`;
-                    } else {
-                        soldeInfoDiv.innerHTML = '<p class="text-danger">Impossible de charger le solde.</p>';
-                    }
-                });
+            (function($){
 
-                modal.show();
-            },
-            eventDidMount: function(info) {
-                new bootstrap.Tooltip(info.el, { title: info.event.extendedProps.type, placement: 'top', trigger: 'hover', container: 'body' });
-            }
-        });
-        calendar.render();
+                const getCurrentDate = () => new Date().toISOString().split('T')[0];
 
-        // --- Logique Modals (jQuery) ---
-        (function($){
-            const getCurrentDate = () => new Date().toISOString().split('T')[0];
+    
 
-            $(document).on('click', '.validate-btn', function() {
-                const id = $(this).data('id');
-                $('#validation_id_demande').val(id);
-                $('#validation_date').val(getCurrentDate());
-                $('#soldeInfo').html('Chargement...');
-                $('#validationSubmitBtn').prop('disabled', true);
-                
-                $.get(`${BASE_URL}/api/conge/solde`, { id }, (resp) => {
-                    if (resp.success) {
-                        const { solde, days, canValidate, taken_during_period } = resp.data;
-                        let html = `<p><strong>Solde disponible:</strong> ${solde.balance} j</p><p><strong>Jours demandés:</strong> ${days} j</p>`;
-                        if (typeof taken_during_period !== 'undefined') {
-                            html += `<p><strong>Jours pris sur la période:</strong> ${taken_during_period} j</p>`;
+                /**
+
+                 * Vérifie le solde pour une demande et des dates données, et met à jour l'UI.
+
+                 * @param {string} id - L'ID de la demande de congé.
+
+                 * @param {string} start - La date de début au format YYYY-MM-DD.
+
+                 * @param {string} end - La date de fin au format YYYY-MM-DD.
+
+                 * @param {jQuery} soldeInfoDiv - L'élément jQuery où afficher les informations du solde.
+
+                 * @param {jQuery} submitBtn - Le bouton de soumission à activer/désactiver.
+
+                 * @returns {Promise} La promesse de la requête AJAX.
+
+                 */
+
+                function checkSoldeAndUpdateDisplay(id, start, end, soldeInfoDiv, submitBtn) {
+
+                    soldeInfoDiv.html('Vérification du solde...');
+
+                    submitBtn.prop('disabled', true);
+
+    
+
+                    return $.get(`${BASE_URL}/api/conge/solde`, { id, start_override: start, end_override: end }, (resp) => {
+
+                        if (resp.success) {
+
+                            const { solde, days, canValidate, taken_during_period } = resp.data;
+
+                            let html = `<p><strong>Solde disponible:</strong> ${solde.balance} j</p>`;
+
+                            html += `<p><strong>Jours pour la nouvelle période:</strong> ${days} j</p>`;
+
+                            if (typeof taken_during_period !== 'undefined') {
+
+                                html += `<p><strong>Jours déjà pris sur la période de calcul:</strong> ${taken_during_period} j</p>`;
+
+                            }
+
+                            if (solde.period_start && solde.period_end) {
+
+                                html += `<p class="mt-2"><small>Période de calcul: <strong>${solde.period_start}</strong> au <strong>${solde.period_end}</strong>.</small></p>`;
+
+                            }
+
+                            html += canValidate 
+
+                                ? '<p class="text-success mt-2">Modification possible</p>' 
+
+                                : '<p class="text-danger mt-2">Solde insuffisant pour ces dates</p>';
+
+                            
+
+                            soldeInfoDiv.html(html);
+
+                            submitBtn.prop('disabled', !canValidate);
+
+                        } else {
+
+                            soldeInfoDiv.html(`<p class="text-danger">${resp.message || 'Erreur lors de la vérification du solde.'}</p>`);
+
+                            submitBtn.prop('disabled', true);
+
                         }
-                        if (solde.period_start && solde.period_end) {
-                            html += `<p class="mt-2"><small>Calculé sur la période du <strong>${solde.period_start}</strong> au <strong>${solde.period_end}</strong>.</small></p>`;
-                        }
-                        html += canValidate ? '<p class="text-success mt-2">Validation possible</p>' : '<p class="text-danger mt-2">Solde insuffisant</p>';
-                        $('#soldeInfo').html(html);
-                        $('#validationSubmitBtn').prop('disabled', !canValidate);
-                    } else {
-                        $('#soldeInfo').html(`<p class="text-danger">${resp.message || 'Erreur solde.'}</p>`);
-                    }
-                });
-                new bootstrap.Modal('#validationModal').show();
-            });
 
-            $('#validationForm').on('submit', function(e) { e.preventDefault(); $.post(`${BASE_URL}/backOffice/conge/valider`, $(this).serialize(), (r) => { if(r.success) location.reload(); else alert(r.message); }).fail(() => alert('Erreur serveur.')); });
+                    }).fail(() => {
 
-            $(document).on('click', '.refuse-btn', function() { $('#refus_id_demande').val($(this).data('id')); $('#refus_date').val(getCurrentDate()); new bootstrap.Modal('#refusModal').show(); });
-            $('#refusForm').on('submit', function(e) { e.preventDefault(); $.post(`${BASE_URL}/backOffice/conge/refuser`, $(this).serialize(), (r) => { if(r.success) location.reload(); else alert(r.message); }).fail(() => alert('Erreur serveur.')); });
+                        soldeInfoDiv.html('<p class="text-danger">Erreur serveur lors de la vérification du solde.</p>');
 
-            $('#editCongeForm').on('submit', function(e) {
-                e.preventDefault();
-                const data = { id_demande_conge: $('#edit_id_demande').val(), new_start: $('#edit_date_debut').val(), new_end: $('#edit_date_fin').val() };
-                $.post(`${BASE_URL}/api/conge/update`, data, (res) => { if (res.success) location.reload(); else alert(res.message); }).fail(() => alert('Erreur serveur.'));
-            });
+                        submitBtn.prop('disabled', true);
 
-            $('#deleteCongeBtn').on('click', function() {
-                if (confirm('Êtes-vous sûr de vouloir supprimer ce congé ? Cette action est irréversible.')) {
-                    $.post(`${BASE_URL}/api/conge/delete`, { id_demande_conge: $('#edit_id_demande').val() }, (res) => { if (res.success) location.reload(); else alert(res.message); }).fail(() => alert('Erreur serveur.'));
+                    });
+
                 }
-            });
 
-        })(jQuery);
-    });
-    </script>
-</body>
-</html>
+    
+
+                // --- Initialisation FullCalendar ---
+
+                var calendarEl = document.getElementById('calendar');
+
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+
+                    initialView: 'dayGridMonth',
+
+                    themeSystem: 'bootstrap5',
+
+                    headerToolbar: { left: 'prevYear,prev,next,nextYear today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+
+                    events: `${BASE_URL}/api/conges/planning`,
+
+                    editable: true,
+
+                    eventDrop: handleEventUpdate,
+
+                    eventResize: handleEventUpdate,
+
+                    eventClick: function(info) {
+
+                        const event = info.event;
+
+                        const modal = new bootstrap.Modal(document.getElementById('editCongeModal'));
+
+                        
+
+                        $('#edit_id_demande').val(event.id);
+
+                        $('#editEmployeNom').text(event.title);
+
+                        $('#edit_date_debut').val(event.startStr);
+
+                        
+
+                        let endDate = new Date(event.endStr);
+
+                        endDate.setDate(endDate.getDate() - 1);
+
+                        $('#edit_date_fin').val(endDate.toISOString().split('T')[0]);
+
+    
+
+                        // Vérifier le solde initial au chargement du modal
+
+                        checkSoldeAndUpdateDisplay(
+
+                            event.id, 
+
+                            $('#edit_date_debut').val(), 
+
+                            $('#edit_date_fin').val(), 
+
+                            $('#soldeInfoEdit'), 
+
+                            $('#editCongeForm button[type="submit"]')
+
+                        );
+
+    
+
+                        modal.show();
+
+                    },
+
+                    eventDidMount: function(info) {
+
+                        new bootstrap.Tooltip(info.el, { title: info.event.extendedProps.type, placement: 'top', trigger: 'hover', container: 'body' });
+
+                    }
+
+                });
+
+                calendar.render();
+
+    
+
+                /**
+
+                 * Gère le drag-and-drop et le redimensionnement d'événements.
+
+                 * @param {object} info - L'objet d'information de l'événement FullCalendar.
+
+                 */
+
+                function handleEventUpdate(info) {
+
+                    const event = info.event;
+
+                    let endDate = new Date(event.endStr);
+
+                    endDate.setDate(endDate.getDate() - 1);
+
+                    const endDateStr = endDate.toISOString().split('T')[0];
+
+    
+
+                    // 1. Vérifier le solde avant de faire la mise à jour
+
+                    $.get(`${BASE_URL}/api/conge/solde`, { id: event.id, start_override: event.startStr, end_override: endDateStr }, (resp) => {
+
+                        if (resp.success && resp.data.canValidate) {
+
+                            // 2. Si le solde est suffisant, procéder à la mise à jour
+
+                            $.post(`${BASE_URL}/api/conge/update`, {
+
+                                id_demande_conge: event.id, 
+
+                                new_start: event.startStr, 
+
+                                new_end: endDateStr
+
+                            }, (res) => { 
+
+                                if (!res.success) { 
+
+                                    alert('Erreur lors de la mise à jour: ' + res.message); 
+
+                                    info.revert(); 
+
+                                } 
+
+                                location.reload(); 
+
+                            }).fail(() => { 
+
+                                alert('Erreur serveur lors de la mise à jour.'); 
+
+                                info.revert(); 
+
+                            });
+
+                        } else {
+
+                            // 3. Si le solde est insuffisant, annuler l'opération
+
+                            alert('Modification impossible: ' + (resp.data.solde ? 'le solde est insuffisant.' : resp.message));
+
+                            info.revert();
+
+                        }
+
+                    }).fail(() => {
+
+                        alert('Erreur serveur lors de la vérification du solde.');
+
+                        info.revert();
+
+                    });
+
+                }
+
+    
+
+                // --- Logique pour les Modals ---
+
+                
+
+                // Validation depuis la liste
+
+                $(document).on('click', '.validate-btn', function() {
+
+                    const id = $(this).data('id');
+
+                    $('#validation_id_demande').val(id);
+
+                    $('#validation_date').val(getCurrentDate());
+
+                    $('#soldeInfo').html('Chargement...');
+
+                    $('#validationSubmitBtn').prop('disabled', true);
+
+                    
+
+                    $.get(`${BASE_URL}/api/conge/solde`, { id }, (resp) => {
+
+                        if (resp.success) {
+
+                            const { solde, days, canValidate, taken_during_period } = resp.data;
+
+                            let html = `<p><strong>Solde disponible:</strong> ${solde.balance} j</p><p><strong>Jours demandés:</strong> ${days} j</p>`;
+
+                            if (typeof taken_during_period !== 'undefined') {
+
+                                html += `<p><strong>Jours pris sur la période:</strong> ${taken_during_period} j</p>`;
+
+                            }
+
+                            if (solde.period_start && solde.period_end) {
+
+                                html += `<p class="mt-2"><small>Calculé sur la période du <strong>${solde.period_start}</strong> au <strong>${solde.period_end}</strong>.</small></p>`;
+
+                            }
+
+                            html += canValidate ? '<p class="text-success mt-2">Validation possible</p>' : '<p class="text-danger mt-2">Solde insuffisant</p>';
+
+                            $('#soldeInfo').html(html);
+
+                            $('#validationSubmitBtn').prop('disabled', !canValidate);
+
+                        } else {
+
+                            $('#soldeInfo').html(`<p class="text-danger">${resp.message || 'Erreur solde.'}</p>`);
+
+                        }
+
+                    });
+
+                    new bootstrap.Modal('#validationModal').show();
+
+                });
+
+    
+
+                $('#validationForm').on('submit', function(e) { e.preventDefault(); $.post(`${BASE_URL}/backOffice/conge/valider`, $(this).serialize(), (r) => { if(r.success) location.reload(); else alert(r.message); }).fail(() => alert('Erreur serveur.')); });
+
+    
+
+                // Refus depuis la liste
+
+                $(document).on('click', '.refuse-btn', function() { $('#refus_id_demande').val($(this).data('id')); $('#refus_date').val(getCurrentDate()); new bootstrap.Modal('#refusModal').show(); });
+
+                $('#refusForm').on('submit', function(e) { e.preventDefault(); $.post(`${BASE_URL}/backOffice/conge/refuser`, $(this).serialize(), (r) => { if(r.success) location.reload(); else alert(r.message); }).fail(() => alert('Erreur serveur.')); });
+
+    
+
+                // Modification depuis le modal du calendrier
+
+                $('#edit_date_debut, #edit_date_fin').on('change', function() {
+
+                    checkSoldeAndUpdateDisplay(
+
+                        $('#edit_id_demande').val(),
+
+                        $('#edit_date_debut').val(),
+
+                        $('#edit_date_fin').val(),
+
+                        $('#soldeInfoEdit'),
+
+                        $('#editCongeForm button[type="submit"]')
+
+                    );
+
+                });
+
+    
+
+                $('#editCongeForm').on('submit', function(e) {
+
+                    e.preventDefault();
+
+                    const data = { id_demande_conge: $('#edit_id_demande').val(), new_start: $('#edit_date_debut').val(), new_end: $('#edit_date_fin').val() };
+
+                    $.post(`${BASE_URL}/api/conge/update`, data, (res) => { if (res.success) location.reload(); else alert(res.message); }).fail(() => alert('Erreur serveur.'));
+
+                });
+
+    
+
+                // Suppression depuis le modal du calendrier
+
+                $('#deleteCongeBtn').on('click', function() {
+
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce congé ? Cette action est irréversible.')) {
+
+                        $.post(`${BASE_URL}/api/conge/delete`, { id_demande_conge: $('#edit_id_demande').val() }, (res) => { if (res.success) location.reload(); else alert(res.message); }).fail(() => alert('Erreur serveur.'));
+
+                    }
+
+                });
+
+    
+
+            })(jQuery);
+
+        });
+
+        </script></body>
+
+    </html>
+
+    

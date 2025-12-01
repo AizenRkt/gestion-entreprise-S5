@@ -259,9 +259,7 @@ class CongeModel
             $id_employe = $old_conge['id_employe'];
     
             // 2. Mettre à jour la demande de congé avec les nouvelles dates
-            $new_start_dt = new \DateTime($newStartDate);
-            $new_end_dt = new \DateTime($newEndDate);
-            $nb_jours = $new_start_dt->diff($new_end_dt)->days + 1;
+            $nb_jours = $this->calculateWorkingDays($newStartDate, $newEndDate);
     
             $stmt_update = $db->prepare("UPDATE demande_conge SET date_debut = ?, date_fin = ?, nb_jours = ? WHERE id_demande_conge = ?");
             $stmt_update->execute([$newStartDate, $newEndDate, $nb_jours, $id_demande_conge]);

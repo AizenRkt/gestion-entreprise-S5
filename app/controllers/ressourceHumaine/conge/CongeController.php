@@ -186,6 +186,10 @@ class CongeController
             return;
         }
 
+        // Récupérer les dates surchargées si elles existent (pour la validation en temps réel)
+        $start_override = $q['start_override'] ?? null;
+        $end_override = $q['end_override'] ?? null;
+
         $db = Flight::db();
         $stmt = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = ? LIMIT 1");
         $stmt->execute([$id]);
@@ -194,19 +198,22 @@ class CongeController
             Flight::json(['success' => false, 'message' => 'Demande introuvable'], 404);
             return;
         }
+        
+        // Utiliser les dates surchargées si fournies, sinon celles de la BDD
+        $date_debut_a_verifier = $start_override ?? $demande['date_debut'];
+        $date_fin_a_verifier = $end_override ?? $demande['date_fin'];
 
         // calculer nombre de jours demandés (inclusif)
         try {
-            $d1 = new \DateTime($demande['date_debut']);
-            $d2 = new \DateTime($demande['date_fin']);
-            $days = $d1->diff($d2)->days + 1;
+            $model = new CongeModel();
+            $days = $model->calculateWorkingDays($date_debut_a_verifier, $date_fin_a_verifier);
         } catch (\Exception $e) {
             $days = 0;
         }
 
         // La période prise en compte doit se terminer à la date de fin de la demande
         // Passer date_debut + date_fin à la fonction pour que le calcul tienne compte de la période de la demande
-        $solde = $this->congeModel->calculateSoldeConge((int)$demande['id_employe'], $demande['date_fin'], $demande['date_debut']);
+        $solde = $this->congeModel->calculateSoldeConge((int)$demande['id_employe'], $date_fin_a_verifier, $date_debut_a_verifier);
 
         $canValidate = ($solde['balance'] >= $days);
 
@@ -260,6 +267,27 @@ class CongeController
             Flight::json(['success' => false, 'message' => 'Données manquantes.'], 400);
             return;
         }
+
+        // --- Validation du solde côté serveur ---
+        $db = Flight::db();
+        $stmt = $db->prepare("SELECT id_employe FROM demande_conge WHERE id_demande_conge = ?");
+        $stmt->execute([$id]);
+        $demande = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$demande) {
+            Flight::json(['success' => false, 'message' => 'Demande introuvable.'], 404);
+            return;
+        }
+
+        $id_employe = (int)$demande['id_employe'];
+        $days = $this->congeModel->calculateWorkingDays($start, $end);
+        $solde = $this->congeModel->calculateSoldeConge($id_employe, $end, $start);
+
+        if ($solde['balance'] < $days) {
+            Flight::json(['success' => false, 'message' => 'Solde de congé insuffisant pour effectuer cette modification.'], 400);
+            return;
+        }
+        // --- Fin de la validation ---
 
         $result = $this->congeModel->updateCongeDates((int)$id, $start, $end);
 
