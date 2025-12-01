@@ -33,7 +33,8 @@ class ContratTravailController
     }
 
     public function contratTravailList() {
-        Flight::render('ressourceHumaine/back/contratTravail/contratTravailList');    
+        $postes = PosteModel::getAll();
+        Flight::render('ressourceHumaine/back/contratTravail/contratTravailList', ['postes' => $postes]);    
     }
 
     public function creerCDI($id) {
@@ -344,6 +345,9 @@ class ContratTravailController
 
             $idRenouv = $this->contratTravailModel->InsertRenouvellement($id, $nouvelleDateFin, $commentaire, $dateRenouvellement, $pathPdfRenouv);
 
+            // enregistrement dans document
+            DocumentModel::insertValableDocument(2, $contrat['id_employe'], "renouvellement CDD", $pathPdfRenouv);
+
             if ($idRenouv === false) {
                 Flight::json(['success' => false, 'message' => 'Erreur lors de l\'insertion du renouvellement.'], 500);
                 return;
@@ -411,6 +415,9 @@ class ContratTravailController
                 VALUES (?, ?, ?)
             ");
             $stmt->execute([$id, $idContrat, date('Y-m-d')]);
+
+            // enregistrement pdf dans document
+            DocumentModel::insertValableDocument(2, $contratCDD['id_employe'], "requalification contrat vers CDI", $pdf);
 
             Flight::json([
                 'success' => true,

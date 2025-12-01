@@ -29,6 +29,20 @@
 <li class="sidebar-title">Compte</li>
 
 <li class="sidebar-item">
+    <a href="<?= Flight::base() ?>/auth/parametre" class="sidebar-link">
+        <i class="bi bi-gear-fill"></i>
+        <span>Paramètre</span>
+    </a>
+</li>
+
+<li class="sidebar-item  ">
+    <a href="<?= Flight::base() ?>/llm" class="sidebar-link">
+        <i class="bi bi-robot"></i>
+        <span>Terminator</span>
+    </a>
+</li>
+
+<li class="sidebar-item">
     <a href="<?= Flight::base() ?>/backOffice/user/pointage" class="sidebar-link">
         <i class="bi bi-fingerprint"></i>
         <span>Pointage</span>
@@ -44,6 +58,7 @@
         <span>Demande</span>
     </a>
     <ul class="submenu">
+
         <li class="submenu-item">
             <a href="<?= Flight::base() ?>/conge/demande" class="sidebar-link">
                 <!-- <i class="bi bi-calendar2-check"></i> -->
@@ -65,13 +80,6 @@
             </a>
         </li>                                               
     </ul>
-</li>
-
-<li class="sidebar-item">
-    <a href="<?= Flight::base() ?>/auth/parametre" class="sidebar-link">
-        <i class="bi bi-gear-fill"></i>
-        <span>Paramètre</span>
-    </a>
 </li>
 
 <li class="sidebar-item">

@@ -30,6 +30,41 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-2">
+                                <label class="form-label">Type de contrat</label>
+                                <select id="filtreTypeContrat" class="form-select">
+                                    <option value="">Tous</option>
+                                    <option value="CDI">CDI</option>
+                                    <option value="CDD">CDD</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Poste</label>
+                                <select id="filtrePoste" class="form-select">
+                                    <option value="">Tous les postes</option>
+                                    <?php foreach ($postes as $poste): ?>
+                                        <option value="<?= htmlspecialchars($poste['titre']) ?>">
+                                            <?= htmlspecialchars($poste['titre']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Date début (min)</label>
+                                <input type="date" id="filtreDateDebut" class="form-control">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Date fin (max)</label>
+                                <input type="date" id="filtreDateFin" class="form-control">
+                            </div>
+
+                        </div>
+
                         <table class="table" id="tableContrats">
                             <thead>
                                 <tr>
@@ -190,7 +225,7 @@ $(document).ready(function () {
                         ${btnRequalification}
                         <a href="<?= Flight::base() ?>/public/uploads/data/document/${pathPDF}" 
                            target="_blank" 
-                           class="btn btn-info btn-sm">
+                           class="btn btn-info btn-sm" style="margin-top : 5px">
                             Voir contrat
                         </a>
                     `;
@@ -269,6 +304,52 @@ $(document).ready(function () {
             });
     });
 
+});
+</script>
+
+<!-- filtre -->
+<script>
+$.fn.dataTable.ext.search.push(function(settings, data) {
+
+    // Valeurs des filtres
+    let typeContrat = $('#filtreTypeContrat').val();
+    let poste = $('#filtrePoste').val();
+    let dateMin = $('#filtreDateDebut').val();
+    let dateMax = $('#filtreDateFin').val();
+
+    // Colonnes du tableau
+    // ⚠️ respecter l’ordre !
+    let typeTable   = data[1]; // Type
+    let posteTable  = data[2]; // Poste
+    let dateDebutTable = data[3]; // Date début
+    let dateFinTable   = data[4]; // Date fin
+
+    // FILTRE TYPE DE CONTRAT
+    if (typeContrat && typeTable !== typeContrat) {
+        return false;
+    }
+
+    // FILTRE POSTE
+    if (poste && posteTable !== poste) {
+        return false;
+    }
+
+    // FILTRE DATE DEBUT MIN
+    if (dateMin && dateDebutTable < dateMin) {
+        return false;
+    }
+
+    // FILTRE DATE FIN MAX
+    if (dateMax && dateFinTable > dateMax) {
+        return false;
+    }
+
+    return true;
+});
+
+// Quand un filtre change → mise à jour DataTable
+$('#filtreTypeContrat, #filtrePoste, #filtreDateDebut, #filtreDateFin').on('change', function () {
+    $('#tableContrats').DataTable().draw();
 });
 </script>
 
