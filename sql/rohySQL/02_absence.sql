@@ -106,4 +106,18 @@ JOIN
 LEFT JOIN 
     validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;
 
-    
+
+CREATE OR REPLACE VIEW view_total_absences AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(a.date_debut) AS annee,
+    MONTH(a.date_debut) AS mois,
+    SUM(DATEDIFF(a.date_fin, a.date_debut) + 1) AS total_absences  -- "+ 1" pour inclure le jour de fin
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;

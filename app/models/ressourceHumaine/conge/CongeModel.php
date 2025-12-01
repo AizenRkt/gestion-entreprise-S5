@@ -419,4 +419,35 @@ class CongeModel
             'activation_date' => $activationDate->format('Y-m-d')
         ];
     }
+    /**
+     * Récupère tous les congés d'un employé pour un mois et une année donnés.
+     *
+     * @param int $id_employe L'identifiant de l'employé.
+     * @param int $mois Le mois à filtrer (1-12).
+     * @param int $annee L'année à filtrer.
+     * @return array
+     */
+    public function getAllCongeByEmployeAndDate(int $id_employe, int $mois, int $annee): array
+    {
+        try {
+            $db = Flight::db();
+            $sql = "SELECT * FROM view_total_conges 
+                    WHERE id_employe = :id_employe 
+                    AND mois = :mois 
+                    AND annee = :annee";
+                    
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                'id_employe' => $id_employe,
+                'mois' => $mois,
+                'annee' => $annee
+            ]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);  // Retourne tous les résultats
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return [];  // En cas d'erreur, retourne un tableau vide
+        }
+    }
+    
 }

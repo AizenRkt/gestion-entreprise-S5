@@ -3,6 +3,14 @@ CREATE DATABASE if not exists gestion_entreprise;
 
 USE gestion_entreprise;
 
+-- DROP DATABASE if exists gestion_entreprise_test;
+-- CREATE DATABASE if not exists gestion_entreprise_test;
+
+-- DROP DATABASE if exists gestion_entreprise_prod;
+-- CREATE DATABASE if not exists gestion_entreprise_prod;
+
+-- USE gestion_entreprise_prod;
+
 -- ======================
 -- utilisateur, role, métier
 -- ======================
@@ -33,7 +41,7 @@ CREATE TABLE candidat (
     telephone VARCHAR(20),
     genre VARCHAR(1),
     date_naissance DATE,
-    date_candidature DATE DEFAULT CURRENT_DATE
+    date_candidature DATE DEFAULT (CURRENT_DATE)
 );
 
 CREATE TABLE employe (
@@ -143,7 +151,7 @@ CREATE TABLE cv (
     id_cv INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT NOT NULL,
     id_profil INT NOT NULL,
-    date_soumission DATE DEFAULT CURRENT_DATE,
+    date_soumission DATE DEFAULT (CURRENT_DATE),
     photo VARCHAR(255),
     FOREIGN KEY (id_profil) REFERENCES profil(id_profil) ON DELETE CASCADE,
     FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
@@ -165,7 +173,7 @@ CREATE TABLE postulance (
     id_postulance INT AUTO_INCREMENT PRIMARY KEY,
     id_cv INT NOT NULL,
     id_annonce INT NOT NULL,
-    date_postulation DATE DEFAULT CURRENT_DATE,
+    date_postulation DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (id_cv) REFERENCES cv(id_cv) ON DELETE CASCADE,
     FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE
 );
@@ -314,7 +322,7 @@ CREATE TABLE contrat_travail (
     fin DATE NULL,
     salaire_base DECIMAL(10,2),
     date_signature DATE NULL,
-    date_creation DATE NOT NULL DEFAULT CURRENT_DATE,
+    date_creation DATE NOT NULL DEFAULT (CURRENT_DATE),
     id_poste INT NULL,
     pathPdf VARCHAR(255),
 
@@ -331,6 +339,24 @@ CREATE TABLE contrat_travail_renouvellement (
     date_renouvellement DATE NOT NULL,
     date_creation DATE NOT NULL,
     pathPdf VARCHAR(255),
+    FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
+);
+
+CREATE TABLE contrat_migration_cdd_cdi(
+    id_migration INT AUTO_INCREMENT PRIMARY KEY,
+    id_cdd INT NOT NULL,
+    id_cdi INT NOT NULL,
+    date_migration DATETIME,
+    FOREIGN KEY (id_cdd) REFERENCES contrat_travail(id_contrat_travail),
+    FOREIGN KEY (id_cdi) REFERENCES contrat_travail(id_contrat_travail)
+);
+
+CREATE TABLE contrat_employe_statut(
+    id_contrat_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_travail INT NOT NULL,
+    id_employe_statut INT NOT NULL,
+    date_ajout DATE NOT NULL,
+    FOREIGN KEY (id_employe_statut) REFERENCES employe_statut(id_employe_statut),
     FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
 );
 
@@ -460,7 +486,7 @@ CREATE TABLE validation_heure_sup (
     FOREIGN KEY (id_demande_heure_sup) REFERENCES demande_heure_sup(id_demande_heure_sup)
 );
 
---pointage
+-- pointage
 CREATE TABLE statut_pointage (
     id INT AUTO_INCREMENT PRIMARY KEY,
     heure TIME,
@@ -585,7 +611,117 @@ JOIN
 LEFT JOIN 
     validation_conge v ON d.id_demande_conge = v.id_demande_conge;
 
-    INSERT INTO departement (nom) VALUES
+
+CREATE TABLE poste_competence (
+    id_poste INT NOT NULL,
+    id_competence INT NOT NULL,
+    PRIMARY KEY (id_poste, id_competence)
+);
+
+CREATE TABLE employe_competence (
+    id_employe INT NOT NULL,
+    id_competence INT NOT NULL,
+    PRIMARY KEY (id_employe, id_competence)
+);
+
+CREATE TABLE employe_formation (
+    id_employe_formation SERIAL PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_formation INT NOT NULL,
+    date_assigned DATE NOT NULL DEFAULT (CURRENT_DATE),
+    date_completed DATE,
+    status VARCHAR(20) DEFAULT 'ASSIGNED'
+);
+
+CREATE TABLE formation (
+    id_formation SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE formation_competence (
+    id_formation INT NOT NULL,
+    id_competence INT NOT NULL,
+    PRIMARY KEY (id_formation, id_competence)
+);
+
+-- =========================
+-- Views
+-- =========================
+
+CREATE VIEW vw_poste_match AS
+SELECT
+    pc.id_poste,
+    e.id_employe,
+    COUNT(pc.id_competence) AS total_required_skills,
+    COUNT(ec.id_competence) AS skills_matched,
+    (COUNT(ec.id_competence) = COUNT(pc.id_competence)) AS is_full_match
+FROM poste_competence pc
+CROSS JOIN employe e
+LEFT JOIN employe_competence ec
+    ON ec.id_employe = e.id_employe
+    AND ec.id_competence = pc.id_competence
+GROUP BY pc.id_poste, e.id_employe;
+
+CREATE VIEW vw_missing_skills AS
+SELECT
+    pc.id_poste,
+    e.id_employe,
+    c.id_competence,
+    c.nom AS missing_competence
+FROM poste_competence pc
+JOIN competence c ON c.id_competence = pc.id_competence
+CROSS JOIN employe e
+LEFT JOIN employe_competence ec
+    ON ec.id_employe = e.id_employe
+    AND ec.id_competence = pc.id_competence
+WHERE ec.id_competence IS NULL;
+
+CREATE VIEW vw_formation_suggestion AS
+SELECT
+    ms.id_poste,
+    ms.id_employe,
+    ms.id_competence,
+    f.id_formation,
+    f.nom AS formation_name
+FROM vw_missing_skills ms
+JOIN formation_competence fc 
+    ON fc.id_competence = ms.id_competence
+JOIN formation f 
+    ON f.id_formation = fc.id_formation;
+
+CREATE VIEW vw_employe_formation_history AS
+SELECT
+    ef.id_employe,
+    e.nom AS employe_name,
+    ef.id_formation,
+    f.nom AS formation_name,
+    ef.date_assigned,
+    ef.date_completed,
+    ef.status
+FROM employe_formation ef
+JOIN employe e ON e.id_employe = ef.id_employe
+JOIN formation f ON f.id_formation = ef.id_formation;
+
+CREATE VIEW vw_untrained_missing_skills AS
+SELECT *
+FROM vw_missing_skills ms
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM employe_formation ef
+    JOIN formation_competence fc ON fc.id_formation = ef.id_formation
+    WHERE ef.id_employe = ms.id_employe
+      AND fc.id_competence = ms.id_competence
+      AND ef.status IN ('ASSIGNED', 'IN_PROGRESS', 'COMPLETED')
+);
+-- partie artifice 
+CREATE TABLE poste_responsabilite (
+    id_poste_responsabilite INT AUTO_INCREMENT PRIMARY KEY,
+    id_poste INT NOT NULL,
+    libelle VARCHAR(255),
+    FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
+);
+
+INSERT INTO departement (nom) VALUES
 ('Informatique'),
 ('Production'),
 ('Ingénierie'),
@@ -886,7 +1022,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
 ('09:00:00', 'Heure normale', 10, 6);  -- Samedi
 
---donne absenece
+-- donne absence
 
 -- partie absence 
 CREATE TABLE type_absence (
@@ -988,7 +1124,7 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 
 
 
---donne conge
+-- donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 ('Congé payé', 'Congé avec salaire', 1, 30),  -- Paid leave
@@ -997,23 +1133,252 @@ INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
 
 -- Inserting leave requests
 INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 1, '2027-06-01', '2027-06-10', 10),  -- Congé payé pour employé 1 (Ravatomanga)
-(2, 2, '2027-06-15', '2027-06-20', 6),   -- Congé sans solde pour employé 2 (Rajoelina)
-(3, 3, '2027-06-25', '2027-06-30', 5),   -- Congé maladie pour employé 3 (Alice)
-(1, 4, '2027-07-01', '2027-07-05', 5),   -- Congé payé pour employé 4 (Lalaina)
-(2, 5, '2027-07-10', '2027-07-12', 3),   -- Congé sans solde pour employé 5 (George)
-(1, 1, '2027-07-15', '2027-07-20', 6),   -- Congé payé pour employé 1 (Ravatomanga)
-(3, 2, '2027-07-25', '2027-07-30', 5),   -- Congé maladie pour employé 2 (Rajoelina)
-(1, 3, '2027-08-01', '2027-08-10', 10),  -- Congé payé pour employé 3 (Alice)
-(2, 4, '2027-08-15', '2027-08-17', 3),   -- Congé sans solde pour employé 4 (Lalaina)
-(3, 5, '2027-08-20', '2027-08-25', 6);   -- Congé maladie pour employé 5 (George)
-
+(1, 1, '2025-01-01', '2025-01-10', 10),  -- Paid leave request for 2025
+(2, 2, '2025-02-15', '2025-02-20', 5),  -- Unpaid leave request for 2025
+(3, 3, '2025-03-23', '2025-03-29', 5),  -- Sick leave request for 2025
+(1, 4, '2025-04-01', '2025-04-05', 5),  -- Paid leave for Zo Lalaina
+(1, 5, '2025-05-10', '2025-05-15', 6);  -- Paid leave for Andry George
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
-(1, 'valide', '2023-10-28'),  -- Approved leave
-(2, 'refuse', '2023-10-28');  -- Approved leave
+(1, 'valide', '2024-12-15'),  -- Approved leave for 2025
+(2, 'refuse', '2024-12-16'),  -- Refused leave
+(3, 'valide', '2024-12-17'),  -- Approved leave
+(4, 'valide', '2024-12-18'),  -- Approved leave
+(5, 'valide', '2024-12-19');  -- Approved leave
 
+-- Modifications pour tester le filtre de date sur les statistiques
+-- Mise à jour des dates de modification pour diversifier les périodes
+UPDATE employe_statut SET date_modification = '2023-01-15' WHERE id_employe = 1;
+UPDATE employe_statut SET date_modification = '2024-06-20' WHERE id_employe = 2;
+UPDATE employe_statut SET date_modification = '2023-03-10' WHERE id_employe = 3;
+UPDATE employe_statut SET date_modification = '2025-11-01' WHERE id_employe = 4;
+UPDATE employe_statut SET date_modification = '2024-09-05' WHERE id_employe = 5;
+UPDATE employe_statut SET date_modification = '2023-02-28' WHERE id_employe = 6;
+UPDATE employe_statut SET date_modification = '2024-07-12' WHERE id_employe = 7;
+UPDATE employe_statut SET date_modification = '2023-04-18' WHERE id_employe = 8;
+UPDATE employe_statut SET date_modification = '2025-10-22' WHERE id_employe = 9;
+UPDATE employe_statut SET date_modification = '2024-08-30' WHERE id_employe = 10;
+UPDATE employe_statut SET date_modification = '2023-05-14' WHERE id_employe = 11;
+UPDATE employe_statut SET date_modification = '2024-12-03' WHERE id_employe = 12;
+UPDATE employe_statut SET date_modification = '2023-06-25' WHERE id_employe = 13;
+UPDATE employe_statut SET date_modification = '2025-09-17' WHERE id_employe = 14;
+UPDATE employe_statut SET date_modification = '2024-11-08' WHERE id_employe = 15;
+UPDATE employe_statut SET date_modification = '2023-07-09' WHERE id_employe = 16;
+UPDATE employe_statut SET date_modification = '2024-10-19' WHERE id_employe = 17;
+UPDATE employe_statut SET date_modification = '2023-08-21' WHERE id_employe = 18;
+UPDATE employe_statut SET date_modification = '2025-08-13' WHERE id_employe = 19;
+UPDATE employe_statut SET date_modification = '2024-05-27' WHERE id_employe = 20;
+
+-- Poste: Développeur Backend (id_poste = 2)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(2, 1),  -- Programmation
+(2, 3),  -- Gestion de Projet
+(2, 30); -- Travail en Équipe
+
+-- Poste: Développeur Frontend (id_poste = 3)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(3, 1),   -- Programmation
+(3, 9),   -- Communication
+(3, 30);  -- Travail en Équipe
+
+-- Poste: Chef de Projet IT (id_poste = 4)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(4, 3),   -- Gestion de Projet
+(4, 10),  -- Leadership
+(4, 30);  -- Travail en Équipe
+
+-- Poste: Technicien Support N1 (id_poste = 5)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(5, 2),   -- Administration Systèmes
+(5, 16),  -- Maintenance Industrielle / Informatique
+(5, 17);  -- Support Technique
+
+-- Poste: Administrateur Systèmes (id_poste = 6)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(6, 2),  -- Administration Systèmes
+(6, 5),  -- Cybersécurité
+(6, 10); -- Leadership
+
+-- Poste: Inspecteur Qualité (id_poste = 9)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(9, 8),  -- Contrôle Qualité
+(9, 4),  -- Analyse de Données
+(9, 30); -- Travail en Équipe
+
+-- Poste: Responsable Qualité (id_poste = 10)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(10, 8),  -- Contrôle Qualité
+(10, 10), -- Leadership
+(10, 9);  -- Communication
+
+-- Poste: Ingénieur R&D (id_poste = 11)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(11, 1),  -- Programmation
+(11, 19), -- Innovation & Créativité
+(11, 30); -- Travail en Équipe
+
+-- Poste: Chef de Projet Innovation (id_poste = 12)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(12, 3),  -- Gestion de Projet
+(12, 10), -- Leadership
+(12, 19); -- Innovation & Créativité
+
+-- Poste: Dessinateur Industriel (id_poste = 13)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(13, 7),  -- Conception Mécanique
+(13, 14), -- Rédaction Technique
+(13, 30); -- Travail en Équipe
+
+-- Poste: Ingénieur Conception (id_poste = 14)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(14, 7),  -- Conception Mécanique
+(14, 10), -- Leadership
+(14, 19); -- Innovation & Créativité
+
+-- Poste: Comptable (id_poste = 15)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(15, 12), -- Comptabilité
+(15, 13), -- Analyse Financière
+(15, 30); -- Travail en Équipe
+
+-- Poste: Responsable Formation (id_poste = 20)
+INSERT INTO poste_competence (id_poste, id_competence) VALUES
+(20, 24), -- Gestion des compétences et relations employé
+(20, 25), -- Planification Logistique
+(20, 30); -- Travail en Équipe
+
+
+-- =========================
+-- Assigning competences to employees
+-- =========================
+
+-- Mamy Ravatomanga (id_employe = 1)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(1, 1),  -- Programmation
+(1, 3),  -- Gestion de Projet
+(1, 10), -- Leadership
+(1, 12); -- Comptabilité
+
+-- Andry Rajoelina (id_employe = 2)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(2, 2),  -- Administration Systèmes
+(2, 17), -- Support Technique
+(2, 5),  -- Cybersécurité
+(2, 18); -- Service Client
+
+-- Alice Dupont (id_employe = 3)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(3, 1),  -- Programmation
+(3, 23), -- Planification Stratégique
+(3, 19), -- Marketing Digital
+(3, 24); -- Gestion des Risques
+
+-- Zo Lalaina (id_employe = 4)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(4, 1),  -- Programmation
+(4, 3),  -- Gestion de Projet
+(4, 4),  -- Analyse de Données
+(4, 20); -- Travail en Équipe
+
+-- Andry George (id_employe = 5)
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(5, 1),  -- Programmation
+(5, 3),  -- Gestion de Projet
+(5, 10), -- Leadership
+(5, 17); -- Support Technique
+
+
+-- Add a new candidate
+INSERT INTO candidat (nom, prenom, email, telephone, genre, date_naissance) VALUES
+('Rakoto', 'Jean', 'jean.rakoto@gmail.com', '0321234567', 'M', '1995-07-10');
+
+-- Add the candidate as an employee
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(LAST_INSERT_ID(), 'Rakoto', 'Jean', 'jean.rakoto@gmail.com', '0321234567', 'M', '2025-11-28');
+
+-- Assign the employee to a poste: Développeur Backend (id_poste = 2)
+INSERT INTO employe_statut (id_employe, id_poste, activite) VALUES
+(LAST_INSERT_ID(), 2, 1);
+
+-- Assign some competences, but leave one missing
+-- Développeur Backend requires: 1 (Programmation), 3 (Gestion de Projet), 30 (Travail en Équipe)
+-- We give only 1 and 3, missing 30
+INSERT INTO employe_competence (id_employe, id_competence) VALUES
+(LAST_INSERT_ID(), 1),  -- Programmation
+(LAST_INSERT_ID(), 3);  -- Gestion de Projet
+
+-- Contrats de travail
+INSERT INTO contrat_travail (id_employe, id_type_contrat, debut, fin, salaire_base, date_signature, id_poste) VALUES
+(1, 1, '2020-01-01', NULL, 1500000, '2020-01-01', 17),  -- CDI, pas de fin
+(2, 1, '2018-06-10', NULL, 1200000, '2018-06-10', 18),  -- CDI
+(3, 1, '2020-01-01', NULL, 2000000, '2020-01-01', 2),  -- CDI
+(4, 2, '2025-11-23', '2025-12-23', 800000, '2025-11-23', 2),  -- CDD fin décembre 2025
+(5, 2, '2025-11-23', '2026-01-23', 900000, '2025-11-23', 3),  -- CDD fin janvier 2026
+(6, 2, '2025-11-28', '2025-12-28', 700000, '2025-11-28', 2); -- CDD pour Rakoto Jean
+
+INSERT INTO document_type (nom) VALUES 
+('contrat d''essai'),
+('contrat de travail'),
+('CIN'),
+('certificat de résidence');
+
+-- INSERT INTO document (
+--     id_type_document,
+--     id_employe,
+--     titre,
+--     pathScan,
+--     dateUpload,
+--     date_expiration
+-- ) VALUES (
+--     4,               -- certificat de résidence
+--     14,              -- employé id=14
+--     'Certificat de résidence',
+--     'certificat_residence.jpg',            -- pas de scan pour l’instant
+--     CURRENT_DATE,    -- date d’upload = aujourd’hui
+--     NULL             -- pas d’expiration
+-- );
+
+-- INSERT INTO document_statut (
+--     id_document,
+--     statut,
+--     date_statut,
+--     commentaire
+-- ) VALUES (
+--     LAST_INSERT_ID(),
+--     'valide',
+--     CURRENT_DATE,
+--     'Document enregistré manuellement'
+-- );
+
+
+-- INSERT INTO document (
+--     id_type_document,
+--     id_employe,
+--     titre,
+--     pathScan,
+--     dateUpload,
+--     date_expiration
+-- ) VALUES (
+--     3,               -- CIN
+--     14,              -- employé id=14
+--     'CIN',
+--     'CIN.png',            -- pas de scan pour l’instant
+--     CURRENT_DATE,    -- date d’upload = aujourd’hui
+--     NULL             -- pas d’expiration
+-- );
+
+-- INSERT INTO document_statut (
+--     id_document,
+--     statut,
+--     date_statut,
+--     commentaire
+-- ) VALUES (
+--     LAST_INSERT_ID(),
+--     'valide',
+--     CURRENT_DATE,
+--     'Document enregistré manuellement'
+-- );
 INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-01-01', 'Nouvel An', 'annuel'),
 ('2025-01-01', '10eme anniversaire de lentreprise', 'fixe'),
@@ -1024,21 +1389,3 @@ INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-08-15', 'Assomption', 'annuel'),
 ('2025-11-01', 'Toussaint', 'annuel'),
 ('2025-12-25', 'Noël', 'annuel');
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 4, '2027-12-01', '2027-12-10', 26);  -- Paid leave request
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 4, '2028-01-01', '2028-02-02', 26);  -- Paid leave request
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 4, '2028-12-03', '2028-12-20', 26);  -- Paid leave request
-
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 4, '2029-01-01', '2029-02-02', 26);  -- Paid leave request
-
-
-
-INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_jours) VALUES
-(1, 4, '2031-03-01', '2031-03-11', 26);  -- Paid leave request
