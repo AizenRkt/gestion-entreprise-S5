@@ -1067,8 +1067,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 2),  -- Mardi
 ('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
 ('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
-('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
-('09:00:00', 'Heure normale', 10, 6);  -- Samedi
+('07:30:00', 'Heure normale', 10, 5);  -- Vendredi
 
 -- donne absence
 
