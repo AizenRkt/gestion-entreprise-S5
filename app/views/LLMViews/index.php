@@ -231,10 +231,8 @@ if (isset($_GET['mssg'])) {
 
         /* Input area */
         .chat-input-area {
-            padding: 20px 24px;
-            background: white;
-            border-top: 1px solid var(--border-color);
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+            padding: 20px 40px;
+            background-color: transparent;
         }
 
         .input-container {
@@ -271,7 +269,7 @@ if (isset($_GET['mssg'])) {
         .send-button {
             position: absolute;
             right: 8px;
-            bottom: 8px;
+            bottom: 15px;
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -377,128 +375,126 @@ if (isset($_GET['mssg'])) {
             .suggestion-cards {
                 grid-template-columns: 1fr;
             }
+
+            .icon-custom {
+                position: relative;
+                top: 5px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="chat-container">
-        <!-- Header -->
-        <div class="chat-header">
-            <h1>
-                <i class="bi bi-robot me-2"></i>
-                Assistant RH
-            </h1>
-            <div class="header-actions">
-                <button class="btn-icon" onclick="clearChat()" title="Nouvelle conversation">
-                    <i class="bi bi-plus-lg"></i>
-                </button>
-                <button class="btn-icon" onclick="toggleMenu()" title="Menu">
-                    <i class="bi bi-list"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Messages Area -->
-        <div class="chat-messages" id="chatMessages">
-            <?php if (empty($chatHistory) || !is_array($chatHistory)): ?>
-                <!-- Empty State -->
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="bi bi-chat-dots"></i>
-                    </div>
-                    <h2>Comment puis-je vous aider ?</h2>
-                    <p>Posez-moi vos questions sur les ressources humaines</p>
-                    
-                    <div class="suggestion-cards">
-                        <div class="suggestion-card" onclick="fillQuestion('Comment calculer les congés payés ?')">
-                            <p class="suggestion-card-title">Comment calculer les congés payés ?</p>
-                        </div>
-                        <div class="suggestion-card" onclick="fillQuestion('Quelles sont les étapes de recrutement ?')">
-                            <p class="suggestion-card-title">Quelles sont les étapes de recrutement ?</p>
-                        </div>
-                        <div class="suggestion-card" onclick="fillQuestion('Politique de télétravail')">
-                            <p class="suggestion-card-title">Politique de télétravail</p>
-                        </div>
-                        <div class="suggestion-card" onclick="fillQuestion('Procédure d\'évaluation annuelle')">
-                            <p class="suggestion-card-title">Procédure d'évaluation annuelle</p>
-                        </div>
-                    </div>
-                </div>
-            <?php else: ?>
-                <!-- Chat History -->
-                <?php foreach ($chatHistory as $item): ?>
-                    <?php if (!empty($item['question'])): ?>
-                        <div class="message-wrapper user">
-                            <div class="message-avatar">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div class="message-content">
-                                <div class="message-bubble">
-                                    <?php echo nl2br(htmlspecialchars($item['question'])); ?>
+    <div id="app">
+        <?= Flight::menuBackOffice() ?>
+        <div id="main">
+            <section>
+                <div class="chat-container" style="position: fixed; bottom: 0; right: 0; width: 83%; max-height: 100vh; z-index: 1000;">
+                    <!-- Messages Area -->
+                    <div class="chat-messages" id="chatMessages">
+                        <?php if (empty($chatHistory) || !is_array($chatHistory)): ?>
+                            <!-- Empty State -->
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="bi bi-chat-dots"></i>
+                                </div>
+                                <h2>Comment puis-je vous aider ?</h2>
+                                <p>Posez-moi vos questions sur les ressources humaines</p>
+                                
+                                <div class="suggestion-cards">
+                                    <div class="suggestion-card" onclick="fillQuestion('Comment calculer les congés payés ?')">
+                                        <p class="suggestion-card-title">Comment calculer les congés payés ?</p>
+                                    </div>
+                                    <div class="suggestion-card" onclick="fillQuestion('Quelles sont les étapes de recrutement ?')">
+                                        <p class="suggestion-card-title">Quelles sont les étapes de recrutement ?</p>
+                                    </div>
+                                    <div class="suggestion-card" onclick="fillQuestion('Politique de télétravail')">
+                                        <p class="suggestion-card-title">Politique de télétravail</p>
+                                    </div>
+                                    <div class="suggestion-card" onclick="fillQuestion('Procédure d\'évaluation annuelle')">
+                                        <p class="suggestion-card-title">Procédure d'évaluation annuelle</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($item['response'])): ?>
-                        <div class="message-wrapper assistant">
+                        <?php else: ?>
+                            <!-- Chat History -->
+                            <?php foreach ($chatHistory as $item): ?>
+                                <?php if (!empty($item['question'])): ?>
+                                    <div class="message-wrapper user">
+                                        <div class="message-avatar">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div class="message-content">
+                                            <div class="message-bubble">
+                                                <?php echo nl2br(htmlspecialchars($item['question'])); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($item['response'])): ?>
+                                    <div class="message-wrapper assistant">
+                                        <div class="message-avatar">
+                                            <i class="bi bi-robot"></i>
+                                        </div>
+                                        <div class="message-content">
+                                            <div class="message-bubble">
+                                                <?php
+                                                if (is_array($item['response'])) {
+                                                    echo '<pre>' . htmlspecialchars(print_r($item['response'], true)) . '</pre>';
+                                                } else {
+                                                    echo nl2br(htmlspecialchars($item['response']));
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+
+                        <!-- Typing Indicator -->
+                        <div class="message-wrapper assistant" id="typingIndicator" style="display: none;">
                             <div class="message-avatar">
                                 <i class="bi bi-robot"></i>
                             </div>
                             <div class="message-content">
                                 <div class="message-bubble">
-                                    <?php
-                                    if (is_array($item['response'])) {
-                                        echo '<pre>' . htmlspecialchars(print_r($item['response'], true)) . '</pre>';
-                                    } else {
-                                        echo nl2br(htmlspecialchars($item['response']));
-                                    }
-                                    ?>
+                                    <div class="typing-indicator">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    </div>
 
-            <!-- Typing Indicator -->
-            <div class="message-wrapper assistant" id="typingIndicator" style="display: none;">
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <div class="typing-indicator">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
+                    <!-- Input Area -->
+                    <div class="chat-input-area">
+                        <form id="chatForm" class="input-container">
+                            <textarea 
+                                class="chat-textarea" 
+                                id="question" 
+                                name="question" 
+                                rows="1"
+                                placeholder="Posez votre question..."
+                                required
+                            ><?php echo htmlspecialchars($question ?? ''); ?></textarea>
+                            <button type="submit" class="send-button" id="sendButton">
+                                <i class="bi bi-arrow-up icon-custom"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="chat-input-area">
-            <form id="chatForm" class="input-container">
-                <textarea 
-                    class="chat-textarea" 
-                    id="question" 
-                    name="question" 
-                    rows="1"
-                    placeholder="Posez votre question..."
-                    required
-                ><?php echo htmlspecialchars($question ?? ''); ?></textarea>
-                <button type="submit" class="send-button" id="sendButton">
-                    <i class="bi bi-arrow-up"></i>
-                </button>
-            </form>
+            </section>
         </div>
     </div>
 
     <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
     <script src="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.js"></script>
+    <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 
     <script>
         const chatForm = document.getElementById('chatForm');
