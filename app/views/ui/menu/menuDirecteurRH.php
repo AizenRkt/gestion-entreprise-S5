@@ -132,6 +132,14 @@
                     </ul>
                 </li>
 
+
+                <li class="sidebar-item  ">
+                    <a href="<?= Flight::base() ?>/llm" class="sidebar-link">
+                        <i class="bi bi-people-fill"></i>
+                        <span>LLM</span>
+                    </a>
+                </li>
+
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-currency-dollar"></i>
