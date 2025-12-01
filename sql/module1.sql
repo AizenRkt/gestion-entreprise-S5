@@ -525,6 +525,12 @@ CREATE TABLE pointage (
     UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
 );
 
+CREATE TABLE jour_ferie (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    recurrence ENUM('annuel', 'fixe') NOT NULL
+);
 --view
 
 CREATE OR REPLACE VIEW view_absence_details AS

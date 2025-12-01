@@ -1,6 +1,7 @@
 <?php
 
 use app\controllers\Controller;
+use app\controllers\ressourceHumaine\pointage\PointageController;
 
 //importation liée flight
 use flight\Engine;
@@ -23,6 +24,7 @@ require __DIR__ . '/routes/ressourceHumaine/absenceRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/heureSuppRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/congeRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/paieRoute.php';
+require __DIR__ . '/routes/ressourceHumaine/jourFerieRoute.php';
 
 /** 
  * @var Router $router 
@@ -30,8 +32,12 @@ require __DIR__ . '/routes/ressourceHumaine/paieRoute.php';
 */
 
 $Controller = new Controller();
+$pointageController = new PointageController(); // Instantiate PointageController
 
 // $router->get('/planning2', [ $Controller, 'planning2' ]);
-$router->get('/backOffice',[$Controller,'backOffice']);
+$router->get('/backOffice',function() use ($Controller, $pointageController){
+    $pointageController->updatePointageStatusInSession(); // Update pointage status in session
+    $Controller->backOffice();
+});
 
 ?>

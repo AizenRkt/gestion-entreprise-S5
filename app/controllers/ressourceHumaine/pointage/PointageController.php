@@ -38,13 +38,45 @@ class PointageController
         // Remplir les jours de pointage manquants avant d'afficher la page
         $this->pointageModel->fillMissingPointages($id_employe);
 
-        $hasCheckedIn = $this->pointageModel->hasCheckedInToday($id_employe);
-        $hasCheckedOut = $this->pointageModel->hasCheckedOutToday($id_employe);
+        // Mettre à jour le statut de pointage dans la session
+        $this->updatePointageStatusInSession($id_employe);
+
+        // Récupérer les statuts mis à jour depuis la session pour le rendu de la vue
+        $hasCheckedIn = $_SESSION['pointage_status']['hasCheckedIn'] ?? false;
+        $hasCheckedOut = $_SESSION['pointage_status']['hasCheckedOut'] ?? false;
+
+        $this->updatePointageStatusInSession($id_employe);
 
         Flight::render('auth/user/pointage', [
             'hasCheckedIn' => $hasCheckedIn,
             'hasCheckedOut' => $hasCheckedOut
         ]);
+    }
+
+    public function updatePointageStatusInSession($id_employe = null)
+    {
+        if (!$id_employe) {
+            $id_employe = $this->getEmployeId();
+        }
+
+        if (!$id_employe) {
+            // Si pas d'employé identifié, on initialise le statut à inconnu/non fait
+            $_SESSION['pointage_status'] = [
+                'hasCheckedIn' => false,
+                'hasCheckedOut' => false,
+                'last_checked' => date('Y-m-d')
+            ];
+            return;
+        }
+
+        $hasCheckedIn = $this->pointageModel->hasCheckedInToday($id_employe);
+        $hasCheckedOut = $this->pointageModel->hasCheckedOutToday($id_employe);
+
+        $_SESSION['pointage_status'] = [
+            'hasCheckedIn' => $hasCheckedIn,
+            'hasCheckedOut' => $hasCheckedOut,
+            'last_checked' => date('Y-m-d')
+        ];
     }
 
     public function checkin()
@@ -64,6 +96,7 @@ class PointageController
 
         if ($checkinId) {
             $this->pointageModel->createOrUpdatePointage($id_employe, date('Y-m-d'), $checkinId);
+            $this->updatePointageStatusInSession($id_employe); // Mettre à jour la session après check-in
             Flight::json(['success' => true, 'message' => 'Check-in enregistré avec succès.']);
         } else {
             Flight::json(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du check-in.']);
@@ -92,6 +125,7 @@ class PointageController
 
         if ($checkoutId) {
             $this->pointageModel->createOrUpdatePointage($id_employe, date('Y-m-d'), null, $checkoutId);
+            $this->updatePointageStatusInSession($id_employe); // Mettre à jour la session après check-out
             Flight::json(['success' => true, 'message' => 'Check-out enregistré avec succès.']);
         } else {
             Flight::json(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du check-out.']);
