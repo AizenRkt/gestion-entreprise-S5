@@ -139,9 +139,9 @@
 
 
                 <li class="sidebar-item  ">
-                    <a href="<?= Flight::base() ?>/employes" class="sidebar-link">
+                    <a href="<?= Flight::base() ?>/llm" class="sidebar-link">
                         <i class="bi bi-people-fill"></i>
-                        <span>Team</span>
+                        <span>LLM</span>
                     </a>
                 </li>
 

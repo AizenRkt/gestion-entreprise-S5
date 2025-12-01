@@ -1,1 +1,9 @@
 Invoke-WebRequest "http://localhost/S5/gestion-entreprise-S5/contrat/renouveller/5?date_fin=2025-12-31&nouvelle_date_fin=2026-01-31&date_renouvellement=2025-11-16&commentaire=Prolongation%20du%20contrat" -UseBasicParsing
+
+            SELECT e.nom, e.prenom, e.genre, c.date_naissance, p.titre AS poste, s.nom AS service, d.nom AS departement
+            FROM employe e
+            JOIN candidat c ON e.id_candidat = c.id_candidat
+            JOIN employe_statut es ON es.id_employe = e.id_employe AND es.activite = 1
+            JOIN poste p ON es.id_poste = p.id_poste
+            JOIN service s ON p.id_service = s.id_service
+            JOIN departement d ON s.id_dept = d.id_dept;
