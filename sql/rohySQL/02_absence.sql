@@ -87,24 +87,28 @@ SELECT
     ta.nom AS type_absence,
     a.date_debut AS absence_date_debut,
     a.date_fin AS absence_date_fin,
-    da.type_documentation,
-    da.motif,
-    da.date_documentation,
+    COALESCE(da.type_documentation, 'demande') AS type_documentation,
+    COALESCE(da.motif, 'Non spécifié') AS motif,
+    COALESCE(da.date_documentation, a.date_debut) AS date_documentation,
     CASE 
-        WHEN v.id_documentation_absence IS NOT NULL THEN 'Validé'
-        WHEN v.id_documentation_absence IS NULL AND da.id_documentation_absence IS NOT NULL THEN 'En attente'
-        ELSE 'Archivé'
+        WHEN vda.id_validation_documentation_absence IS NOT NULL THEN 'Validé'
+        WHEN da.id_documentation_absence IS NOT NULL THEN 'En attente'
+        ELSE 'En attente' -- Par défaut, une absence sans documentation est en attente
     END AS validation_status
 FROM 
-    employe e
+    absence a
 JOIN 
-    absence a ON e.id_employe = a.id_employe
+    employe e ON e.id_employe = a.id_employe
 JOIN 
     type_absence ta ON a.id_type_absence = ta.id_type_absence
-JOIN 
-    documentation_absence da ON e.id_employe = da.id_employe
 LEFT JOIN 
-    validation_documentation_absence v ON da.id_documentation_absence = v.id_documentation_absence AND a.id_absence = v.id_absence;
+    documentation_absence da ON (
+        da.id_employe = a.id_employe 
+        AND da.date_debut = a.date_debut 
+        AND da.date_fin = a.date_fin
+    )
+LEFT JOIN 
+    validation_documentation_absence vda ON a.id_absence = vda.id_absence;
 
 
 CREATE OR REPLACE VIEW view_total_absences AS
