@@ -63,6 +63,7 @@
                                                     $badgeClass = 'bg-light';
                                                     if ($statut === 'Validé') $badgeClass = 'bg-primary'; 
                                                     elseif ($statut === 'Refusé') $badgeClass = 'bg-danger';
+                                                    elseif ($statut === 'Congé Spéciaux') $badgeClass = 'bg-info'; // Added for special leaves
                                                     elseif ($statut === 'Congé') $badgeClass = 'bg-danger';
                                                     elseif ($statut === 'Congé non payé') $badgeClass = 'bg-light';
                                                     elseif ($statut === 'Jour Ferié') $badgeClass = 'bg-dark';

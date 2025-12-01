@@ -47,8 +47,14 @@ class AbsenceModel
                 return ['success' => false, 'message' => 'Absence introuvable.'];
             }
             $id_employe = (int)$absence['id_employe'];
+            $id_type_absence = (int)$absence['id_type_absence']; // Added
             $date_debut_absence = $absence['date_debut'];
             $date_fin_absence = $absence['date_fin'];
+
+            // Récupérer le nom du type d'absence
+            $stmt_type_absence = $db->prepare("SELECT nom FROM type_absence WHERE id_type_absence = :id_type_absence");
+            $stmt_type_absence->execute(['id_type_absence' => $id_type_absence]);
+            $type_absence_nom = $stmt_type_absence->fetchColumn(); // Added
 
             // 2. Valider la documentation associée en insérant l'enregistrement
             $stmt_doc = $db->prepare("SELECT id_documentation_absence FROM documentation_absence WHERE id_employe = :id_employe AND date_debut = :date_debut AND date_fin = :date_fin LIMIT 1");
@@ -71,12 +77,23 @@ class AbsenceModel
             // IDs et Statuts
             $ID_CONGE_PAYE = 1;
             $ID_CONGE_SANS_SOLDE = 2; // "Congé sans solde"
+            $ID_CONGE_SPECIAUX = 3; // Using 'Congé maladie' ID for special leaves
+
             $STATUT_CONGE_PAYE = 'Congé';
             $STATUT_CONGE_NON_PAYE = 'Congé non payé';
+            $STATUT_CONGE_SPECIAUX = 'Congé Spéciaux';
             $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
 
             // 4. Logique de conversion et mise à jour du pointage
-            if ($solde_disponible >= $jours_absence) {
+            $specialAbsenceTypes = ['Maladie', 'Congé Maternel', 'Congé Paternité'];
+
+            if (in_array($type_absence_nom, $specialAbsenceTypes)) {
+                // Pour les congés spéciaux, on ignore le solde et on met le statut "Congé Spéciaux"
+                $this->creerEtValiderConge($id_employe, $ID_CONGE_SPECIAUX, $date_debut_absence, $date_fin_absence, $jours_absence, $date_validation);
+                $pointageModel->updatePointageStatusForDateRange($id_employe, $date_debut_absence, $date_fin_absence, $STATUT_CONGE_SPECIAUX);
+                $message = 'Absence de type "' . $type_absence_nom . '" convertie en congé spécial.';
+            }
+            elseif ($solde_disponible >= $jours_absence) {
                 // Cas 1: Solde suffisant
                 $this->creerEtValiderConge($id_employe, $ID_CONGE_PAYE, $date_debut_absence, $date_fin_absence, $jours_absence, $date_validation);
                 $pointageModel->updatePointageStatusForDateRange($id_employe, $date_debut_absence, $date_fin_absence, $STATUT_CONGE_PAYE);

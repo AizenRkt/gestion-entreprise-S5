@@ -257,7 +257,7 @@ class CongeModel
             $db->beginTransaction();
     
             // 1. Récupérer les anciennes informations du congé
-            $stmt_old = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_old = $db->prepare("SELECT id_employe, date_debut, date_fin, id_type_conge FROM demande_conge WHERE id_demande_conge = ?");
             $stmt_old->execute([$id_demande_conge]);
             $old_conge = $stmt_old->fetch(PDO::FETCH_ASSOC);
     
@@ -266,6 +266,12 @@ class CongeModel
                 return false;
             }
             $id_employe = $old_conge['id_employe'];
+            $id_type_conge = $old_conge['id_type_conge'];
+
+            $pointage_statut = 'Congé';
+            if ($id_type_conge === 3) { // Assuming 3 is the ID for 'Congé maladie'
+                $pointage_statut = 'Congé Spéciaux';
+            }
     
             // 2. Mettre à jour la demande de congé avec les nouvelles dates
             $nb_jours = $this->calculateWorkingDays($newStartDate, $newEndDate);
@@ -279,7 +285,7 @@ class CongeModel
             // Réinitialiser le statut pour l'ancienne période de congé
             $pointageModel->updatePointageStatusForDateRange($id_employe, $old_conge['date_debut'], $old_conge['date_fin'], 'Absent');
             // Appliquer le statut "Congé" pour la nouvelle période
-            $pointageModel->updatePointageStatusForDateRange($id_employe, $newStartDate, $newEndDate, 'Congé');
+            $pointageModel->updatePointageStatusForDateRange($id_employe, $newStartDate, $newEndDate, $pointage_statut);
     
             $db->commit();
             return true;
@@ -398,17 +404,11 @@ class CongeModel
 
         $periodStart = $effectivePeriodStart->format('Y-m-d');
 
-        // Compter les jours de congé pris (pointage.statut = 'Congé') entre la date de début effective
-        // de la période (qui est max(activationDate, asOf-36months)) et la date de fin (asOf).
-        // Cela suit la règle: si activation_date >= asOf-36months alors interval = activation_date..asOf,
-        // sinon interval = (asOf-36months)..asOf.
-        $takenStart = $periodStart;
-
         // Compter les jours de congé pris (pointage.statut = 'Congé') dans l'intervalle approprié
         $stmt2 = $db->prepare(
             "SELECT COUNT(*) as taken FROM pointage WHERE id_employe = ? AND statut = 'Congé' AND date_pointage BETWEEN ? AND ?"
         );
-        $stmt2->execute([$id_employe, $takenStart, $asOf->format('Y-m-d')]);
+        $stmt2->execute([$id_employe, $periodStart, $asOf->format('Y-m-d')]);
         $takenRow = $stmt2->fetch(PDO::FETCH_ASSOC);
         $taken = isset($takenRow['taken']) ? (int) $takenRow['taken'] : 0;
 
