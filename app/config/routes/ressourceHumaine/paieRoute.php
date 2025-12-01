@@ -11,7 +11,11 @@ use flight\net\Router;
 
 $paieController = new PaieController();
 
-$router->get('/paie/fichePaie', [ $paieController, 'fichePaie' ]);
+// Route for fiche de paie with parameters
+$router->get('/paie/fichePaie/@id_employe/@mois/@annee', function($id_employe, $mois, $annee) use ($paieController) {
+    $paieController->fichePaie((int)$id_employe, (int)$mois, (int)$annee);
+});
+
 $router->get('/paie/etatPaie', [ $paieController, 'etatPaie' ]);
 
 Flight::route('GET /api/tauxAssurance', function(){
@@ -19,3 +23,22 @@ Flight::route('GET /api/tauxAssurance', function(){
     $controller = new AssuranceController($db); 
     $controller->tauxAssurance();
 });
+
+Flight::route('GET /api/tauxHeureSup', function(){
+    $db = Flight::db();
+    $controller = new AssuranceController($db); 
+    $controller->tauxHeureSup();
+});
+
+Flight::route('GET /api/heures-supp/@id_employe/@mois/@annee', function($id_employe, $mois, $annee){
+    $db = Flight::db();
+    $controller = new AssuranceController($db);
+    $controller->getAllHeureSuppByEmployeAndDate((int)$id_employe, (int)$mois, (int)$annee);
+});
+
+Flight::route('GET /api/prime/@id_employe/@mois/@annee', function($id_employe, $mois, $annee){
+    $db = Flight::db();
+    $controller = new AssuranceController($db);
+    $controller->getPrime((int)$id_employe, (int)$mois, (int)$annee);
+});
+

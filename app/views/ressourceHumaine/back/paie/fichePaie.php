@@ -27,8 +27,9 @@ if (isset($_GET['mssg'])) {
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app-dark.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.css">
-    
+
     <style>
+        /* --- Complete CSS for Fiche de Paie --- */
         .fiche-paie-container {
             background: white;
             padding: 30px;
@@ -204,7 +205,6 @@ if (isset($_GET['mssg'])) {
         }
     </style>
 </head>
-
 <body>
 <div id="app">
     <?= Flight::menuBackOffice() ?>
@@ -248,41 +248,37 @@ if (isset($_GET['mssg'])) {
                                         <div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Nom et Prénoms :</span>
-                                                <span class="info-value">RAZAFIARISON Laza</span>
+                                                <span class="info-value nom"></span>
                                             </div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Fonction :</span>
-                                                <span class="info-value">DPH</span>
+                                                <span class="info-value fonction"></span>
                                             </div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Date d'embauche :</span>
-                                                <span class="info-value info-highlight">25/09/2010</span>
+                                                <span class="info-value date_embauche"></span>
                                             </div>
                                             <div class="info-item">
                                                 <span class="info-label">Ancienneté :</span>
-                                                <span class="info-value">14 an(s) 7 mois et 12 jour(s)</span>
+                                                <span class="info-value anciennete"></span>
                                             </div>
                                         </div>
                                         <div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Classification :</span>
-                                                <span class="info-value">HC</span>
+                                                <span class="info-value classification"></span>
                                             </div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Salaire de base :</span>
-                                                <span class="info-value montant-highlight">300 000.00</span>
+                                                <span class="info-value montant-highlight"></span>
                                             </div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Taux journaliers :</span>
-                                                <span class="info-value">10 000.00</span>
+                                                <span class="info-value taux_journalier"></span>
                                             </div>
                                             <div class="info-item mb-2">
                                                 <span class="info-label">Taux horaires :</span>
-                                                <span class="info-value">1 073.00</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <span class="info-label">Indice :</span>
-                                                <span class="info-value">1238.00</span>
+                                                <span class="info-value taux_horaire"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -304,110 +300,20 @@ if (isset($_GET['mssg'])) {
                                                 <i class="bi bi-wallet2 me-2"></i>A VALEUR
                                             </td>
                                         </tr>
+
+                                        <!-- Salaire Brut affiché -->
                                         <tr>
-                                            <td>Absences déductibles</td>
-                                            <td class="text-right">1</td>
-                                            <td class="text-right">10 000.00</td>
-                                            <td class="text-right">300 000.00</td>
+                                            <td>Salaire Brut</td>
+                                            <td class="text-right" colspan="3">
+                                                <span class="salaire-brut-display"></span>
+                                            </td>
                                         </tr>
-                                        <tr>
-                                            <td>Absences déductibles</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">10 000.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Primes de rendement</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Primes d'ancienneté</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Heures supplémentaires majorées de 30%</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">2 350.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Heures supplémentaires majorées de 40%</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">2 423.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Heures supplémentaires majorées de 50%</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">2 637.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Heures supplémentaires majorées de 100%</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">3 452.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Majoration pour heures de nuit</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">515.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Primes diverses</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Rappels sur période antérieure</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Droits de congés</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">10 000.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Droits de préavis</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">10 000.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Indemnités de licenciement</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">10 000.00</td>
-                                        </tr>
-                                        <label>Salaire Brut</label>
-                                        <input type="number" id="salaireBrut" class="form-control" placeholder="Entrer salaire brut">
-                                        <table class="table mt-3">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nom</th>
-                                                    <th>Montant</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="resultTable"></tbody>
-                                        </table>
 
                                         <tr class="total-row">
                                             <td colspan="3"><strong>TOTAL IRSA</strong></td>
-                                            <td class="text-right"><strong></strong></td>
+                                            <td class="text-right total-irsa"><strong>0</strong></td>
                                         </tr>
-                                        <tr class="total-row">
-                                            <td colspan="3"><strong>Total des retenues</strong></td>
-                                            <td class="text-right"><strong>6 000.00</strong></td>
-                                        </tr>
+
                                         <tr>
                                             <td>Autres indemnités</td>
                                             <td class="text-right"></td>
@@ -416,7 +322,7 @@ if (isset($_GET['mssg'])) {
                                         </tr>
                                         <tr class="net-payer">
                                             <td colspan="3"><strong>Net à payer</strong></td>
-                                            <td class="text-right"><strong>294 000.00</strong></td>
+                                            <td class="text-right"><strong></strong></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -440,32 +346,85 @@ if (isset($_GET['mssg'])) {
         </div>
     </div>
 </div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    const salaireInput = document.getElementById("salaireBrut");
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    const employeId = parts[parts.length - 3];
+    const mois = parts[parts.length - 2];
+    const annee = parts[parts.length - 1];
+
     const tbody = document.querySelector(".table-paie tbody");
+    const salaireDisplay = document.querySelector(".salaire-brut-display");
 
     let taux = [];
+    let employe = {};
+    let heuresSupp = [];
+    let primes = [];
 
-    // Fetch taux/assurance from API
+    // ============================
+    // FETCH EMPLOYEE
+    // ============================
+    fetch(`<?= Flight::base() ?>/employe/${employeId}`)
+        .then(res => res.json())
+        .then(res => {
+            if (!res.success || !res.data) return;
+
+            employe = res.data;
+
+            const dateEmbauche = new Date(employe.date_embauche);
+            const now = new Date();
+            let years = now.getFullYear() - dateEmbauche.getFullYear();
+            let months = now.getMonth() - dateEmbauche.getMonth();
+            let days = now.getDate() - dateEmbauche.getDate();
+            if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+            if (months < 0) { years--; months += 12; }
+            const anciennete = `${years} an(s) ${months} mois et ${days} jour(s)`;
+
+            const salaire_base = Number(employe.contrat.salaire_base);
+            const taux_journalier = salaire_base / 30;
+            const taux_horaire = taux_journalier / 9;
+
+            // Fill UI
+            document.querySelector(".info-value.nom").textContent = employe.nom + " " + employe.prenom;
+            document.querySelector(".info-value.fonction").textContent = employe.titre_poste;
+            document.querySelector(".info-value.date_embauche").textContent = dateEmbauche.toLocaleDateString('fr-FR');
+            document.querySelector(".info-value.anciennete").textContent = anciennete;
+            document.querySelector(".info-value.classification").textContent = employe.id_poste;
+            document.querySelector(".info-value.montant-highlight").textContent = salaire_base.toLocaleString('fr-FR');
+            document.querySelector(".info-value.taux_journalier").textContent = taux_journalier.toLocaleString('fr-FR');
+            document.querySelector(".info-value.taux_horaire").textContent = taux_horaire.toLocaleString('fr-FR');
+
+            salaireDisplay.textContent = salaire_base.toLocaleString('fr-FR');
+
+            // Fetch heures supp
+            return fetch(`<?= Flight::base() ?>/api/heures-supp/${employeId}/${mois}/${annee}`);
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success && res.data) heuresSupp = res.data;
+            return fetch(`<?= Flight::base() ?>/api/prime/${employeId}/${mois}/${annee}`);
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success && res.data) primes = res.data;
+            updatePaieTable(Number(salaireDisplay.textContent.replace(/\s/g, '')));
+        });
+
+    // ============================
+    // FETCH TAUX ASSURANCE
+    // ============================
     fetch("<?= Flight::base() ?>/api/tauxAssurance")
         .then(res => res.json())
         .then(data => {
             taux = data;
-            if (salaireInput.value) updatePaieTable(Number(salaireInput.value));
+            if (salaireDisplay.textContent) updatePaieTable(Number(salaireDisplay.textContent.replace(/\s/g, '')));
         });
 
-    // Recalculate when salary changes
-    salaireInput.addEventListener("input", () => {
-        const salaire = Number(salaireInput.value);
-        if (!salaire || salaire <= 0 || taux.length === 0) {
-            tbody.innerHTML = "";
-            return;
-        }
-        updatePaieTable(salaire);
-    });
-
+    // ============================
+    // CALCUL RETENUES
+    // ============================
     function calculerRetenues(salaire, rows) {
         let retenues = {};
         let irsaTotal = 0;
@@ -474,44 +433,35 @@ document.addEventListener("DOMContentLoaded", () => {
             const tauxNum = r.taux / 100;
             let montant = 0;
 
-            // Fixed retenues
             if (r.minpay === null && r.maxpay === null) {
                 montant = salaire * tauxNum;
-            } 
-            // IRSA: only the tranche corresponding to the salary
-            else if (salaire >= r.minpay && (r.maxpay === null || salaire <= r.maxpay)) {
-                const taxable = salaire - r.minpay;
-                montant = taxable * tauxNum;
-                irsaTotal = montant; // only one tranche
+            } else if (salaire >= r.minpay && (r.maxpay === null || salaire <= r.maxpay)) {
+                montant = (salaire - r.minpay) * tauxNum;
+                irsaTotal = montant;
             }
 
-            if (montant > 0) {
-                retenues[r.nom] = {
-                    montant: montant,
-                    taux: r.taux
-                };
-            }
+            if (montant > 0) retenues[r.nom] = { montant, taux: r.taux };
         });
-
-        const totalRetenues = Object.values(retenues).reduce((sum, r) => sum + r.montant, 0);
 
         return {
             retenues,
             irsaTotal,
-            salaireNet: salaire - totalRetenues
+            salaireNet: salaire - Object.values(retenues).reduce((s, r) => s + r.montant, 0)
         };
     }
 
+    // ============================
+    // UPDATE TABLE UI
+    // ============================
     function updatePaieTable(salaire) {
         const data = calculerRetenues(salaire, taux);
 
-        // Remove previous dynamic rows
-        tbody.querySelectorAll(".dynamic-row").forEach(row => row.remove());
+        tbody.querySelectorAll(".dynamic-row").forEach(r => r.remove());
 
-        // Insert deductions line by line after the section "A VALEUR"
         const sectionIndex = Array.from(tbody.rows).findIndex(r => r.classList.contains("section-header"));
         let insertIndex = sectionIndex + 1;
 
+        // --- Retenues ---
         for (const [nom, info] of Object.entries(data.retenues)) {
             const row = tbody.insertRow(insertIndex++);
             row.classList.add("dynamic-row");
@@ -523,19 +473,43 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
 
-        // Update Net à payer row
-        const netRow = Array.from(tbody.rows).find(r => r.classList.contains("net-payer"));
-        if (netRow) netRow.querySelector("td:last-child").textContent = data.salaireNet.toLocaleString('fr-FR');
-    }
+        // --- Update TOTAL IRSA ---
+        const totalIrsaCell = document.querySelector(".total-irsa strong");
+        if (totalIrsaCell) totalIrsaCell.textContent = data.irsaTotal.toLocaleString('fr-FR');
 
-    // Optional: set test salary
-    salaireInput.value = 450000;
-    updatePaieTable(Number(salaireInput.value));
+        // --- Heures supplémentaires ---
+        heuresSupp.forEach(hs => {
+            const row = tbody.insertRow(insertIndex++);
+            row.classList.add("dynamic-row");
+            row.innerHTML = `
+                <td>${hs.type_heure_supp}</td>
+                <td class="text-right">${hs.nombre_heures}</td>
+                <td class="text-right">${hs.taux} %</td>
+                <td class="text-right">${hs.montant.toLocaleString('fr-FR')}</td>
+            `;
+        });
+
+        // --- Primes ---
+        primes.forEach(p => {
+            const row = tbody.insertRow(insertIndex++);
+            row.classList.add("dynamic-row");
+            row.innerHTML = `
+                <td>${p.nom}</td>
+                <td class="text-right">-</td>
+                <td class="text-right">-</td>
+                <td class="text-right">${Number(p.montant).toLocaleString('fr-FR')}</td>
+            `;
+        });
+
+        // --- Net à payer ---
+        const totalHS = heuresSupp.reduce((s, hs) => s + Number(hs.montant), 0);
+        const totalPrimes = primes.reduce((s, p) => s + Number(p.montant), 0);
+        const netRow = document.querySelector(".net-payer td:last-child");
+        if (netRow) netRow.textContent = (data.salaireNet + totalHS + totalPrimes).toLocaleString('fr-FR');
+    }
 
 });
 </script>
-
-
 
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
