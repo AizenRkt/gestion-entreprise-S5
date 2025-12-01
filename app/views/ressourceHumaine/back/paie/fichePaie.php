@@ -388,58 +388,18 @@ if (isset($_GET['mssg'])) {
                                             <td class="text-right"></td>
                                             <td class="text-right">10 000.00</td>
                                         </tr>
-                                        <tr class="total-row">
-                                            <td colspan="3"><strong>Salaire brut</strong></td>
-                                            <td class="text-right"><strong>300 000.00</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Retenue CNaPS 1%</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">3 000.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Retenue sanitaire</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">3 000.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tranche IRSA DE 0 à 350 0000</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tranche IRSA DE 350 0001 à 400 000</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">5%</td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tranche IRSA DE 400 0001 à 500 000</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">10%</td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tranche IRSA DE 500 001 à 600 000</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">15%</td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tranche IRSA DE 600 001 à 4000 000</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">20%</td>
-                                            <td class="text-right"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tranche IRSA PLUS DE 4000 000</td>
-                                            <td class="text-right"></td>
-                                            <td class="text-right">25%</td>
-                                            <td class="text-right"></td>
-                                        </tr>
+                                        <label>Salaire Brut</label>
+                                        <input type="number" id="salaireBrut" class="form-control" placeholder="Entrer salaire brut">
+                                        <table class="table mt-3">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nom</th>
+                                                    <th>Montant</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="resultTable"></tbody>
+                                        </table>
+
                                         <tr class="total-row">
                                             <td colspan="3"><strong>TOTAL IRSA</strong></td>
                                             <td class="text-right"><strong></strong></td>
@@ -480,6 +440,102 @@ if (isset($_GET['mssg'])) {
         </div>
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const salaireInput = document.getElementById("salaireBrut");
+    const tbody = document.querySelector(".table-paie tbody");
+
+    let taux = [];
+
+    // Fetch taux/assurance from API
+    fetch("<?= Flight::base() ?>/api/tauxAssurance")
+        .then(res => res.json())
+        .then(data => {
+            taux = data;
+            if (salaireInput.value) updatePaieTable(Number(salaireInput.value));
+        });
+
+    // Recalculate when salary changes
+    salaireInput.addEventListener("input", () => {
+        const salaire = Number(salaireInput.value);
+        if (!salaire || salaire <= 0 || taux.length === 0) {
+            tbody.innerHTML = "";
+            return;
+        }
+        updatePaieTable(salaire);
+    });
+
+    function calculerRetenues(salaire, rows) {
+        let retenues = {};
+        let irsaTotal = 0;
+
+        rows.forEach(r => {
+            const tauxNum = r.taux / 100;
+            let montant = 0;
+
+            // Fixed retenues
+            if (r.minpay === null && r.maxpay === null) {
+                montant = salaire * tauxNum;
+            } 
+            // IRSA: only the tranche corresponding to the salary
+            else if (salaire >= r.minpay && (r.maxpay === null || salaire <= r.maxpay)) {
+                const taxable = salaire - r.minpay;
+                montant = taxable * tauxNum;
+                irsaTotal = montant; // only one tranche
+            }
+
+            if (montant > 0) {
+                retenues[r.nom] = {
+                    montant: montant,
+                    taux: r.taux
+                };
+            }
+        });
+
+        const totalRetenues = Object.values(retenues).reduce((sum, r) => sum + r.montant, 0);
+
+        return {
+            retenues,
+            irsaTotal,
+            salaireNet: salaire - totalRetenues
+        };
+    }
+
+    function updatePaieTable(salaire) {
+        const data = calculerRetenues(salaire, taux);
+
+        // Remove previous dynamic rows
+        tbody.querySelectorAll(".dynamic-row").forEach(row => row.remove());
+
+        // Insert deductions line by line after the section "A VALEUR"
+        const sectionIndex = Array.from(tbody.rows).findIndex(r => r.classList.contains("section-header"));
+        let insertIndex = sectionIndex + 1;
+
+        for (const [nom, info] of Object.entries(data.retenues)) {
+            const row = tbody.insertRow(insertIndex++);
+            row.classList.add("dynamic-row");
+            row.innerHTML = `
+                <td>${nom}</td>
+                <td class="text-right">-</td>
+                <td class="text-right">${info.taux} %</td>
+                <td class="text-right">${info.montant.toLocaleString('fr-FR')}</td>
+            `;
+        }
+
+        // Update Net à payer row
+        const netRow = Array.from(tbody.rows).find(r => r.classList.contains("net-payer"));
+        if (netRow) netRow.querySelector("td:last-child").textContent = data.salaireNet.toLocaleString('fr-FR');
+    }
+
+    // Optional: set test salary
+    salaireInput.value = 450000;
+    updatePaieTable(Number(salaireInput.value));
+
+});
+</script>
+
+
 
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>

@@ -8,6 +8,7 @@ use Flight;
 
 
 class PaieController {
+    
     public function fichePaie() {
         Flight::render('ressourceHumaine/back/paie/fichePaie');    
     }
@@ -15,4 +16,5 @@ class PaieController {
     public function etatPaie() {
         Flight::render('ressourceHumaine/back/paie/etatPaie');
     }
+       
 }
