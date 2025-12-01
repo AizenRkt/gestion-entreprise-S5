@@ -2,6 +2,10 @@ import mysql.connector
 from mysql.connector import Error
 import google.generativeai as genai
 import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis .env
+load_dotenv()
 
 # Configuration de la base de données
 DB_CONFIG = {
@@ -13,7 +17,7 @@ DB_CONFIG = {
 
 
 # Configuration Google Gemini
-genai.configure(api_key=os.getenv('GOOGLE_API_KEY', 'AIzaSyDaljJML3vxjQp3TT2mctn881hcfiKb0x8'))
+genai.configure(api_key=os.getenv('API_KEY'))
 
 def connect_to_database():
     """Établit une connexion à la base de données MySQL."""
