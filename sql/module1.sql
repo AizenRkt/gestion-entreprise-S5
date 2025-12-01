@@ -3,6 +3,14 @@ CREATE DATABASE if not exists gestion_entreprise;
 
 USE gestion_entreprise;
 
+-- DROP DATABASE if exists gestion_entreprise_test;
+-- CREATE DATABASE if not exists gestion_entreprise_test;
+
+-- DROP DATABASE if exists gestion_entreprise_prod;
+-- CREATE DATABASE if not exists gestion_entreprise_prod;
+
+-- USE gestion_entreprise_prod;
+
 -- ======================
 -- utilisateur, role, métier
 -- ======================
@@ -331,6 +339,24 @@ CREATE TABLE contrat_travail_renouvellement (
     date_renouvellement DATE NOT NULL,
     date_creation DATE NOT NULL,
     pathPdf VARCHAR(255),
+    FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
+);
+
+CREATE TABLE contrat_migration_cdd_cdi(
+    id_migration INT AUTO_INCREMENT PRIMARY KEY,
+    id_cdd INT NOT NULL,
+    id_cdi INT NOT NULL,
+    date_migration DATETIME,
+    FOREIGN KEY (id_cdd) REFERENCES contrat_travail(id_contrat_travail),
+    FOREIGN KEY (id_cdi) REFERENCES contrat_travail(id_contrat_travail)
+);
+
+CREATE TABLE contrat_employe_statut(
+    id_contrat_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_travail INT NOT NULL,
+    id_employe_statut INT NOT NULL,
+    date_ajout DATE NOT NULL,
+    FOREIGN KEY (id_employe_statut) REFERENCES employe_statut(id_employe_statut),
     FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
 );
 
@@ -680,4 +706,11 @@ WHERE NOT EXISTS (
     WHERE ef.id_employe = ms.id_employe
       AND fc.id_competence = ms.id_competence
       AND ef.status IN ('ASSIGNED', 'IN_PROGRESS', 'COMPLETED')
+);
+-- partie artifice 
+CREATE TABLE poste_responsabilite (
+    id_poste_responsabilite INT AUTO_INCREMENT PRIMARY KEY,
+    id_poste INT NOT NULL,
+    libelle VARCHAR(255),
+    FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
 );

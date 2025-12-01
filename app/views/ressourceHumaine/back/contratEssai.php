@@ -63,7 +63,7 @@
 <div class="modal fade" id="modalContrat" tabindex="-1" aria-labelledby="modalContratLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="formContrat" action="<?= Flight::base() ?>/contrat/creer" method="get">
+            <form id="formContrat" method="get">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalContratLabel">Établir un contrat d'essai</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -84,7 +84,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Créer le contrat</button>
+                    <button type="submit" id="submitContratBtn" class="btn btn-primary">Créer le contrat</button>
                 </div>
             </form>
         </div>
@@ -102,8 +102,8 @@
 <script>
 $(document).ready(function () {
     let table = $('#tableCandidats').DataTable();
+    let modalInstance = null;
 
-    // 🟦 Chargement des candidats selon l'annonce
     $('#annonceSelect').on('change', function () {
         let idAnnonce = $(this).val();
         table.clear().draw();
@@ -165,10 +165,51 @@ $(document).ready(function () {
         // Modifier le titre du modal
         $('#modalContratLabel').text(`Établir un contrat pour ${prenom} ${nom}`);
 
-        // Ouvrir le modal
-        const modal = new bootstrap.Modal(document.getElementById('modalContrat'));
-        modal.show();
+        // Ouvrir le modal et stocker l'instance
+        modalInstance = new bootstrap.Modal(document.getElementById('modalContrat'));
+        modalInstance.show();
     });
+
+    $('#formContrat').on('submit', function (e) {
+        e.preventDefault();
+
+        const btn = $('#submitContratBtn');
+        btn.prop('disabled', true).text('En cours...');
+
+        const id_candidat = $('#idCandidatInput').val();
+        const date_debut = $('#dateDebut').val();
+        const duree_mois = $('#duree').val();
+
+        // Validation basique côté client
+        if (!id_candidat || !date_debut || !duree_mois) {
+            alert('Veuillez remplir tous les champs.');
+            btn.prop('disabled', false).text('Créer le contrat');
+            return;
+        }
+
+        const url = `<?= Flight::base() ?>/contrat/creer?id_candidat=${encodeURIComponent(id_candidat)}&date_debut=${encodeURIComponent(date_debut)}&duree_mois=${encodeURIComponent(duree_mois)}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(resp => {
+                if (resp.success) {
+                    alert(resp.message || 'Contrat créé avec succès.');
+                    if (modalInstance) modalInstance.hide();
+                    $('#formContrat')[0].reset();
+                    $('#annonceSelect').trigger('change');
+                } else {
+                    alert(resp.message || 'Erreur lors de la création du contrat.');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Erreur réseau ou serveur.');
+            })
+            .finally(() => {
+                btn.prop('disabled', false).text('Créer le contrat');
+            });
+    });
+
 });
 </script>
 

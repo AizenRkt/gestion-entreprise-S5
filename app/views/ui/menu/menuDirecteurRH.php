@@ -90,7 +90,7 @@
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
                         <i class="bi bi-file-earmark-text-fill"></i>
-                        <span>Contrat d'essaie</span>
+                        <span>Contrat d'essai</span>
                     </a>
                     <ul class="submenu">
                         <li class="submenu-item">
@@ -99,26 +99,6 @@
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/contratListe" class="submenu-link">listing</a>
                         </li>                                                  
-                    </ul>
-                </li>
-                <li class="sidebar-item has-sub">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
-                        <span>Statistique</span>
-                    </a>
-                    <ul class="submenu">
-                        <!-- <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>
-                        </li>      -->
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">statistiques employes</a>
-                        </li>
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">Statistique globales</a>
-                        </li>
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/competence" class="submenu-link">Cartographie des competences</a>
-                        </li>                                                 
                     </ul>
                 </li>
 
@@ -132,14 +112,32 @@
                             <a href="<?= Flight::base() ?>/contratTravailCrea" class="submenu-link">création</a>
                         </li>
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/" class="submenu-link">listing</a>
-                        </li>                                                
+                            <a href="<?= Flight::base() ?>/contratTravailList" class="submenu-link">listing</a>
+                        </li>                                                  
                     </ul>
                 </li>
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
-                        <i class="bi bi-person-bounding-box"></i> <!-- entretien -->
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <span>Statistique</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">statistiques employes</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes/statistiques-globales" class="submenu-link">Statistique globales</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/competence" class="submenu-link">Cartographie des competences</a>
+                        </li>                                                 
+                    </ul>
+                </li>
+                
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-people-fill"></i> 
                         <span>Team</span>
                     </a>
                     <ul class="submenu">

@@ -162,6 +162,11 @@ class ContratEssaiModel {
                     )
 
                 WHERE ces.statut = 'Valider'
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM contrat_travail ct
+                    WHERE ct.id_employe = e.id_employe
+                )
                 ORDER BY ce.debut DESC
             ";
 

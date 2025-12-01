@@ -594,3 +594,65 @@ INSERT INTO contrat_travail (id_employe, id_type_contrat, debut, fin, salaire_ba
 (5, 2, '2025-11-23', '2026-01-23', 900000, '2025-11-23', 3),  -- CDD fin janvier 2026
 (6, 2, '2025-11-28', '2025-12-28', 700000, '2025-11-28', 2); -- CDD pour Rakoto Jean
 
+INSERT INTO document_type (nom) VALUES 
+('contrat d''essai'),
+('contrat de travail'),
+('CIN'),
+('certificat de résidence');
+
+-- INSERT INTO document (
+--     id_type_document,
+--     id_employe,
+--     titre,
+--     pathScan,
+--     dateUpload,
+--     date_expiration
+-- ) VALUES (
+--     4,               -- certificat de résidence
+--     14,              -- employé id=14
+--     'Certificat de résidence',
+--     'certificat_residence.jpg',            -- pas de scan pour l’instant
+--     CURRENT_DATE,    -- date d’upload = aujourd’hui
+--     NULL             -- pas d’expiration
+-- );
+
+-- INSERT INTO document_statut (
+--     id_document,
+--     statut,
+--     date_statut,
+--     commentaire
+-- ) VALUES (
+--     LAST_INSERT_ID(),
+--     'valide',
+--     CURRENT_DATE,
+--     'Document enregistré manuellement'
+-- );
+
+
+-- INSERT INTO document (
+--     id_type_document,
+--     id_employe,
+--     titre,
+--     pathScan,
+--     dateUpload,
+--     date_expiration
+-- ) VALUES (
+--     3,               -- CIN
+--     14,              -- employé id=14
+--     'CIN',
+--     'CIN.png',            -- pas de scan pour l’instant
+--     CURRENT_DATE,    -- date d’upload = aujourd’hui
+--     NULL             -- pas d’expiration
+-- );
+
+-- INSERT INTO document_statut (
+--     id_document,
+--     statut,
+--     date_statut,
+--     commentaire
+-- ) VALUES (
+--     LAST_INSERT_ID(),
+--     'valide',
+--     CURRENT_DATE,
+--     'Document enregistré manuellement'
+-- );

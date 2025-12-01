@@ -22,6 +22,7 @@ require __DIR__ . '/routes/ressourceHumaine/pointageRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/absenceRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/heureSuppRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/congeRoute.php';
+require __DIR__ . '/routes/ressourceHumaine/paieRoute.php';
 
 /** 
  * @var Router $router 
