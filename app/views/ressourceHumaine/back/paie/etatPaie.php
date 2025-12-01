@@ -390,12 +390,9 @@ if (isset($_GET['mssg'])) {
                                     <tr>
                                         <th rowspan="2" class="col-sticky-left" style="min-width: 120px;">DATE</th>
                                         <th rowspan="2" style="min-width: 80px;">MATR.</th>
-                                        <th rowspan="2" style="min-width: 100px;">N° MALTS</th>
-                                        <th rowspan="2" style="min-width: 100px;">N° C.MALTS</th>
                                         <th rowspan="2" style="min-width: 150px;">NOM et Prénoms</th>
                                         <th rowspan="2" style="min-width: 100px;">Date d'embauche</th>
                                         <th rowspan="2" style="min-width: 100px;">ANCIENNETÉ</th>
-                                        <th rowspan="2" style="min-width: 60px;">CAT</th>
                                         <th rowspan="2" style="min-width: 120px;">Fonction</th>
                                         <th rowspan="2" style="min-width: 120px;">SALAIRE DE BASE</th>
                                         <th colspan="2" style="min-width: 100px;">Taux</th>
@@ -430,9 +427,6 @@ if (isset($_GET['mssg'])) {
                                 <tbody>
                                     <tr data-categorie="1A">
                                         <td class="col-sticky-left">31-oct-25</td>
-                                        <td>1102</td>
-                                        <td>779 912 432 497</td>
-                                        <td></td>
                                         <td><strong>RAMAROSON Feno</strong></td>
                                         <td class="text-center">07/02/2023</td>
                                         <td class="text-center">1A</td>
@@ -463,78 +457,6 @@ if (isset($_GET['mssg'])) {
                                         <td class="text-right montant-positif">264 750.00</td>
                                         <td class="text-right">-</td>
                                         <td class="text-right">-</td>
-                                    </tr>
-                                    <tr data-categorie="4A">
-                                        <td class="col-sticky-left">31-oct-25</td>
-                                        <td>1404</td>
-                                        <td>779 912 404 404</td>
-                                        <td></td>
-                                        <td><strong>DEMARAY GILBERT</strong></td>
-                                        <td class="text-center">01/07/2014</td>
-                                        <td class="text-center">4A</td>
-                                        <td class="text-center"><span class="badge-cat badge-cat-4A">4A</span></td>
-                                        <td>Courrier Magazine</td>
-                                        <td class="text-right montant-positif">210 000.00</td>
-                                        <td class="text-right">1 260.00</td>
-                                        <td class="text-right">7 000.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">23 604.30</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-positif">233 604.30</td>
-                                        <td class="text-right">2 336.04</td>
-                                        <td class="text-right">18 688.34</td>
-                                        <td class="text-right">2 336.04</td>
-                                        <td class="text-right">11 680.22</td>
-                                        <td class="text-right">3 000.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-negatif">38 040.64</td>
-                                        <td class="text-right montant-positif">195 563.66</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-positif">195 563.66</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                    </tr>
-                                    <tr data-categorie="HC">
-                                        <td class="col-sticky-left">31-oct-25</td>
-                                        <td>1104</td>
-                                        <td>779 916 002 888</td>
-                                        <td></td>
-                                        <td><strong>MAHINTSET ALEXANDER</strong></td>
-                                        <td class="text-center">01/12/2009</td>
-                                        <td class="text-center">HC</td>
-                                        <td class="text-center"><span class="badge-cat badge-cat-HC">HC</span></td>
-                                        <td>Responsable Administratif et Financier</td>
-                                        <td class="text-right montant-positif">2 500 000.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">324 800.00</td>
-                                        <td class="text-right">500 000.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-positif">2 824 800.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">3 000.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">35 736.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-negatif">38 241.80</td>
-                                        <td class="text-right montant-positif">2 901 877.56</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-positif">2 901 877.56</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">264 000.00</td>
                                     </tr>
                                     <tr class="total-row">
                                         <td class="col-sticky-left" colspan="9"><strong>TOTAL GÉNÉRAL</strong></td>

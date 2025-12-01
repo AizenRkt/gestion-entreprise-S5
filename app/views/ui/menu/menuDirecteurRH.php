@@ -89,6 +89,21 @@
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
+                        <i class="bi bi-people-fill"></i> 
+                        <span>Team</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes" class="submenu-link">Team</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/employes/alertes" class="submenu-link">Team alerte</a>
+                        </li>                                               
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
                         <i class="bi bi-file-earmark-text-fill"></i>
                         <span>Contrat d'essai</span>
                     </a>
@@ -149,23 +164,7 @@
                         </li>                                                 
                     </ul>
                 </li>
-                
-                <li class="sidebar-item has-sub">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-people-fill"></i> 
-                        <span>Team</span>
-                    </a>
-                    <ul class="submenu">
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes" class="submenu-link">Team</a>
-                        </li>
-                        <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/employes/alertes" class="submenu-link">Team alerte</a>
-                        </li>                                               
-                    </ul>
-                </li>
-
-                
+                                
                 <!-- partie compte -->
                 <?= Flight::userAccount() ?>
 
