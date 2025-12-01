@@ -119,6 +119,21 @@
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
+                        <i class="bi bi-currency-dollar"></i>
+                        <span>Paie</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/paie/fichePaie" class="submenu-link">fiche individuelle</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/paie/etatPaie" class="submenu-link">état de paie</a>
+                        </li>                                                  
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
                         <i class="bi bi-bar-chart-fill"></i>
                         <span>Statistique</span>
                     </a>
