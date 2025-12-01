@@ -207,18 +207,27 @@ class CongeModel
             ]);
 
             // Si le congé est validé, mettre à jour le statut dans la table de pointage
-            if ($statut === 'valide') {
-                $stmt_conge = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = :id_demande_conge");
-                $stmt_conge->execute(['id_demande_conge' => $id_demande_conge]);
+                            if ($statut === 'valide') {
+                                $stmt_conge = $db->prepare("SELECT id_employe, date_debut, date_fin, id_type_conge FROM demande_conge WHERE id_demande_conge = :id_demande_conge");                $stmt_conge->execute(['id_demande_conge' => $id_demande_conge]);
                 $conge_details = $stmt_conge->fetch(PDO::FETCH_ASSOC);
 
                 if ($conge_details) {
+                    // Récupérer le nom du type de congé
+                    $stmt_type_conge = $db->prepare("SELECT nom FROM type_conge WHERE id_type_conge = :id_type_conge");
+                    $stmt_type_conge->execute(['id_type_conge' => $conge_details['id_type_conge']]);
+                    $type_conge_nom = $stmt_type_conge->fetchColumn();
+
+                    $pointage_statut = 'Congé'; // Statut par défaut
+                    if ($type_conge_nom === 'Congé maladie') {
+                        $pointage_statut = 'Congé Spéciaux';
+                    }
+
                     $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
                     $pointageModel->updatePointageStatusForDateRange(
                         $conge_details['id_employe'],
                         $conge_details['date_debut'],
                         $conge_details['date_fin'],
-                        'Congé'
+                        $pointage_statut
                     );
                 }
             }

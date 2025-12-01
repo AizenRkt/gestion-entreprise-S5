@@ -69,6 +69,8 @@
                                                                                                                     $badgeClass = 'bg-warning';
                                                                                                                 } elseif ($statut === 'Congé') {
                                                                                                                     $badgeClass = 'bg-info';
+                                                                                                                } elseif ($statut === 'Congé Spéciaux') {
+                                                                                                                    $badgeClass = 'bg-light';
                                                                                                                 }elseif ($statut === 'Jour Férié') {
                                                                                                                     $badgeClass = 'bg-dark';
                                                                                                                 }
