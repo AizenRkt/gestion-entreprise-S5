@@ -720,3 +720,50 @@ CREATE TABLE poste_responsabilite (
     libelle VARCHAR(255),
     FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
 );
+
+CREATE OR REPLACE VIEW view_total_absences AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(a.date_debut) AS annee,
+    MONTH(a.date_debut) AS mois,
+    SUM(DATEDIFF(a.date_fin, a.date_debut) + 1) AS total_absences  -- "+ 1" pour inclure le jour de fin
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;
+
+CREATE OR REPLACE VIEW view_total_heures_supp AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_demande) AS annee,
+    MONTH(d.date_demande) AS mois,
+    SUM(TIMESTAMPDIFF(HOUR, dh.heure_debut, dh.heure_fin)) AS total_heures_supp
+FROM 
+    employe e
+JOIN 
+    demande_heure_sup d ON e.id_employe = d.id_employe
+JOIN 
+    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
+GROUP BY 
+    e.id_employe, annee, mois;
+
+CREATE OR REPLACE VIEW view_total_conges AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_debut) AS annee,
+    MONTH(d.date_debut) AS mois,
+    SUM(DATEDIFF(d.date_fin, d.date_debut) + 1) AS total_jours_conges
+FROM 
+    employe e
+JOIN 
+    demande_conge d ON e.id_employe = d.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;

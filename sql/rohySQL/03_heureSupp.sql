@@ -95,3 +95,20 @@ JOIN
 LEFT JOIN 
     validation_heure_sup v ON d.id_demande_heure_sup = v.id_demande_heure_sup;
 
+
+CREATE OR REPLACE VIEW view_total_heures_supp AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_demande) AS annee,
+    MONTH(d.date_demande) AS mois,
+    SUM(TIMESTAMPDIFF(HOUR, dh.heure_debut, dh.heure_fin)) AS total_heures_supp
+FROM 
+    employe e
+JOIN 
+    demande_heure_sup d ON e.id_employe = d.id_employe
+JOIN 
+    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
+GROUP BY 
+    e.id_employe, annee, mois;

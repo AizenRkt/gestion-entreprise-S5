@@ -82,3 +82,19 @@ JOIN
     type_conge t ON d.id_type_conge = t.id_type_conge
 LEFT JOIN 
     validation_conge v ON d.id_demande_conge = v.id_demande_conge;
+
+
+CREATE OR REPLACE VIEW view_total_conges AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_debut) AS annee,
+    MONTH(d.date_debut) AS mois,
+    SUM(DATEDIFF(d.date_fin, d.date_debut) + 1) AS total_jours_conges
+FROM 
+    employe e
+JOIN 
+    demande_conge d ON e.id_employe = d.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;
