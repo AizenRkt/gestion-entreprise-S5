@@ -131,9 +131,6 @@
                         <span>Statistique</span>
                     </a>
                     <ul class="submenu">
-                        <!-- <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>
-                        </li>      -->
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">statistiques employes</a>
                         </li>
