@@ -55,6 +55,43 @@ class PaieModel {
             error_log($e->getMessage());
             return [];  
         }
-    }   
+    }
+    
+    public function getAvance(int $id_employe, int $mois, int $annee): array
+{
+    try {
+        $db = Flight::db();
+
+        // Compute previous month + year
+        $prevMonth = ($mois == 1) ? 12 : $mois - 1;
+        $prevYear  = ($mois == 1) ? $annee - 1 : $annee;
+
+        $sql = "SELECT a.*, pa.pourcentage
+                FROM avance_salaire a
+                JOIN pourcentage_avance pa 
+                    ON pa.id_pourcentage = a.id_pourcentage
+                WHERE a.id_employe = :id_employe
+                AND MONTH(a.date_avance) = :mois 
+                AND YEAR(a.date_avance) = :annee
+                AND a.statut = 'accordee'
+                ORDER BY a.date_avance DESC";
+
+        $stmt = $db->prepare($sql);
+
+        $stmt->execute([
+            'id_employe' => $id_employe,
+            'mois' => $mois,
+            'annee' => $annee
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (\PDOException $e) {
+        error_log($e->getMessage());
+        return [];
+    }
+}
+
+
     
 }

@@ -42,3 +42,9 @@ Flight::route('GET /api/prime/@id_employe/@mois/@annee', function($id_employe, $
     $controller->getPrime((int)$id_employe, (int)$mois, (int)$annee);
 });
 
+Flight::route('GET /api/avance/@id_employe/@mois/@annee', function($id_employe, $mois, $annee){
+    $db = Flight::db();
+    $controller = new AssuranceController($db);
+    $controller->getAvance((int)$id_employe, (int)$mois, (int)$annee);
+});
+

@@ -59,3 +59,50 @@ INSERT INTO employe_prime (id_employe, id_prime, mois, annee) VALUES
 (7, 1, 11, 2025),
 (7, 4, 11, 2025);
 
+CREATE TABLE pourcentage_avance (
+    id_pourcentage INT AUTO_INCREMENT PRIMARY KEY,
+    pourcentage FLOAT NOT NULL,
+    date DATE NOT NULL DEFAULT CURRENT_DATE 
+);
+
+CREATE TABLE avance_salaire (
+    id_avance INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_pourcentage INT NOT NULL,
+    montant DECIMAL(10,2) NOT NULL,
+    date_avance DATE NOT NULL DEFAULT CURRENT_DATE,
+    statut ENUM('demandee', 'accordee', 'remboursee') DEFAULT 'demandee'
+);
+
+INSERT INTO pourcentage_avance (pourcentage, date)
+VALUES
+(30, '2025-12-07'),
+(50, '2025-12-07');
+
+INSERT INTO avance_salaire (id_employe, id_pourcentage, montant, date_avance, statut)
+VALUES
+(7, 1, 150000, '2025-11-20', 'accordee');
+
+INSERT INTO avance_salaire (id_employe, id_pourcentage, montant, date_avance, statut)
+VALUES
+(7, 2, 250000, '2025-12-07', 'demandee');
+
+-- Employee 7 overtime requests
+INSERT INTO demande_heure_sup (id_employe, date_demande) VALUES
+(7, '2025-11-05 09:00:00'),   -- November request
+(7, '2025-12-03 14:30:00');   -- December request
+
+
+-- Details of overtime requests
+INSERT INTO detail_heure_sup (id_demande_heure_sup, heure_debut, heure_fin, date_debut, date_fin) VALUES
+-- NOVEMBER (3 hours)
+(LAST_INSERT_ID() - 1, '17:00:00', '20:00:00', '2025-11-10', '2025-11-10'),
+
+-- DECEMBER (2 hours)
+(LAST_INSERT_ID(),     '18:00:00', '20:00:00', '2025-12-08', '2025-12-08');
+
+
+-- Validations (only validées, as requested)
+INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, date_validation) VALUES
+(LAST_INSERT_ID() - 1, 'Heures sup validées pour novembre.', 'valide', '2025-11-06'),
+(LAST_INSERT_ID(),     'Heures sup validées pour décembre.', 'valide', '2025-12-04');

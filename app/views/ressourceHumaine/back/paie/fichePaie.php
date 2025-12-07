@@ -14,6 +14,10 @@ if (isset($_GET['mssg'])) {
     </script>";
     unset($_GET['mssg']);
 }
+$lastDay = new DateTime("$annee-$mois-01");
+$lastDay->modify('last day of this month');
+$arrete = $lastDay->format('d/m/Y');
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -237,9 +241,9 @@ if (isset($_GET['mssg'])) {
                         <div class="fiche-paie-container watermark">
                             <div class="content-wrapper">
                                 <!-- En-tête -->
-                                <div class="fiche-paie-header">
+                               <div class="fiche-paie-header">
                                     <h4>FICHE DE PAIE</h4>
-                                    <h6>ARRETE AU 31/10/25</h6>
+                                    <h6>ARRETE AU <?= $arrete ?></h6>
                                 </div>
 
                                 <!-- Informations employé -->
@@ -327,12 +331,6 @@ if (isset($_GET['mssg'])) {
                                     </tbody>
                                 </table>
 
-                                <!-- Avantages en nature -->
-                                <div class="avantages-box">
-                                    <p><strong>Avantages en nature :</strong></p>
-                                    <p><strong>Déductions IRSA :</strong></p>
-                                    <p><strong>Montant imposable :</strong> 294 000.00</p>
-                                </div>
 
                                 <!-- Mode de paiement -->
                                 <div class="mode-paiement">
@@ -348,8 +346,7 @@ if (isset($_GET['mssg'])) {
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-
+document.addEventListener("DOMContentLoaded", async () => {
     const parts = window.location.pathname.split("/").filter(Boolean);
     const employeId = parts[parts.length - 3];
     const mois = parts[parts.length - 2];
@@ -358,73 +355,53 @@ document.addEventListener("DOMContentLoaded", () => {
     const tbody = document.querySelector(".table-paie tbody");
     const salaireDisplay = document.querySelector(".salaire-brut-display");
 
-    let taux = [];
+    let tauxAssurance = [];
+    let tauxHeureSup = [];
     let employe = {};
     let heuresSupp = [];
     let primes = [];
+    let avances = [];
 
-    // ============================
-    // FETCH EMPLOYEE
-    // ============================
-    fetch(`<?= Flight::base() ?>/employe/${employeId}`)
-        .then(res => res.json())
-        .then(res => {
-            if (!res.success || !res.data) return;
+    // --- Fetch employee ---
+    const empRes = await fetch(`<?= Flight::base() ?>/employe/${employeId}`).then(r => r.json());
+    if (!empRes.success || !empRes.data) return;
 
-            employe = res.data;
+    employe = empRes.data;
+    const salaire_base = Number(employe.contrat.salaire_base);
+    const taux_journalier = salaire_base / 30;
+    const taux_horaire = taux_journalier / 9;
 
-            const dateEmbauche = new Date(employe.date_embauche);
-            const now = new Date();
-            let years = now.getFullYear() - dateEmbauche.getFullYear();
-            let months = now.getMonth() - dateEmbauche.getMonth();
-            let days = now.getDate() - dateEmbauche.getDate();
-            if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
-            if (months < 0) { years--; months += 12; }
-            const anciennete = `${years} an(s) ${months} mois et ${days} jour(s)`;
+    // Fill employee info
+    const dateEmbauche = new Date(employe.date_embauche);
+    const now = new Date();
+    let years = now.getFullYear() - dateEmbauche.getFullYear();
+    let months = now.getMonth() - dateEmbauche.getMonth();
+    let days = now.getDate() - dateEmbauche.getDate();
+    if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+    if (months < 0) { years--; months += 12; }
+    const anciennete = `${years} an(s) ${months} mois et ${days} jour(s)`;
 
-            const salaire_base = Number(employe.contrat.salaire_base);
-            const taux_journalier = salaire_base / 30;
-            const taux_horaire = taux_journalier / 9;
+    document.querySelector(".info-value.nom").textContent = employe.nom + " " + employe.prenom;
+    document.querySelector(".info-value.fonction").textContent = employe.titre_poste;
+    document.querySelector(".info-value.date_embauche").textContent = dateEmbauche.toLocaleDateString('fr-FR');
+    document.querySelector(".info-value.anciennete").textContent = anciennete;
+    document.querySelector(".info-value.classification").textContent = employe.id_poste;
+    document.querySelector(".info-value.montant-highlight").textContent = salaire_base.toLocaleString('fr-FR');
+    document.querySelector(".info-value.taux_journalier").textContent = taux_journalier.toLocaleString('fr-FR');
+    document.querySelector(".info-value.taux_horaire").textContent = taux_horaire.toLocaleString('fr-FR');
 
-            // Fill UI
-            document.querySelector(".info-value.nom").textContent = employe.nom + " " + employe.prenom;
-            document.querySelector(".info-value.fonction").textContent = employe.titre_poste;
-            document.querySelector(".info-value.date_embauche").textContent = dateEmbauche.toLocaleDateString('fr-FR');
-            document.querySelector(".info-value.anciennete").textContent = anciennete;
-            document.querySelector(".info-value.classification").textContent = employe.id_poste;
-            document.querySelector(".info-value.montant-highlight").textContent = salaire_base.toLocaleString('fr-FR');
-            document.querySelector(".info-value.taux_journalier").textContent = taux_journalier.toLocaleString('fr-FR');
-            document.querySelector(".info-value.taux_horaire").textContent = taux_horaire.toLocaleString('fr-FR');
+    salaireDisplay.textContent = salaire_base.toLocaleString('fr-FR');
 
-            salaireDisplay.textContent = salaire_base.toLocaleString('fr-FR');
+    // --- Fetch supporting data ---
+    [heuresSupp, primes, avances, tauxAssurance, tauxHeureSup] = await Promise.all([
+        fetch(`<?= Flight::base() ?>/api/heures-supp/${employeId}/${mois}/${annee}`).then(r => r.json()).then(r => r.success ? r.data : []),
+        fetch(`<?= Flight::base() ?>/api/prime/${employeId}/${mois}/${annee}`).then(r => r.json()).then(r => r.success ? r.data : []),
+        fetch(`<?= Flight::base() ?>/api/avance/${employeId}/${mois}/${annee}`).then(r => r.json()).then(r => r.success ? r.data : []),
+        fetch("<?= Flight::base() ?>/api/tauxAssurance").then(r => r.json()),
+        fetch("<?= Flight::base() ?>/api/tauxHeureSup").then(r => r.json())
+    ]);
 
-            // Fetch heures supp
-            return fetch(`<?= Flight::base() ?>/api/heures-supp/${employeId}/${mois}/${annee}`);
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.success && res.data) heuresSupp = res.data;
-            return fetch(`<?= Flight::base() ?>/api/prime/${employeId}/${mois}/${annee}`);
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.success && res.data) primes = res.data;
-            updatePaieTable(Number(salaireDisplay.textContent.replace(/\s/g, '')));
-        });
-
-    // ============================
-    // FETCH TAUX ASSURANCE
-    // ============================
-    fetch("<?= Flight::base() ?>/api/tauxAssurance")
-        .then(res => res.json())
-        .then(data => {
-            taux = data;
-            if (salaireDisplay.textContent) updatePaieTable(Number(salaireDisplay.textContent.replace(/\s/g, '')));
-        });
-
-    // ============================
-    // CALCUL RETENUES
-    // ============================
+    // --- Calculate retenues ---
     function calculerRetenues(salaire, rows) {
         let retenues = {};
         let irsaTotal = 0;
@@ -450,11 +427,36 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // ============================
-    // UPDATE TABLE UI
-    // ============================
-    function updatePaieTable(salaire) {
-        const data = calculerRetenues(salaire, taux);
+    // --- Calculate overtime per type ---
+    function calculMontantHeuresSuppParType(nombreHeures, tauxHeureSupData, tauxHoraire) {
+        const result = [];
+        let restant = nombreHeures;
+
+        for (const range of tauxHeureSupData) {
+            if (restant <= 0) break;
+
+            const start = range.heure_debut;
+            const end = range.heure_fin;
+            const heuresRange = Math.min(restant, end - start + 1);
+
+            const montant = heuresRange * tauxHoraire * (range.taux / 100);
+            result.push({
+                type: range.type_heuresup,
+                heures: heuresRange,
+                taux: range.taux,
+                montant
+            });
+
+            restant -= heuresRange;
+        }
+
+        return result;
+    }
+
+    // --- Update table UI ---
+    function updatePaieTable() {
+        const salaire = salaire_base;
+        const data = calculerRetenues(salaire, tauxAssurance);
 
         tbody.querySelectorAll(".dynamic-row").forEach(r => r.remove());
 
@@ -473,43 +475,78 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
 
-        // --- Update TOTAL IRSA ---
+        // --- TOTAL IRSA ---
         const totalIrsaCell = document.querySelector(".total-irsa strong");
         if (totalIrsaCell) totalIrsaCell.textContent = data.irsaTotal.toLocaleString('fr-FR');
 
-        // --- Heures supplémentaires ---
+        // --- Heures supplémentaires per type ---
+        let totalHS = 0;
         heuresSupp.forEach(hs => {
-            const row = tbody.insertRow(insertIndex++);
-            row.classList.add("dynamic-row");
-            row.innerHTML = `
-                <td>${hs.type_heure_supp}</td>
-                <td class="text-right">${hs.nombre_heures}</td>
-                <td class="text-right">${hs.taux} %</td>
-                <td class="text-right">${hs.montant.toLocaleString('fr-FR')}</td>
-            `;
+            const nombre = Number(hs.total_heures_supp || 0);
+            const hsParType = calculMontantHeuresSuppParType(nombre, tauxHeureSup, taux_horaire);
+
+            hsParType.forEach(item => {
+                totalHS += item.montant;
+
+                const row = tbody.insertRow(insertIndex++);
+                row.classList.add("dynamic-row");
+                row.innerHTML = `
+                    <td>${item.type}</td>
+                    <td class="text-right">${item.heures}</td>
+                    <td class="text-right">${item.taux} %</td>
+                    <td class="text-right">${item.montant.toLocaleString('fr-FR')}</td>
+                `;
+            });
         });
 
         // --- Primes ---
+        let totalPrimes = 0;
         primes.forEach(p => {
+            const montant = Number(p.montant);
+            totalPrimes += montant;
+
             const row = tbody.insertRow(insertIndex++);
             row.classList.add("dynamic-row");
             row.innerHTML = `
                 <td>${p.nom}</td>
                 <td class="text-right">-</td>
                 <td class="text-right">-</td>
-                <td class="text-right">${Number(p.montant).toLocaleString('fr-FR')}</td>
+                <td class="text-right">${montant.toLocaleString('fr-FR')}</td>
+            `;
+        });
+
+        // --- Avances ---
+        let totalAvances = 0;
+        avances.forEach(a => {
+            const montant = Number(a.montant);
+            totalAvances += montant;
+
+            const date = new Date(a.date_avance).toLocaleDateString('fr-FR');
+            const row = tbody.insertRow(insertIndex++);
+            row.classList.add("dynamic-row");
+            row.innerHTML = `
+                <td>Avance du ${date} (${a.pourcentage}%)</td>
+                <td class="text-right">-</td>
+                <td class="text-right">${a.pourcentage} %</td>
+                <td class="text-right">${montant.toLocaleString('fr-FR')}</td>
             `;
         });
 
         // --- Net à payer ---
-        const totalHS = heuresSupp.reduce((s, hs) => s + Number(hs.montant), 0);
-        const totalPrimes = primes.reduce((s, p) => s + Number(p.montant), 0);
-        const netRow = document.querySelector(".net-payer td:last-child");
-        if (netRow) netRow.textContent = (data.salaireNet + totalHS + totalPrimes).toLocaleString('fr-FR');
+        const netAPayer = data.salaireNet + totalHS + totalPrimes - totalAvances;
+        const netRow = document.querySelector(".net-payer td:last-child strong");
+        if (netRow) netRow.textContent = netAPayer.toLocaleString('fr-FR');
+
+        // --- Salaire brut display ---
+        salaireDisplay.textContent = salaire.toLocaleString('fr-FR');
     }
 
+    updatePaieTable();
 });
 </script>
+
+
+
 
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>

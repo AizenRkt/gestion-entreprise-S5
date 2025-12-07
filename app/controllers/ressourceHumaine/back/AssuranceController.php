@@ -59,8 +59,30 @@ class AssuranceController {
             return;
         }
 
-        $model = new HeureSuppModel();  // fixed
+        $model = new HeureSuppModel();  
         $data = $model->getAllHeureSuppByEmployeAndDate($id_employe, $mois, $annee);
+
+        Flight::json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    public function getAvance($id_employe, $mois, $annee)
+    {
+        $id_employe = (int)$id_employe;
+        $mois = (int)$mois;
+        $annee = (int)$annee;
+
+        if (!$id_employe || !$mois || !$annee) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Paramètres invalides.'
+            ]);
+            return;
+        }
+
+        $data = $this->model->getAvance($id_employe, $mois, $annee);
 
         Flight::json([
             'success' => true,
