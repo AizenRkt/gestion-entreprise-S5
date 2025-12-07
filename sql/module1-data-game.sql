@@ -671,3 +671,24 @@ INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-08-15', 'Assomption', 'annuel'),
 ('2025-11-01', 'Toussaint', 'annuel'),
 ('2025-12-25', 'Noël', 'annuel');
+
+-- Ajouts manquants pour poste_role
+INSERT INTO poste_role (id_poste, id_role, date_role) VALUES
+(2, 3, '2020-01-01'),  -- Développeur Backend = Employé
+(3, 3, '2020-01-01'),  -- Développeur Frontend = Employé
+(5, 3, '2020-01-01'),  -- Technicien Support N1 = Employé
+(6, 2, '2020-01-01'),  -- Administrateur Systèmes = Manager
+(7, 3, '2020-01-01'),  -- Opérateur Machine = Employé
+(8, 2, '2020-01-01'),  -- Chef d'Équipe Production = Manager
+(9, 3, '2020-01-01'),  -- Inspecteur Qualité = Employé
+(10, 2, '2020-01-01'), -- Responsable Qualité = Manager
+(11, 3, '2020-01-01'), -- Ingénieur R&D = Employé
+(12, 2, '2020-01-01'), -- Chef de Projet Innovation = Manager
+(13, 3, '2020-01-01'), -- Dessinateur Industriel = Employé
+(14, 2, '2020-01-01'), -- Ingénieur Conception = Manager
+(15, 3, '2020-01-01'), -- Comptable = Employé
+(16, 2, '2020-01-01'), -- Contrôleur de Gestion = Manager
+(21, 3, '2020-01-01'), -- Magasinier = Employé
+(22, 2, '2020-01-01'), -- Responsable Entrepôt = Manager
+(23, 3, '2020-01-01'), -- Chauffeur Poids Lourd = Employé
+(24, 2, '2020-01-01'); -- Coordinateur Logistique = Manager

@@ -4,12 +4,14 @@ namespace app\models;
 
 class LLMModel
 {
-    public function callLLMService($question, $employeeId = null)
+    public function callLLMService($question, $employeeId = null, $userRole = null, $userServiceId = null)
     {
         $url = 'http://localhost:5000/api/llm';
         $data = [
             'question' => $question,
-            'employee_id' => $employeeId
+            'employee_id' => $employeeId,
+            'user_role' => $userRole,
+            'user_service_id' => $userServiceId
         ];
 
         $options = [

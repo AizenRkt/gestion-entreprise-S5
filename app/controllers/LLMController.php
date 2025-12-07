@@ -58,8 +58,13 @@ class LLMController extends Controller
                 return;
             }
 
+            // Récupérer les infos utilisateur pour filtrage
+            $userRole = $_SESSION['user']['role'] ?? null;
+            $userServiceId = $_SESSION['user']['id_service'] ?? null;
+            $employeeId = $_SESSION['user']['id_employe'] ?? null;
+
             $llmModel = new LLMModel();
-            $response = $llmModel->callLLMService($question, $employeeId);
+            $response = $llmModel->callLLMService($question, $employeeId, $userRole, $userServiceId);
 
             // Préparer la réponse à renvoyer
             $assistantResponse = ($response['status'] === 'success') ? $response['data']['response'] : $response['error'];
