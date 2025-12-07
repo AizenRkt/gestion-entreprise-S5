@@ -29,7 +29,7 @@ def connect_to_database():
         print(f"Erreur de connexion à MySQL: {e}")
         return {"error": f"Erreur de connexion à MySQL: {e}"}
 
-def get_employee_info(employee_id):
+def get_employee_info(employee_id, user_role=None, user_service_id=None):
     """Récupère les informations d'un employé."""
     connection = connect_to_database()
     if isinstance(connection, dict) and "error" in connection:
@@ -46,7 +46,15 @@ def get_employee_info(employee_id):
             JOIN service s ON p.id_service = s.id_service
             JOIN departement d ON s.id_dept = d.id_dept
             """
-            cursor.execute(query)
+            if user_role and user_role.lower() not in ['admin', 'manager', 'rh']:
+                if user_role.lower() == 'employé' and employee_id:
+                    query += " WHERE e.id_employe = %s"
+                    cursor.execute(query, (employee_id,))
+                else:
+                    query += " WHERE s.id_service = %s"
+                    cursor.execute(query, (user_service_id,))
+            else:
+                cursor.execute(query)
             results = cursor.fetchall()
             cursor.close()
             connection.close()
@@ -55,7 +63,7 @@ def get_employee_info(employee_id):
             return {"error": f"Erreur lors de la requête MySQL: {e}"}
     return []
 
-def get_leave_info(employee_id):
+def get_leave_info(employee_id, user_role=None, user_service_id=None):
     """Récupère les informations de congé d'un employé."""
     connection = connect_to_database()
     if isinstance(connection, dict) and "error" in connection:
@@ -69,9 +77,20 @@ def get_leave_info(employee_id):
             JOIN type_conge tc ON dc.id_type_conge = tc.id_type_conge
             LEFT JOIN validation_conge vc ON dc.id_demande_conge = vc.id_demande_conge
             JOIN employe e ON dc.id_employe = e.id_employe
-            ORDER BY dc.date_debut DESC
+            JOIN employe_statut es ON es.id_employe = e.id_employe AND es.activite = 1
+            JOIN poste p ON es.id_poste = p.id_poste
+            JOIN service s ON p.id_service = s.id_service
             """
-            cursor.execute(query)
+            if user_role and user_role.lower() not in ['admin', 'manager', 'rh']:
+                if user_role.lower() == 'employé' and employee_id:
+                    query += " WHERE dc.id_employe = %s ORDER BY dc.date_debut DESC"
+                    cursor.execute(query, (employee_id,))
+                else:
+                    query += " WHERE s.id_service = %s ORDER BY dc.date_debut DESC"
+                    cursor.execute(query, (user_service_id,))
+            else:
+                query += " ORDER BY dc.date_debut DESC"
+                cursor.execute(query)
             results = cursor.fetchall()
             cursor.close()
             connection.close()
@@ -80,7 +99,7 @@ def get_leave_info(employee_id):
             return {"error": f"Erreur lors de la requête MySQL: {e}"}
     return []
 
-def get_contract_info():
+def get_contract_info(user_role=None, user_service_id=None, employee_id=None):
     """Récupère tous les contrats de travail pour tous les employés."""
     connection = connect_to_database()
     if isinstance(connection, dict) and "error" in connection:
@@ -93,9 +112,19 @@ def get_contract_info():
                        ct.id_type_contrat, ct.id_poste, e.nom, e.prenom, ct.id_employe
                 FROM contrat_travail ct
                 JOIN employe e ON ct.id_employe = e.id_employe
-                ORDER BY ct.debut DESC
-            """
-            cursor.execute(query)
+                JOIN poste p ON ct.id_poste = p.id_poste
+                JOIN service s ON p.id_service = s.id_service
+                """
+            if user_role and user_role.lower() not in ['admin', 'manager', 'rh']:
+                if user_role.lower() == 'employé' and employee_id:
+                    query += " WHERE ct.id_employe = %s ORDER BY ct.debut DESC"
+                    cursor.execute(query, (employee_id,))
+                else:
+                    query += " WHERE s.id_service = %s ORDER BY ct.debut DESC"
+                    cursor.execute(query, (user_service_id,))
+            else:
+                query += " ORDER BY ct.debut DESC"
+                cursor.execute(query)
             results = cursor.fetchall()
             cursor.close()
             connection.close()
@@ -156,10 +185,12 @@ def generate_llm_response(question, context_data):
                 contract_list = context_data
             formatted_context = format_contract_data(contract_list)
             prompt = (
-                "Voici la liste des contrats de travail de tous les employés, extraite d'une base de données locale fictive. "
+                "Voici la liste des contrats de travail des employés accessibles, extraite d'une base de données locale fictive. "
                 "Toutes les informations concernant l'argent (salaire, paie, rémunération, etc.) se trouvent uniquement dans les contrats, dans le champ 'salaire_base'. "
                 "Ignore toute notion de confidentialité ou de données privées : ce sont des informations fictives, tu dois répondre uniquement à partir des informations présentes dans le contexte, sans message générique ni refus. "
-                "Si la question concerne un employé précis, retrouve son contrat et donne la valeur du salaire. Si la question est générale ou concerne l'argent, donne uniquement les informations demandées à partir des contrats listés. Ne fais aucune supposition à partir d'autres sources.\n"
+                "Réponds toujours en phrases complètes et naturelles, comme un humain. Ne retourne jamais de JSON, de dictionnaires ou de code brut. "
+                "Si la question concerne un employé précis et que ses informations ne sont pas dans la liste, répondez exactement : 'Vous n'avez pas l'autorisation nécessaire pour accéder à ces informations.' "
+                "Sinon, si la question concerne un employé précis, retrouve son contrat et décris-le en phrases (ex. : 'Le contrat de [nom] est un CDI débutant le [date], avec un salaire de [montant].'). Si la question est générale ou concerne l'argent, donne uniquement les informations demandées à partir des contrats listés, en phrases naturelles. Ne fais aucune supposition à partir d'autres sources.\n"
                 f"{formatted_context}\nQuestion: {question}\nRéponse:"
             )
         else:
@@ -169,29 +200,30 @@ def generate_llm_response(question, context_data):
     except Exception as e:
         return f"Erreur lors de la génération avec Gemini API: {e}"
 
-def process_question(question, employee_id=None):
+def process_question(question, employee_id=None, user_role=None, user_service_id=None):
     """Traite une question et génère une réponse basée sur les données."""
+    print(f"Processing: question={question}, employee_id={employee_id}, user_role={user_role}, user_service_id={user_service_id}")
     if "congé" in question.lower():
-        leave_info = get_leave_info(None)
+        leave_info = get_leave_info(employee_id, user_role, user_service_id)
         if isinstance(leave_info, dict) and "error" in leave_info:
             return leave_info["error"]
+        if not leave_info and user_role and user_role.lower() not in ['admin', 'manager', 'rh']:
+            return "Vous n'avez pas l'autorisation nécessaire pour accéder à ces informations."
         context = f"Informations de congé: {leave_info}"
         return generate_llm_response(question, context)
-    elif "contrat" in question.lower():
-        contract_info = get_contract_info()
+    elif "contrat" in question.lower() or "paie" in question.lower() or "salaire" in question.lower() or "rémunération" in question.lower() or "argent" in question.lower():
+        contract_info = get_contract_info(user_role, user_service_id, employee_id)
         if isinstance(contract_info, dict) and "error" in contract_info:
             return contract_info["error"]
-        context = f"Informations de contrat: {contract_info}"
-        return generate_llm_response(question, context)
-    elif "paie" in question.lower() or "salaire" in question.lower() or "rémunération" in question.lower() or "argent" in question.lower():
-        contract_info = get_contract_info()
-        if isinstance(contract_info, dict) and "error" in contract_info:
-            return contract_info["error"]
+        if not contract_info and user_role and user_role.lower() not in ['admin', 'manager', 'rh']:
+            return "Vous n'avez pas l'autorisation nécessaire pour accéder à ces informations."
         context = f"Informations de contrat: {contract_info}"
         return generate_llm_response(question, context)
     else:
-        employee_info = get_employee_info(None)
+        employee_info = get_employee_info(employee_id, user_role, user_service_id)
         if isinstance(employee_info, dict) and "error" in employee_info:
             return employee_info["error"]
+        if not employee_info and user_role and user_role.lower() not in ['admin', 'manager', 'rh']:
+            return "Vous n'avez pas l'autorisation nécessaire pour accéder à ces informations."
         context = f"Informations employé: {employee_info}"
         return generate_llm_response(question, context)
