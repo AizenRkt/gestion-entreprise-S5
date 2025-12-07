@@ -89,4 +89,35 @@ class AssuranceController {
             'data' => $data
         ]);
     }
+
+    public function getEmployesByFilters($nom_service, $nom_departement, $month, $year)
+    {
+        $month = (int)$month;
+        $year = (int)$year;
+
+        if (!$nom_service || !$nom_departement || !$month || !$year) {
+            Flight::json([
+                'success' => false,
+                'message' => 'Paramètres invalides.'
+            ]);
+            return;
+        }
+
+        $data = $this->model->getEmployesByFilters($nom_service, $nom_departement, $month, $year);
+
+        Flight::json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    public function getAllDepartement() {
+        $data = $this->model->getAllDepartement();
+        Flight::json($data); 
+    }
+    public function getAllService() {
+        $data = $this->model->getAllservice();
+        Flight::json($data); 
+    }
+
 }
