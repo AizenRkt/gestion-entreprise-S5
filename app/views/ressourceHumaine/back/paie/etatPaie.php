@@ -784,20 +784,21 @@ async function updateTable(employes, mois, annee) {
 
         const nameLink = `<a href="<?= Flight::base() ?>/paie/fichePaie/${emp.id_employe}/${mois}/${annee}" target="_blank">${emp.nom} ${emp.prenom}</a>`;
 
-        tr.innerHTML = `
-            <td class="col-sticky-left">${emp.date_embauche || "-"}</td>
-            <td>${emp.id_employe || "-"}</td>
-            <td>${nameLink}</td>
-            <td class="text-center">${emp.date_embauche || "-"}</td>
-            <td class="text-center">-</td>
-            <td>${emp.titre_poste || "-"}</td>
-            <td class="text-right montant-positif">${salaire_base.toLocaleString('fr-FR')}</td>
-            <td class="text-right">${Object.values(retenuesData.retenues).reduce((s, r) => s + r.montant, 0).toLocaleString('fr-FR')}</td>
-            <td class="text-right">${totalHS.toLocaleString('fr-FR')}</td>
-            <td class="text-right">${totalPrimes.toLocaleString('fr-FR')}</td>
-            <td class="text-right">${totalAvances.toLocaleString('fr-FR')}</td>
-            <td class="text-right montant-positif">${netAPayer.toLocaleString('fr-FR')}</td>
-        `;
+       tr.innerHTML = `
+        <td class="col-sticky-left">${emp.date_embauche || "-"}</td>
+        <td>${emp.id_employe || "-"}</td>
+        <td>${nameLink}</td>
+        <td class="text-center">${emp.date_embauche || "-"}</td>
+        <td class="text-center">-</td>
+        <td>${emp.titre_poste || "-"}</td>
+        <td class="text-right montant-positif">${salaire_base.toLocaleString('fr-FR')}</td>
+        <td class="text-right">${taux_horaire.toLocaleString('fr-FR')}</td>
+        <td class="text-right">${taux_journalier.toLocaleString('fr-FR')}</td>
+        <td class="text-right">${totalHS.toLocaleString('fr-FR')}</td> <!-- Heures Supplémentaires -->
+        <td class="text-right">${totalPrimes.toLocaleString('fr-FR')}</td> <!-- Primes -->
+        <td class="text-right">${totalAvances.toLocaleString('fr-FR')}</td> <!-- Avances -->
+        <td class="text-right montant-positif">${netAPayer.toLocaleString('fr-FR')}</td> <!-- Salaire Net -->
+    `;
 
         tbody.appendChild(tr);
     }
