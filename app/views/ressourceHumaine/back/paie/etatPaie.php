@@ -292,17 +292,12 @@ if (isset($_GET['mssg'])) {
                             <label class="form-label fw-bold">Service</label>
                             <select class="form-select" id="filterService">
                                 <option value="">Tous les services</option>
-                                <option value="admin">Administration</option>
-                                <option value="rh">Ressources Humaines</option>
-                                <option value="tech">Technique</option>
                             </select>
                         </div>
                         <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                             <label class="form-label fw-bold">Département</label>
                             <select class="form-select" id="filterCategorie">
-                                <option value="">Toutes les département</option>
-                                <option value="1A">Administratif</option>
-                                <option value="4A">Recherche</option>
+                                <option value="">Toutes les départements</option>
                             </select>
                         </div>
                         <div class="col-md-3 col-sm-6">
@@ -313,7 +308,6 @@ if (isset($_GET['mssg'])) {
                     </div>
                 </div>
             </section>
-
             <!-- Statistiques -->
             <section class="section">
                 <div class="row">
@@ -323,7 +317,7 @@ if (isset($_GET['mssg'])) {
                                 <i class="bi bi-people-fill"></i>
                             </div>
                             <h6 class="text-muted mb-1">Total Employés</h6>
-                            <h3 class="mb-0" id="statEmployes">3</h3>
+                            <h3 class="mb-0" id="statEmployes">0</h3>
                         </div>
                     </div>
                     <div class="col-xl-3 col-md-6 mb-4">
@@ -332,7 +326,7 @@ if (isset($_GET['mssg'])) {
                                 <i class="bi bi-cash-stack"></i>
                             </div>
                             <h6 class="text-muted mb-1">Masse Salariale Brute</h6>
-                            <h3 class="mb-0" id="statBrut">3 373 404.30</h3>
+                            <h3 class="mb-0" id="statBrut">0</h3>
                             <small class="text-muted">Ar</small>
                         </div>
                     </div>
@@ -342,7 +336,7 @@ if (isset($_GET['mssg'])) {
                                 <i class="bi bi-receipt"></i>
                             </div>
                             <h6 class="text-muted mb-1">Total Retenues</h6>
-                            <h3 class="mb-0" id="statRetenues">126 532.44</h3>
+                            <h3 class="mb-0" id="statRetenues">0</h3>
                             <small class="text-muted">Ar</small>
                         </div>
                     </div>
@@ -352,140 +346,57 @@ if (isset($_GET['mssg'])) {
                                 <i class="bi bi-wallet2"></i>
                             </div>
                             <h6 class="text-muted mb-1">Net à Payer Total</h6>
-                            <h3 class="mb-0" id="statNet">3 362 191.22</h3>
+                            <h3 class="mb-0" id="statNet">0</h3>
                             <small class="text-muted">Ar</small>
                         </div>
                     </div>
                 </div>
             </section>
-
             <!-- Tableau -->
             <section class="section">
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
-                            <h5 class="card-title mb-3 mb-md-0">Liste des Paies - Octobre 2025</h5>
+                            <h5 class="card-title mb-3 mb-md-0">Liste des Paies</h5>
                             <div class="export-buttons">
-                                <button class="btn btn-sm btn-success" onclick="exporterExcel()">
-                                    <i class="bi bi-file-earmark-excel me-1"></i>Excel
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="exporterPDF()">
-                                    <i class="bi bi-file-earmark-pdf me-1"></i>PDF
-                                </button>
                                 <button class="btn btn-sm btn-primary" onclick="window.print()">
                                     <i class="bi bi-printer me-1"></i>Imprimer
                                 </button>
+                                
                             </div>
                         </div>
                     </div>
+
                     <div class="card-body p-0">
                         <div class="scroll-hint">
                             <i class="bi bi-arrow-left-right"></i>
                             <strong>Astuce:</strong> Faites glisser horizontalement pour voir toutes les colonnes
                         </div>
-                        
+
                         <div class="table-responsive-custom">
                             <table class="table-etat-paie" id="tablePaie">
                                 <thead>
                                     <tr>
-                                        <th rowspan="2" class="col-sticky-left" style="min-width: 120px;">DATE</th>
-                                        <th rowspan="2" style="min-width: 80px;">MATR.</th>
-                                        <th rowspan="2" style="min-width: 150px;">NOM et Prénoms</th>
-                                        <th rowspan="2" style="min-width: 100px;">Date d'embauche</th>
-                                        <th rowspan="2" style="min-width: 100px;">ANCIENNETÉ</th>
-                                        <th rowspan="2" style="min-width: 120px;">Fonction</th>
-                                        <th rowspan="2" style="min-width: 120px;">SALAIRE DE BASE</th>
-                                        <th colspan="2" style="min-width: 100px;">Taux</th>
-                                        <th rowspan="2" style="min-width: 100px;">SALAIRE DE BASE H.SUP</th>
-                                        <th rowspan="2" style="min-width: 100px;">INDEMNITÉ</th>
-                                        <th rowspan="2" style="min-width: 80px;">RAPPEL</th>
-                                        <th rowspan="2" style="min-width: 80px;">AUTRES A.V</th>
-                                        <th rowspan="2" style="min-width: 120px;">NB SUP.MAJ.</th>
-                                        <th rowspan="2" style="min-width: 120px;">Salaire Brut</th>
-                                        <th rowspan="2" style="min-width: 100px;">CNaPS 1%</th>
-                                        <th rowspan="2" style="min-width: 100px;">CNaPS 8%</th>
-                                        <th rowspan="2" style="min-width: 100px;">OSTIE 1%</th>
-                                        <th rowspan="2" style="min-width: 100px;">OSTIE 5%</th>
-                                        <th rowspan="2" style="min-width: 100px;">Banastra Sanitaire</th>
-                                        <th rowspan="2" style="min-width: 100px;">Impôt 0%</th>
-                                        <th rowspan="2" style="min-width: 80px;">IR 5%</th>
-                                        <th rowspan="2" style="min-width: 100px;">Montant IRSA IR</th>
-                                        <th rowspan="2" style="min-width: 80px;">SGI NET</th>
-                                        <th rowspan="2" style="min-width: 100px;">% IR BTB</th>
-                                        <th rowspan="2" style="min-width: 120px;">TOTAL RETENUES</th>
-                                        <th rowspan="2" style="min-width: 120px;">SALAIRE NET</th>
-                                        <th rowspan="2" style="min-width: 100px;">AVANCE</th>
-                                        <th rowspan="2" style="min-width: 120px;">NET A PAYER</th>
-                                        <th rowspan="2" style="min-width: 120px;">AUTRES INDEMNITÉS</th>
-                                        <th rowspan="2" style="min-width: 100px;">NET ISO.MAJ.</th>
+                                        <th rowspan="2" class="col-sticky-left">Date</th>
+                                        <th rowspan="2">Matricule</th>
+                                        <th rowspan="2">Nom et Prénoms</th>
+                                        <th rowspan="2">Date d'embauche</th>
+                                        <th rowspan="2">Ancienneté</th>
+                                        <th rowspan="2">Fonction</th>
+                                        <th rowspan="2">Salaire de Base</th>
+                                        <th colspan="2">Taux</th>
+                                        <th rowspan="2">Heures Supplémentaires</th>
+                                        <th rowspan="2">Primes</th>
+                                        <th rowspan="2">Avances</th>
+                                        <th rowspan="2">Salaire Net</th>
                                     </tr>
                                     <tr>
-                                        <th style="min-width: 80px;">T.H (HR)</th>
-                                        <th style="min-width: 80px;">T.J (JRS)</th>
+                                        <th>T.H (HR)</th>
+                                        <th>T.J (JRS)</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    <tr data-categorie="1A">
-                                        <td class="col-sticky-left">31-oct-25</td>
-                                        <td><strong>RAMAROSON Feno</strong></td>
-                                        <td class="text-center">07/02/2023</td>
-                                        <td class="text-center">1A</td>
-                                        <td class="text-center"><span class="badge-cat badge-cat-1A">1A</span></td>
-                                        <td>Secrétaire</td>
-                                        <td class="text-right montant-positif">315 000.00</td>
-                                        <td class="text-right">1 890.00</td>
-                                        <td class="text-right">10 500.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-positif">315 000.00</td>
-                                        <td class="text-right">3 150.00</td>
-                                        <td class="text-right">25 200.00</td>
-                                        <td class="text-right">3 150.00</td>
-                                        <td class="text-right">15 750.00</td>
-                                        <td class="text-right">3 000.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-negatif">50 250.00</td>
-                                        <td class="text-right montant-positif">264 750.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right montant-positif">264 750.00</td>
-                                        <td class="text-right">-</td>
-                                        <td class="text-right">-</td>
-                                    </tr>
-                                    <tr class="total-row">
-                                        <td class="col-sticky-left" colspan="9"><strong>TOTAL GÉNÉRAL</strong></td>
-                                        <td class="text-right"><strong>3 025 000.00</strong></td>
-                                        <td class="text-right"><strong>3 150.00</strong></td>
-                                        <td class="text-right"><strong>17 500.00</strong></td>
-                                        <td class="text-right"><strong>324 800.00</strong></td>
-                                        <td class="text-right"><strong>523 604.30</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>3 373 404.30</strong></td>
-                                        <td class="text-right"><strong>5 486.04</strong></td>
-                                        <td class="text-right"><strong>43 888.34</strong></td>
-                                        <td class="text-right"><strong>5 486.04</strong></td>
-                                        <td class="text-right"><strong>27 430.22</strong></td>
-                                        <td class="text-right"><strong>9 000.00</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>35 736.00</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>126 532.44</strong></td>
-                                        <td class="text-right"><strong>3 362 191.22</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>3 362 191.22</strong></td>
-                                        <td class="text-right"><strong>-</strong></td>
-                                        <td class="text-right"><strong>264 000.00</strong></td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -493,110 +404,78 @@ if (isset($_GET['mssg'])) {
                 </div>
             </section>
 
+
             <!-- Résumé des charges -->
-            <section class="section">
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Charges Sociales Patronales</h5>
-                            </div>
-                            <div class="card-body" style="margin-top: 50px">
-                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                    <span><i class="bi bi-shield-check me-2 text-primary"></i>CNaPS 8%</span>
-                                    <strong class="text-primary">43 888.34 Ar</strong>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                    <span><i class="bi bi-heart-pulse me-2 text-primary"></i>OSTIE 5%</span>
-                                    <strong class="text-primary">27 430.22 Ar</strong>
-                                </div>
-                                <div class="d-flex justify-content-between bg-light p-3 rounded">
-                                    <strong><i class="bi bi-calculator me-2"></i>Total Charges Patronales</strong>
-                                    <strong class="text-primary fs-5">71 318.56 Ar</strong>
-                                </div>
-                            </div>
-                        </div>
+<section class="section">
+    <div class="row">
+        <!-- Charges Patronales -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-building me-2"></i>Charges Sociales Patronales</h5>
+                </div>
+                <div class="card-body" style="margin-top: 50px">
+                    <div id="chargesPatronales" class="charges-list">
+                        <!-- Les charges patronales seront ajoutées dynamiquement ici -->
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-header bg-success text-white">
-                                <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Charges Sociales Salariales</h5>
-                            </div>
-                            <div class="card-body" style="margin-top: 50px">
-                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                    <span><i class="bi bi-shield-check me-2 text-success"></i>CNaPS 1%</span>
-                                    <strong class="text-success">5 486.04 Ar</strong>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                    <span><i class="bi bi-heart-pulse me-2 text-success"></i>OSTIE 1%</span>
-                                    <strong class="text-success">5 486.04 Ar</strong>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                    <span><i class="bi bi-hospital me-2 text-success"></i>Sanitaire</span>
-                                    <strong class="text-success">9 000.00 Ar</strong>
-                                </div>
-                                <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
-                                    <span><i class="bi bi-receipt-cutoff me-2 text-success"></i>IRSA</span>
-                                    <strong class="text-success">35 736.00 Ar</strong>
-                                </div>
-                                <div class="d-flex justify-content-between bg-light p-3 rounded">
-                                    <strong><i class="bi bi-calculator me-2"></i>Total Charges Salariales</strong>
-                                    <strong class="text-success fs-5">55 708.08 Ar</strong>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="d-flex justify-content-between bg-light p-3 rounded mt-2">
+                        <strong><i class="bi bi-calculator me-2"></i>Total Charges Patronales</strong>
+                        <strong id="totalPatronales" class="text-primary fs-5">0,00 Ar</strong>
                     </div>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <!-- Graphiques -->
-            <section class="section">
-                <div class="row">
-                    <div class="col-md-12 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="card-title"><i class="bi bi-bar-chart-line me-2"></i>Répartition par Catégorie</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row text-center">
-                                    <div class="col-md-4 mb-3">
-                                        <div class="p-4 border rounded">
-                                            <div class="mb-3">
-                                                <span class="badge-cat badge-cat-1A fs-5">1A</span>
-                                            </div>
-                                            <h6 class="text-muted">Salaire Brut</h6>
-                                            <h4 class="text-primary">315 000.00 Ar</h4>
-                                            <small class="text-muted">1 employé</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <div class="p-4 border rounded">
-                                            <div class="mb-3">
-                                                <span class="badge-cat badge-cat-4A fs-5">4A</span>
-                                            </div>
-                                            <h6 class="text-muted">Salaire Brut</h6>
-                                            <h4 class="text-primary">233 604.30 Ar</h4>
-                                            <small class="text-muted">1 employé</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <div class="p-4 border rounded">
-                                            <div class="mb-3">
-                                                <span class="badge-cat badge-cat-HC fs-5">HC</span>
-                                            </div>
-                                            <h6 class="text-muted">Salaire Brut</h6>
-                                            <h4 class="text-primary">2 824 800.00 Ar</h4>
-                                            <small class="text-muted">1 employé</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Charges Salariales -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Charges Sociales Salariales</h5>
+                </div>
+                <div class="card-body" style="margin-top: 50px">
+                    <div id="chargesSalariales" class="charges-list">
+                        <!-- Les charges salariales seront ajoutées dynamiquement ici -->
+                    </div>
+                    <div class="d-flex justify-content-between bg-light p-3 rounded mt-2">
+                        <strong><i class="bi bi-calculator me-2"></i>Total Charges Salariales</strong>
+                        <strong id="totalSalariales" class="text-success fs-5">0,00 Ar</strong>
                     </div>
                 </div>
-            </section>
+            </div>
+        </div>
+    </div>
 
-            <!-- Notes et observations -->
+    <!-- Total général des charges -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between bg-secondary text-white p-3 rounded mt-3">
+                <strong><i class="bi bi-calculator me-2"></i>Total Charges</strong>
+                <strong id="totalCharges" class="fs-5">0,00 Ar</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Graphiques par Catégorie -->
+<section class="section">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="bi bi-bar-chart-line me-2"></i>Répartition par Catégorie</h5>
+                </div>
+                <div class="card-body">
+                    <div id="repartitionCategories" class="row text-center">
+                        <!-- Les graphiques par catégorie seront ajoutés dynamiquement ici -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+            <!-- Notes et Observations -->
             <section class="section">
                 <div class="card">
                     <div class="card-header bg-info text-white">
@@ -619,7 +498,7 @@ if (isset($_GET['mssg'])) {
                         <div class="row">
                             <div class="col-md-6">
                                 <h6 class="mb-3"><i class="bi bi-calendar-check me-2 text-primary"></i>Période de référence</h6>
-                                <p class="text-muted">Octobre 2025 - Du 01/10/2025 au 31/10/2025</p>
+                                <p id="periodeReference" class="text-muted">-</p>
                             </div>
                             <div class="col-md-6">
                                 <h6 class="mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Date d'édition</h6>
@@ -629,10 +508,354 @@ if (isset($_GET['mssg'])) {
                     </div>
                 </div>
             </section>
+
         </div>
     </div>
 </div>    
 </body>
+<div id="debugInfo" style="margin-bottom:10px; color:blue;"></div>
+
+<script>
+async function updateStats(employes, mois, annee) {
+    let totalEmployes = 0;
+    let masseBrute = 0;
+    let totalRetenues = 0;
+    let netTotal = 0;
+
+    for (const emp of employes) {
+        if (!emp.contrat || !emp.contrat.salaire_base) continue;
+
+        totalEmployes++;
+        const salaire_base = Number(emp.contrat.salaire_base);
+        
+        // Fetch retenues, primes, avances, heures supp as in updateTable()
+        const [heuresSupp, primes, avances, tauxAssurance, tauxHeureSup] = await Promise.all([
+            fetch(`<?= Flight::base() ?>/api/heures-supp/${emp.id_employe}/${mois}/${annee}`).then(r => r.json()).then(r => r.success ? r.data : []),
+            fetch(`<?= Flight::base() ?>/api/prime/${emp.id_employe}/${mois}/${annee}`).then(r => r.json()).then(r => r.success ? r.data : []),
+            fetch(`<?= Flight::base() ?>/api/avance/${emp.id_employe}/${mois}/${annee}`).then(r => r.json()).then(r => r.success ? r.data : []),
+            fetch("<?= Flight::base() ?>/api/tauxAssurance").then(r => r.json()),
+            fetch("<?= Flight::base() ?>/api/tauxHeureSup").then(r => r.json())
+        ]);
+
+        function calculerRetenues(salaire, rows) {
+            let retenues = {};
+            rows.forEach(r => {
+                const tauxNum = r.taux / 100;
+                let montant = 0;
+                if (r.minpay === null && r.maxpay === null) {
+                    montant = salaire * tauxNum;
+                } else if (salaire >= r.minpay && (r.maxpay === null || salaire <= r.maxpay)) {
+                    montant = (salaire - r.minpay) * tauxNum;
+                }
+                if (montant > 0) retenues[r.nom] = { montant, taux: r.taux };
+            });
+            return {
+                retenues,
+                salaireNet: salaire - Object.values(retenues).reduce((s, r) => s + r.montant, 0)
+            };
+        }
+
+        function calculMontantHeuresSuppParType(nombreHeures, tauxHeureSupData, tauxHoraire) {
+            const result = [];
+            let restant = nombreHeures;
+            for (const range of tauxHeureSupData) {
+                if (restant <= 0) break;
+                const start = range.heure_debut;
+                const end = range.heure_fin;
+                const heuresRange = Math.min(restant, end - start + 1);
+                const montant = heuresRange * tauxHoraire * (range.taux / 100);
+                result.push({ type: range.type_heuresup, heures: heuresRange, taux: range.taux, montant });
+                restant -= heuresRange;
+            }
+            return result;
+        }
+
+        const taux_journalier = salaire_base / 30;
+        const taux_horaire = taux_journalier / 9;
+        const retenuesData = calculerRetenues(salaire_base, tauxAssurance);
+
+        let totalHS = 0;
+        heuresSupp.forEach(hs => {
+            const hsParType = calculMontantHeuresSuppParType(Number(hs.total_heures_supp || 0), tauxHeureSup, taux_horaire);
+            hsParType.forEach(item => totalHS += item.montant);
+        });
+
+        const totalPrimes = primes.reduce((sum, p) => sum + Number(p.montant || 0), 0);
+        const totalAvances = avances.reduce((sum, a) => sum + Number(a.montant || 0), 0);
+
+        const netAPayer = retenuesData.salaireNet + totalHS + totalPrimes - totalAvances;
+
+        masseBrute += salaire_base;
+        totalRetenues += (salaire_base - retenuesData.salaireNet);
+        netTotal += netAPayer;
+    }
+
+    // Update DOM
+    document.getElementById("statEmployes").textContent = totalEmployes;
+    document.getElementById("statBrut").textContent = masseBrute.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById("statRetenues").textContent = totalRetenues.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById("statNet").textContent = netTotal.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+</script>
+<script>
+function updateCharges(patronales, salariales, repartition, periode) {
+    // --- Patronales ---
+    const chargesPat = document.getElementById("chargesPatronales");
+    chargesPat.innerHTML = "";
+    let totalPat = 0;
+    patronales.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "d-flex justify-content-between mb-3 pb-2 border-bottom";
+        div.innerHTML = `<span><i class="${item.icon} me-2 text-primary"></i>${item.nom} ${item.taux ? item.taux + '%' : ''}</span>
+                         <strong class="text-primary">${item.montant.toLocaleString('fr-FR')} Ar</strong>`;
+        chargesPat.appendChild(div);
+        totalPat += item.montant;
+    });
+    document.getElementById("totalPatronales").textContent = totalPat.toLocaleString('fr-FR') + " Ar";
+
+    // --- Salariales ---
+    const chargesSal = document.getElementById("chargesSalariales");
+    chargesSal.innerHTML = "";
+    let totalSal = 0;
+    salariales.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "d-flex justify-content-between mb-3 pb-2 border-bottom";
+        div.innerHTML = `<span><i class="${item.icon} me-2 text-success"></i>${item.nom} ${item.taux ? item.taux + '%' : ''}</span>
+                         <strong class="text-success">${item.montant.toLocaleString('fr-FR')} Ar</strong>`;
+        chargesSal.appendChild(div);
+        totalSal += item.montant;
+    });
+    document.getElementById("totalSalariales").textContent = totalSal.toLocaleString('fr-FR') + " Ar";
+
+    // --- Répartition par catégorie ---
+    const repartDiv = document.getElementById("repartitionCategories");
+    repartDiv.innerHTML = "";
+    repartition.forEach(cat => {
+        const col = document.createElement("div");
+        col.className = "col-md-4 mb-3";
+        col.innerHTML = `
+            <div class="p-4 border rounded">
+                <div class="mb-3">
+                    <span class="badge-cat badge-cat-${cat.code} fs-5">${cat.code}</span>
+                </div>
+                <h6 class="text-muted">Salaire Brut</h6>
+                <h4 class="text-primary">${cat.montant.toLocaleString('fr-FR')} Ar</h4>
+                <small class="text-muted">${cat.nbEmployes} employé${cat.nbEmployes > 1 ? 's' : ''}</small>
+            </div>`;
+        repartDiv.appendChild(col);
+    });
+
+    // --- Période ---
+    document.getElementById("periodeReference").textContent = periode;
+}
+</script>
+<script>
+async function filtrerTable() {
+    const periode = document.getElementById('filterPeriode').value; // e.g., "2025-10"
+    const service = document.getElementById('filterService').value || "Tous";
+    const categorie = document.getElementById('filterCategorie').value || "Tous";
+
+    if (!periode) {
+        alert("Veuillez sélectionner une période.");
+        return;
+    }
+
+    const [year, month] = periode.split('-');
+    const encodedService = encodeURIComponent(service);
+    const encodedCategorie = encodeURIComponent(categorie);
+
+    const apiUrl = `<?= Flight::base() ?>/api/empfilter/${encodedService}/${encodedCategorie}/${month}/${year}`;
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error("Erreur API: " + response.status);
+
+        const data = await response.json();
+        if (data.success) {
+            await updateTable(data.data, month, year);
+        } else {
+            alert("Aucun employé trouvé pour ces filtres.");
+            await updateTable([], month, year);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Impossible de charger les données.");
+    }
+}
+
+async function updateTable(employes, mois, annee) {
+    const tbody = document.querySelector("#tablePaie tbody");
+    tbody.innerHTML = "";
+
+    // --- Initialize totals ---
+    let totalPatronales = 0;
+    let totalSalariales = 0;
+
+    if (!employes || employes.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="31" class="text-center">Aucun employé trouvé pour ces filtres.</td>`;
+        tbody.appendChild(tr);
+
+        // Update totals to 0
+        document.getElementById("totalPatronales").textContent = "0,00 Ar";
+        document.getElementById("totalSalariales").textContent = "0,00 Ar";
+        document.getElementById("totalCharges").textContent = "0,00 Ar";
+
+        return;
+    }
+
+    for (const emp of employes) {
+        if (!emp.contrat || !emp.contrat.salaire_base) continue;
+
+        const [heuresSupp, primes, avances, tauxAssurance, tauxHeureSup] = await Promise.all([
+            fetch(`<?= Flight::base() ?>/api/heures-supp/${emp.id_employe}/${mois}/${annee}`)
+                .then(r => r.json()).then(r => r.success ? r.data : []),
+            fetch(`<?= Flight::base() ?>/api/prime/${emp.id_employe}/${mois}/${annee}`)
+                .then(r => r.json()).then(r => r.success ? r.data : []),
+            fetch(`<?= Flight::base() ?>/api/avance/${emp.id_employe}/${mois}/${annee}`)
+                .then(r => r.json()).then(r => r.success ? r.data : []),
+            fetch("<?= Flight::base() ?>/api/tauxAssurance").then(r => r.json()),
+            fetch("<?= Flight::base() ?>/api/tauxHeureSup").then(r => r.json())
+        ]);
+
+        const salaire_base = Number(emp.contrat.salaire_base);
+        const taux_journalier = salaire_base / 30;
+        const taux_horaire = taux_journalier / 9;
+
+        // --- Charges calculation ---
+        const tauxPatronales = 0.10; // 10% patronales
+        const tauxSalariales = 0.05; // 5% salariales
+        const chargePat = salaire_base * tauxPatronales;
+        const chargeSal = salaire_base * tauxSalariales;
+
+        totalPatronales += chargePat;
+        totalSalariales += chargeSal;
+
+        // --- Retenues ---
+        function calculerRetenues(salaire, rows) {
+            let retenues = {};
+            rows.forEach(r => {
+                const tauxNum = r.taux / 100;
+                let montant = 0;
+                if (r.minpay === null && r.maxpay === null) {
+                    montant = salaire * tauxNum;
+                } else if (salaire >= r.minpay && (r.maxpay === null || salaire <= r.maxpay)) {
+                    montant = (salaire - r.minpay) * tauxNum;
+                }
+                if (montant > 0) retenues[r.nom] = { montant, taux: r.taux };
+            });
+            const totalRetenues = Object.values(retenues).reduce((s, r) => s + r.montant, 0);
+            return {
+                retenues,
+                salaireNet: salaire - totalRetenues
+            };
+        }
+
+        // --- Heures sup ---
+        function calculMontantHeuresSuppParType(nombreHeures, tauxHeureSupData, tauxHoraire) {
+            const result = [];
+            let restant = nombreHeures;
+            for (const range of tauxHeureSupData) {
+                if (restant <= 0) break;
+                const start = range.heure_debut;
+                const end = range.heure_fin;
+                const heuresRange = Math.min(restant, end - start + 1);
+                const montant = heuresRange * tauxHoraire * (range.taux / 100);
+                result.push({ type: range.type_heuresup, heures: heuresRange, taux: range.taux, montant });
+                restant -= heuresRange;
+            }
+            return result;
+        }
+
+        const retenuesData = calculerRetenues(salaire_base, tauxAssurance);
+
+        let totalHS = 0;
+        heuresSupp.forEach(hs => {
+            const hsParType = calculMontantHeuresSuppParType(Number(hs.total_heures_supp || 0), tauxHeureSup, taux_horaire);
+            hsParType.forEach(item => totalHS += item.montant);
+        });
+
+        const totalPrimes = primes.reduce((sum, p) => sum + Number(p.montant || 0), 0);
+        const totalAvances = avances.reduce((sum, a) => sum + Number(a.montant || 0), 0);
+        const netAPayer = retenuesData.salaireNet + totalHS + totalPrimes - totalAvances;
+
+        const tr = document.createElement("tr");
+        tr.dataset.categorie = emp.nom_departement || "-";
+
+        const nameLink = `<a href="<?= Flight::base() ?>/paie/fichePaie/${emp.id_employe}/${mois}/${annee}" target="_blank">${emp.nom} ${emp.prenom}</a>`;
+
+        tr.innerHTML = `
+            <td class="col-sticky-left">${emp.date_embauche || "-"}</td>
+            <td>${emp.id_employe || "-"}</td>
+            <td>${nameLink}</td>
+            <td class="text-center">${emp.date_embauche || "-"}</td>
+            <td class="text-center">-</td>
+            <td>${emp.titre_poste || "-"}</td>
+            <td class="text-right montant-positif">${salaire_base.toLocaleString('fr-FR')}</td>
+            <td class="text-right">${Object.values(retenuesData.retenues).reduce((s, r) => s + r.montant, 0).toLocaleString('fr-FR')}</td>
+            <td class="text-right">${totalHS.toLocaleString('fr-FR')}</td>
+            <td class="text-right">${totalPrimes.toLocaleString('fr-FR')}</td>
+            <td class="text-right">${totalAvances.toLocaleString('fr-FR')}</td>
+            <td class="text-right montant-positif">${netAPayer.toLocaleString('fr-FR')}</td>
+        `;
+
+        tbody.appendChild(tr);
+    }
+
+    // --- Update charges totals in DOM ---
+    document.getElementById("totalPatronales").textContent = totalPatronales.toLocaleString('fr-FR', {minimumFractionDigits:2}) + " Ar";
+    document.getElementById("totalSalariales").textContent = totalSalariales.toLocaleString('fr-FR', {minimumFractionDigits:2}) + " Ar";
+    document.getElementById("totalCharges").textContent = (totalPatronales + totalSalariales).toLocaleString('fr-FR', {minimumFractionDigits:2}) + " Ar";
+
+    // --- Update employee stats ---
+    updateStats(employes, mois, annee);
+}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectService = document.getElementById('filterService');
+    const selectDept = document.getElementById('filterCategorie');
+    let services = []; // Will store all services for filtering
+
+    // Load departments
+    fetch('<?= Flight::base() ?>/api/dept')
+        .then(res => res.json())
+        .then(data => {
+            if(data && Array.isArray(data)) {
+                data.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.nom;
+                    option.textContent = dept.nom;
+                    selectDept.appendChild(option);
+                });
+            }
+        });
+
+    // Load services
+    fetch('<?= Flight::base() ?>/api/service')
+        .then(res => res.json())
+        .then(data => {
+            if(data && Array.isArray(data)) {
+                services = data; // save for filtering
+            }
+        });
+
+    // Filter services when department changes
+    selectDept.addEventListener('change', function() {
+        const deptId = parseInt(this.value);
+        selectService.innerHTML = '<option value="">Tous les services</option>'; // reset
+        services.forEach(s => {
+            if(!deptId || s.id_dept === deptId) {
+                const option = document.createElement('option');
+                option.value = s.nom;
+                option.textContent = s.nom;
+                selectService.appendChild(option);
+            }
+        });
+    });
+});
+</script>
 
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
