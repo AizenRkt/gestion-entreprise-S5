@@ -34,7 +34,22 @@
                 <section class="section">
                     <div class="card">
                         <div class="card-header"><h5 class="card-title">Planning des congés validés</h5></div>
-                        <div class="card-body"><div id="calendar"></div></div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="filterStartDate" class="form-label">Date début</label>
+                                    <input type="date" class="form-control" id="filterStartDate">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="filterEndDate" class="form-label">Date fin</label>
+                                    <input type="date" class="form-control" id="filterEndDate">
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="button" class="btn btn-primary w-100" id="filterCalendarBtn">Appliquer le filtre</button>
+                                </div>
+                            </div>
+                            <div id="calendar"></div>
+                        </div>
                     </div>
                 </section>
 
@@ -243,6 +258,7 @@
                 // --- Initialisation FullCalendar ---
 
                 var calendarEl = document.getElementById('calendar');
+                var allEvents = []; // Stocker tous les événements
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
 
@@ -252,7 +268,14 @@
 
                     headerToolbar: { left: 'prevYear,prev,next,nextYear today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
 
-                    events: `${BASE_URL}/api/conges/planning`,
+                    events: function(info, successCallback, failureCallback) {
+                        $.get(`${BASE_URL}/api/conges/planning`, (events) => {
+                            allEvents = events; // Sauvegarder tous les événements
+                            successCallback(events);
+                        }).fail(() => {
+                            failureCallback(new Error('Erreur lors du chargement des événements'));
+                        });
+                    },
 
                     editable: true,
 
@@ -398,7 +421,46 @@
 
                 // --- Logique pour les Modals ---
 
-                
+                // Filtre du calendrier
+                $('#filterCalendarBtn').on('click', function() {
+                    const filterStart = $('#filterStartDate').val();
+                    const filterEnd = $('#filterEndDate').val();
+
+                    // Convertir en objets Date
+                    const startDate = filterStart ? new Date(filterStart) : null;
+                    const endDate = filterEnd ? new Date(filterEnd) : null;
+                    if (endDate) endDate.setHours(23,59,59,999); // inclure toute la journée
+
+                    // Vider tous les événements du calendrier
+                    calendar.removeAllEvents();
+
+                    // Filtrer les événements selon chevauchement (overlap) avec la fenêtre [startDate, endDate]
+                    const filteredEvents = allEvents.filter(event => {
+                        const eventStart = event.start ? new Date(event.start) : null;
+                        // Certains événements peuvent ne pas avoir d'end, utiliser start comme fallback
+                        const eventEnd = event.end ? new Date(event.end) : (eventStart ? new Date(eventStart) : null);
+
+                        // Si pas de filtres, afficher tous
+                        if (!startDate && !endDate) return true;
+
+                        // Si seul start -> montrer événements dont la fin >= start
+                        if (startDate && !endDate) return eventEnd && eventEnd >= startDate;
+
+                        // Si seul end -> montrer événements dont le début <= end
+                        if (!startDate && endDate) return eventStart && eventStart <= endDate;
+
+                        // Si start et end -> chevauchement: eventEnd >= start && eventStart <= end
+                        return eventStart && eventEnd && (eventEnd >= startDate && eventStart <= endDate);
+                    });
+
+                    // Ajouter les événements filtrés au calendrier
+                    calendar.addEventSource(filteredEvents);
+
+                    // Si une date de début est fournie, naviguer le calendrier sur ce mois/année
+                    if (startDate) {
+                        calendar.changeView('dayGridMonth', startDate);
+                    }
+                });
 
                 // Validation depuis la liste
 
