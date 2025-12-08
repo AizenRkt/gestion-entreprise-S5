@@ -453,6 +453,8 @@
                         return eventStart && eventEnd && (eventEnd >= startDate && eventStart <= endDate);
                     });
 
+                    // Supprimer d'abord toutes les sources d'événements précédentes pour éviter les duplications
+                    calendar.getEventSources().forEach(src => src.remove());
                     // Ajouter les événements filtrés au calendrier
                     calendar.addEventSource(filteredEvents);
 
