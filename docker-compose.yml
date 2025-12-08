@@ -4,18 +4,6 @@ name: gestion_entreprise_S5
 
 services:
 
-  mysql:
-    image: mysql:8
-    container_name: mysqldb
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gestion_entreprise_S5
-      MYSQL_USER: gestion
-      MYSQL_PASSWORD: gestion
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./script.sql:/docker-entrypoint-initdb.d/script.sql:ro
-
   mongodb:
     image: mongo:7
     container_name: mongodb
