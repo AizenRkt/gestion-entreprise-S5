@@ -9,7 +9,8 @@ class LLMController extends Controller
     public function index()
     {
         $chatHistory = $_SESSION['chatHistory'] ?? [];
-        \Flight::render('LLMViews/index', ['chatHistory' => $chatHistory]);
+        $employeeId = $_SESSION['user']['id_employe'] ?? null;
+        \Flight::render('LLMViews/index', ['chatHistory' => $chatHistory, 'employeeId' => $employeeId]);
     }
 
     /*public function ask()

@@ -60,6 +60,17 @@ Class EmployeModel {
             ]);
         }
 
+        // création user numérique 
+        $username = $nom . '.' . $prenom;
+
+        $sql_statut = "INSERT INTO user (username, pwd, id_employe) VALUES (:username, '123', :id_employe)";
+        $stmt_statut = $db->prepare($sql_statut);
+        $stmt_statut->execute([
+            ':username' => $username,
+            ':id_employe' => $id_employe
+        ]);
+
+
         return [
             'id_employe' => $id_employe,
             'id_statut' => $id_statut

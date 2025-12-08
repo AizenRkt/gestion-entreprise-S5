@@ -2,5 +2,7 @@
 app/config/config.php
 composer.lock
 .vagrant/
-runway
-llm-service\env
+runway/
+llm-service/env/
+llm-service/__pycache__/
+public/uploads/

@@ -93,10 +93,21 @@ if (isset($_GET['mssg'])) {
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none;
         }
 
         .btn-icon:hover {
             background: var(--chat-bg);
+        }
+
+        .btn-pdf {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .btn-pdf:hover {
+            background: #b91c1c;
         }
 
         /* Messages area */
@@ -390,6 +401,20 @@ if (isset($_GET['mssg'])) {
         <div id="main">
             <section>
                 <div class="chat-container" style="position: fixed; bottom: 0; right: 0; width: 83%; max-height: 100vh; z-index: 1000;">
+                    <!-- Header -->
+                    <div class="chat-header">
+                        <h1>Assistant LLM RH</h1>
+                        <div class="header-actions">
+                            <?php if ($employeeId): ?>
+                                <a href="#" onclick="downloadPDF(<?= $employeeId ?>)" class="btn-icon btn-pdf" title="Télécharger le PDF du contrat">
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                </a>
+                            <?php endif; ?>
+                            <button class="btn-icon" onclick="clearChat()" title="Nouvelle conversation">
+                                <i class="bi bi-plus-circle"></i>
+                            </button>
+                        </div>
+                    </div>
                     <!-- Messages Area -->
                     <div class="chat-messages" id="chatMessages">
                         <?php if (empty($chatHistory) || !is_array($chatHistory)): ?>
@@ -628,6 +653,15 @@ if (isset($_GET['mssg'])) {
             if (confirm('Voulez-vous vraiment commencer une nouvelle conversation ?')) {
                 window.location.href = "<?= Flight::base() ?>/llm";
             }
+        }
+
+        function downloadPDF(employeeId) {
+            const link = document.createElement('a');
+            link.href = `http://localhost:5000/api/generate_pdf/${employeeId}`;
+            link.download = `contract_${employeeId}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function toggleMenu() {

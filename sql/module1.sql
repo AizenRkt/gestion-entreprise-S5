@@ -767,3 +767,51 @@ JOIN
     demande_conge d ON e.id_employe = d.id_employe
 GROUP BY 
     e.id_employe, annee, mois;
+
+    CREATE TABLE assurance (
+    id_assurance INT NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    minpay INT ,
+    maxpay INT,
+    taux FLOAT NOT NULL
+);
+CREATE TABLE taux_heures_sup (
+    id_tauxheuresup BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    type_heuresup VARCHAR(100) NOT NULL,
+    heure_debut INT NOT NULL,
+    heure_fin INT NOT NULL,
+    taux FLOAT NOT NULL
+);
+
+CREATE TABLE prime (
+    id_prime INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    montant DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    type_prime ENUM('mensuelle','annuelle','ponctuelle') DEFAULT 'mensuelle',
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE employe_prime (
+    id_employe INT NOT NULL,
+    id_prime INT NOT NULL,
+    mois INT,
+    annee INT,
+    PRIMARY KEY (id_employe, id_prime, mois, annee)
+);
+
+CREATE TABLE pourcentage_avance (
+    id_pourcentage INT AUTO_INCREMENT PRIMARY KEY,
+    pourcentage FLOAT NOT NULL,
+    date DATE NOT NULL DEFAULT CURRENT_DATE 
+);
+
+CREATE TABLE avance_salaire (
+    id_avance INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_pourcentage INT NOT NULL,
+    montant DECIMAL(10,2) NOT NULL,
+    date_avance DATE NOT NULL DEFAULT CURRENT_DATE,
+    statut ENUM('demandee', 'accordee', 'remboursee') DEFAULT 'demandee'
+);
+
