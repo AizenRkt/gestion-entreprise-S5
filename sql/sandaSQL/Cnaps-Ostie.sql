@@ -54,10 +54,7 @@ CREATE TABLE employe_prime (
     annee INT,
     PRIMARY KEY (id_employe, id_prime, mois, annee)
 );
-
-INSERT INTO employe_prime (id_employe, id_prime, mois, annee) VALUES
-(7, 1, 11, 2025),
-(7, 4, 11, 2025);
+;
 
 CREATE TABLE pourcentage_avance (
     id_pourcentage INT AUTO_INCREMENT PRIMARY KEY,
@@ -78,6 +75,9 @@ INSERT INTO pourcentage_avance (pourcentage, date)
 VALUES
 (30, '2025-12-07'),
 (50, '2025-12-07');
+INSERT INTO employe_prime (id_employe, id_prime, mois, annee) VALUES
+(7, 1, 11, 2025),
+(7, 4, 11, 2025)
 
 INSERT INTO avance_salaire (id_employe, id_pourcentage, montant, date_avance, statut)
 VALUES
@@ -106,3 +106,90 @@ INSERT INTO detail_heure_sup (id_demande_heure_sup, heure_debut, heure_fin, date
 INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, date_validation) VALUES
 (LAST_INSERT_ID() - 1, 'Heures sup validées pour novembre.', 'valide', '2025-11-06'),
 (LAST_INSERT_ID(),     'Heures sup validées pour décembre.', 'valide', '2025-12-04');
+
+
+
+DELETE FROM contrat_employe_statut 
+WHERE id_employe_statut IN (
+    SELECT id_employe_statut 
+    FROM employe_statut 
+    WHERE id_employe = 7
+);
+
+-- Delete from employe_statut
+DELETE FROM employe_statut 
+WHERE id_employe = 7;
+
+-- Delete from contrat_travail
+DELETE FROM contrat_travail 
+WHERE id_employe = 7;
+
+-- Delete from employe_prime
+DELETE FROM employe_prime 
+WHERE id_employe = 7;
+
+-- Delete from avance_salaire
+DELETE FROM avance_salaire 
+WHERE id_employe = 8;
+
+-- Delete from demande_heure_sup
+DELETE FROM demande_heure_sup 
+WHERE id_employe = 8;
+
+-- Delete from absence
+DELETE FROM absence 
+WHERE id_employe = 8;
+
+-- Delete from documentation_absence
+DELETE FROM documentation_absence 
+WHERE id_employe = 8;
+
+-- Delete from validation_documentation_absence
+DELETE FROM validation_documentation_absence 
+WHERE id_documentation_absence IN (
+    SELECT id_documentation_absence 
+    FROM documentation_absence 
+    WHERE id_employe = 8
+);
+
+-- Delete from validation_heure_sup
+DELETE FROM validation_heure_sup 
+WHERE id_demande_heure_sup IN (
+    SELECT id_demande_heure_sup 
+    FROM demande_heure_sup 
+    WHERE id_employe = 7
+);
+
+-- Delete from detail_heure_sup
+DELETE FROM detail_heure_sup 
+WHERE id_demande_heure_sup IN (
+    SELECT id_demande_heure_sup 
+    FROM demande_heure_sup 
+    WHERE id_employe = 7
+);
+
+-- Delete from pointage (if applicable)
+DELETE FROM pointage 
+WHERE id_employe = 8;
+
+-- Delete from checkin and checkout (if applicable)
+DELETE FROM checkin 
+WHERE id_employe = 8;
+
+DELETE FROM checkout 
+WHERE id_employe = 8;
+
+-- Delete from user (if applicable)
+DELETE FROM user 
+WHERE id_employe = 8;
+
+-- Step 3: Delete from employe
+DELETE FROM employe 
+WHERE id_employe = 8;
+
+-- Step 4: Delete from candidat
+DELETE FROM candidat 
+WHERE id_candidat = 8;
+
+-- Commit the transaction
+COMMIT;
