@@ -189,7 +189,7 @@ def generate_llm_response(question, context_data, special_prompt=None):
                     type_contrat = "CDI" if item.get("fin") is None else "CDD"
                     fin = item.get("fin") if item.get("fin") else "-"
                     lines.append(
-                        f"- {type_contrat} | Début : {item.get('debut')} | Fin : {fin} | Salaire : {item.get('salaire_base')} | Employé : {item.get('nom')} {item.get('prenom')} | PDF : {item.get('pathPdf')}"
+                        f"- {type_contrat} | Début : {item.get('debut')} | Fin : {fin} | Salaire : {item.get('salaire_base')} | Employé : {item.get('nom')} {item.get('prenom')}"
                     )
             return "\n".join(lines)
         return str(data)
