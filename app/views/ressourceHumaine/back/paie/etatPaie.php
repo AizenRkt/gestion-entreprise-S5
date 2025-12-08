@@ -291,13 +291,13 @@ if (isset($_GET['mssg'])) {
                         <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                             <label class="form-label fw-bold">Service</label>
                             <select class="form-select" id="filterService">
-                                <option value="">Tous les services</option>
+                                <option value="null">Tous les services</option>
                             </select>
                         </div>
                         <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                             <label class="form-label fw-bold">Département</label>
                             <select class="form-select" id="filterCategorie">
-                                <option value="">Toutes les départements</option>
+                                <option value="null">Toutes les départements</option>
                             </select>
                         </div>
                         <div class="col-md-3 col-sm-6">

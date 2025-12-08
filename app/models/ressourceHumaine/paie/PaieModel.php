@@ -92,7 +92,7 @@ class PaieModel {
         }
     }
     
-    public static function getEmployesByFilters($nom_service = null, $nom_departement = null, $month = null, $year = null) {
+public static function getEmployesByFilters($nom_service = null, $nom_departement = null, $month = null, $year = null) {
     try {
         $db = Flight::db();
 
@@ -137,12 +137,12 @@ class PaieModel {
         $params = [];
 
         // Optional filters
-        if ($nom_service) {
+        if (!is_null($nom_service)) {
             $query .= " AND s.nom = ?";
             $params[] = $nom_service;
         }
 
-        if ($nom_departement) {
+        if (!is_null($nom_departement)) {
             $query .= " AND d.nom = ?";
             $params[] = $nom_departement;
         }
@@ -186,6 +186,7 @@ class PaieModel {
         return array_values($employes);
 
     } catch (\PDOException $e) {
+        error_log($e->getMessage());
         return null;
     }
 }

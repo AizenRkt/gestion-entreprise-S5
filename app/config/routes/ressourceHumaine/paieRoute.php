@@ -48,10 +48,14 @@ Flight::route('GET /api/avance/@id_employe/@mois/@annee', function($id_employe, 
     $controller->getAvance((int)$id_employe, (int)$mois, (int)$annee);
 });
 
+
 Flight::route('GET /api/empfilter/@service/@departement/@month/@year', function($service, $departement, $month, $year) {
-        $db = Flight::db();
-        $controller = new AssuranceController($db);
-        $controller->getEmployesByFilters($service, $departement, $month, $year);
+    $db = Flight::db();
+    $controller = new AssuranceController($db);
+    $service = ($service === "null") ? null : $service;
+    $departement = ($departement === "null") ? null : $departement;
+
+    $controller->getEmployesByFilters($service, $departement, $month, $year);
 });
 
 flight::route('GET /api/dept', function() {

@@ -90,26 +90,16 @@ class AssuranceController {
         ]);
     }
 
-    public function getEmployesByFilters($nom_service, $nom_departement, $month, $year)
-    {
-        $month = (int)$month;
-        $year = (int)$year;
-
-        if (!$nom_service || !$nom_departement || !$month || !$year) {
-            Flight::json([
-                'success' => false,
-                'message' => 'Paramètres invalides.'
-            ]);
-            return;
-        }
-
-        $data = $this->model->getEmployesByFilters($nom_service, $nom_departement, $month, $year);
-
-        Flight::json([
-            'success' => true,
-            'data' => $data
-        ]);
+    public function getEmployesByFilters($service, $departement, $month, $year) {
+    if (empty($month) || empty($year)) {
+        Flight::json(['success' => false, 'message' => 'Paramètres invalides.']);
+        return;
     }
+    $data = PaieModel::getEmployesByFilters($service, $departement, $month, $year);
+
+    // Return the response
+    Flight::json(['success' => true, 'data' => $data]);
+}
 
     public function getAllDepartement() {
         $data = $this->model->getAllDepartement();
