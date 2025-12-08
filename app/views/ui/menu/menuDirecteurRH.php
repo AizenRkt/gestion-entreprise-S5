@@ -139,9 +139,6 @@
                     </a>
                     <ul class="submenu">
                         <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>/paie/fichePaie" class="submenu-link">fiche individuelle</a>
-                        </li>
-                        <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/paie/etatPaie" class="submenu-link">état de paie</a>
                         </li>                                                  
                     </ul>

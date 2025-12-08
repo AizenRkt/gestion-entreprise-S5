@@ -43,7 +43,7 @@ def generate_pdf_endpoint(employee_id):
     """Génère un PDF pour le contrat d'un employé."""
     try:
         conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(dictionary=True, buffered=True)
 
         # Récupérer les données du contrat
         query = (
@@ -55,7 +55,9 @@ def generate_pdf_endpoint(employee_id):
             "JOIN service s ON p.id_service = s.id_service "
             "JOIN departement d ON s.id_dept = d.id_dept "
             "LEFT JOIN contrat_travail ct ON e.id_employe = ct.id_employe "
-            "WHERE e.id_employe = %s"
+            "WHERE e.id_employe = %s "
+            "ORDER BY ct.date_signature DESC "
+            "LIMIT 1"
         )
         cursor.execute(query, (employee_id,))
         contract_data = cursor.fetchone()

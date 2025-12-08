@@ -36,7 +36,7 @@ def get_employee_info(employee_id, user_role=None, user_service_id=None):
         return connection
     if connection:
         try:
-            cursor = connection.cursor(dictionary=True)
+            cursor = connection.cursor(dictionary=True, buffered=True)
             query = """
             SELECT e.nom, e.prenom, e.genre, c.date_naissance, p.titre AS poste, s.nom AS service, d.nom AS departement
             FROM employe e
@@ -70,7 +70,7 @@ def get_leave_info(employee_id, user_role=None, user_service_id=None):
         return connection
     if connection:
         try:
-            cursor = connection.cursor(dictionary=True)
+            cursor = connection.cursor(dictionary=True, buffered=True)
             query = """
             SELECT dc.date_debut, dc.date_fin, dc.nb_jours, tc.nom AS type_conge, vc.statut, e.nom, e.prenom
             FROM demande_conge dc
@@ -106,7 +106,7 @@ def get_employee_id_by_name(name):
         return None
     if connection:
         try:
-            cursor = connection.cursor(dictionary=True)
+            cursor = connection.cursor(dictionary=True, buffered=True)
             # Supposer que name est "nom prenom"
             parts = name.strip().split()
             if len(parts) >= 2:
@@ -138,7 +138,7 @@ def get_contract_info(user_role=None, user_service_id=None, employee_id=None):
         return connection
     if connection:
         try:
-            cursor = connection.cursor(dictionary=True)
+            cursor = connection.cursor(dictionary=True, buffered=True)
             query = """
                 SELECT ct.id_contrat_travail, ct.debut, ct.fin, ct.salaire_base, ct.date_signature, ct.date_creation, ct.pathPdf,
                        ct.id_type_contrat, ct.id_poste, e.nom, e.prenom, ct.id_employe

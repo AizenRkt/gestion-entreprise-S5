@@ -42,6 +42,14 @@
     </a>
 </li>
 
+<li class="sidebar-item  ">
+    <a href="<?= Flight::base() ?>/messenger" class="sidebar-link">
+        <i class="bi bi-messenger"></i>
+        <span>Messagerie</span>
+    </a>
+</li>
+
+
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/backOffice/user/pointage" class="sidebar-link">
         <i class="bi bi-fingerprint"></i>
