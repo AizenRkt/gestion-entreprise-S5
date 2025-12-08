@@ -814,3 +814,4 @@ CREATE TABLE avance_salaire (
     date_avance DATE NOT NULL DEFAULT CURRENT_DATE,
     statut ENUM('demandee', 'accordee', 'remboursee') DEFAULT 'demandee'
 );
+

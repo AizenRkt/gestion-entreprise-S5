@@ -720,3 +720,111 @@ INSERT INTO pourcentage_avance (pourcentage, date)
 VALUES
 (30, '2025-12-07'),
 (50, '2025-12-07');
+
+
+-- Insert 5 employees (one INSERT per row so LAST_INSERT_ID() returns the correct id)
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(NULL, 'Diallo', 'Mamadou', 'mamadou.diallo@example.com', '221770000001', 'M', '2025-01-01');
+SET @e1 = LAST_INSERT_ID();
+
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(NULL, 'Nguyen', 'Linh', 'linh.nguyen@example.com', '221770000002', 'F', '2025-02-01');
+SET @e2 = LAST_INSERT_ID();
+
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(NULL, 'Smith', 'Alice', 'alice.smith@example.com', '221770000003', 'F', '2025-03-01');
+SET @e3 = LAST_INSERT_ID();
+
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(NULL, 'Kouame', 'Eric', 'eric.kouame@example.com', '221770000004', 'M', '2025-04-01');
+SET @e4 = LAST_INSERT_ID();
+
+INSERT INTO employe (id_candidat, nom, prenom, email, telephone, genre, date_embauche) VALUES
+(NULL, 'Garcia', 'María', 'maria.garcia@example.com', '221770000005', 'F', '2025-05-01');
+SET @e5 = LAST_INSERT_ID();
+
+-- Ensure contract types exist (creates CDD and CDI if not present)
+INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max_duree_renouvellement, max_nb_renouvellement)
+VALUES
+('CDD', 1, 12, 1, 6, 2),
+('CDI', 12, NULL, 0, NULL, NULL);
+
+-- Use the previously captured employee ids (@e1..@e5) to create contracts for 2025-2026
+INSERT INTO contrat_travail (id_type_contrat, id_employe, debut, fin, salaire_base, date_signature, date_creation, id_poste, pathPdf) VALUES
+(1, @e1, '2025-01-01', '2026-01-01', 30000.00, '2025-01-01', CURRENT_DATE, NULL, NULL),
+(1, @e2, '2025-02-01', '2026-02-01', 32000.00, '2025-02-01', CURRENT_DATE, NULL, NULL),
+(2, @e3, '2025-03-01', '2026-03-01', 35000.00, '2025-03-01', CURRENT_DATE, NULL, NULL),
+(2, @e4, '2025-04-01', '2026-04-01', 34000.00, '2025-04-01', CURRENT_DATE, NULL, NULL),
+(1, @e5, '2025-05-01', '2026-05-01', 31000.00, '2025-05-01', CURRENT_DATE, NULL, NULL);
+
+-- Link contract status entries (example)
+INSERT INTO contrat_employe_statut (id_contrat_travail, id_employe_statut, date_ajout) VALUES
+(LAST_INSERT_ID() - 4, 1, CURRENT_DATE),
+(LAST_INSERT_ID() - 3, 1, CURRENT_DATE),
+(LAST_INSERT_ID() - 2, 1, CURRENT_DATE),
+(LAST_INSERT_ID() - 1, 1, CURRENT_DATE),
+(LAST_INSERT_ID(), 1, CURRENT_DATE);
+
+-- 1) Insert pourcentage_avance rows and capture ids
+INSERT INTO pourcentage_avance (pourcentage, date) VALUES (30, '2025-11-20');
+SET @p1 = LAST_INSERT_ID();
+INSERT INTO pourcentage_avance (pourcentage, date) VALUES (50, '2025-12-07');
+SET @p2 = LAST_INSERT_ID();
+
+-- 2) Assign some primes to employees (uses existing prime ids from your seeds: 1..5)
+INSERT INTO employe_prime (id_employe, id_prime, mois, annee) VALUES
+(@e1, 1, 11, 2025),
+(@e1, 4, 11, 2025),
+(@e2, 1, 12, 2025),
+(@e3, 2, 3, 2025),
+(@e4, 5, 6, 2025),
+(@e5, 1, 5, 2025);
+
+-- 3) Advance salary requests for employees (use pourcentage ids @p1/@p2)
+INSERT INTO avance_salaire (id_employe, id_pourcentage, montant, date_avance, statut) VALUES
+(@e1, @p1, 150000.00, '2025-11-20', 'accordee'),
+(@e2, @p2, 250000.00, '2025-12-07', 'demandee'),
+(@e3, @p1, 100000.00, '2025-11-15', 'accordee');
+
+-- 4) Overtime requests (demande_heure_sup) and capture ids
+INSERT INTO demande_heure_sup (id_employe, date_demande) VALUES
+(@e1, '2025-11-05 09:00:00');
+SET @d1 = LAST_INSERT_ID();
+
+INSERT INTO demande_heure_sup (id_employe, date_demande) VALUES
+(@e1, '2025-12-03 14:30:00');
+SET @d2 = LAST_INSERT_ID();
+
+INSERT INTO demande_heure_sup (id_employe, date_demande) VALUES
+(@e2, '2025-11-10 10:00:00');
+SET @d3 = LAST_INSERT_ID();
+
+INSERT INTO demande_heure_sup (id_employe, date_demande) VALUES
+(@e3, '2025-12-01 08:30:00');
+SET @d4 = LAST_INSERT_ID();
+
+-- 5) Details for overtime requests
+INSERT INTO detail_heure_sup (id_demande_heure_sup, heure_debut, heure_fin, date_debut, date_fin) VALUES
+(@d1, '17:00:00', '20:00:00', '2025-11-10', '2025-11-10'),  -- 3h for e1 (Nov)
+(@d2, '18:00:00', '20:00:00', '2025-12-08', '2025-12-08'),  -- 2h for e1 (Dec)
+(@d3, '18:30:00', '21:00:00', '2025-11-12', '2025-11-12'),  -- 2.5h for e2
+(@d4, '19:00:00', '22:00:00', '2025-12-05', '2025-12-05');  -- 3h for e3
+
+-- 6) Validations for overtime (approval)
+INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, date_validation) VALUES
+(@d1, 'Heures sup validées pour novembre.', 'valide', '2025-11-06'),
+(@d2, 'Heures sup validées pour décembre.', 'valide', '2025-12-04'),
+(@d3, 'Heures sup validées.', 'valide', '2025-11-13'),
+(@d4, 'Heures sup validées.', 'valide', '2025-12-06');
+
+-- 7) Example entries for employe_prime additional months (optional)
+INSERT INTO employe_prime (id_employe, id_prime, mois, annee) VALUES
+(@e4, 1, 11, 2025),
+(@e5, 4, 12, 2025);
+
+INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) VALUES
+(@e1, 2, 1, NOW()),  -- Diallo Mamadou -> Développeur Backend (service 1, dept 1)
+(@e2, 3, 1, NOW()),  -- Nguyen Linh -> Développeur Frontend (service 1, dept 1)
+(@e3, 5, 1, NOW()),  -- Smith Alice -> Technicien Support N1 (service 2, dept 1)
+(@e4, 6, 1, NOW()),  -- Kouame Eric -> Administrateur Systèmes (service 2, dept 1)
+(@e5, 15, 1, NOW()); -- Garcia María -> Comptable (service 7, dept 4)
