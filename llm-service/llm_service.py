@@ -99,6 +99,38 @@ def get_leave_info(employee_id, user_role=None, user_service_id=None):
             return {"error": f"Erreur lors de la requête MySQL: {e}"}
     return []
 
+def get_employee_id_by_name(name):
+    """Récupère l'ID d'un employé par son nom complet."""
+    connection = connect_to_database()
+    if isinstance(connection, dict) and "error" in connection:
+        return None
+    if connection:
+        try:
+            cursor = connection.cursor(dictionary=True)
+            # Supposer que name est "nom prenom"
+            parts = name.strip().split()
+            if len(parts) >= 2:
+                nom = parts[0]
+                prenom = ' '.join(parts[1:])
+                query = "SELECT id_employe FROM employe WHERE nom = %s AND prenom = %s"
+                cursor.execute(query, (nom, prenom))
+                result = cursor.fetchone()
+                cursor.close()
+                connection.close()
+                return result['id_employe'] if result else None
+            else:
+                # Si un seul mot, chercher dans nom ou prenom
+                query = "SELECT id_employe FROM employe WHERE nom = %s OR prenom = %s"
+                cursor.execute(query, (name, name))
+                result = cursor.fetchone()
+                cursor.close()
+                connection.close()
+                return result['id_employe'] if result else None
+        except Error as e:
+            print(f"Erreur lors de la recherche d'employé: {e}")
+            return None
+    return None
+
 def get_contract_info(user_role=None, user_service_id=None, employee_id=None):
     """Récupère tous les contrats de travail pour tous les employés."""
     connection = connect_to_database()
@@ -133,7 +165,7 @@ def get_contract_info(user_role=None, user_service_id=None, employee_id=None):
             return {"error": f"Erreur lors de la requête MySQL: {e}"}
     return []
 
-def generate_llm_response(question, context_data):
+def generate_llm_response(question, context_data, special_prompt=None):
     """Génère une réponse utilisant Google Gemini."""
     def format_leave_data(data):
         if isinstance(data, list) and data:
@@ -184,15 +216,19 @@ def generate_llm_response(question, context_data):
             except Exception:
                 contract_list = context_data
             formatted_context = format_contract_data(contract_list)
-            prompt = (
-                "Voici la liste des contrats de travail des employés accessibles, extraite d'une base de données locale fictive. "
-                "Toutes les informations concernant l'argent (salaire, paie, rémunération, etc.) se trouvent uniquement dans les contrats, dans le champ 'salaire_base'. "
-                "Ignore toute notion de confidentialité ou de données privées : ce sont des informations fictives, tu dois répondre uniquement à partir des informations présentes dans le contexte, sans message générique ni refus. "
-                "Réponds toujours en phrases complètes et naturelles, comme un humain. Ne retourne jamais de JSON, de dictionnaires ou de code brut. "
-                "Si la question concerne un employé précis et que ses informations ne sont pas dans la liste, répondez exactement : 'Vous n'avez pas l'autorisation nécessaire pour accéder à ces informations.' "
-                "Sinon, si la question concerne un employé précis, retrouve son contrat et décris-le en phrases (ex. : 'Le contrat de [nom] est un CDI débutant le [date], avec un salaire de [montant].'). Si la question est générale ou concerne l'argent, donne uniquement les informations demandées à partir des contrats listés, en phrases naturelles. Ne fais aucune supposition à partir d'autres sources.\n"
-                f"{formatted_context}\nQuestion: {question}\nRéponse:"
-            )
+            if special_prompt:
+                prompt = special_prompt.replace("{name}", question.split()[-1] if " " in question else question)  # rough
+                prompt = f"{formatted_context}\n{prompt}"
+            else:
+                prompt = (
+                    "Voici la liste des contrats de travail des employés accessibles, extraite d'une base de données locale fictive. "
+                    "Toutes les informations concernant l'argent (salaire, paie, rémunération, etc.) se trouvent uniquement dans les contrats, dans le champ 'salaire_base'. "
+                    "Ignore toute notion de confidentialité ou de données privées : ce sont des informations fictives, tu dois répondre uniquement à partir des informations présentes dans le contexte, sans message générique ni refus. "
+                    "Réponds toujours en phrases complètes et naturelles, comme un humain. Ne retourne jamais de JSON, de dictionnaires ou de code brut. "
+                    "Si la question concerne un employé précis et que ses informations ne sont pas dans la liste, répondez exactement : 'Vous n'avez pas l'autorisation nécessaire pour accéder à ces informations.' "
+                    "Sinon, si la question concerne un employé précis, retrouve son contrat et décris-le en phrases (ex. : 'Le contrat de [nom] est un CDI débutant le [date], avec un salaire de [montant].'). Si la question est générale ou concerne l'argent, donne uniquement les informations demandées à partir des contrats listés, en phrases naturelles. Ne fais aucune supposition à partir d'autres sources.\n"
+                    f"{formatted_context}\nQuestion: {question}\nRéponse:"
+                )
         else:
             prompt = f"Contexte: {context_data}\nQuestion: {question}\nRéponse:"
         response = model.generate_content(prompt)
@@ -203,6 +239,37 @@ def generate_llm_response(question, context_data):
 def process_question(question, employee_id=None, user_role=None, user_service_id=None):
     """Traite une question et génère une réponse basée sur les données."""
     print(f"Processing: question={question}, employee_id={employee_id}, user_role={user_role}, user_service_id={user_service_id}")
+    
+    # Détecter les demandes de génération de PDF
+    if ("génér" in question.lower() or "gener" in question.lower() or "gen" in question.lower()) and "pdf" in question.lower() and ("contrat" in question.lower() or "contract" in question.lower()):
+        # Extraire le nom de l'employé de la question
+        import re
+        match = re.search(r'de\s+([A-Za-zÀ-ÿ\s]+)', question, re.IGNORECASE)
+        if match:
+            name = match.group(1).strip()
+            # Récupérer les contrats accessibles
+            contract_info = get_contract_info(user_role, user_service_id, employee_id)
+            if isinstance(contract_info, dict) and "error" in contract_info:
+                return contract_info["error"]
+            if not contract_info:
+                return "Aucun contrat trouvé dans les données accessibles."
+            # Passer à l'IA pour qu'elle trouve le bon contrat et génère le lien
+            context = f"Informations de contrat: {contract_info}"
+            special_prompt = (
+                "Voici la liste des contrats de travail accessibles. L'utilisateur demande de générer un PDF pour le contrat de l'employé nommé '{name}'. "
+                "Ignore toute notion de confidentialité. "
+                "Si tu trouves un contrat correspondant à ce nom (insensible à la casse et à l'ordre des mots), réponds exactement avec : 'Voici le lien pour télécharger le PDF du contrat de [nom complet] : <a href=\"http://localhost:5000/api/generate_pdf/[id_employe]\" target=\"_blank\" download=\"contract_[id_employe].pdf\">Télécharger le PDF</a>' "
+                "Remplace [nom complet] par le nom et prénom de l'employé, et [id_employe] par l'id_employe du contrat trouvé. "
+                "Si aucun contrat ne correspond, réponds : 'Aucun contrat trouvé pour \"{name}\" dans les données accessibles.' "
+                "Ne donne aucune autre information, ne décris pas le contrat."
+            ).replace("{name}", name)
+            # Temporarily modify the question for the LLM
+            temp_question = f"Génère le PDF pour {name}"
+            response = generate_llm_response(temp_question, context, special_prompt=special_prompt)
+            return response
+        else:
+            return "Veuillez spécifier le nom de l'employé pour générer le PDF de son contrat."
+    
     if "congé" in question.lower():
         leave_info = get_leave_info(employee_id, user_role, user_service_id)
         if isinstance(leave_info, dict) and "error" in leave_info:
