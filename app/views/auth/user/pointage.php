@@ -160,8 +160,17 @@
                             case 'Congé':
                                 statusBadge = '<span class="badge bg-info">Congé</span>';
                                 break;
+                            case 'Congé non payé':
+                                statusBadge = '<span class="badge bg-warning">Congé non payé</span>';
+                                break;
+                            case 'Jour Férié':
+                                statusBadge = '<span class="badge bg-dark">Jour Férié</span>';
+                                break;
+                            case 'Congé Spéciaux':
+                                statusBadge = '<span class="badge bg-light">Congé Spéciaux</span>';
+                                break;
                             default:
-                                statusBadge = `<span class="badge bg-info">${item.statut || 'En cours'}</span>`;
+                                statusBadge = `<span class="badge bg-light">${item.statut || 'En cours'}</span>`;
                         }
 
                         return [

@@ -296,8 +296,7 @@ INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
 ('08:00:00', 'Heure normale', 10, 2),  -- Mardi
 ('08:00:00', 'Heure normale', 10, 3),  -- Mercredi
 ('08:00:00', 'Heure normale', 10, 4),  -- Jeudi
-('07:30:00', 'Heure normale', 10, 5),  -- Vendredi
-('09:00:00', 'Heure normale', 10, 6);  -- Samedi
+('07:30:00', 'Heure normale', 10, 5);  -- Vendredi
 
 -- donne absence
 
@@ -337,11 +336,6 @@ CREATE TABLE validation_documentation_absence (
     FOREIGN KEY (id_documentation_absence) REFERENCES documentation_absence(id_documentation_absence),
     FOREIGN KEY (id_absence) REFERENCES absence(id_absence)
 );
-('08:00:00', 'Heure normale', 10, 6);  -- Samedi
-
-
-INSERT INTO statut_pointage (heure, remarque, tolerance, jour) VALUES
-('14:30:00', 'Heure normale', 10, 7); 
 
 -- Inserting types of absence
 INSERT INTO type_absence (nom, description, isAutorise) VALUES
@@ -413,8 +407,13 @@ INSERT INTO demande_conge (id_type_conge, id_employe, date_debut, date_fin, nb_j
 (1, 1, '2025-01-01', '2025-01-10', 10),  -- Paid leave request for 2025
 (2, 2, '2025-02-15', '2025-02-20', 5),  -- Unpaid leave request for 2025
 (3, 3, '2025-03-23', '2025-03-29', 5),  -- Sick leave request for 2025
-(1, 4, '2025-04-01', '2025-04-05', 5),  -- Paid leave for Zo Lalaina
-(1, 5, '2025-05-10', '2025-05-15', 6);  -- Paid leave for Andry George
+(1, 4, '2027-03-01', '2027-03-05', 5),  -- Paid leave for Zo Lalaina
+(1, 5, '2025-05-10', '2025-05-15', 6),  -- Paid leave for Andry George
+(1, 4, '2026-12-01', '2027-03-05', 5),  -- Paid leave for Zo Lalaina
+(1, 4, '2027-11-01', '2027-11-05', 5),  -- Paid leave for Zo Lalaina
+(1, 4, '2028-04-01', '2028-04-05', 5),  -- Paid leave for Zo Lalaina
+(1, 4, '2032-01-01', '2032-01-05', 5);  -- Paid leave for Zo Lalaina
+
 
 -- Inserting validation of leave requests
 INSERT INTO validation_conge (id_demande_conge, statut, date_validation) VALUES
