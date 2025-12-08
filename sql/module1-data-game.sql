@@ -397,10 +397,6 @@ INSERT INTO validation_heure_sup (id_demande_heure_sup, commentaire, statut, dat
 (1, 'Demande acceptée pour le 5 octobre.', 'valide', '2023-10-02'),
 (2, 'Demande refusée pour le 5 octobre.', 'refuse', '2023-10-02');
 
-
-
-
-
 -- donne conge
 -- Inserting types of leave
 INSERT INTO type_conge (nom, description, remuneree, nb_jours_max) VALUES
@@ -600,62 +596,7 @@ INSERT INTO document_type (nom) VALUES
 ('CIN'),
 ('certificat de résidence');
 
--- INSERT INTO document (
---     id_type_document,
---     id_employe,
---     titre,
---     pathScan,
---     dateUpload,
---     date_expiration
--- ) VALUES (
---     4,               -- certificat de résidence
---     14,              -- employé id=14
---     'Certificat de résidence',
---     'certificat_residence.jpg',            -- pas de scan pour l’instant
---     CURRENT_DATE,    -- date d’upload = aujourd’hui
---     NULL             -- pas d’expiration
--- );
-
--- INSERT INTO document_statut (
---     id_document,
---     statut,
---     date_statut,
---     commentaire
--- ) VALUES (
---     LAST_INSERT_ID(),
---     'valide',
---     CURRENT_DATE,
---     'Document enregistré manuellement'
--- );
-
-
--- INSERT INTO document (
---     id_type_document,
---     id_employe,
---     titre,
---     pathScan,
---     dateUpload,
---     date_expiration
--- ) VALUES (
---     3,               -- CIN
---     14,              -- employé id=14
---     'CIN',
---     'CIN.png',            -- pas de scan pour l’instant
---     CURRENT_DATE,    -- date d’upload = aujourd’hui
---     NULL             -- pas d’expiration
--- );
-
--- INSERT INTO document_statut (
---     id_document,
---     statut,
---     date_statut,
---     commentaire
--- ) VALUES (
---     LAST_INSERT_ID(),
---     'valide',
---     CURRENT_DATE,
---     'Document enregistré manuellement'
--- );
+-- rohy
 INSERT INTO jour_ferie (date, description, recurrence) VALUES
 ('2025-01-01', 'Nouvel An', 'annuel'),
 ('2025-01-01', '10eme anniversaire de lentreprise', 'fixe'),

@@ -4,3 +4,5 @@ composer.lock
 .vagrant/
 runway/
 llm-service/env/
+llm-service/__pycache__/
+public/uploads/

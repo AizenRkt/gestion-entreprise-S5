@@ -487,7 +487,6 @@
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 modal.hide();
 
-                // Recharger les documents
                 loadDocumentsEmploye(idEmploye);
 
                 form.reset();
