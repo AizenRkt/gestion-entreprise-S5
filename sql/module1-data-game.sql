@@ -763,3 +763,10 @@ INSERT INTO employe_statut (id_employe, id_poste, activite, date_modification) V
 (@e3, 5, 1, NOW()),  -- Smith Alice -> Technicien Support N1 (service 2, dept 1)
 (@e4, 6, 1, NOW()),  -- Kouame Eric -> Administrateur Systèmes (service 2, dept 1)
 (@e5, 15, 1, NOW()); -- Garcia María -> Comptable (service 7, dept 4)
+
+
+INSERT INTO employe_prime (id_employe, id_prime, mois, annee) VALUES
+(8, 1, 10, 2025);
+
+INSERT INTO avance_salaire (id_employe, id_pourcentage, montant, date_avance, statut) VALUES
+(8, 2, 150000.00, '2025-10-15', 'accordee');
