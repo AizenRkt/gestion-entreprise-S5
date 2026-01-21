@@ -1,11 +1,11 @@
 -- client
 CREATE TABLE client_type (
-    id_client_type SERIAL PRIMARY KEY,
+    id_client_type INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE client (
-    id_client SERIAL PRIMARY KEY,
+    id_client INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(150) NOT NULL,
     telephone VARCHAR(30),
     email VARCHAR(100),
@@ -15,7 +15,7 @@ CREATE TABLE client (
 
 -- methodes de valorisation
 CREATE TABLE methode_valorisation (
-    id_methode_valorisation SERIAL PRIMARY KEY,
+    id_methode_valorisation INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(10) PRIMARY KEY,
     libelle VARCHAR(50) NOT NULL
 );
@@ -27,19 +27,19 @@ INSERT INTO methode_valorisation (code, libelle) VALUES
 
 -- article
 CREATE TABLE article_famille (
-    id_article_famille SERIAL PRIMARY KEY,
+    id_article_famille INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
     description TEXT,
 );
 
 CREATE TABLE article_famille_status (
-    id_article_famille_status SERIAL PRIMARY KEY,
+    id_article_famille_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('actif', 'inactif')
 )
 
 CREATE TABLE article (
-    id_article SERIAL PRIMARY KEY,
+    id_article INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     designation VARCHAR(150) NOT NULL,
     id_famille_article_famille INT REFERENCES article_famille(id_article_famille),
@@ -52,12 +52,12 @@ CREATE TABLE article (
 );
 
 CREATE TABLE article_status (
-    id_article_status SERIAL PRIMARY KEY,
+    id_article_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('disponible', 'rupture de stock', 'en commande')
 );
 
 CREATE TABLE article_prix_historique (
-    id_article_prix_historique SERIAL PRIMARY KEY,
+    id_article_prix_historique INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT REFERENCES article(id_article),
     prix_vente NUMERIC(12,2),
     date_modification DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -65,7 +65,7 @@ CREATE TABLE article_prix_historique (
 
 -- fournisseur et client
 CREATE TABLE fournisseur (
-    id_fournisseur SERIAL PRIMARY KEY,
+    id_fournisseur INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     adresse TEXT,
     telephone VARCHAR(20),
@@ -73,7 +73,7 @@ CREATE TABLE fournisseur (
 );
 
 CREATE TABLE fournisseur_article (
-    id_fournisseur_article SERIAL PRIMARY KEY,
+    id_fournisseur_article INT AUTO_INCREMENT PRIMARY KEY,
     id_fournisseur INT REFERENCES fournisseur(id_fournisseur),
     id_article INT REFERENCES article(id_article),
     prix_achat NUMERIC(12,2),
@@ -81,7 +81,7 @@ CREATE TABLE fournisseur_article (
 );
 
 CREATE TABLE client (
-    id_client SERIAL PRIMARY KEY,
+    id_client INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(150) NOT NULL,
     telephone VARCHAR(30),
     email VARCHAR(100),
@@ -91,32 +91,32 @@ CREATE TABLE client (
 
 -- entrepot, site 
 CREATE TABLE depot (
-    id_depot SERIAL PRIMARY KEY,
+    id_depot INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
     adresse TEXT,
 );
 
 CREATE TABLE site (
-    id_site SERIAL PRIMARY KEY,
+    id_site INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) NOT NULL,
     nom VARCHAR(100)
 );
 
 CREATE TABLE site_depot(
-    id_site_depot SERIAL PRIMARY KEY,
+    id_site_depot INT AUTO_INCREMENT PRIMARY KEY,
     id_depot INT REFERENCES depot(id_depot),
     id_site INT REFERENCES site(id_site)
 );
 
 -- documents
 CREATE TABLE document_type (
-    id_document_type SERIAL PRIMARY KEY,
+    id_document_type INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE document (
-    id_document SERIAL PRIMARY KEY,
+    id_document INT AUTO_INCREMENT PRIMARY KEY,
     id_document_type INT REFERENCES document_type(id_document_type),
     reference VARCHAR(100) UNIQUE NOT NULL,
     description VARCHAR(255),
@@ -124,8 +124,8 @@ CREATE TABLE document (
     path VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE document_status(
-    id_document_status SERIAL PRIMARY KEY,
+CREATE TABLE document_status (
+    id_document_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('valide', 'annule')
 );
 
@@ -308,68 +308,82 @@ CREATE TABLE lot (
 );
 
 -- ==============================
--- MOUVEMENT DE STOCK (JOURNAL)
+-- MOUVEMENT DE STOCK 
 -- ==============================
-CREATE TABLE mouvement_stock_type (
-    id_type_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
-    id_categorie_mouvement_stock INT NOT NULL,
-    code VARCHAR(20) NOT NULL UNIQUE,
-    libelle VARCHAR(50) NOT NULL
-);
-
 CREATE TABLE mouvement_stock_categorie (
     id_categorie_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(20) NOT NULL UNIQUE,
     libelle VARCHAR(50) NOT NULL
 );
 
+INSERT INTO mouvement_stock_categorie (code, libelle) VALUES
+('in', 'entree'),
+('out', 'sortie');
+
+CREATE TABLE mouvement_stock_type (
+    id_type_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
+    id_categorie_mouvement_stock INT NOT NULL,
+
+    code VARCHAR(30) NOT NULL UNIQUE,
+    libelle VARCHAR(100) NOT NULL,
+
+    impact_valorisation BOOLEAN DEFAULT TRUE, -- ex: inventaire = true, réservation = false
+    necessite_validation BOOLEAN DEFAULT FALSE,
+
+    FOREIGN KEY (id_categorie_mouvement_stock)
+    REFERENCES mouvement_stock_categorie(id_categorie_mouvement_stock)
+);
+
 CREATE TABLE mouvement_stock (
     id_mouvement_stock BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-    article_id INT NOT NULL,
-    depot_id INT NOT NULL,
-    emplacement_id INT,
-    lot_id INT,
+    id_article INT NOT NULL,
+    id_depot INT NOT NULL,
+    id_lot INT,
 
-    type_mouvement ENUM(
-        'ENTREE',
-        'SORTIE',
-        'TRANSFERT_ENTRANT',
-        'TRANSFERT_SORTANT',
-        'AJUSTEMENT_POSITIF',
-        'AJUSTEMENT_NEGATIF'
-    ) NOT NULL,
+    id_type_mouvement_stock INT NOT NULL,
 
-    origine_document VARCHAR(50),
-    reference_document VARCHAR(50),
+    sens SMALLINT NOT NULL, -- + entrée (1) / - sortie (0)
 
     quantite DECIMAL(15,3) NOT NULL,
     cout_unitaire DECIMAL(15,4),
 
-    date_mouvement DATETIME NOT NULL,
-    cree_par INT NOT NULL,
+    motif VARCHAR(255),
 
+    date_mouvement DATETIME NOT NULL,
+
+    date_validation DATETIME,
+
+    created_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (article_id) REFERENCES article(id_article),
-    FOREIGN KEY (lot_id) REFERENCES lot(id_lot)
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    FOREIGN KEY (id_lot) REFERENCES lot(id_lot)
+    FOREIGN KEY (id_type_mouvement_stock) REFERENCES mouvement_stock_type(id_type_mouvement_stock)
 );
 
--- ==============================
--- STOCK COURANT (ETAT INSTANTANE)
--- ==============================
+CREATE TABLE mouvement_stock_status (
+    id_mouvement_stock_status INT AUTO_INCREMENT PRIMARY KEY,
+    id_mouvement_stock INT NOT NULL,
+    libelle ENUM('validé', 'annulé'),
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_mouvement_stock) REFERENCES mouvement_stock(id_mouvement_stock)
+);
+
+
 CREATE TABLE stock_courant (
-    article_id INT NOT NULL,
-    depot_id INT NOT NULL,
-    emplacement_id INT,
+    id_stock_courant INT AUTO_INCREMENT PRIMARY KEY,
+    id_article INT NOT NULL,
+    id_depot INT NOT NULL,
 
     quantite DECIMAL(15,3) NOT NULL DEFAULT 0,
     valeur_stock DECIMAL(15,2) NOT NULL DEFAULT 0,
     cout_moyen DECIMAL(15,4),
 
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (article_id, depot_id, emplacement_id),
-    FOREIGN KEY (article_id) REFERENCES article(id_article)
+    PRIMARY KEY (id_article, id_depot),
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
 );
