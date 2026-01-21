@@ -310,6 +310,19 @@ CREATE TABLE lot (
 -- ==============================
 -- MOUVEMENT DE STOCK (JOURNAL)
 -- ==============================
+CREATE TABLE mouvement_stock_type (
+    id_type_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
+    id_categorie_mouvement_stock INT NOT NULL,
+    code VARCHAR(20) NOT NULL UNIQUE,
+    libelle VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE mouvement_stock_categorie (
+    id_categorie_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) NOT NULL UNIQUE,
+    libelle VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE mouvement_stock (
     id_mouvement_stock BIGINT AUTO_INCREMENT PRIMARY KEY,
 
