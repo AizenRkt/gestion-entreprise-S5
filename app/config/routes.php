@@ -27,6 +27,8 @@ require __DIR__ . '/routes/ressourceHumaine/paieRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/jourFerieRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/LLMRoute.php';
 
+require __DIR__ . '/routes/AVIS/KPI/KpiRoute.php';
+
 /** 
  * @var Router $router 
  * @var Engine $app
