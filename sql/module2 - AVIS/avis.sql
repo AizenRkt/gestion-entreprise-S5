@@ -10,13 +10,14 @@ CREATE TABLE client (
     telephone VARCHAR(30),
     email VARCHAR(100),
     adresse TEXT,
-    id_type INT REFERENCES client_type(id_client_type)
-)
+    id_type INT,
+    FOREIGN KEY (id_type) REFERENCES client_type(id_client_type)
+);
 
 -- methodes de valorisation
 CREATE TABLE methode_valorisation (
     id_methode_valorisation INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(10) PRIMARY KEY,
+    code VARCHAR(10) NOT NULL UNIQUE,
     libelle VARCHAR(50) NOT NULL
 );
 
@@ -30,7 +31,7 @@ CREATE TABLE article_famille (
     id_article_famille INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    description TEXT,
+    description TEXT
 );
 
 CREATE TABLE article_famille_status (
@@ -42,13 +43,16 @@ CREATE TABLE article (
     id_article INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     designation VARCHAR(150) NOT NULL,
-    id_famille_article_famille INT REFERENCES article_famille(id_article_famille),
-    id_methode_valorisation INT REFERENCES methode_valorisation(id_methode_valorisation),
+    id_famille_article_famille INT,
+    id_methode_valorisation INT,
     unite VARCHAR(20) NOT NULL,
     prix_achat NUMERIC(12,2),
     prix_vente NUMERIC(12,2),
     stock_min NUMERIC(12,2) DEFAULT 0,
     actif BOOLEAN DEFAULT TRUE
+    ,
+    FOREIGN KEY (id_famille_article_famille) REFERENCES article_famille(id_article_famille),
+    FOREIGN KEY (id_methode_valorisation) REFERENCES methode_valorisation(id_methode_valorisation)
 );
 
 CREATE TABLE article_status (
@@ -80,13 +84,6 @@ CREATE TABLE fournisseur_article (
     delai_livraison INT
 );
 
-CREATE TABLE client (
-    id_client INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(150) NOT NULL,
-    telephone VARCHAR(30),
-    email VARCHAR(100),
-    adresse TEXT,
-);
 
 
 -- entrepot, site 
@@ -94,7 +91,7 @@ CREATE TABLE depot (
     id_depot INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    adresse TEXT,
+    adresse TEXT
 );
 
 CREATE TABLE site (
@@ -251,8 +248,9 @@ CREATE TABLE livraison_client (
     valide_par INT,
     date_validation DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (commande_client_id) REFERENCES commande_client(id_commande_client)
+    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client)
 );
+
 
 CREATE TABLE facture_client (
     id_facture_client INT AUTO_INCREMENT PRIMARY KEY,
@@ -359,7 +357,7 @@ CREATE TABLE mouvement_stock (
 
     FOREIGN KEY (id_article) REFERENCES article(id_article),
     FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
-    FOREIGN KEY (id_lot) REFERENCES lot(id_lot)
+    FOREIGN KEY (id_lot) REFERENCES lot(id_lot),
     FOREIGN KEY (id_type_mouvement_stock) REFERENCES mouvement_stock_type(id_type_mouvement_stock)
 );
 
@@ -374,7 +372,6 @@ CREATE TABLE mouvement_stock_status (
 
 
 CREATE TABLE stock_courant (
-    id_stock_courant INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
 
