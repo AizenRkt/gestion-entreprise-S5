@@ -80,15 +80,6 @@ CREATE TABLE fournisseur_article (
     delai_livraison INT
 );
 
-CREATE TABLE client (
-    id_client INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(150) NOT NULL,
-    telephone VARCHAR(30),
-    email VARCHAR(100),
-    adresse TEXT,
-);
-
-
 -- entrepot, site 
 CREATE TABLE depot (
     id_depot INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,12 +101,12 @@ CREATE TABLE site_depot(
 );
 
 -- documents
-CREATE TABLE document_type (
+CREATE TABLE document_type_avis (
     id_document_type INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE document (
+CREATE TABLE document_avis (
     id_document INT AUTO_INCREMENT PRIMARY KEY,
     id_document_type INT REFERENCES document_type(id_document_type),
     reference VARCHAR(100) UNIQUE NOT NULL,
@@ -124,7 +115,7 @@ CREATE TABLE document (
     path VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE document_status (
+CREATE TABLE document_status_avis (
     id_document_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('valide', 'annule')
 );
