@@ -1,3 +1,22 @@
+--eploye a poste
+--table poste lien avec service
+--donc on insere poste stock
+--lie lemploye avec le poste via employe_statut et le poste doit etre en lien avec service
+
+CREATE TABLE service (
+    id_service INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    id_dept INT,
+    FOREIGN KEY (id_dept) REFERENCES departement(id_dept)
+);
+
+CREATE TABLE poste (
+    id_poste INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(100) NOT NULL,
+    id_service INT,
+    FOREIGN KEY (id_service) REFERENCES service(id_service)
+);
+
 CREATE TABLE employe (
     id_employe INT AUTO_INCREMENT PRIMARY KEY,
     id_candidat INT UNIQUE,
@@ -40,3 +59,22 @@ CREATE TABLE poste_role (
     date_role DATE NOT NULL,
     FOREIGN KEY (id_role) REFERENCES role(id_role)
 );
+
+
+CREATE TABLE route_permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    route_pattern VARCHAR(191) NOT NULL,
+    role_name VARCHAR(50) NOT NULL,
+    id_service INT NOT NULL,
+    UNIQUE KEY unique_route_role (route_pattern, role_name),
+    FOREIGN KEY (id_service) REFERENCES service(id_service)
+);
+
+CREATE TABLE menu_ui (
+    id_menu INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    id_service INT NOT NULL,
+    role VARCHAR(255),
+    FOREIGN KEY (id_service) REFERENCES service(id_service)
+);
+
