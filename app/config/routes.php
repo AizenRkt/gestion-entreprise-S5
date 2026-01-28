@@ -27,7 +27,23 @@ require __DIR__ . '/routes/ressourceHumaine/paieRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/jourFerieRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/LLMRoute.php';
 
+// avis
 require __DIR__ . '/routes/AVIS/KPI/KpiRoute.php';
+require __DIR__ . '/routes/AVIS/stock/StockRoute.php';
+
+// avis - referentiel
+require __DIR__ . '/routes/AVIS/referentiel/client/ClientRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/client/ClientApiRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/article/ArticleRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/article/ArticleApiRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/site/SiteRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/site/SiteApiRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/fournisseur/FournisseurRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/fournisseur/FournisseurApiRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/document/DocumentRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/document/DocumentApiRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/valorisation/ValorisationRoute.php';
+require __DIR__ . '/routes/AVIS/referentiel/valorisation/ValorisationApiRoute.php';
 
 /** 
  * @var Router $router 

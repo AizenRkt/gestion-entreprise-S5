@@ -1,3 +1,7 @@
+DROP DATABASE gestion_entreprise_test;
+CREATE DATABASE gestion_entreprise_test;
+USE gestion_entreprise_test;
+
 -- client
 CREATE TABLE client_type (
     id_client_type INT AUTO_INCREMENT PRIMARY KEY,
@@ -10,13 +14,14 @@ CREATE TABLE client (
     telephone VARCHAR(30),
     email VARCHAR(100),
     adresse TEXT,
-    id_type INT REFERENCES client_type(id_client_type)
-)
+    id_client_type INT NOT NULL,
+    FOREIGN KEY (id_client_type) REFERENCES client_type(id_client_type)
+);
 
 -- methodes de valorisation
 CREATE TABLE methode_valorisation (
     id_methode_valorisation INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(10) PRIMARY KEY,
+    code VARCHAR(10),
     libelle VARCHAR(50) NOT NULL
 );
 
@@ -30,13 +35,14 @@ CREATE TABLE article_famille (
     id_article_famille INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    description TEXT,
+    description TEXT
 );
 
 CREATE TABLE article_famille_status (
     id_article_famille_status INT AUTO_INCREMENT PRIMARY KEY,
-    libelle ENUM('actif', 'inactif')
-)
+    libelle ENUM('actif', 'inactif'),
+    date_status DATETIME NOT NULL
+);
 
 CREATE TABLE article (
     id_article INT AUTO_INCREMENT PRIMARY KEY,
@@ -53,7 +59,8 @@ CREATE TABLE article (
 
 CREATE TABLE article_status (
     id_article_status INT AUTO_INCREMENT PRIMARY KEY,
-    libelle ENUM('disponible', 'rupture de stock', 'en commande')
+    libelle ENUM('disponible', 'rupture de stock', 'en commande'),
+    date_status DATETIME NOT NULL
 );
 
 CREATE TABLE article_prix_historique (
@@ -85,7 +92,7 @@ CREATE TABLE depot (
     id_depot INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    adresse TEXT,
+    adresse TEXT
 );
 
 CREATE TABLE site (
@@ -184,7 +191,6 @@ CREATE TABLE facture_fournisseur_status (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE mode_paiement (
     id_mode_paiement INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(20) NOT NULL UNIQUE,
@@ -242,7 +248,7 @@ CREATE TABLE livraison_client (
     valide_par INT,
     date_validation DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (commande_client_id) REFERENCES commande_client(id_commande_client)
+    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client)
 );
 
 CREATE TABLE facture_client (
@@ -276,7 +282,6 @@ CREATE TABLE encaissement_client (
     FOREIGN KEY (id_mode_paiement) REFERENCES mode_paiement(id_mode_paiement)
 );
 
-
 -- ==============================
 -- LOT (clé FIFO / LIFO / FEFO)
 -- ==============================
@@ -306,7 +311,6 @@ CREATE TABLE mouvement_stock_categorie (
     code VARCHAR(20) NOT NULL UNIQUE,
     libelle VARCHAR(50) NOT NULL
 );
-
 INSERT INTO mouvement_stock_categorie (code, libelle) VALUES
 ('in', 'entree'),
 ('out', 'sortie');
@@ -319,11 +323,27 @@ CREATE TABLE mouvement_stock_type (
     libelle VARCHAR(100) NOT NULL,
 
     impact_valorisation BOOLEAN DEFAULT TRUE, -- ex: inventaire = true, réservation = false
-    necessite_validation BOOLEAN DEFAULT FALSE,
+    necessite_validation BOOLEAN DEFAULT TRUE,
 
-    FOREIGN KEY (id_categorie_mouvement_stock)
-    REFERENCES mouvement_stock_categorie(id_categorie_mouvement_stock)
+    FOREIGN KEY (id_categorie_mouvement_stock) REFERENCES mouvement_stock_categorie(id_categorie_mouvement_stock)
 );
+INSERT INTO mouvement_stock_type (id_categorie_mouvement_stock, code, libelle, impact_valorisation, necessite_validation) VALUES
+(1, 'ACHAT_RECEPTION', 'Réception achat fournisseur', TRUE, TRUE),
+(1, 'RETOUR_CLIENT', 'Retour client (réintégration stock)', TRUE, TRUE),
+(1, 'TRANSFERT_ENTREE', 'Entrée stock par transfert inter-dépôt', TRUE, TRUE),
+(1, 'INVENTAIRE_PLUS', 'Ajustement inventaire (écart positif)', TRUE, TRUE),
+(1, 'PRODUCTION_ENTREE', 'Entrée production / fabrication', TRUE, TRUE),
+(1, 'ANNULATION_SORTIE', 'Annulation sortie stock', TRUE, TRUE);
+INSERT INTO mouvement_stock_type (id_categorie_mouvement_stock, code, libelle, impact_valorisation, necessite_validation) VALUES
+(2, 'VENTE_LIVRAISON', 'Sortie stock - livraison client', TRUE, TRUE),
+(2, 'TRANSFERT_SORTIE', 'Sortie stock vers autre dépôt', TRUE, TRUE),
+(2, 'INVENTAIRE_MOINS', 'Ajustement inventaire (écart négatif)', TRUE, TRUE),
+(2, 'PERTE_CASSE', 'Perte / casse / vol', TRUE, TRUE),
+(2, 'PEREMPTION', 'Destruction produit périmé', TRUE, TRUE),
+(2, 'CONSOMMATION_INTERNE', 'Consommation interne', TRUE, TRUE);
+INSERT INTO mouvement_stock_type(id_categorie_mouvement_stock, code, libelle, impact_valorisation, necessite_validation)VALUES
+(2, 'RESERVATION', 'Réservation stock (non valorisée)', FALSE, FALSE),
+(1, 'ANNULATION_RESERVATION', 'Annulation réservation stock', FALSE, FALSE);
 
 CREATE TABLE mouvement_stock (
     id_mouvement_stock BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -333,6 +353,8 @@ CREATE TABLE mouvement_stock (
     id_lot INT,
 
     id_type_mouvement_stock INT NOT NULL,
+    id_reference INT NOT NULL,
+    table_reference VARCHAR(100),
 
     sens SMALLINT NOT NULL, -- + entrée (1) / - sortie (0)
 
@@ -350,7 +372,7 @@ CREATE TABLE mouvement_stock (
 
     FOREIGN KEY (id_article) REFERENCES article(id_article),
     FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
-    FOREIGN KEY (id_lot) REFERENCES lot(id_lot)
+    FOREIGN KEY (id_lot) REFERENCES lot(id_lot),
     FOREIGN KEY (id_type_mouvement_stock) REFERENCES mouvement_stock_type(id_type_mouvement_stock)
 );
 
@@ -363,7 +385,6 @@ CREATE TABLE mouvement_stock_status (
     FOREIGN KEY (id_mouvement_stock) REFERENCES mouvement_stock(id_mouvement_stock)
 );
 
-
 CREATE TABLE stock_courant (
     id_stock_courant INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT NOT NULL,
@@ -375,6 +396,19 @@ CREATE TABLE stock_courant (
 
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (id_article, id_depot),
-    FOREIGN KEY (id_article) REFERENCES article(id_article)
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
+
+CREATE TABLE stock_reservation (
+    id_stock_reservation INT AUTO_INCREMENT PRIMARY KEY,
+    id_article INT NOT NULL,
+    id_depot INT NOT NULL,
+    quantite DECIMAL(15,3) NOT NULL,
+    reference VARCHAR(100),
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
+);
+

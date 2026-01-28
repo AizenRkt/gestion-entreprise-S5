@@ -1,26 +1,26 @@
 <?php
-namespace app\models\AVIS\referentiel\site;
+namespace app\models\AVIS\referentiel\valorisation;
 use Flight;
 use PDO;
 use Exception;
 
-class DepotModel {
+class MethodeValorisationModel {
 
     public static function getAll() {
         try {
             $db = Flight::db();
-            $stmt = $db->query("SELECT * FROM depot ORDER BY id_depot DESC");
+            $stmt = $db->query("SELECT * FROM methode_valorisation ORDER BY id_methode_valorisation DESC");
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             return [];
         }
     }
 
-    public static function getById($id_depot) {
+    public static function getById($id_methode_valorisation) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("SELECT * FROM depot WHERE id_depot = :id_depot");
-            $stmt->execute([':id_depot' => $id_depot]);
+            $stmt = $db->prepare("SELECT * FROM methode_valorisation WHERE id_methode_valorisation = :id_methode_valorisation");
+            $stmt->execute([':id_methode_valorisation' => $id_methode_valorisation]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             return null;
@@ -30,7 +30,7 @@ class DepotModel {
     public static function getByCode($code) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("SELECT * FROM depot WHERE code = :code");
+            $stmt = $db->prepare("SELECT * FROM methode_valorisation WHERE code = :code");
             $stmt->execute([':code' => $code]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
@@ -38,14 +38,13 @@ class DepotModel {
         }
     }
 
-    public function insert($code, $nom, $adresse = null) {
+    public function insert($code, $libelle) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("INSERT INTO depot (code, nom, adresse) VALUES (:code, :nom, :adresse)");
+            $stmt = $db->prepare("INSERT INTO methode_valorisation (code, libelle) VALUES (:code, :libelle)");
             $stmt->execute([
                 ':code' => $code,
-                ':nom' => $nom,
-                ':adresse' => $adresse
+                ':libelle' => $libelle
             ]);
             return $db->lastInsertId();
         } catch (\PDOException $e) {
@@ -53,15 +52,14 @@ class DepotModel {
         }
     }
 
-    public static function update($id_depot, $code, $nom, $adresse = null) {
+    public static function update($id_methode_valorisation, $code, $libelle) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("UPDATE depot SET code = :code, nom = :nom, adresse = :adresse WHERE id_depot = :id_depot");
+            $stmt = $db->prepare("UPDATE methode_valorisation SET code = :code, libelle = :libelle WHERE id_methode_valorisation = :id_methode_valorisation");
             $stmt->execute([
                 ':code' => $code,
-                ':nom' => $nom,
-                ':adresse' => $adresse,
-                ':id_depot' => $id_depot
+                ':libelle' => $libelle,
+                ':id_methode_valorisation' => $id_methode_valorisation
             ]);
             return true;
         } catch (\PDOException $e) {
@@ -69,11 +67,11 @@ class DepotModel {
         }
     }
 
-    public static function delete($id_depot) {
+    public static function delete($id_methode_valorisation) {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("DELETE FROM depot WHERE id_depot = :id_depot");
-            $stmt->execute([':id_depot' => $id_depot]);
+            $stmt = $db->prepare("DELETE FROM methode_valorisation WHERE id_methode_valorisation = :id_methode_valorisation");
+            $stmt->execute([':id_methode_valorisation' => $id_methode_valorisation]);
             return true;
         } catch (\PDOException $e) {
             throw new Exception("Erreur de suppression : " . $e->getMessage());
