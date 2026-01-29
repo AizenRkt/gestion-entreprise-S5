@@ -3,6 +3,14 @@ CREATE DATABASE if not exists gestion_entreprise;
 
 USE gestion_entreprise;
 
+-- DROP DATABASE if exists gestion_entreprise_test;
+-- CREATE DATABASE if not exists gestion_entreprise_test;
+
+-- DROP DATABASE if exists gestion_entreprise_prod;
+-- CREATE DATABASE if not exists gestion_entreprise_prod;
+
+-- USE gestion_entreprise_prod;
+
 -- ======================
 -- utilisateur, role, métier
 -- ======================
@@ -334,6 +342,24 @@ CREATE TABLE contrat_travail_renouvellement (
     FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
 );
 
+CREATE TABLE contrat_migration_cdd_cdi(
+    id_migration INT AUTO_INCREMENT PRIMARY KEY,
+    id_cdd INT NOT NULL,
+    id_cdi INT NOT NULL,
+    date_migration DATETIME,
+    FOREIGN KEY (id_cdd) REFERENCES contrat_travail(id_contrat_travail),
+    FOREIGN KEY (id_cdi) REFERENCES contrat_travail(id_contrat_travail)
+);
+
+CREATE TABLE contrat_employe_statut(
+    id_contrat_employe_statut INT AUTO_INCREMENT PRIMARY KEY,
+    id_contrat_travail INT NOT NULL,
+    id_employe_statut INT NOT NULL,
+    date_ajout DATE NOT NULL,
+    FOREIGN KEY (id_employe_statut) REFERENCES employe_statut(id_employe_statut),
+    FOREIGN KEY (id_contrat_travail) REFERENCES contrat_travail(id_contrat_travail)
+);
+
 -- partie document
 CREATE TABLE document_type (
     id_type_document INT AUTO_INCREMENT PRIMARY KEY,
@@ -499,6 +525,12 @@ CREATE TABLE pointage (
     UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
 );
 
+CREATE TABLE jour_ferie (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    recurrence ENUM('annuel', 'fixe') NOT NULL
+);
 --view
 
 CREATE OR REPLACE VIEW view_absence_details AS
@@ -681,3 +713,105 @@ WHERE NOT EXISTS (
       AND fc.id_competence = ms.id_competence
       AND ef.status IN ('ASSIGNED', 'IN_PROGRESS', 'COMPLETED')
 );
+-- partie artifice 
+CREATE TABLE poste_responsabilite (
+    id_poste_responsabilite INT AUTO_INCREMENT PRIMARY KEY,
+    id_poste INT NOT NULL,
+    libelle VARCHAR(255),
+    FOREIGN KEY (id_poste) REFERENCES poste(id_poste)
+);
+
+CREATE OR REPLACE VIEW view_total_absences AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(a.date_debut) AS annee,
+    MONTH(a.date_debut) AS mois,
+    SUM(DATEDIFF(a.date_fin, a.date_debut) + 1) AS total_absences  -- "+ 1" pour inclure le jour de fin
+FROM 
+    employe e
+JOIN 
+    absence a ON e.id_employe = a.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;
+
+CREATE OR REPLACE VIEW view_total_heures_supp AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_demande) AS annee,
+    MONTH(d.date_demande) AS mois,
+    SUM(TIMESTAMPDIFF(HOUR, dh.heure_debut, dh.heure_fin)) AS total_heures_supp
+FROM 
+    employe e
+JOIN 
+    demande_heure_sup d ON e.id_employe = d.id_employe
+JOIN 
+    detail_heure_sup dh ON d.id_demande_heure_sup = dh.id_demande_heure_sup
+GROUP BY 
+    e.id_employe, annee, mois;
+
+CREATE OR REPLACE VIEW view_total_conges AS
+SELECT 
+    e.id_employe,
+    e.nom,
+    e.prenom,
+    YEAR(d.date_debut) AS annee,
+    MONTH(d.date_debut) AS mois,
+    SUM(DATEDIFF(d.date_fin, d.date_debut) + 1) AS total_jours_conges
+FROM 
+    employe e
+JOIN 
+    demande_conge d ON e.id_employe = d.id_employe
+GROUP BY 
+    e.id_employe, annee, mois;
+
+    CREATE TABLE assurance (
+    id_assurance INT NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    minpay INT ,
+    maxpay INT,
+    taux FLOAT NOT NULL
+);
+CREATE TABLE taux_heures_sup (
+    id_tauxheuresup BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    type_heuresup VARCHAR(100) NOT NULL,
+    heure_debut INT NOT NULL,
+    heure_fin INT NOT NULL,
+    taux FLOAT NOT NULL
+);
+
+CREATE TABLE prime (
+    id_prime INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    montant DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    type_prime ENUM('mensuelle','annuelle','ponctuelle') DEFAULT 'mensuelle',
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE employe_prime (
+    id_employe INT NOT NULL,
+    id_prime INT NOT NULL,
+    mois INT,
+    annee INT,
+    PRIMARY KEY (id_employe, id_prime, mois, annee)
+);
+
+CREATE TABLE pourcentage_avance (
+    id_pourcentage INT AUTO_INCREMENT PRIMARY KEY,
+    pourcentage FLOAT NOT NULL,
+    date DATE NOT NULL DEFAULT CURRENT_DATE 
+);
+
+CREATE TABLE avance_salaire (
+    id_avance INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_pourcentage INT NOT NULL,
+    montant DECIMAL(10,2) NOT NULL,
+    date_avance DATE NOT NULL DEFAULT CURRENT_DATE,
+    statut ENUM('demandee', 'accordee', 'remboursee') DEFAULT 'demandee'
+);
+

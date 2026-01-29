@@ -66,6 +66,21 @@ require('routes.php');
  */ 
 require('services.php');
 
+// Fonction helper pour vérifier le statut de pointage depuis la session
+Flight::map('checkinStatus', function(){
+    if (isset($_SESSION['pointage_status']) && $_SESSION['pointage_status']['last_checked'] === date('Y-m-d')) {
+        if (!$_SESSION['pointage_status']['hasCheckedIn']) {
+            return 'checkin-needed'; // Doit faire le check-in
+        }
+        if (!$_SESSION['pointage_status']['hasCheckedOut']) {
+            return 'checkout-needed'; // A fait le check-in, doit faire le check-out
+        }
+    }
+    // Si l'info n'est pas en session (ex: 1er chargement), on ne sait pas, donc pas de notif.
+    // L'info sera ajoutée à la session lors de la visite de la page de pointage.
+    return ''; // Tout est fait pour aujourd'hui ou statut inconnu
+});
+
 // At this point, your app should have all the instructions it needs and it'll
 // "start" processing everything. This is where the magic happens.
 $app->start();

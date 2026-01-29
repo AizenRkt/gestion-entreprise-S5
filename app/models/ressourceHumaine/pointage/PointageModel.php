@@ -6,6 +6,7 @@ use Flight;
 use PDO;
 use DateTime;
 use DateInterval;
+use app\models\ressourceHumaine\jourFerie\JourFerieModel;
 
 class PointageModel
 {
@@ -217,8 +218,30 @@ class PointageModel
     public function fillMissingPointages($id_employe)
     {
         $db = Flight::db();
+        $jourFerieModel = new JourFerieModel();
+        
+        // --- Pré-chargement des données pour l'efficacité ---
+        
+        // 1. Jours fériés
+        $annuelJoursFeries = [];
+        $fixeJoursFeries = [];
+        foreach ($jourFerieModel->getAllJoursFeries() as $jf) {
+            if ($jf['recurrence'] === 'annuel') {
+                $annuelJoursFeries[substr($jf['date'], 5)] = true; // Format MM-DD
+            } else { // 'fixe'
+                $fixeJoursFeries[$jf['date']] = true; // Format YYYY-MM-DD
+            }
+        }
 
-        // 1. Trouver la date d'activation de l'employé
+        // 2. Jours de travail définis dans statut_pointage
+        $stmt_working_days = $db->prepare("SELECT DISTINCT jour FROM statut_pointage");
+        $stmt_working_days->execute();
+        $workingDays = $stmt_working_days->fetchAll(PDO::FETCH_COLUMN, 0);
+        $workingDays = array_flip($workingDays); // Clés = jours (1-7), pour une recherche rapide avec isset()
+
+        // --- Détermination de la plage de dates ---
+
+        // 3. Trouver la date d'activation de l'employé
         $stmt_start_date = $db->prepare(
             "SELECT MIN(date_modification) 
              FROM employe_statut 
@@ -228,40 +251,46 @@ class PointageModel
         $startDateStr = $stmt_start_date->fetchColumn();
 
         if (!$startDateStr) {
-            return; // Pas de date d'activation trouvée
+            return; // Pas de date d'activation, on ne peut rien faire
         }
         
         $startDate = new DateTime($startDateStr);
-        $endDate = new DateTime();
-        $endDate->modify('-1 day'); // Jusqu'à hier
-
-        if ($startDate > $endDate) {
-            return; // Pas de jours à vérifier
+        $endDate = new DateTime(); // Aujourd'hui
+        
+        if ($startDate >= $endDate) {
+            return; // La date de début est aujourd'hui ou dans le futur, pas de jours passés à vérifier
         }
 
-        // Itérer sur la plage de dates
+        // --- Itération et remplissage ---
         $currentDate = clone $startDate;
-        while ($currentDate <= $endDate) {
+        while ($currentDate < $endDate) { // Itérer jusqu'à hier
             $dateStr = $currentDate->format('Y-m-d');
-            $dayOfWeek = $currentDate->format('N'); // 1 pour Lundi, 7 pour Dimanche
 
-            // Vérifier si c'est un jour ouvrable selon la table statut_pointage
-            $stmt = $db->prepare("SELECT COUNT(*) FROM statut_pointage WHERE jour = ?");
-            $stmt->execute([$dayOfWeek]);
-            $isWorkingDay = $stmt->fetchColumn() > 0;
+            // Vérifier si un pointage existe déjà pour ce jour
+            $stmt = $db->prepare("SELECT COUNT(*) FROM pointage WHERE id_employe = ? AND date_pointage = ?");
+            $stmt->execute([$id_employe, $dateStr]);
+            $pointageExists = $stmt->fetchColumn() > 0;
 
-            if ($isWorkingDay) {
-                // Vérifier si un pointage existe déjà pour ce jour
-                $stmt = $db->prepare("SELECT COUNT(*) FROM pointage WHERE id_employe = ? AND date_pointage = ?");
-                $stmt->execute([$id_employe, $dateStr]);
-                $pointageExists = $stmt->fetchColumn() > 0;
+            if (!$pointageExists) {
+                $monthDayStr = $currentDate->format('m-d');
+                $dayOfWeek = $currentDate->format('N'); // 1 pour Lundi, 7 pour Dimanche
 
-                if (!$pointageExists) {
-                    // Insérer un enregistrement d'absence
+                $statut = null; // Initialiser le statut à null
+
+                // Logique de décision du statut
+                if (isset($annuelJoursFeries[$monthDayStr]) || isset($fixeJoursFeries[$dateStr])) {
+                    $statut = 'Jour Férié';
+                } elseif (isset($workingDays[$dayOfWeek])) {
+                    $statut = 'Absent';
+                }
+                // Pas de bloc 'else' pour 'Jour de pause', on n'insère rien si ce n'est pas un jour travaillé ou férié.
+                
+                // Insertion du nouvel enregistrement de pointage si un statut a été déterminé
+                if ($statut !== null) {
                     $stmt_insert = $db->prepare(
-                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min, statut) VALUES (?, ?, '00:00:00', 0, 'Absent')"
+                        "INSERT INTO pointage (id_employe, date_pointage, duree_work, retard_min, statut) VALUES (?, ?, '00:00:00', 0, ?)"
                     );
-                    $stmt_insert->execute([$id_employe, $dateStr]);
+                    $stmt_insert->execute([$id_employe, $dateStr, $statut]);
                 }
             }
 

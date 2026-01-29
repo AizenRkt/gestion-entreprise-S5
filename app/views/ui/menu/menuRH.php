@@ -117,6 +117,9 @@
                         </li>     
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/backOffice/conge" class="submenu-link">congés</a>
+                        </li>    
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/backOffice/jourFerie" class="submenu-link">JourFerie</a>
                         </li>                        
                     </ul>
                 </li>
@@ -131,9 +134,6 @@
                         <span>Statistique</span>
                     </a>
                     <ul class="submenu">
-                        <!-- <li class="submenu-item">
-                            <a href="<?= Flight::base() ?>
-                        </li>      -->
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/employes/statistiques" class="submenu-link">statistiques employes</a>
                         </li>

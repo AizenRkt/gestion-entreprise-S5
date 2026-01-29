@@ -25,6 +25,23 @@ class CongeModel
         }
     }
 
+    /**
+     * Récupère uniquement les congés validés pour le planning.
+     * @return array
+     */
+    public function getValidatedConges(): array
+    {
+        try {
+            $db = Flight::db();
+            $sql = "SELECT * FROM view_conge_details WHERE validation_statut = 'Validé'";
+            $stmt = $db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
+
     public function getAllTypesConge()
     {
         $db = Flight::db();
@@ -190,18 +207,27 @@ class CongeModel
             ]);
 
             // Si le congé est validé, mettre à jour le statut dans la table de pointage
-            if ($statut === 'valide') {
-                $stmt_conge = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = :id_demande_conge");
-                $stmt_conge->execute(['id_demande_conge' => $id_demande_conge]);
+                            if ($statut === 'valide') {
+                                $stmt_conge = $db->prepare("SELECT id_employe, date_debut, date_fin, id_type_conge FROM demande_conge WHERE id_demande_conge = :id_demande_conge");                $stmt_conge->execute(['id_demande_conge' => $id_demande_conge]);
                 $conge_details = $stmt_conge->fetch(PDO::FETCH_ASSOC);
 
                 if ($conge_details) {
+                    // Récupérer le nom du type de congé
+                    $stmt_type_conge = $db->prepare("SELECT nom FROM type_conge WHERE id_type_conge = :id_type_conge");
+                    $stmt_type_conge->execute(['id_type_conge' => $conge_details['id_type_conge']]);
+                    $type_conge_nom = $stmt_type_conge->fetchColumn();
+
+                    $pointage_statut = 'Congé'; // Statut par défaut
+                    if ($type_conge_nom === 'Congé maladie') {
+                        $pointage_statut = 'Congé Spéciaux';
+                    }
+
                     $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
                     $pointageModel->updatePointageStatusForDateRange(
                         $conge_details['id_employe'],
                         $conge_details['date_debut'],
                         $conge_details['date_fin'],
-                        'Congé'
+                        $pointage_statut
                     );
                 }
             }
@@ -216,6 +242,104 @@ class CongeModel
             return false;
         }
     }
+
+    /**
+     * Met à jour les dates d'un congé et ajuste les pointages correspondants.
+     * @param int $id_demande_conge
+     * @param string $newStartDate
+     * @param string $newEndDate
+     * @return bool
+     */
+    public function updateCongeDates(int $id_demande_conge, string $newStartDate, string $newEndDate): bool
+    {
+        $db = Flight::db();
+        try {
+            $db->beginTransaction();
+    
+            // 1. Récupérer les anciennes informations du congé
+            $stmt_old = $db->prepare("SELECT id_employe, date_debut, date_fin, id_type_conge FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_old->execute([$id_demande_conge]);
+            $old_conge = $stmt_old->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$old_conge) {
+                $db->rollBack();
+                return false;
+            }
+            $id_employe = $old_conge['id_employe'];
+            $id_type_conge = $old_conge['id_type_conge'];
+
+            $pointage_statut = 'Congé';
+            if ($id_type_conge === 3) { // Assuming 3 is the ID for 'Congé maladie'
+                $pointage_statut = 'Congé Spéciaux';
+            }
+    
+            // 2. Mettre à jour la demande de congé avec les nouvelles dates
+            $nb_jours = $this->calculateWorkingDays($newStartDate, $newEndDate);
+    
+            $stmt_update = $db->prepare("UPDATE demande_conge SET date_debut = ?, date_fin = ?, nb_jours = ? WHERE id_demande_conge = ?");
+            $stmt_update->execute([$newStartDate, $newEndDate, $nb_jours, $id_demande_conge]);
+    
+            // 3. Mettre à jour les enregistrements de pointage
+            $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+            
+            // Réinitialiser le statut pour l'ancienne période de congé
+            $pointageModel->updatePointageStatusForDateRange($id_employe, $old_conge['date_debut'], $old_conge['date_fin'], 'Absent');
+            // Appliquer le statut "Congé" pour la nouvelle période
+            $pointageModel->updatePointageStatusForDateRange($id_employe, $newStartDate, $newEndDate, $pointage_statut);
+    
+            $db->commit();
+            return true;
+    
+        } catch (\Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log("Erreur lors de la mise à jour du congé : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Supprime un congé et réinitialise les pointages.
+     * @param int $id_demande_conge
+     * @return bool
+     */
+    public function deleteConge(int $id_demande_conge): bool
+    {
+        $db = Flight::db();
+        try {
+            $db->beginTransaction();
+
+            // 1. Récupérer les infos du congé avant suppression
+            $stmt_old = $db->prepare("SELECT id_employe, date_debut, date_fin FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_old->execute([$id_demande_conge]);
+            $old_conge = $stmt_old->fetch(PDO::FETCH_ASSOC);
+
+            if ($old_conge) {
+                // 2. Réinitialiser le pointage
+                $pointageModel = new \app\models\ressourceHumaine\pointage\PointageModel();
+                $pointageModel->updatePointageStatusForDateRange($old_conge['id_employe'], $old_conge['date_debut'], $old_conge['date_fin'], 'Absent');
+            }
+            
+            // 3. Supprimer la validation et la demande
+            $stmt_del_val = $db->prepare("DELETE FROM validation_conge WHERE id_demande_conge = ?");
+            $stmt_del_val->execute([$id_demande_conge]);
+
+            $stmt_del_dem = $db->prepare("DELETE FROM demande_conge WHERE id_demande_conge = ?");
+            $stmt_del_dem->execute([$id_demande_conge]);
+
+            $db->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log("Erreur lors de la suppression du congé : " . $e->getMessage());
+            return false;
+        }
+    }
+
 
     /**
      * Calcule le solde de congé pour un employé à une date donnée.
@@ -280,17 +404,11 @@ class CongeModel
 
         $periodStart = $effectivePeriodStart->format('Y-m-d');
 
-        // Compter les jours de congé pris (pointage.statut = 'Congé') entre la date de début effective
-        // de la période (qui est max(activationDate, asOf-36months)) et la date de fin (asOf).
-        // Cela suit la règle: si activation_date >= asOf-36months alors interval = activation_date..asOf,
-        // sinon interval = (asOf-36months)..asOf.
-        $takenStart = $periodStart;
-
         // Compter les jours de congé pris (pointage.statut = 'Congé') dans l'intervalle approprié
         $stmt2 = $db->prepare(
             "SELECT COUNT(*) as taken FROM pointage WHERE id_employe = ? AND statut = 'Congé' AND date_pointage BETWEEN ? AND ?"
         );
-        $stmt2->execute([$id_employe, $takenStart, $asOf->format('Y-m-d')]);
+        $stmt2->execute([$id_employe, $periodStart, $asOf->format('Y-m-d')]);
         $takenRow = $stmt2->fetch(PDO::FETCH_ASSOC);
         $taken = isset($takenRow['taken']) ? (int) $takenRow['taken'] : 0;
 
@@ -308,4 +426,35 @@ class CongeModel
             'activation_date' => $activationDate->format('Y-m-d')
         ];
     }
+    /**
+     * Récupère tous les congés d'un employé pour un mois et une année donnés.
+     *
+     * @param int $id_employe L'identifiant de l'employé.
+     * @param int $mois Le mois à filtrer (1-12).
+     * @param int $annee L'année à filtrer.
+     * @return array
+     */
+    public function getAllCongeByEmployeAndDate(int $id_employe, int $mois, int $annee): array
+    {
+        try {
+            $db = Flight::db();
+            $sql = "SELECT * FROM view_total_conges 
+                    WHERE id_employe = :id_employe 
+                    AND mois = :mois 
+                    AND annee = :annee";
+                    
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                'id_employe' => $id_employe,
+                'mois' => $mois,
+                'annee' => $annee
+            ]);
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);  // Retourne tous les résultats
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return [];  // En cas d'erreur, retourne un tableau vide
+        }
+    }
+    
 }

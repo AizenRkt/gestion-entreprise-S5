@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des contrats d'essai - Mazer</title>
+    <title>Gestion des contrats de travail - Mazer</title>
 
     <link rel="shortcut icon" href="<?= Flight::base() ?>/public/template/assets/compiled/svg/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/app.css">
@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/simple-datatables/style.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/compiled/css/table-datatable.css">
     <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+    
+    <link rel="stylesheet" href="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/styles/choices.css">
+
 </head>
 
 <body>
@@ -31,7 +34,6 @@
                         <table class="table" id="tableContrats">
                             <thead>
                                 <tr>
-                                    <th>ID Contrat</th>
                                     <th>Candidat</th>
                                     <th>Date début</th>
                                     <th>Date fin</th>
@@ -60,7 +62,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="idContratEssai">
+
+                    <input type="hidden" id="idEmploye">
 
                     <div class="mb-3">
                         <label for="typeContrat" class="form-label">Type de contrat</label>
@@ -80,6 +83,23 @@
                         <label for="finContrat" class="form-label">Date de fin</label>
                         <input type="date" class="form-control" id="finContrat">
                         <small class="text-muted">Ne remplir que pour les CDD.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <select id="poste" class="choices form-select" name="poste">
+                                <option value="" disabled selected hidden>Choisissez un poste</option>
+                                <?php if (isset($postes)): ?>
+                                    <?php foreach ($postes as $poste): ?>
+                                        <option value="<?= htmlspecialchars($poste['id_poste']) ?>">
+                                            <?= htmlspecialchars($poste['titre']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <option disabled>Aucun poste disponible</option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -108,6 +128,9 @@
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/jquery/jquery.min.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/form-element-select.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function () {
@@ -122,15 +145,13 @@ $(document).ready(function () {
                 if (data.success && data.data.length > 0) {
                     let rows = [];
                     data.data.forEach(c => {
-                        // Pour chaque contrat valide, on met juste le bouton "Créer un contrat"
                         let actions = `
-                            <button class="btn btn-primary btn-sm creer-contrat" data-id="${c.id_contrat_essai}">
+                            <button class="btn btn-primary btn-sm creer-contrat" data-id="${c.id_employe}">
                                 Créer un contrat
                             </button>
                         `;
 
                         rows.push([
-                            c.id_contrat_essai,
                             c.nom + ' ' + c.prenom,
                             c.debut,
                             c.fin,
@@ -140,17 +161,13 @@ $(document).ready(function () {
                     });
                     table.rows.add(rows).draw(false);
                 } else {
-                    table.row.add(["Aucun contrat trouvé", "", "", "", "", ""]).draw();
+                    table.row.add(["Aucun contrat trouvé", "", "", "", ""]).draw();
                 }
             });
     }
 
     loadContrats();
 
-});
-</script>
-<script>
-$(document).ready(function() {
     // Afficher ou masquer le champ fin selon le type de contrat
     $('#typeContrat').on('change', function() {
         if ($(this).val() === 'CDI') {
@@ -161,10 +178,10 @@ $(document).ready(function() {
         }
     });
 
-    // Quand on clique sur "Créer un contrat" dans la table
+    // Ouverture du modal avec idEmploye
     $('#tableContrats').on('click', '.creer-contrat', function() {
-        const id = $(this).data('id');
-        $('#idContratEssai').val(id);
+        const idEmploye = $(this).data('id'); 
+        $('#idEmploye').val(idEmploye); 
         $('#typeContrat').val('');
         $('#debutContrat').val('');
         $('#finContrat').val('');
@@ -176,20 +193,37 @@ $(document).ready(function() {
         modal.show();
     });
 
-    // Soumission du formulaire
+    // Soumission du formulaire via fetch (GET)
     $('#formCreerContrat').on('submit', function(e) {
         e.preventDefault();
-        const idContratEssai = $('#idContratEssai').val();
+
+        const idEmploye = $('#idEmploye').val();
         const typeContrat = $('#typeContrat').val();
         const debut = $('#debutContrat').val();
         const fin = $('#finContrat').val();
         const salaire = $('#salaireBase').val();
         const signature = $('#dateSignature').val();
+        const poste = $('#poste').val();
 
-        // Redirection vers la route appropriée avec GET
-        let url = `<?= Flight::base() ?>/contratTravail/${typeContrat}/creer/${idContratEssai}?debut=${debut}&fin=${fin}&salaire_base=${salaire}&date_signature=${signature}`;
-        window.location.href = url;
+        const url = `<?= Flight::base() ?>/contratTravail/${typeContrat}/creer/${idEmploye}?debut=${encodeURIComponent(debut)}&fin=${encodeURIComponent(fin)}&salaire_base=${encodeURIComponent(salaire)}&date_signature=${encodeURIComponent(signature)}&poste=${encodeURIComponent(poste)}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(resp => {
+                if(resp.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('modalCreerContrat')).hide();
+                    loadContrats();
+                    Swal.fire('Succès', resp.message, 'success');
+                } else {
+                    Swal.fire('Erreur', resp.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Erreur', 'Impossible de créer le contrat', 'error');
+            });
     });
+
 });
 </script>
 

@@ -1,11 +1,32 @@
-<li class="sidebar-title">Compte</li>
+<!-- Ajout d'un style simple pour la notification -->
+<style>
+    .notification-dot {
+        height: 8px;
+        width: 8px;
+        background-color: #dc3545; /* Rouge Bootstrap Danger */
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 8px;
+        animation: pulse 1.5s infinite;
+    }
 
-<li class="sidebar-item">
-    <a href="<?= Flight::base() ?>/backOffice/user/pointage" class="sidebar-link">
-        <i class="bi bi-fingerprint"></i>
-        <span>Pointage</span>
-    </a>
-</li>
+    @keyframes pulse {
+        0% {
+            transform: scale(0.9);
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+        }
+        100% {
+            transform: scale(0.9);
+            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+        }
+    }
+</style>
+
+<li class="sidebar-title">Compte</li>
 
 <li class="sidebar-item">
     <a href="<?= Flight::base() ?>/auth/parametre" class="sidebar-link">
@@ -14,25 +35,58 @@
     </a>
 </li>
 
-<li class="sidebar-item">
-    <a href="<?= Flight::base() ?>/conge/demande" class="sidebar-link">
-        <i class="bi bi-calendar2-check"></i>
-        <span>Demander congé</span>
+<li class="sidebar-item  ">
+    <a href="<?= Flight::base() ?>/llm" class="sidebar-link">
+        <i class="bi bi-robot"></i>
+        <span>Terminator</span>
     </a>
 </li>
 
+<!-- <li class="sidebar-item  ">
+    <a href="/messenger" class="sidebar-link">
+        <i class="bi bi-messenger"></i>
+        <span>Messagerie</span>
+    </a>
+</li> -->
+
 <li class="sidebar-item">
-    <a href="<?= Flight::base() ?>/absence/demande" class="sidebar-link">
-        <i class="bi bi-person-x-fill"></i>
-        <span>Demander absence</span>
+    <a href="<?= Flight::base() ?>/backOffice/user/pointage" class="sidebar-link">
+        <i class="bi bi-fingerprint"></i>
+        <span>Pointage</span>
+        <?php if (Flight::checkinStatus() === 'checkin-needed'): ?>
+            <span class="notification-dot" title="Check-in requis"></span>
+        <?php endif; ?>
     </a>
 </li>
 
-<li class="sidebar-item">
-    <a href="<?= Flight::base() ?>/heureSupp/demande" class="sidebar-link">
-        <i class="bi bi-alarm-fill"></i>
-        <span>Demander heureSupp</span>
+<li class="sidebar-item has-sub">
+    <a href="#" class='sidebar-link'>
+        <i class="bi bi-person-bounding-box"></i> 
+        <span>Demande</span>
     </a>
+    <ul class="submenu">
+
+        <li class="submenu-item">
+            <a href="<?= Flight::base() ?>/conge/demande" class="sidebar-link">
+                <!-- <i class="bi bi-calendar2-check"></i> -->
+                <span>congé</span>
+            </a>
+        </li>
+
+        <li class="submenu-item">
+            <a href="<?= Flight::base() ?>/absence/demande" class="sidebar-link">
+                <!-- <i class="bi bi-person-x-fill"></i> -->
+                <span>absence</span>
+            </a>
+        </li>
+
+        <li class="submenu-item">
+            <a href="<?= Flight::base() ?>/heureSupp/demande" class="sidebar-link">
+                <!-- <i class="bi bi-alarm-fill"></i> -->
+                <span>heureSup</span>
+            </a>
+        </li>                                               
+    </ul>
 </li>
 
 <li class="sidebar-item">

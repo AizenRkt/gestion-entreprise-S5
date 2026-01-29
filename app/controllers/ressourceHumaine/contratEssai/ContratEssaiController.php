@@ -9,6 +9,7 @@ use app\models\ressourceHumaine\entretien\EntretienModel;
 use app\models\ressourceHumaine\annonce\Annonce;
 use app\models\ressourceHumaine\candidat\CandidatModel;
 use app\models\ressourceHumaine\employe\EmployeModel;
+use app\models\ressourceHumaine\document\DocumentModel;
 
 use DateTime;
 
@@ -212,11 +213,18 @@ class ContratEssaiController
             $pdf->SetFont('Arial','I',8);
             $pdf->Cell(0,10,$this->utf8_decode('Généré par le système RH Mazer - '.date('d/m/Y H:i')),0,0,'C');
 
+            $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/S5/gestion-entreprise-S5/public/uploads/data/document/';
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true); 
+            }
 
-            $nom_pdf = "contrat_essai_".$candidat['nom']."_".$candidat['prenom'].".pdf";
-            $pdf->Output('I', $nom_pdf);
-            
-            return $nom_pdf;
+            $nom_pdf = "contrat_essai_" . $candidat['nom'] . "_" . $candidat['prenom']."_".uniqid().".pdf";
+            $cheminComplet = $uploadDir . $nom_pdf;
+
+            $pdf->Output('F', $cheminComplet);
+
+            return $nom_pdf; 
+
 
         } catch (\Exception $e) {
             error_log("Erreur dans generatePdf: " . $e->getMessage());
@@ -249,7 +257,10 @@ class ContratEssaiController
             $this->insertContrat($id, $date_debut, $date_fin, $nom_pdf);
             
         } catch (\Throwable $th) {
-            throw $th;
+            Flight::json([
+                "success" => false,
+                "error" => $th->getMessage()
+            ], 500);        
         }
     }
 
