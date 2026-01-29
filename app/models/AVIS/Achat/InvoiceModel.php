@@ -21,6 +21,19 @@ class InvoiceModel
         }
     }
 
+    public function findById(int $id): ?array
+    {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare('SELECT f.*, r.reception_numero, s.nom AS supplier_name FROM facture_fournisseur f LEFT JOIN reception_fournisseur r ON f.id_reception_fournisseur = r.id_reception_fournisseur LEFT JOIN fournisseur s ON f.id_fournisseur = s.id_fournisseur WHERE f.id_facture_fournisseur = :id');
+            $stmt->execute(['id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            throw new Exception('Erreur lors de la récupération de la facture: ' . $e->getMessage());
+        }
+    }
+
     public function create(array $data): int
     {
         $number = trim($data['facture_numero'] ?? '');

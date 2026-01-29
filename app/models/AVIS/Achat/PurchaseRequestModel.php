@@ -112,6 +112,18 @@ class PurchaseRequestModel
         }
     }
 
+    public function listValidatedRequests(): array
+    {
+        try {
+            $db = Flight::db();
+            $sql = "SELECT da.id_demande_achat, da.numero, da.date_demande, da.montant_ttc, f.nom AS supplier_name FROM demande_achat da JOIN fournisseur f ON da.id_fournisseur = f.id_fournisseur WHERE da.statut = 'VISEE' ORDER BY da.date_demande DESC, da.id_demande_achat DESC";
+            $stmt = $db->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (PDOException $e) {
+            throw new Exception('Impossible de récupérer les demandes validées: ' . $e->getMessage());
+        }
+    }
+
     public function countRequests(): int
     {
         $db = Flight::db();
@@ -139,6 +151,19 @@ class PurchaseRequestModel
             return $header;
         } catch (PDOException $e) {
             throw new Exception('Erreur lors de la récupération de la demande: ' . $e->getMessage());
+        }
+    }
+
+    public function findById(int $id): ?array
+    {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare('SELECT * FROM demande_achat WHERE id_demande_achat = :id');
+            $stmt->execute(['id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            throw new Exception('Erreur lors de la récupération de la demande d\'achat: ' . $e->getMessage());
         }
     }
 

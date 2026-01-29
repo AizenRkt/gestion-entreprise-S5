@@ -37,7 +37,7 @@ CREATE TABLE article_famille (
 CREATE TABLE article_famille_status (
     id_article_famille_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('actif', 'inactif')
-)
+);
 
 CREATE TABLE article (
     id_article INT AUTO_INCREMENT PRIMARY KEY,
@@ -139,11 +139,13 @@ CREATE TABLE bon_commande_fournisseur (
     bc_date DATETIME NOT NULL,
     id_fournisseur INT NOT NULL,
     id_depot INT NOT NULL,
+    id_demande_achat INT,
     montant_ht DECIMAL(15,2) DEFAULT 0,
     montant_tva DECIMAL(15,2) DEFAULT 0,
     montant_ttc DECIMAL(15,2) DEFAULT 0,
     created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat)
 );
 CREATE TABLE bon_commande_fournisseur_status (
     id_bon_commande_fournisseur_status INT AUTO_INCREMENT PRIMARY KEY,

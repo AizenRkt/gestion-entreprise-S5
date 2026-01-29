@@ -21,6 +21,19 @@ class ReceptionModel
         }
     }
 
+    public function findById(int $id): ?array
+    {
+        try {
+            $db = Flight::db();
+            $stmt = $db->prepare('SELECT r.*, bc.bc_numero, f.nom AS supplier_name, d.nom AS depot_name FROM reception_fournisseur r LEFT JOIN bon_commande_fournisseur bc ON r.id_bon_commande_fournisseur = bc.id_bon_commande_fournisseur LEFT JOIN fournisseur f ON r.id_fournisseur = f.id_fournisseur LEFT JOIN depot d ON r.id_depot = d.id_depot WHERE r.id_reception_fournisseur = :id');
+            $stmt->execute(['id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (PDOException $e) {
+            throw new Exception('Erreur lors de la récupération de la réception: ' . $e->getMessage());
+        }
+    }
+
     public function create(array $data): int
     {
         $number = trim($data['reception_numero'] ?? '');

@@ -31,6 +31,12 @@
                 <?= Flight::userCard() ?>
 
                 <li class="sidebar-title">Achat</li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/avis/achat/dashboard" class="sidebar-link">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
                 <li class="sidebar-item has-sub">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-cart-check"></i>
@@ -42,6 +48,66 @@
                         </li>
                         <li class="submenu-item">
                             <a href="<?= Flight::base() ?>/avis/achat/demandes" class="submenu-link">Liste</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-receipt"></i>
+                        <span>Bons de commande</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/bc/nouveau" class="submenu-link">Saisie</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/bc" class="submenu-link">Liste</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Réceptions</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/receptions/nouveau" class="submenu-link">Saisie</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/receptions" class="submenu-link">Liste</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Factures fournisseurs</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/factures/nouveau" class="submenu-link">Saisie</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/factures" class="submenu-link">Liste</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Paiements fournisseurs</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/paiements/nouveau" class="submenu-link">Saisie</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/avis/achat/paiements" class="submenu-link">Liste</a>
                         </li>
                     </ul>
                 </li>

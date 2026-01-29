@@ -21,3 +21,24 @@ VALUES
 ((SELECT id_article FROM article WHERE code = 'AVFAR003'), 1, 25, 1625000.00, 65000.00),
 ((SELECT id_article FROM article WHERE code = 'AVSUC004'), 1, 40, 2080000.00, 52000.00),
 ((SELECT id_article FROM article WHERE code = 'AVHUI005'), 1, 60, 1080000.00, 18000.00);
+
+-- Dépôts et sites (achats)
+INSERT INTO depot (code, nom, adresse) VALUES
+('DEP-ANT-01', 'Dépôt Central Antananarivo', 'Andraharo - Zone industrielle'),
+('DEP-TAM-01', 'Dépôt Tamatave', 'Zone portuaire'),
+('DEP-TUL-01', 'Dépôt Tuléar', 'PK6 RN7');
+
+INSERT INTO site (code, nom) VALUES
+('SITE-ANT', 'Site Antananarivo'),
+('SITE-TAM', 'Site Tamatave');
+
+INSERT INTO site_depot (id_depot, id_site)
+SELECT d.id_depot, s.id_site FROM depot d, site s WHERE d.code = 'DEP-ANT-01' AND s.code = 'SITE-ANT';
+INSERT INTO site_depot (id_depot, id_site)
+SELECT d.id_depot, s.id_site FROM depot d, site s WHERE d.code = 'DEP-TAM-01' AND s.code = 'SITE-TAM';
+
+-- Modes de paiement (pour paiements fournisseurs)
+INSERT INTO mode_paiement (code, libelle) VALUES
+('VIR', 'Virement bancaire'),
+('ESP', 'Espèces'),
+('CHQ', 'Chèque');
