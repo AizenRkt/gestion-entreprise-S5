@@ -13,7 +13,7 @@ class PurchaseOrderModel
     {
         try {
             $db = Flight::db();
-            $sql = 'SELECT bc.id_bon_commande_fournisseur, bc.bc_numero, bc.bc_date, bc.id_fournisseur, bc.id_depot, bc.montant_ht, bc.montant_tva, bc.montant_ttc, bc.created_by, bc.created_at, f.nom AS supplier_name, d.nom AS depot_name FROM bon_commande_fournisseur bc LEFT JOIN fournisseur f ON bc.id_fournisseur = f.id_fournisseur LEFT JOIN depot d ON bc.id_depot = d.id_depot ORDER BY bc.created_at DESC';
+            $sql = 'SELECT bc.id_bon_commande_fournisseur, bc.bc_numero, bc.bc_date, bc.id_fournisseur, bc.id_depot, bc.id_demande_achat, bc.montant_ht, bc.montant_tva, bc.montant_ttc, bc.created_by, bc.created_at, f.nom AS supplier_name, d.nom AS depot_name, da.numero AS request_number FROM bon_commande_fournisseur bc LEFT JOIN fournisseur f ON bc.id_fournisseur = f.id_fournisseur LEFT JOIN depot d ON bc.id_depot = d.id_depot LEFT JOIN demande_achat da ON bc.id_demande_achat = da.id_demande_achat ORDER BY bc.created_at DESC';
             $stmt = $db->query($sql);
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (PDOException $e) {
@@ -53,8 +53,9 @@ class PurchaseOrderModel
         $supplierId = (int) ($data['id_fournisseur'] ?? 0);
         $depotId = (int) ($data['id_depot'] ?? 0);
         $createdBy = (int) ($data['created_by'] ?? 0);
+        $requestId = (int) ($data['id_demande_achat'] ?? 0);
 
-        if ($number === '' || $supplierId === 0 || $depotId === 0 || $createdBy === 0) {
+        if ($number === '' || $supplierId === 0 || $depotId === 0 || $createdBy === 0 || $requestId === 0) {
             throw new Exception('Champs requis manquants pour le bon de commande.');
         }
 
@@ -69,12 +70,13 @@ class PurchaseOrderModel
 
         try {
             $db = Flight::db();
-            $stmt = $db->prepare('INSERT INTO bon_commande_fournisseur (bc_numero, bc_date, id_fournisseur, id_depot, montant_ht, montant_tva, montant_ttc, created_by) VALUES (:bc_numero, :bc_date, :id_fournisseur, :id_depot, :montant_ht, :montant_tva, :montant_ttc, :created_by)');
+            $stmt = $db->prepare('INSERT INTO bon_commande_fournisseur (bc_numero, bc_date, id_fournisseur, id_depot, id_demande_achat, montant_ht, montant_tva, montant_ttc, created_by) VALUES (:bc_numero, :bc_date, :id_fournisseur, :id_depot, :id_demande_achat, :montant_ht, :montant_tva, :montant_ttc, :created_by)');
             $stmt->execute([
                 'bc_numero' => $number,
                 'bc_date' => date('Y-m-d H:i:s', $parsedDate),
                 'id_fournisseur' => $supplierId,
                 'id_depot' => $depotId,
+                'id_demande_achat' => $requestId,
                 'montant_ht' => $data['montant_ht'] ?? 0,
                 'montant_tva' => $data['montant_tva'] ?? 0,
                 'montant_ttc' => $data['montant_ttc'] ?? 0,

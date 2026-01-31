@@ -1,0 +1,171 @@
+    Cahier des charges — Application Web intégrée Achats / Ventes
+    / Stock / Inventaires (Grande entreprise)
+
+
+    1) Problématique et objectifs
+    Problématique
+   Processus achats/ventes/stocks dispersés (Excel, emails, ERP partiel)
+   Traçabilité insuffisante (qui a fait quoi / quand / pourquoi)
+   Risques : ruptures, surstock, pertes, erreurs de valorisation, fraude interne, non-
+    conformités
+
+   Objectifs
+   Centralisation des flux : achats → réception → stockage → sortie → vente →
+    facturation → inventaire
+   Standardisation des méthodes de gestion de stock (entrées/sorties, valorisation,
+    inventaires)
+   Renforcement du contrôle interne (séparation des tâches, validationsl)
+   Pilotage par KPI par rôle / service / site / entité
+   Réduction des délais, erreurs et écarts d’inventaire
+
+
+    2) Périmètre fonctionnel
+   Modules obligatoires
+   Référentiels (articles, fournisseurs, clients, dépôts, unités, taxes, tarifs)
+   Achats (demande d’achat →pro-forma → approbation → commande → réception →
+    facture fournisseur→ paiement)
+   Ventes (devis (pro-forma) → commande client → livraison → facture → encaissement)
+   Stocks (mouvements, transferts, réservations, lots/séries, emplacements)
+   Inventaires (inventaire tournant, inventaire annuel, écarts, ajustements contrôlés)
+   Tableaux de bord / reporting (KPI par rôle)
+   Administration / rôles / habilitations
+   Intégration RH ou via API
+
+    3) Hypothèses et contraintes SI
+   Multi-sites / multi-dépôts / multi-entités légales possible
+   Volumétrie élevée (articles, mouvements, utilisateurs)
+    4) Gouvernance, rôles et gestion des accès (point central)
+
+    4.1 Principes de sécurité et habilitations
+   RBAC (Role-Based Access Control) + ABAC (Attribute-Based Access Control)
+   RBAC : rôles (Acheteur, Magasinier, Vendeur, Contrôleur, DAF, etc.)
+   ABAC : restrictions par attributs (site, dépôt, famille d’articles, montant, département)
+   Modèle multi-dimension
+   Par département/service : Achats, Ventes, Magasin, Finance, Direction
+   Par hiérarchie : Opérateur → Superviseur → Manager → Directeur
+   Par périmètre : Site / dépôt / région /
+   Règles transverses : Règles générales qui s’appliquent à tous les modules et tous les rôles
+    (sécurité, cohérence, contrôle interne et traçabilité)
+   Principe du moindre privilège (Least Privilege) :
+
+
+    Exemple concret :
+
+         Un magasinier :
+             o peut enregistrer une réception et une sortie
+             o ne peut pas modifier les coûts, ni valider un ajustement de stock important
+         Un commercial :
+             o peut créer devis/commande
+             o ne peut pas appliquer une remise > plafond sans validation du responsable
+         Un acheteur :
+             o peut créer un bon de commande
+             o ne peut pas l’approuver si c’est lui-même le créateur
+
+    Bénéfices :
+
+           Réduction du risque de fraude / erreurs
+           Meilleure conformité (audit interne/externe)
+           Limitation de l’impact si un compte est compromis
+
+
+   Accès temporaire (délégation) avec expiration + justification
+   Double validation sur opérations sensibles (ex : ajustement de stock, annulation
+    facture)
+   Journalisation complète (historiques non modifiable)
+
+    4.2 Matrice de rôles
+   Achats
+   Demandeur (DA) : créer DA, suivre, pas de validation, pas de commande
+   Approbation. N1/N2/N3 : valider selon seuils (montant / catégorie / fournisseur)
+   Finance : Confirmer la disponibilité des fonds
+   Acheteur : transformer DA → BC, négocier, gérer fournisseurs
+   Responsable achats : valider BC au-delà seuil, débloquer litiges
+   DG ou DAF (signataires légaux) : Approuver le BC
+   Magasin / Stock
+   Magasinier réception : enregistrer réception, contrôler quantités, générer bon de
+    réception et contrôler BL avec réf BC (Réception partielle autorisée)
+   Magasinier sortie : préparer sortie/livraison, scanner, confirmer picking (article, quantité,
+    emplacement (zone), lot/série, lignes/heure, priorité,…)
+   Chef magasin : valider transferts, autoriser inventaires, initier demandes d’ajustement
+   Ventes
+   Commercial : devis/commande, remise plafonnée, pas de livraison sans stock réservé
+   Responsable ventes : validation remises élevées, annulation commande, déblocages
+   Finance
+   Rapprocher facture fournisseur vs réception vs BC (3-way match)
+   Comptable client : facturation, avoirs, contrôle TVA
+   DAF : validation exceptionnelle (seuils), via vue consolidée KPI
+
+    4.3 Séparation des tâches / Règles impératives
+
+   Même personne ne doit pas : créer + approuver une DA/BC
+   Même personne ne doit pas : réceptionner + valider facture fournisseur
+   Même personne ne doit pas : créer client + valider avoir + encaisser
+   Même personne ne doit pas : effectuer inventaire + valider ajustement
+
+
+    5) Méthodes de gestion de stock (à imposer par le système)
+
+    5.1 Règles de base – gestion des mouvements
+   Entrée : réception fournisseur, retour client, ajustement positif, transfert entrant
+   Sortie : livraison client, consommation interne, rebut, ajustement négatif, transfert
+    sortant
+
+   Chaque mouvement doit être tracé: référence document, date/heure, utilisateur,
+    dépôt, emplacement, quantités, coût
+   Numérotation automatique + non réutilisable
+   Réservation stock
+   Réservation à la commande client (configurable)
+   Allocation FIFO/FEFO selon nature produit (périssables → FEFO)
+   Lots / séries / DLUO (Date Limite d’Utilisation Optimale)/ DLC (Date Limite de Consommation))
+   Traçabilité lot obligatoire sur familles définies
+   Blocage automatique si lot expiré / non conforme
+
+    5.2 Valorisation stock
+   Méthodes supportées
+   FIFO / CUMP (coût moyen pondéré)
+   Règles de gel
+   Clôture mensuelle : gel des coûts / mouvements rétrodatés sous contrôle
+   Gestion des écarts de valorisation
+   Rapports : variation de coût, inventaire vs valorisation, écarts de marge
+
+
+    6) Les KPIs
+
+
+
+    6.1 KPI par département / rôle
+
+    Direction Générale / Comité de Direction
+   CA, marge brute, marge % (global + par Xts/site)
+   Valeur stock total + évolution (M-1, M-12)
+   Rotation stock (turnover)
+   Top 5 surstocks / obsolescence (valeur immobilisée)
+   Taux d’écarts inventaire (valeur + %)
+
+    Responsable Achats / Supply Chain
+   Cycle time DA→BC (médiane, P90)
+   Respect délais fournisseurs (OTD supplier)
+   Taux réception conforme (qualité/quantité)
+   Taux litiges facture (mismatch 3-way match)
+   Concentration fournisseurs (dépendance)
+   Évolution prix d’achat par article clé (index)
+   Taux de commandes urgentes (hors processus standard)
+
+    Magasin / Responsable Stock
+   Taux de précision stock (Théorique vs phusique)
+   Obsolescence / péremption (valeur, lots à risque)
+   Productivité préparation (lignes/heure, erreurs picking)
+   Temps de traitement réception (dock-to-stock)
+
+    Ventes / Responsable Commercial
+   Commandes en cours, livrées, en retard
+   Taux annulation commandes + motifs
+   Remises accordées vs plafond / exceptions
+   Avoirs : volume, valeur, causes (retour, erreur prix, casse)
+   Backlog non servi (stock insuffisant)
+
+    Finance / DAF
+   Rapprochement achats : factures bloquées (3-way mismatch)
+   Valeur stock comptable vs opérationnelle (écarts)
+   Variation de marge (prix vente vs coût)
+
