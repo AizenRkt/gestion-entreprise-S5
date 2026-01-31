@@ -28,6 +28,8 @@ require __DIR__ . '/routes/ressourceHumaine/jourFerieRoute.php';
 require __DIR__ . '/routes/ressourceHumaine/LLMRoute.php';
 
 require __DIR__ . '/routes/AVIS/KPI/KpiRoute.php';
+require __DIR__ . '/routes/AVIS/Achat/AchatRoute.php';
+require __DIR__ . '/routes/AVIS/Vente/VenteRoute.php';
 
 /** 
  * @var Router $router 

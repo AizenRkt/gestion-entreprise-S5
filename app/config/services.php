@@ -81,5 +81,9 @@ Flight::map('menuFrontOffice', function () {
 
 Flight::map('menuBackOffice', function () {
     $menu = Controller::getMenuByUser();
+    if (!$menu) {
+        return; // Pas de menu si utilisateur non connecté
+    }
+
     Flight::render($menu);
 });
