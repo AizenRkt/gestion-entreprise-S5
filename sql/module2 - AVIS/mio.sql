@@ -1,6 +1,3 @@
-DROP DATABASE IF EXISTS gestion_entreprise;
-CREATE DATABASE gestion_entreprise;
-USE gestion_entreprise;
 
 -- Supprimer les tables si elles existent déjà (optionnel - attention à la perte de données)
 -- DROP TABLE IF EXISTS ...; 
@@ -351,7 +348,7 @@ CREATE TABLE IF NOT EXISTS mouvement_stock_type (
 );
 
 CREATE TABLE IF NOT EXISTS mouvement_stock (
-    id_mouvement_stock BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
     id_lot INT,

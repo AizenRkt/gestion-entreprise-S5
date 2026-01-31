@@ -18,6 +18,7 @@
         <div class="sidebar-menu">
             <ul class="menu">
                 <?= Flight::userCard() ?>
+                
 
                 <li class="sidebar-title">Magasin - Entrée/Sortie</li>
 
@@ -33,6 +34,36 @@
                         <span>Sortie Stock</span>
                     </a>
                 </li>
+
+                <li class="sidebar-title">AVIS - Achats/Ventes</li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-cart-fill"></i>
+                        <span>Ventes</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/ventes" class="submenu-link">Tableau de bord</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/ventes/clients" class="submenu-link">Clients</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/ventes/commandes" class="submenu-link">Commandes</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/ventes/livraisons" class="submenu-link">Livraisons</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/ventes/factures" class="submenu-link">Factures</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/ventes/encaissements" class="submenu-link">Encaissements</a>
+                        </li>
+                    </ul>
+                </li>
+
 
                 <!-- partie compte -->
                 <?= Flight::userAccount() ?>
