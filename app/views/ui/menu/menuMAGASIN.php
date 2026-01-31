@@ -1,0 +1,42 @@
+<div id="sidebar">
+    <div class="sidebar-wrapper active">
+        <div class="sidebar-header position-relative">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="logo">
+                    <a href="<?= Flight::base() ?>/">
+                        <img src="<?= Flight::base() ?>/public/template/assets/compiled/svg/logo.svg" alt="Logo" srcset="">
+                    </a>
+                </div>
+                <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
+                    <!-- ...theme toggle icons... -->
+                </div>
+                <div class="sidebar-toggler  x">
+                    <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <ul class="menu">
+                <?= Flight::userCard() ?>
+
+                <li class="sidebar-title">Magasin - Entrée/Sortie</li>
+
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/stock/entree" class="sidebar-link">
+                        <i class="bi bi-box-arrow-in-down"></i>
+                        <span>Entrée Stock</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/stock/sortie" class="sidebar-link">
+                        <i class="bi bi-box-arrow-up"></i>
+                        <span>Sortie Stock</span>
+                    </a>
+                </li>
+
+                <!-- partie compte -->
+                <?= Flight::userAccount() ?>
+            </ul>
+        </div>
+    </div>
+</div>
