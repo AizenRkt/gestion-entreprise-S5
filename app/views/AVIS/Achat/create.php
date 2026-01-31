@@ -90,7 +90,7 @@
                                     <button type="button" class="btn btn-light btn-sm" id="resetBtn">Réinitialiser</button>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <a class="btn btn-outline-secondary" href="<?= Flight::get('flight.base_url') ?>/avis/achat/demandes">Annuler</a>
+                                        <a class="btn btn-outline-secondary" href="<?= Flight::base() ?>/avis/achat/demandes">Annuler</a>
                                         <button type="submit" class="btn btn-primary">Enregistrer</button>
                                     </div>
                                 </div>
