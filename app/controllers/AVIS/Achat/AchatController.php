@@ -99,7 +99,7 @@ class AchatController
                 'lines' => $lines,
             ]);
 
-            Flight::redirect(Flight::base() . '/avis/achat/demandes/' . $requestId);
+            Flight::redirect('/avis/achat/demandes/' . $requestId);
         } catch (Exception $e) {
             Flight::halt(400, 'Impossible d\'enregistrer la demande: ' . $e->getMessage());
         }
@@ -203,7 +203,7 @@ class AchatController
                 'created_by' => $_SESSION['user']['id_user'],
             ]);
 
-            Flight::redirect(Flight::base() . '/avis/achat/bc');
+            Flight::redirect('/avis/achat/bc');
         } catch (Exception $e) {
             Flight::halt(400, 'Impossible de créer le BC: ' . $e->getMessage());
         }
@@ -279,7 +279,7 @@ class AchatController
                 'created_by' => $_SESSION['user']['id_user'],
             ]);
 
-            Flight::redirect(Flight::base() . '/avis/achat/receptions');
+            Flight::redirect('/avis/achat/receptions');
         } catch (Exception $e) {
             Flight::halt(400, 'Impossible de créer la réception: ' . $e->getMessage());
         }
@@ -358,7 +358,7 @@ class AchatController
                 'created_by' => $_SESSION['user']['id_user'],
             ]);
 
-            Flight::redirect(Flight::base() . '/avis/achat/factures');
+            Flight::redirect('/avis/achat/factures');
         } catch (Exception $e) {
             Flight::halt(400, 'Impossible de créer la facture: ' . $e->getMessage());
         }
@@ -430,7 +430,7 @@ class AchatController
                 ],
             ]);
 
-            Flight::redirect(Flight::base() . '/avis/achat/paiements');
+            Flight::redirect('/avis/achat/paiements');
         } catch (Exception $e) {
             Flight::halt(400, 'Impossible d\'enregistrer le paiement: ' . $e->getMessage());
         }
@@ -467,7 +467,7 @@ class AchatController
 
         try {
             $this->purchaseRequestModel->updateStatus($id, 'VISEE', (int) $_SESSION['user']['id_user'], null);
-            Flight::redirect(Flight::base() . '/avis/achat/demandes/' . $id);
+            Flight::redirect('/avis/achat/demandes/' . $id);
         } catch (Exception $e) {
             Flight::halt(400, 'Impossible de valider la demande: ' . $e->getMessage());
         }
