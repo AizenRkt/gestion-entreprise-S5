@@ -46,6 +46,20 @@
                     </a>
                 </li>
 
+                <li class="sidebar-title">AVIS Dashboards</li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/ventes" class="sidebar-link">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard Ventes</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/avis/achat/dashboard" class="sidebar-link">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard Achats</span>
+                    </a>
+                </li>
+
                 <!-- partie compte -->
                 <?= Flight::userAccount() ?>
             </ul>

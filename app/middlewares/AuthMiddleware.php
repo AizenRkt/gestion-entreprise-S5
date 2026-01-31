@@ -28,9 +28,15 @@ class AuthMiddleware {
         // 3. Identifier si la route est protégée
         $matchedRules = null;
 
-        foreach ($permissions as $route => $rules) {
+        // Préférer la route la plus spécifique (plus longue) pour éviter les collisions de préfixe
+        $routes = array_keys($permissions);
+        usort($routes, function($a, $b) {
+            return strlen($b) <=> strlen($a);
+        });
+
+        foreach ($routes as $route) {
             if (strpos($requestPath, $route) === 0) {
-                $matchedRules = $rules; // tableau des rôles + services autorisés
+                $matchedRules = $permissions[$route]; // tableau des rôles + services autorisés
                 break;
             }
         }
