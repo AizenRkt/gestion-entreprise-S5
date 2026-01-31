@@ -2,7 +2,6 @@
 
 use app\controllers\AVIS\Achat\AchatController;
 use flight\net\Router;
-use Flight;
 
 /**
  * @var Router $router

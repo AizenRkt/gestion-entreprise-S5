@@ -217,13 +217,31 @@ INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/s
 INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/seeAllQcm', 'RH', 8);
 
 -- Employés (Gestion)
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/employes', 'Manager', 8);
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/employes', 'RH', 8);
+-- AVIS (Achats/Ventes) pour Magasinier (Employé, Gestion des Stocks)
+-- Ventes
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/ventes', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/ventes/clients', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/ventes/commandes', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/ventes/livraisons', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/ventes/factures', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/ventes/encaissements', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+
+-- Achats
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/dashboard', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/saisie', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/demandes', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/bc', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/bc/nouveau', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/receptions', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/receptions/nouveau', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/factures', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/factures/nouveau', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/paiements', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
+INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/avis/achat/paiements/nouveau', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
 
 
--- Contrats 
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/contratCrea', 'Administrateur', 8);
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/contratCrea', 'RH', 8);
+
 -- scoring
 -- ======================
 
@@ -313,16 +331,9 @@ INSERT INTO menu_ui (nom, id_service, role) VALUES('menuKPISTOCK', (SELECT id_se
 -- Menu pour Magasinier (Gestion des Stocks)
 INSERT INTO menu_ui (nom, id_service, role) VALUES('menuMAGASIN', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1), 'Employé');
 
--- Routes Magasinier: entrée et sortie de stock
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/stock/entree', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/stock/sortie', 'Employé', (SELECT id_service FROM service WHERE nom = 'Gestion des Stocks' LIMIT 1));
 
 -- Menu pour Validateur (Transport & Distribution)
 INSERT INTO menu_ui (nom, id_service, role) VALUES('menuLOG', (SELECT id_service FROM service WHERE nom = 'Transport & Distribution' LIMIT 1), 'Manager');
-
--- Route validation stock pour ce service
-INSERT INTO route_permissions (route_pattern, role_name, id_service) VALUES ('/stock/validation', 'Manager', (SELECT id_service FROM service WHERE nom = 'Transport & Distribution' LIMIT 1));
-
 
 INSERT INTO contrat_travail_type (titre, duree_min, duree_max, renouvelable, max_duree_renouvellement, max_nb_renouvellement) VALUES
 ('CDI', NULL, NULL, 0, NULL, NULL),

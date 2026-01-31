@@ -106,20 +106,7 @@ CREATE TABLE site_depot(
     id_site INT REFERENCES site(id_site)
 );
 
--- documents
-CREATE TABLE document_type (
-    id_document_type INT AUTO_INCREMENT PRIMARY KEY,
-    libelle VARCHAR(50) NOT NULL
-);
 
-CREATE TABLE document (
-    id_document INT AUTO_INCREMENT PRIMARY KEY,
-    id_document_type INT REFERENCES document_type(id_document_type),
-    reference VARCHAR(100) UNIQUE NOT NULL,
-    description VARCHAR(255),
-    date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    path VARCHAR(255) NOT NULL
-);
 
 CREATE TABLE document_status (
     id_document_status INT AUTO_INCREMENT PRIMARY KEY,
@@ -129,6 +116,48 @@ CREATE TABLE document_status (
 -- =========================================================
 -- achats / ventes
 -- =========================================================
+-- ==============================
+-- DEMANDE D'ACHAT
+-- ==============================
+CREATE TABLE demande_achat (
+    id_demande_achat INT AUTO_INCREMENT PRIMARY KEY,
+    numero VARCHAR(30) NOT NULL UNIQUE,
+    date_demande DATE NOT NULL,
+    id_fournisseur INT NOT NULL,
+    remarque TEXT,
+    statut ENUM('CREE','VISEE','REJETEE') DEFAULT 'CREE',
+    montant_ht DECIMAL(15,2) DEFAULT 0,
+    montant_tva DECIMAL(15,2) DEFAULT 0,
+    montant_ttc DECIMAL(15,2) DEFAULT 0,
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur)
+);
+
+CREATE TABLE demande_achat_ligne (
+    id_demande_achat_ligne INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_achat INT NOT NULL,
+    id_article INT,
+    code_article VARCHAR(50),
+    designation VARCHAR(200) NOT NULL,
+    quantite DECIMAL(15,3) NOT NULL,
+    prix_unitaire DECIMAL(15,2) NOT NULL,
+    tva DECIMAL(6,3) DEFAULT 0,
+    quantite_stock DECIMAL(15,3) DEFAULT 0,
+    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat) ON DELETE CASCADE,
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
+);
+
+CREATE TABLE demande_achat_statut (
+    id_demande_achat_statut INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_achat INT NOT NULL,
+    statut ENUM('CREE','VISEE','REJETEE') NOT NULL,
+    commentaire VARCHAR(255),
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat) ON DELETE CASCADE
+);
 
 -- =========================
 -- BON DE COMMANDE, RECEPTION, FACTURE, PAIEMENT FOURNISSEUR
@@ -335,7 +364,7 @@ CREATE TABLE mouvement_stock_type (
 );
 
 CREATE TABLE mouvement_stock (
-    id_mouvement_stock BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
 
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
@@ -373,6 +402,7 @@ CREATE TABLE mouvement_stock_status (
 );
 
 
+
 CREATE TABLE stock_courant (
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
@@ -385,47 +415,4 @@ CREATE TABLE stock_courant (
 
     PRIMARY KEY (id_article, id_depot),
     FOREIGN KEY (id_article) REFERENCES article(id_article)
-);
-
--- ==============================
--- DEMANDE D'ACHAT
--- ==============================
-CREATE TABLE demande_achat (
-    id_demande_achat INT AUTO_INCREMENT PRIMARY KEY,
-    numero VARCHAR(30) NOT NULL UNIQUE,
-    date_demande DATE NOT NULL,
-    id_fournisseur INT NOT NULL,
-    remarque TEXT,
-    statut ENUM('CREE','VISEE','REJETEE') DEFAULT 'CREE',
-    montant_ht DECIMAL(15,2) DEFAULT 0,
-    montant_tva DECIMAL(15,2) DEFAULT 0,
-    montant_ttc DECIMAL(15,2) DEFAULT 0,
-    created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur)
-);
-
-CREATE TABLE demande_achat_ligne (
-    id_demande_achat_ligne INT AUTO_INCREMENT PRIMARY KEY,
-    id_demande_achat INT NOT NULL,
-    id_article INT,
-    code_article VARCHAR(50),
-    designation VARCHAR(200) NOT NULL,
-    quantite DECIMAL(15,3) NOT NULL,
-    prix_unitaire DECIMAL(15,2) NOT NULL,
-    tva DECIMAL(6,3) DEFAULT 0,
-    quantite_stock DECIMAL(15,3) DEFAULT 0,
-    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat) ON DELETE CASCADE,
-    FOREIGN KEY (id_article) REFERENCES article(id_article)
-);
-
-CREATE TABLE demande_achat_statut (
-    id_demande_achat_statut INT AUTO_INCREMENT PRIMARY KEY,
-    id_demande_achat INT NOT NULL,
-    statut ENUM('CREE','VISEE','REJETEE') NOT NULL,
-    commentaire VARCHAR(255),
-    created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat) ON DELETE CASCADE
 );
