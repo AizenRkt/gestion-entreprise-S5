@@ -132,7 +132,7 @@ document.getElementById('articleForm').addEventListener('submit', async (e)=>{
     try {
         let res;
         if (!id) {
-            res = await fetchJSON(base + '/api/referentiel/articles/create', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+            res = await fetchJSON(base + '/api/referentiel/articles', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
         } else {
             res = await fetchJSON(base + '/api/referentiel/articles/' + id, {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
         }

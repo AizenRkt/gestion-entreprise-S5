@@ -74,6 +74,18 @@
                                                 <option value="">-- Aucun --</option>
                                             </select>
                                         </div>
+                                        <div class="col-md-6" id="lotNumberDiv" style="display: none;">
+                                            <label class="form-label">Numéro du lot</label>
+                                            <input type="text" class="form-control" id="lot_numero" placeholder="Ex: LAIT-2025-001">
+                                        </div>
+                                        <div class="col-md-6" id="dluoDiv" style="display: none;">
+                                            <label class="form-label">DLUO (Date limite utilisation optimale)</label>
+                                            <input type="date" class="form-control" id="date_limite_utilisation_optimale">
+                                        </div>
+                                        <div class="col-md-6" id="dlcDiv" style="display: none;">
+                                            <label class="form-label">DLC (Date limite consommation)</label>
+                                            <input type="date" class="form-control" id="date_limite_consommation">
+                                        </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Quantité</label>
                                             <input type="number" step="0.001" class="form-control" id="quantite" placeholder="Ex: 10" required>
@@ -238,38 +250,142 @@ async function refreshStockAndLots() {
         ul.innerHTML = '';
         lots.data.forEach(l => {
             const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center';
-            li.innerHTML = `<span><strong>${l.lot_numero}</strong> • entrée: ${l.date_entree}</span><span class="badge bg-light text-dark">Qté init: ${l.quantite_initiale} • Coût: ${l.cout_unitaire}</span>`;
+            li.className = 'list-group-item';
+            const dluo = l.date_limite_utilisation_optimale ? l.date_limite_utilisation_optimale : 'N/A';
+            const dlc = l.date_limite_consommation ? l.date_limite_consommation : 'N/A';
+            li.innerHTML = `<div class="d-flex justify-content-between"><span><strong>${l.lot_numero}</strong> • entrée: ${l.date_entree}</span><span class="badge bg-light text-dark">Qté init: ${l.quantite_initiale} • Coût: ${l.cout_unitaire}</span></div><div class="small text-muted mt-1">DLUO: ${dluo} • DLC: ${dlc}</div>`;
             ul.appendChild(li);
         });
         const lotSel = document.getElementById('id_lot');
         lotSel.innerHTML = '<option value="">-- Aucun --</option>';
         lots.data.forEach(l => {
             const opt = document.createElement('option');
+            const dluo = l.date_limite_utilisation_optimale ? l.date_limite_utilisation_optimale : 'N/A';
+            const dlc = l.date_limite_consommation ? l.date_limite_consommation : 'N/A';
             opt.value = l.id_lot;
-            opt.textContent = `${l.lot_numero} - ${new Date(l.date_entree).toLocaleDateString()}`;
+            opt.textContent = `${l.lot_numero} - ${new Date(l.date_entree).toLocaleDateString()} | DLUO: ${dluo} | DLC: ${dlc}`;
             lotSel.appendChild(opt);
         });
     }
 }
 
-document.getElementById('id_article').addEventListener('change', refreshStockAndLots);
+// Afficher/masquer les champs de péremption selon le contexte
+async function togglePeremptionFields() {
+    const typeSelect = document.getElementById('id_type_mouvement_stock');
+    const articleSelect = document.getElementById('id_article');
+    const lotSelect = document.getElementById('id_lot');
+    const lotNumberDiv = document.getElementById('lotNumberDiv');
+    const dluoDiv = document.getElementById('dluoDiv');
+    const dlcDiv = document.getElementById('dlcDiv');
+    
+    if (!typeSelect || !articleSelect || !lotSelect) return;
+    
+    const selectedOpt = typeSelect.options[typeSelect.selectedIndex];
+    const categorie = selectedOpt ? selectedOpt.dataset.categorie : '';
+    const isEntree = categorie == '1'; // 1 = entrée
+    const articleId = articleSelect.value;
+    
+    let showFields = false;
+    let showLotNumber = false;
+    
+    if (isEntree && articleId) {
+        // Charger la famille de l'article pour vérifier necessite_lot
+        try {
+            const res = await fetch(`${base}/api/referentiel/articles/${articleId}`);
+            const json = await res.json();
+            if (json.success && json.data) {
+                const article = json.data;
+                const necessite_lot = article.necessite_lot === 1 || article.necessite_lot === true;
+                const idLot = lotSelect.value;
+                
+                if (necessite_lot) {
+                    showFields = true;
+                    // Si aucun lot sélectionné, afficher le champ lot_numero pour créer un nouveau
+                    if (!idLot) {
+                        showLotNumber = true;
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Erreur lors du chargement de l\'article:', err);
+        }
+    }
+    
+    // Appliquer la visibilité
+    if (lotNumberDiv) lotNumberDiv.style.display = showLotNumber ? 'block' : 'none';
+    if (dluoDiv) dluoDiv.style.display = showFields ? 'block' : 'none';
+    if (dlcDiv) dlcDiv.style.display = showFields ? 'block' : 'none';
+}
+
+document.getElementById('id_article').addEventListener('change', async () => {
+    await refreshStockAndLots();
+    await togglePeremptionFields();
+});
 document.getElementById('id_depot').addEventListener('change', refreshStockAndLots);
+document.getElementById('id_type_mouvement_stock').addEventListener('change', togglePeremptionFields);
+document.getElementById('id_lot').addEventListener('change', togglePeremptionFields);
 
 document.getElementById('mvtForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    let idLot = document.getElementById('id_lot').value;
+    const lotNumber = document.getElementById('lot_numero').value;
+    const dluo = document.getElementById('date_limite_utilisation_optimale').value;
+    const dlc = document.getElementById('date_limite_consommation').value;
+    const quantite = parseFloat(document.getElementById('quantite').value || '0');
+    const coutUnitaire = document.getElementById('cout_unitaire').value;
+    
+    // Si c'est une entrée et qu'il y a un nouveau lot à créer
+    let newLotId = null;
+    if (idLot === '' && lotNumber) {
+        const typeSelect = document.getElementById('id_type_mouvement_stock');
+        const selectedOpt = typeSelect.options[typeSelect.selectedIndex];
+        const categorie = selectedOpt ? selectedOpt.dataset.categorie : '';
+        const isEntree = categorie == '1';
+        
+        if (isEntree) {
+            const lotPayload = {
+                id_article: parseInt(document.getElementById('id_article').value || '0'),
+                id_depot: parseInt(document.getElementById('id_depot').value || '0'),
+                lot_numero: lotNumber,
+                cout_unitaire: coutUnitaire ? parseFloat(coutUnitaire) : 0,
+                quantite_initiale: quantite,
+                date_limite_utilisation_optimale: dluo || null,
+                date_limite_consommation: dlc || null
+            };
+            
+            try {
+                const lotRes = await fetch(base + '/api/stock/lots/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lotPayload)
+                });
+                const lotJson = await lotRes.json();
+                if (!lotJson.success) {
+                    toast(lotJson.message || 'Erreur à la création du lot', 'error');
+                    return;
+                }
+                // Stocker l'ID du nouveau lot dans une variable (le select ne peut pas accepter une valeur hors options)
+                newLotId = lotJson.data.id_lot;
+            } catch (err) {
+                toast('Erreur à la création du lot: ' + err.message, 'error');
+                return;
+            }
+        }
+    }
+    
     const payload = {
         id_article: parseInt(document.getElementById('id_article').value || '0'),
         id_depot: parseInt(document.getElementById('id_depot').value || '0'),
-        id_lot: document.getElementById('id_lot').value || null,
+        id_lot: newLotId || (idLot ? parseInt(idLot) : null),
         id_type_mouvement_stock: parseInt(document.getElementById('id_type_mouvement_stock').value || '0'),
         sens: (() => {
             const sel = document.getElementById('id_type_mouvement_stock');
             const cat = sel.options[sel.selectedIndex]?.dataset.categorie;
             return cat == '1' ? 1 : 0; // 1=in, 0=out
         })(),
-        quantite: parseFloat(document.getElementById('quantite').value || '0'),
-        cout_unitaire: document.getElementById('cout_unitaire').value ? parseFloat(document.getElementById('cout_unitaire').value) : null,
+        quantite: quantite,
+        cout_unitaire: coutUnitaire ? parseFloat(coutUnitaire) : null,
         motif: document.getElementById('motif').value || null,
         date_mouvement: document.getElementById('date_mouvement').value.replace('T', ' ')
     };
@@ -289,6 +405,7 @@ document.getElementById('mvtForm').addEventListener('submit', async (e) => {
         toast('Mouvement enregistré');
         refreshStockAndLots();
         document.getElementById('mvtForm').reset();
+        await togglePeremptionFields();
     } else {
         toast(json.message || 'Erreur à l\'enregistrement', 'error');
     }

@@ -12,6 +12,10 @@ $controller = new MouvStockController();
 $router->get('/stock/mouvement/list', [$controller, 'mouvementStockList']);
 $router->get('/stock/mouvement/saisie', [$controller, 'mouvementStockSaisie']);
 $router->get('/stock/mouvement/@id/valider', [$controller, 'mouvementStockValidation']);
+// Mouvement detail page
+$router->get('/stock/mouvement/@id', [$controller, 'mouvementStockDetail']);
+
+// Detail pages
 
 // Admin settings page
 $router->get('/stock/admin/settings', [$controller, 'adminStockSettings']);

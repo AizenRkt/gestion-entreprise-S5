@@ -10,7 +10,7 @@ class ArticleModel {
         try {
             $db = Flight::db();
             $stmt = $db->query("
-                SELECT a.*, af.nom AS famille_nom, mv.code AS valorisation_libelle 
+                SELECT a.*, af.nom AS famille_nom, af.necessite_lot, mv.code AS valorisation_libelle 
                 FROM article a 
                 LEFT JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille 
                 LEFT JOIN methode_valorisation mv ON a.id_methode_valorisation = mv.id_methode_valorisation 
@@ -26,7 +26,7 @@ class ArticleModel {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                SELECT a.*, af.nom AS famille_nom, af.code AS famille_code, mv.libelle AS valorisation_libelle 
+                SELECT a.*, af.nom AS famille_nom, af.code AS famille_code, af.necessite_lot, mv.libelle AS valorisation_libelle 
                 FROM article a 
                 LEFT JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille 
                 LEFT JOIN methode_valorisation mv ON a.id_methode_valorisation = mv.id_methode_valorisation 
@@ -43,7 +43,7 @@ class ArticleModel {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                SELECT a.*, af.nom AS famille_nom, mv.libelle AS valorisation_libelle 
+                SELECT a.*, af.nom AS famille_nom, af.necessite_lot, mv.libelle AS valorisation_libelle 
                 FROM article a 
                 LEFT JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille 
                 LEFT JOIN methode_valorisation mv ON a.id_methode_valorisation = mv.id_methode_valorisation 
@@ -128,7 +128,7 @@ class ArticleModel {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                SELECT a.*, af.nom AS famille_nom, mv.libelle AS valorisation_libelle 
+                SELECT a.*, af.nom AS famille_nom, af.necessite_lot, mv.libelle AS valorisation_libelle 
                 FROM article a 
                 LEFT JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille 
                 LEFT JOIN methode_valorisation mv ON a.id_methode_valorisation = mv.id_methode_valorisation 
@@ -148,7 +148,7 @@ class ArticleModel {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                SELECT a.*, af.nom AS famille_nom, mv.libelle AS valorisation_libelle 
+                SELECT a.*, af.nom AS famille_nom, af.necessite_lot, mv.libelle AS valorisation_libelle 
                 FROM article a 
                 LEFT JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille 
                 LEFT JOIN methode_valorisation mv ON a.id_methode_valorisation = mv.id_methode_valorisation 
@@ -166,7 +166,7 @@ class ArticleModel {
         try {
             $db = Flight::db();
             $stmt = $db->query("
-                SELECT a.*, af.nom AS famille_nom, mv.libelle AS valorisation_libelle 
+                SELECT a.*, af.nom AS famille_nom, af.necessite_lot, mv.libelle AS valorisation_libelle 
                 FROM article a 
                 LEFT JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille 
                 LEFT JOIN methode_valorisation mv ON a.id_methode_valorisation = mv.id_methode_valorisation 

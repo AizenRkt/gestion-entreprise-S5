@@ -26,6 +26,12 @@ class MouvStockController
         Flight::render('AVIS/stock/mouvStockValidate', ['id_mouvement_stock' => (int)$id]);
     }
 
+    public function mouvementStockDetail($id)
+    {
+        Flight::render('AVIS/stock/mouvStockDetail', ['id_mouvement_stock' => (int)$id]);
+    }
+
+
     public function adminStockSettings()
     {
         Flight::render('AVIS/stock/adminSettings');

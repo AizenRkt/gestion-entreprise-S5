@@ -156,3 +156,4 @@ INSERT INTO document_avis (id_document_type, reference, description, path) VALUE
 (6, 'AS-2025-001', 'Avis de sortie stock - Savon 250g', '/documents/avis/sortie/AS-2025-001.pdf'),
 -- Inventaire
 (7, 'INV-2025-001', 'Inventaire annuel Dépôt Central Antananarivo', '/documents/inventaires/INV-2025-001.pdf');
+

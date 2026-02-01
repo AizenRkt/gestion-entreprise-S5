@@ -45,7 +45,7 @@ class LotModel {
      * $method: 'fifo' (date_entree ASC), 'lifo' (date_entree DESC) ou 'fefo' (date_limite_consommation/DUO ASC)
      * Exclut les lots expirés (DLC/DLUO passée).
      */
-    public static function getAvailableForAllocation(int $id_article, int $id_depot, string $method = 'fifo'): array {
+    public static function getAvailableForAllocation(int $id_article, int $id_depot, string $method = 'fifo', ?string $referenceDate = null): array {
         $db = Flight::db();
         $sql = "SELECT l.*, 
             (l.quantite_initiale - COALESCE(SUM(d.quantite),0)) AS quantite_restante
@@ -56,16 +56,32 @@ class LotModel {
         $stmt = $db->prepare($sql);
         $stmt->execute([':a' => $id_article, ':d' => $id_depot]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $today = new \DateTime('today');
+        $pivot = null;
+        if ($referenceDate) {
+            try {
+                $pivot = new \DateTime($referenceDate);
+            } catch (\Exception $e) {
+                $pivot = null;
+            }
+        }
+        if (!$pivot) {
+            $pivot = new \DateTime('today');
+        }
         // filtre expirés et > 0
-        $rows = array_values(array_filter($rows, function($r) use ($today) {
+        $rows = array_values(array_filter($rows, function($r) use ($pivot) {
             $rest = (float)($r['quantite_restante'] ?? 0);
             if ($rest <= 0) return false;
             $dlc = !empty($r['date_limite_consommation']) ? new \DateTime($r['date_limite_consommation']) : null;
             $dluo = !empty($r['date_limite_utilisation_optimale']) ? new \DateTime($r['date_limite_utilisation_optimale']) : null;
             // blocage si lot expiré
-            if ($dlc && $dlc < $today) return false;
-            if ($dluo && $dluo < $today) return false;
+            if ($dlc) {
+                $dlc->setTime(23, 59, 59);
+                if ($pivot > $dlc) return false;
+            }
+            if ($dluo) {
+                $dluo->setTime(23, 59, 59);
+                if ($pivot > $dluo) return false;
+            }
             return true;
         }));
         // tri
@@ -86,9 +102,9 @@ class LotModel {
      * Alloue une quantité demandée sur les lots disponibles selon $method.
      * Retour: [ ['id_lot'=>..., 'quantite'=>..., 'cout_unitaire'=>...], ... ]
      */
-    public static function allocateQuantity(int $id_article, int $id_depot, float $quantiteDemandee, string $method = 'fifo'): array {
+    public static function allocateQuantity(int $id_article, int $id_depot, float $quantiteDemandee, string $method = 'fifo', ?string $referenceDate = null): array {
         if ($quantiteDemandee <= 0) { throw new \Exception('Quantité demandée doit être > 0'); }
-        $lots = self::getAvailableForAllocation($id_article, $id_depot, $method);
+        $lots = self::getAvailableForAllocation($id_article, $id_depot, $method, $referenceDate);
         $remaining = $quantiteDemandee;
         $allocs = [];
         foreach ($lots as $lot) {

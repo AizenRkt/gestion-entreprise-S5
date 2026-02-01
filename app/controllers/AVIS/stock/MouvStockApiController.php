@@ -145,6 +145,7 @@ class MouvStockApiController
 					$pdf->Cell(35,8, (string)$d['cout_unitaire'], 1, 0, 'R');
 					$pdf->Cell(35,8, (string)$d['valeur'], 1, 1, 'R');
 				}
+
 			}
 
 			$filename = 'mouvement_' . $id . '_details.pdf';
@@ -157,21 +158,50 @@ class MouvStockApiController
 
 	public static function createMovement() {
 		try {
-			$req = Flight::request()->data;
+			$req = json_decode(Flight::request()->getBody(), true) ?? [];
+
+			// Debug: log the received request
+			error_log("DEBUG: Received request data: " . json_encode($req));
+			error_log("DEBUG: cout_unitaire value: " . var_export($req['cout_unitaire'] ?? 'NOT SET', true));
+
 			$payload = [
-				'id_article' => (int)($req->id_article ?? 0),
-				'id_depot' => (int)($req->id_depot ?? 0),
-				'id_lot' => $req->id_lot ?? null,
-				'id_type_mouvement_stock' => (int)($req->id_type_mouvement_stock ?? 0),
-				'id_reference' => (int)($req->id_reference ?? 0),
-				'table_reference' => $req->table_reference ?? null,
-				'sens' => (int)($req->sens ?? 0),
-				'quantite' => (float)($req->quantite ?? 0),
-				'cout_unitaire' => isset($req->cout_unitaire) ? (float)$req->cout_unitaire : null,
-				'motif' => $req->motif ?? null,
-				'date_mouvement' => $req->date_mouvement ?? date('Y-m-d H:i:s'),
+				'id_article' => (int)($req['id_article'] ?? 0),
+				'id_depot' => (int)($req['id_depot'] ?? 0),
+				'id_lot' => $req['id_lot'] ?? null,
+				'id_type_mouvement_stock' => (int)($req['id_type_mouvement_stock'] ?? 0),
+				'id_reference' => (int)($req['id_reference'] ?? 0),
+				'table_reference' => $req['table_reference'] ?? null,
+				'sens' => (int)($req['sens'] ?? 0),
+				'quantite' => (float)($req['quantite'] ?? 0),
+				'cout_unitaire' => isset($req['cout_unitaire']) && $req['cout_unitaire'] !== null && $req['cout_unitaire'] !== '' ? (float)$req['cout_unitaire'] : null,
+				'motif' => $req['motif'] ?? null,
+				'date_mouvement' => $req['date_mouvement'] ?? date('Y-m-d H:i:s'),
 				'created_by' => (int)($_SESSION['user']['id_user'] ?? 0)
 			];
+
+			// Validate DLC and DLUO
+			$db = Flight::db();
+			$lotQuery = $db->prepare("SELECT date_limite_consommation, date_limite_utilisation_optimale FROM lot WHERE id_lot = :id_lot LIMIT 1");
+			$lotQuery->execute([':id_lot' => $payload['id_lot']]);
+			$lot = $lotQuery->fetch(\PDO::FETCH_ASSOC);
+
+			if ($lot) {
+				$dateMouvement = new \DateTime($payload['date_mouvement']);
+
+				if ($lot['date_limite_consommation'] && $dateMouvement > new \DateTime($lot['date_limite_consommation'])) {
+					Flight::halt(400, 'Le mouvement ne peut pas être validé car la DLC est dépassée.');
+				}
+
+				if ($lot['date_limite_utilisation_optimale'] && $dateMouvement > new \DateTime($lot['date_limite_utilisation_optimale'])) {
+					// Allow only if the movement type permits it (e.g., discounted sales)
+					$allowedTypes = [/* Add allowed movement type IDs here */];
+					if (!in_array($payload['id_type_mouvement_stock'], $allowedTypes)) {
+						Flight::halt(400, 'Le mouvement ne peut pas être validé car la DLUO est dépassée.');
+					}
+				}
+			}
+
+			error_log("DEBUG: Payload cout_unitaire: " . var_export($payload['cout_unitaire'], true));
 
 			$model = new MouvStockModel();
 			$id = $model->insert($payload);
@@ -208,7 +238,7 @@ class MouvStockApiController
 			$valuation = strtolower($req->query->valuation ?? 'auto'); // 'cump'|'fifo'|'lifo'|'auto'
 			$allocation = strtolower($req->query->allocation ?? 'auto'); // 'fifo'|'fefo'|'lifo'|'auto'
 
-			$mv = MouvStockModel::getById($id);
+			$mv = MouvStockModel::getById((int)$id);
 			if (!$mv) { Flight::json(['success' => false, 'message' => 'Mouvement introuvable'], 404); return; }
 			if (!empty($mv['date_validation'])) { Flight::json(['success' => false, 'message' => 'Déjà validé'], 400); return; }
 
@@ -232,21 +262,24 @@ class MouvStockApiController
 				$typeCode = strtoupper((string)($tc->fetch(\PDO::FETCH_ASSOC)['code'] ?? ''));
 			} catch (\Exception $ignore) {}
 
+			$articleMethodCode = '';
 			// Enforce per-article defaults for valuation/allocation when 'auto'
 			try {
 				$st = $db->prepare("SELECT a.id_methode_valorisation, mv.code AS methode_code, a.allocation_defaut FROM article a LEFT JOIN methode_valorisation mv ON mv.id_methode_valorisation = a.id_methode_valorisation WHERE a.id_article = :id LIMIT 1");
 				$st->execute([':id' => $article]);
 				$row = $st->fetch(\PDO::FETCH_ASSOC) ?: [];
-				if ($valuation === 'auto') {
-					$valuation = strtolower($row['methode_code'] ?? 'cump');
+				$articleMethodCode = strtolower($row['methode_code'] ?? '');
+				if ($valuation === 'auto' || $valuation === '') {
+					$valuation = $articleMethodCode ?: 'cump';
 				}
-				if ($allocation === 'auto') {
-					$allocationDefault = strtolower($row['allocation_defaut'] ?? 'auto');
-					$allocation = $allocationDefault;
+				if ($allocation === 'auto' || $allocation === '') {
+					$allocationDefault = strtolower($row['allocation_defaut'] ?? '');
+					$allocation = in_array($allocationDefault, ['fifo','lifo','fefo'], true) ? $allocationDefault : 'auto';
 				}
 			} catch (\Exception $e) {
 				// fallback silently if referential not found
 			}
+			$lotValuationMethods = ['fifo','lifo','fefo'];
 
 			// Check if article's family requires lot traceability (column may not exist on older DBs)
 			$requiresLot = false;
@@ -260,44 +293,64 @@ class MouvStockApiController
 				$requiresLot = false;
 			}
 
-			// If lot is required for this article family and this is a sortie, enforce rules
+			// If lot is required for this article family and this is a sortie, enforce rules while auto-selecting lots when needed
 			if ($requiresLot && (int)$sens !== 1) {
-				// If a specific lot was provided, ensure it's not expired
+				if (!in_array($valuation, $lotValuationMethods, true)) {
+					if (in_array($allocation, $lotValuationMethods, true)) {
+						$valuation = $allocation;
+					} elseif (in_array($articleMethodCode, $lotValuationMethods, true)) {
+						$valuation = $articleMethodCode;
+					} else {
+						$valuation = 'fifo';
+					}
+				}
+				if (!in_array($allocation, $lotValuationMethods, true)) {
+					if (in_array($valuation, $lotValuationMethods, true)) {
+						$allocation = $valuation;
+					} elseif (in_array($articleMethodCode, $lotValuationMethods, true)) {
+						$allocation = $articleMethodCode;
+					} else {
+						$allocation = 'fifo';
+					}
+				}
+				$previewMethod = in_array($allocation, $lotValuationMethods, true) ? $allocation : $valuation;
+				if (!in_array($previewMethod, $lotValuationMethods, true)) {
+					$previewMethod = $valuation === 'fefo' ? 'fefo' : ($valuation === 'lifo' ? 'lifo' : 'fifo');
+				}
+				$movementDate = $mv['date_mouvement'] ?? null;
 				if (!empty($mv['id_lot'])) {
 					try {
 						$lt = $db->prepare("SELECT date_limite_consommation, date_limite_utilisation_optimale FROM lot WHERE id_lot = :id LIMIT 1");
 						$lt->execute([':id' => (int)$mv['id_lot']]);
 						$lotRow = $lt->fetch(\PDO::FETCH_ASSOC) ?: [];
-						$today = new \DateTime('today');
+						$reference = null;
+						if ($movementDate) {
+							try { $reference = new \DateTime($movementDate); } catch (\Exception $ignore) { $reference = null; }
+						}
+						if (!$reference) { $reference = new \DateTime('today'); }
 						if (!empty($lotRow['date_limite_consommation'])) {
 							$dlc = new \DateTime($lotRow['date_limite_consommation']);
-							if ($dlc < $today) { Flight::json(['success' => false, 'message' => 'Le lot sélectionné est expiré et ne peut pas être utilisé.'], 400); return; }
+							$dlc->setTime(23, 59, 59);
+							if ($reference > $dlc) { Flight::json(['success' => false, 'message' => 'Le lot sélectionné est expiré et ne peut pas être utilisé.'], 400); return; }
 						}
 						if (!empty($lotRow['date_limite_utilisation_optimale'])) {
 							$dluo = new \DateTime($lotRow['date_limite_utilisation_optimale']);
-							if ($dluo < $today) { Flight::json(['success' => false, 'message' => 'Le lot sélectionné est expiré (DLUO dépassée) et ne peut pas être utilisé.'], 400); return; }
+							$dluo->setTime(23, 59, 59);
+							if ($reference > $dluo) { Flight::json(['success' => false, 'message' => 'Le lot sélectionné est expiré (DLUO dépassée) et ne peut pas être utilisé.'], 400); return; }
 						}
 					} catch (\Exception $e) {
 						// ignore and let allocation logic handle missing lot
 					}
 				} else {
-					// No specific lot given: require valuation by lots (fifo/lifo/fefo)
-					if ($valuation === 'cump') {
-						Flight::json(['success' => false, 'message' => 'Traçabilité lot obligatoire pour cet article : sélectionnez un lot ou utilisez une valorisation par lots (FIFO/LIFO/FEFO).'], 400);
-						return;
-					} else {
-						// Ensure there are available lots to allocate
-						try {
-							$available = \app\models\AVIS\stock\LotModel::getAvailableForAllocation($article, $depot, $valuation === 'lifo' ? 'lifo' : 'fifo');
-							if (empty($available)) {
-								Flight::json(['success' => false, 'message' => 'Aucun lot disponible pour allocation — la traçabilité lot est requise pour cet article.'], 400);
-								return;
-							}
-						} catch (\Exception $e) {
-							// If allocation check fails, block to be safe
-							Flight::json(['success' => false, 'message' => 'Impossible de vérifier la disponibilité des lots.'], 500);
+					try {
+						$available = LotModel::getAvailableForAllocation($article, $depot, $previewMethod, $movementDate);
+						if (empty($available)) {
+							Flight::json(['success' => false, 'message' => 'Aucun lot disponible pour allocation — la traçabilité lot est requise pour cet article.'], 400);
 							return;
 						}
+					} catch (\Exception $e) {
+						Flight::json(['success' => false, 'message' => 'Impossible de vérifier la disponibilité des lots.'], 500);
+						return;
 					}
 				}
 			}
@@ -334,25 +387,35 @@ class MouvStockApiController
 				return;
 			}
 
-			// Sortie: allocation par lots (FIFO/FEFO/LIFO) si valuation=fifo ou valuation=lifo; sinon CUMP
-			if ($valuation === 'fifo' || $valuation === 'lifo') {
+			// Sortie: allocation par lots (FIFO/FEFO/LIFO) si valuation lot-based; sinon CUMP
+			if (in_array($valuation, $lotValuationMethods, true)) {
 				// Delivery: consume reservations linked to reference first
 				if ($typeCode === 'VENTE_LIVRAISON') {
 					$ref = ($mv['table_reference'] && $mv['id_reference']) ? ($mv['table_reference'] . '#' . $mv['id_reference']) : null;
 					StockReservationModel::consumeForReference($article, $depot, $quantite, $ref, $userId);
 				}
-				// auto: si périssable (lots avec DLC/DLUO) utiliser FEFO, sinon suivre valuation (fifo/lifo)
 				$allocMethod = $allocation;
-				if ($allocation === 'auto') {
-					$lotsPreview = LotModel::getAvailableForAllocation($article, $depot, 'fifo');
+				if (!in_array($allocMethod, $lotValuationMethods, true)) {
+					if ($allocMethod === 'auto') {
+						$allocMethod = $valuation;
+					}
+				}
+				if (!in_array($allocMethod, $lotValuationMethods, true)) {
+					$lotsPreview = LotModel::getAvailableForAllocation($article, $depot, 'fifo', $mv['date_mouvement'] ?? null);
 					$hasExpiry = false;
 					foreach ($lotsPreview as $lp) {
 						if (!empty($lp['date_limite_consommation']) || !empty($lp['date_limite_utilisation_optimale'])) { $hasExpiry = true; break; }
 					}
-					$allocMethod = $hasExpiry ? 'fefo' : ($valuation === 'lifo' ? 'lifo' : 'fifo');
+					if ($valuation === 'fefo' || $hasExpiry) {
+						$allocMethod = 'fefo';
+					} elseif ($valuation === 'lifo') {
+						$allocMethod = 'lifo';
+					} else {
+						$allocMethod = 'fifo';
+					}
 				}
 				try {
-					$allocs = LotModel::allocateQuantity($article, $depot, $quantite, $allocMethod);
+					$allocs = LotModel::allocateQuantity($article, $depot, $quantite, $allocMethod, $mv['date_mouvement'] ?? null);
 				} catch (\Exception $e) {
 					$db->rollBack();
 					Flight::json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -362,7 +425,7 @@ class MouvStockApiController
 				foreach ($allocs as $al) { $valeurTotale += ($al['quantite'] * $al['cout_unitaire']); }
 				StockCourantModel::applyExitByValue($article, $depot, $quantite, $valeurTotale);
 				// enregistrer les détails de consommation par lot
-				MouvStockLotDetailModel::insertDetails($id, $allocs);
+				MouvStockLotDetailModel::replaceDetails($id, $allocs);
 				// si une seule allocation, rattacher le lot
 				$coutEffectif = $quantite > 0 ? ($valeurTotale / $quantite) : 0.0;
 				if (count($allocs) === 1) { $fieldsToUpdate['id_lot'] = $allocs[0]['id_lot']; $fieldsToUpdate['cout_unitaire'] = $allocs[0]['cout_unitaire']; }
@@ -487,6 +550,85 @@ class MouvStockApiController
 		} catch (\Exception $e) {
 			\Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
 		}
+	}
+
+	public static function createLot() {
+		try {
+			$req = Flight::request();
+			$data = json_decode($req->getBody(), true) ?? [];
+
+			$id_article = isset($data['id_article']) ? (int)$data['id_article'] : null;
+			$id_depot = isset($data['id_depot']) ? (int)$data['id_depot'] : null;
+			$lot_numero = isset($data['lot_numero']) ? trim($data['lot_numero']) : null;
+			$cout_unitaire = isset($data['cout_unitaire']) ? (float)$data['cout_unitaire'] : 0;
+			$quantite_initiale = isset($data['quantite_initiale']) ? (float)$data['quantite_initiale'] : 0;
+			$dluo = isset($data['date_limite_utilisation_optimale']) ? $data['date_limite_utilisation_optimale'] : null;
+			$dlc = isset($data['date_limite_consommation']) ? $data['date_limite_consommation'] : null;
+
+			// Validations
+			if (!$id_article || !$id_depot || !$lot_numero) {
+				Flight::json(['success' => false, 'message' => 'Champs requis manquants (article, depot, numero lot)'], 400);
+				return;
+			}
+
+			// Vérifier que l'article existe
+			$db = Flight::db();
+			$chk = $db->prepare("SELECT id_article FROM article WHERE id_article = :id LIMIT 1");
+			$chk->execute([':id' => $id_article]);
+			if (!$chk->fetch()) {
+				Flight::json(['success' => false, 'message' => 'Article introuvable'], 404);
+				return;
+			}
+
+			// Vérifier que le dépôt existe
+			$chk = $db->prepare("SELECT id_depot FROM depot WHERE id_depot = :id LIMIT 1");
+			$chk->execute([':id' => $id_depot]);
+			if (!$chk->fetch()) {
+				Flight::json(['success' => false, 'message' => 'Dépôt introuvable'], 404);
+				return;
+			}
+
+			// Vérifier l'unicité du lot (article + depot + numero)
+			$chk = $db->prepare("SELECT id_lot FROM lot WHERE id_article = :a AND id_depot = :d AND lot_numero = :n LIMIT 1");
+			$chk->execute([':a' => $id_article, ':d' => $id_depot, ':n' => $lot_numero]);
+			if ($chk->fetch()) {
+				Flight::json(['success' => false, 'message' => 'Ce numéro de lot existe déjà pour cet article/dépôt'], 400);
+				return;
+			}
+
+			// Valider les dates si fournies
+			if ($dluo && !self::isValidDate($dluo)) {
+				Flight::json(['success' => false, 'message' => 'Format DLUO invalide (YYYY-MM-DD)'], 400);
+				return;
+			}
+			if ($dlc && !self::isValidDate($dlc)) {
+				Flight::json(['success' => false, 'message' => 'Format DLC invalide (YYYY-MM-DD)'], 400);
+				return;
+			}
+
+			// Créer le lot
+			$lotModel = new LotModel();
+			$id_lot = $lotModel->insert([
+				'id_article' => $id_article,
+				'id_depot' => $id_depot,
+				'lot_numero' => $lot_numero,
+				'date_entree' => date('Y-m-d'),
+				'quantite_initiale' => $quantite_initiale,
+				'cout_unitaire' => $cout_unitaire,
+				'date_limite_utilisation_optimale' => $dluo,
+				'date_limite_consommation' => $dlc
+			]);
+
+			Flight::json(['success' => true, 'message' => 'Lot créé avec succès', 'data' => ['id_lot' => $id_lot]]);
+		} catch (Exception $e) {
+			Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
+		}
+	}
+
+	private static function isValidDate($date) {
+		if (!is_string($date)) return false;
+		$d = \DateTime::createFromFormat('Y-m-d', $date);
+		return $d && $d->format('Y-m-d') === $date;
 	}
 }
 

@@ -118,33 +118,33 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                                                <tbody id="movementsBody"></tbody>
+                                <tbody id="movementsBody"></tbody>
                             </table>
                         </div>
-                                                <!-- Modal: Lot details -->
-                                                <div class="modal fade" id="lotDetailsModal" tabindex="-1" aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title">Détails de consommation par lot</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-sm">
-                                                                        <thead><tr><th>Lot</th><th>Date entrée</th><th>Quantité</th><th>Coût unitaire</th><th>Valeur</th></tr></thead>
-                                                                        <tbody id="modalLotDetailsBody"></tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <a id="exportCsvLink" href="#" class="btn btn-outline-secondary"><i class="bi bi-filetype-csv"></i> Export CSV</a>
-                                                                <a id="exportPdfLink" href="#" class="btn btn-outline-secondary"><i class="bi bi-filetype-pdf"></i> Export PDF</a>
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                        <!-- Modal: Lot details -->
+                        <div class="modal fade" id="lotDetailsModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Détails de consommation par lot</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead><tr><th>Lot</th><th>Date entrée</th><th>Quantité</th><th>Coût unitaire</th><th>Valeur</th></tr></thead>
+                                                <tbody id="modalLotDetailsBody"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a id="exportCsvLink" href="#" class="btn btn-outline-secondary"><i class="bi bi-filetype-csv"></i> Export CSV</a>
+                                        <a id="exportPdfLink" href="#" class="btn btn-outline-secondary"><i class="bi bi-filetype-pdf"></i> Export PDF</a>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -210,6 +210,7 @@ function renderMovements(rows) {
     tbody.innerHTML = '';
     rows.forEach(r => {
         const tr = document.createElement('tr');
+        tr.setAttribute('data-id', r.id_mouvement_stock);
         const date = r.date_mouvement ? dayjs(r.date_mouvement).format('YYYY-MM-DD HH:mm') : '-';
         const sensBadge = r.sens == 1 ? '<span class="badge bg-success">Entrée</span>' : '<span class="badge bg-danger">Sortie</span>';
         const statutBadge = r.date_validation ? '<span class="badge bg-success">Validé</span>' : '<span class="badge bg-secondary">Brouillon</span>';
@@ -217,8 +218,8 @@ function renderMovements(rows) {
         if (!r.date_validation) {
             actionButtons.push(`<a href="${base}/stock/mouvement/${r.id_mouvement_stock}/valider" class="btn btn-sm btn-primary"><i class=\"bi bi-check2-circle\"></i> Valider</a>`);
         }
-        // Details button always available (useful after validation)
-        actionButtons.push(`<button class="btn btn-sm btn-outline-secondary" data-action="details" data-id="${r.id_mouvement_stock}"><i class=\"bi bi-list-ul\"></i> Détails</button>`);
+        // Details modal
+        actionButtons.push(`<button class="btn btn-sm btn-outline-secondary" data-action="details" data-id="${r.id_mouvement_stock}" onclick="event.stopPropagation()"><i class=\"bi bi-list-ul\"></i> Détails</button>`);
         const actionCell = actionButtons.join(' ');
         tr.innerHTML = `
             <td>${date}</td>
@@ -235,6 +236,12 @@ function renderMovements(rows) {
             <td>${actionCell}</td>
         `;
         tbody.appendChild(tr);
+
+        // Navigate to detail page when clicking the row
+        tr.addEventListener('click', () => {
+            const id = tr.getAttribute('data-id');
+            if (id) { window.location.href = `${base}/stock/mouvement/${id}`; }
+        });
     });
 
     // Attach details handlers

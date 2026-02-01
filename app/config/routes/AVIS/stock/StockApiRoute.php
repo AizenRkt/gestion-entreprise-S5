@@ -21,6 +21,7 @@ $router->get('/api/stock/types', [MouvStockApiController::class, 'listTypes']);
 $router->get('/api/stock/depots', [MouvStockApiController::class, 'listDepots']);
 $router->get('/api/stock/articles', [MouvStockApiController::class, 'listArticles']);
 $router->get('/api/stock/lots', [MouvStockApiController::class, 'getLots']);
+$router->post('/api/stock/lots/create', [MouvStockApiController::class, 'createLot']);
 $router->get('/api/stock/courant', [MouvStockApiController::class, 'getStockCourant']);
 $router->get('/api/stock/reservations', [MouvStockApiController::class, 'listReservations']);
 
