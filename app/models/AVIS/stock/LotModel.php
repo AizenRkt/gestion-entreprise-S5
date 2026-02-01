@@ -8,7 +8,11 @@ class LotModel {
     public static function getByArticleDepot(int $id_article, int $id_depot): array {
         try {
             $db = Flight::db();
-            $stmt = $db->prepare("SELECT * FROM lot WHERE id_article = :id_article AND id_depot = :id_depot ORDER BY date_entree ASC");
+            $stmt = $db->prepare("SELECT l.*, 
+                (l.quantite_initiale - COALESCE((SELECT SUM(d.quantite) FROM mouvement_stock_lot_detail d WHERE d.id_lot = l.id_lot), 0)) AS quantite_restante
+                FROM lot l
+                WHERE l.id_article = :id_article AND l.id_depot = :id_depot
+                ORDER BY l.date_entree ASC");
             $stmt->execute([':id_article' => $id_article, ':id_depot' => $id_depot]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {

@@ -28,12 +28,24 @@ class MouvStockApiController
 			$q = \Flight::request()->query;
 			$params = [];
 			$where = [];
+			$where[] = '(r.date_expiration IS NULL OR r.date_expiration >= NOW() OR r.quantite < 0)';
 			if (!empty($q->article)) { $where[] = 'r.id_article = :a'; $params[':a'] = (int)$q->article; }
 			if (!empty($q->depot)) { $where[] = 'r.id_depot = :d'; $params[':d'] = (int)$q->depot; }
 			if (!empty($q->reference)) { $where[] = 'r.reference LIKE :r'; $params[':r'] = '%' . $q->reference . '%'; }
-			$sql = "SELECT r.id_article, a.designation AS article_designation, r.id_depot, d.nom AS depot_nom, r.reference, COALESCE(SUM(r.quantite),0) AS reserved, MIN(r.created_at) AS first_date, MAX(r.created_at) AS last_date\nFROM stock_reservation r\nLEFT JOIN article a ON a.id_article = r.id_article\nLEFT JOIN depot d ON d.id_depot = r.id_depot";
+			if (!empty($q->client)) { $where[] = 'r.id_client = :c'; $params[':c'] = (int)$q->client; }
+			$sql = "SELECT r.id_article,
+				a.designation AS article_designation,
+				r.id_depot,
+				d.nom AS depot_nom,
+				r.id_client,
+				c.nom AS client_nom,
+				r.reference,
+				COALESCE(SUM(r.quantite),0) AS reserved,
+				MIN(r.created_at) AS first_date,
+				MAX(r.created_at) AS last_date,
+				MIN(CASE WHEN r.quantite > 0 THEN r.date_expiration END) AS expiration\nFROM stock_reservation r\nLEFT JOIN article a ON a.id_article = r.id_article\nLEFT JOIN depot d ON d.id_depot = r.id_depot\nLEFT JOIN client c ON c.id_client = r.id_client";
 			if (!empty($where)) { $sql .= "\nWHERE " . implode(' AND ', $where); }
-			$sql .= "\nGROUP BY r.id_article, r.id_depot, r.reference\nHAVING COALESCE(SUM(r.quantite),0) <> 0\nORDER BY last_date DESC";
+			$sql .= "\nGROUP BY r.id_article, r.id_depot, r.reference, r.id_client, c.nom\nHAVING COALESCE(SUM(r.quantite),0) <> 0\nORDER BY last_date DESC";
 			$st = $db->prepare($sql);
 			$st->execute($params);
 			$rows = $st->fetchAll(\PDO::FETCH_ASSOC);
@@ -158,11 +170,18 @@ class MouvStockApiController
 
 	public static function createMovement() {
 		try {
-			$req = json_decode(Flight::request()->getBody(), true) ?? [];
+			$rawBody = Flight::request()->getBody();
+			$req = json_decode($rawBody, true);
+			if (!is_array($req)) {
+				$formData = Flight::request()->data->getData();
+				$req = is_array($formData) && !empty($formData) ? $formData : [];
+			}
 
 			// Debug: log the received request
 			error_log("DEBUG: Received request data: " . json_encode($req));
 			error_log("DEBUG: cout_unitaire value: " . var_export($req['cout_unitaire'] ?? 'NOT SET', true));
+			$reservationExpirationInput = $req['reservation_expiration'] ?? null;
+			$reservationClientIdInput = $req['id_client'] ?? null;
 
 			$payload = [
 				'id_article' => (int)($req['id_article'] ?? 0),
@@ -215,9 +234,31 @@ class MouvStockApiController
 				$mv = MouvStockModel::getById((int)$id);
 				$ref = ($mv['table_reference'] && $mv['id_reference']) ? ($mv['table_reference'] . '#' . $mv['id_reference']) : null;
 				if (strtoupper((string)$type['code']) === 'RESERVATION') {
-					StockReservationModel::reserve((int)$mv['id_article'], (int)$mv['id_depot'], (float)$mv['quantite'], $ref, $userId);
+					$reservationExpiration = null;
+					if (is_string($reservationExpirationInput) && trim($reservationExpirationInput) !== '') {
+						try {
+							$expiresAt = new \DateTime($reservationExpirationInput);
+							if ($expiresAt <= new \DateTime()) {
+								Flight::halt(400, "La date d'expiration doit être ultérieure à maintenant.");
+							}
+							$reservationExpiration = $expiresAt->format('Y-m-d H:i:s');
+						} catch (\Exception $e) {
+							Flight::halt(400, "Date d'expiration invalide");
+						}
+					}
+					$reservationClientId = null;
+					if ($reservationClientIdInput !== null && $reservationClientIdInput !== '') {
+						$reservationClientId = (int)$reservationClientIdInput;
+						if ($reservationClientId <= 0) { $reservationClientId = null; }
+					}
+					StockReservationModel::reserve((int)$mv['id_article'], (int)$mv['id_depot'], (float)$mv['quantite'], $ref, $userId, $reservationExpiration, $reservationClientId);
 				} elseif (strtoupper((string)$type['code']) === 'ANNULATION_RESERVATION') {
-					StockReservationModel::cancel((int)$mv['id_article'], (int)$mv['id_depot'], (float)$mv['quantite'], $ref, $userId);
+					$reservationClientId = null;
+					if ($reservationClientIdInput !== null && $reservationClientIdInput !== '') {
+						$reservationClientId = (int)$reservationClientIdInput;
+						if ($reservationClientId <= 0) { $reservationClientId = null; }
+					}
+					StockReservationModel::cancel((int)$mv['id_article'], (int)$mv['id_depot'], (float)$mv['quantite'], $ref, $userId, $reservationClientId);
 				}
 				// mark validated
 				MouvStockModel::updateFields((int)$id, ['date_validation' => date('Y-m-d H:i:s')]);

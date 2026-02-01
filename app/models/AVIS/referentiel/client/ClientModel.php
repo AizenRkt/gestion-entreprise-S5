@@ -12,7 +12,7 @@ class ClientModel {
             $stmt = $db->query("
                 SELECT c.*, ct.libelle AS type_libelle 
                 FROM client c 
-                LEFT JOIN client_type ct ON c.id_type = ct.id_client_type 
+                LEFT JOIN client_type ct ON c.id_client_type = ct.id_client_type 
                 ORDER BY c.id_client DESC
             ");
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -27,7 +27,7 @@ class ClientModel {
             $stmt = $db->prepare("
                 SELECT c.*, ct.libelle AS type_libelle 
                 FROM client c 
-                LEFT JOIN client_type ct ON c.id_type = ct.id_client_type 
+                LEFT JOIN client_type ct ON c.id_client_type = ct.id_client_type 
                 WHERE c.id_client = :id_client
             ");
             $stmt->execute([':id_client' => $id_client]);
@@ -37,19 +37,19 @@ class ClientModel {
         }
     }
 
-    public function insert($nom, $telephone = null, $email = null, $adresse = null, $id_type = null) {
+    public function insert($nom, $telephone = null, $email = null, $adresse = null, $id_client_type = null) {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
-                INSERT INTO client (nom, telephone, email, adresse, id_type) 
-                VALUES (:nom, :telephone, :email, :adresse, :id_type)
+                INSERT INTO client (nom, telephone, email, adresse, id_client_type) 
+                VALUES (:nom, :telephone, :email, :adresse, :id_client_type)
             ");
             $stmt->execute([
                 ':nom' => $nom,
                 ':telephone' => $telephone,
                 ':email' => $email,
                 ':adresse' => $adresse,
-                ':id_type' => $id_type
+                ':id_client_type' => $id_client_type
             ]);
             return $db->lastInsertId();
         } catch (\PDOException $e) {
@@ -57,12 +57,12 @@ class ClientModel {
         }
     }
 
-    public static function update($id_client, $nom, $telephone = null, $email = null, $adresse = null, $id_type = null) {
+    public static function update($id_client, $nom, $telephone = null, $email = null, $adresse = null, $id_client_type = null) {
         try {
             $db = Flight::db();
             $stmt = $db->prepare("
                 UPDATE client 
-                SET nom = :nom, telephone = :telephone, email = :email, adresse = :adresse, id_type = :id_type 
+                SET nom = :nom, telephone = :telephone, email = :email, adresse = :adresse, id_client_type = :id_client_type 
                 WHERE id_client = :id_client
             ");
             $stmt->execute([
@@ -70,7 +70,7 @@ class ClientModel {
                 ':telephone' => $telephone,
                 ':email' => $email,
                 ':adresse' => $adresse,
-                ':id_type' => $id_type,
+                ':id_client_type' => $id_client_type,
                 ':id_client' => $id_client
             ]);
             return true;
@@ -96,7 +96,7 @@ class ClientModel {
             $stmt = $db->prepare("
                 SELECT c.*, ct.libelle AS type_libelle 
                 FROM client c 
-                LEFT JOIN client_type ct ON c.id_type = ct.id_client_type 
+                LEFT JOIN client_type ct ON c.id_client_type = ct.id_client_type 
                 WHERE c.nom LIKE :search_term 
                 OR c.email LIKE :search_term 
                 OR c.telephone LIKE :search_term

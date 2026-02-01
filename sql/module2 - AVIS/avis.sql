@@ -456,12 +456,15 @@ CREATE TABLE stock_reservation (
     id_stock_reservation INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
+    id_client INT NULL,
     quantite DECIMAL(15,3) NOT NULL,
+    date_expiration DATETIME NULL,
     reference VARCHAR(100),
     created_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_article) REFERENCES article(id_article),
-    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    FOREIGN KEY (id_client) REFERENCES client(id_client)
 );
 
 -- ==============================
