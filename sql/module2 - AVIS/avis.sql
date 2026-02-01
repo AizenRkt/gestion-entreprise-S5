@@ -35,13 +35,16 @@ CREATE TABLE article_famille (
     id_article_famille INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    description TEXT
+    description TEXT,
+    necessite_lot BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE article_famille_status (
     id_article_famille_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('actif', 'inactif'),
-    date_status DATETIME NOT NULL
+    date_status DATETIME NOT NULL,
+    id_article_famille INT NOT NULL,
+    FOREIGN KEY (id_article_famille) REFERENCES article_famille(id_article_famille)
 );
 
 CREATE TABLE article (
@@ -50,24 +53,30 @@ CREATE TABLE article (
     designation VARCHAR(150) NOT NULL,
     id_famille_article_famille INT REFERENCES article_famille(id_article_famille),
     id_methode_valorisation INT REFERENCES methode_valorisation(id_methode_valorisation),
+    allocation_defaut ENUM('fifo','lifo','fefo'),
     unite VARCHAR(20) NOT NULL,
     prix_achat NUMERIC(12,2),
     prix_vente NUMERIC(12,2),
     stock_min NUMERIC(12,2) DEFAULT 0,
-    actif BOOLEAN DEFAULT TRUE
+    actif BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (id_famille_article_famille) REFERENCES article_famille(id_article_famille),
+    FOREIGN KEY (id_methode_valorisation) REFERENCES methode_valorisation(id_methode_valorisation)
 );
 
 CREATE TABLE article_status (
     id_article_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('disponible', 'rupture de stock', 'en commande'),
-    date_status DATETIME NOT NULL
+    date_status DATETIME NOT NULL,
+    id_article INT NOT NULL,
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
 );
 
 CREATE TABLE article_prix_historique (
     id_article_prix_historique INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT REFERENCES article(id_article),
     prix_vente NUMERIC(12,2),
-    date_modification DATETIME DEFAULT CURRENT_TIMESTAMP
+    date_modification DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
 );
 
 -- fournisseur et client
@@ -84,7 +93,9 @@ CREATE TABLE fournisseur_article (
     id_fournisseur INT REFERENCES fournisseur(id_fournisseur),
     id_article INT REFERENCES article(id_article),
     prix_achat NUMERIC(12,2),
-    delai_livraison INT
+    delai_livraison INT,
+    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur),
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
 );
 
 -- entrepot, site 
@@ -104,7 +115,9 @@ CREATE TABLE site (
 CREATE TABLE site_depot(
     id_site_depot INT AUTO_INCREMENT PRIMARY KEY,
     id_depot INT REFERENCES depot(id_depot),
-    id_site INT REFERENCES site(id_site)
+    id_site INT REFERENCES site(id_site),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    FOREIGN KEY (id_site) REFERENCES site(id_site)
 );
 
 -- documents
@@ -115,11 +128,12 @@ CREATE TABLE document_type_avis (
 
 CREATE TABLE document_avis (
     id_document INT AUTO_INCREMENT PRIMARY KEY,
-    id_document_type INT REFERENCES document_type(id_document_type),
+    id_document_type INT NOT NULL,
     reference VARCHAR(100) UNIQUE NOT NULL,
     description VARCHAR(255),
     date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-    path VARCHAR(255) NOT NULL
+    path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_document_type) REFERENCES document_type_avis(id_document_type)
 );
 
 CREATE TABLE document_status_avis (
@@ -144,13 +158,17 @@ CREATE TABLE bon_commande_fournisseur (
     montant_tva DECIMAL(15,2) DEFAULT 0,
     montant_ttc DECIMAL(15,2) DEFAULT 0,
     created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
 CREATE TABLE bon_commande_fournisseur_status (
     id_bon_commande_fournisseur_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('validé', 'rejeté'),
+    id_bon_commande_fournisseur INT NOT NULL,
     created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_bon_commande_fournisseur) REFERENCES bon_commande_fournisseur(id_bon_commande_fournisseur)
 );
 
 CREATE TABLE reception_fournisseur (
@@ -162,13 +180,17 @@ CREATE TABLE reception_fournisseur (
     id_depot INT NOT NULL,
     created_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_bon_commande_fournisseur) REFERENCES bon_commande_fournisseur(id_bon_commande_fournisseur)
+    FOREIGN KEY (id_bon_commande_fournisseur) REFERENCES bon_commande_fournisseur(id_bon_commande_fournisseur),
+    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
 CREATE TABLE reception_fournisseur_status (
     id_reception_fournisseur_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('validé', 'rejeté'),
+    id_reception_fournisseur INT NOT NULL,
     created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_reception_fournisseur) REFERENCES reception_fournisseur(id_reception_fournisseur)
 );
 
 CREATE TABLE facture_fournisseur (
@@ -182,13 +204,16 @@ CREATE TABLE facture_fournisseur (
     montant_ttc DECIMAL(15,2) DEFAULT 0,
     created_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_reception_fournisseur) REFERENCES reception_fournisseur(id_reception_fournisseur)
+    FOREIGN KEY (id_reception_fournisseur) REFERENCES reception_fournisseur(id_reception_fournisseur),
+    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur)
 );
 CREATE TABLE facture_fournisseur_status (
     id_facture_fournisseur_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('validé', 'rejeté'),
+    id_facture_fournisseur INT NOT NULL,
     created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_facture_fournisseur) REFERENCES facture_fournisseur(id_facture_fournisseur)
 );
 
 CREATE TABLE mode_paiement (
@@ -212,13 +237,16 @@ CREATE TABLE paiement_fournisseur_detail (
     id_paiement_fournisseur INT NOT NULL,
     id_mode_paiement INT NOT NULL,
     montant DECIMAL(15,2) NOT NULL,
-    FOREIGN KEY (id_paiement_fournisseur) REFERENCES paiement_fournisseur(id_paiement_fournisseur)
+    FOREIGN KEY (id_paiement_fournisseur) REFERENCES paiement_fournisseur(id_paiement_fournisseur),
+    FOREIGN KEY (id_mode_paiement) REFERENCES mode_paiement(id_mode_paiement)
 );
 CREATE TABLE paiement_fournisseur_status (
     id_paiement_fournisseur_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('payé'),
+    id_paiement_fournisseur INT NOT NULL,
     created_by INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_paiement_fournisseur) REFERENCES paiement_fournisseur(id_paiement_fournisseur)
 );
 
 -- =========================
@@ -233,8 +261,10 @@ CREATE TABLE commande_client (
     montant_ht DECIMAL(15,2) DEFAULT 0,
     montant_tva DECIMAL(15,2) DEFAULT 0,
     montant_ttc DECIMAL(15,2) DEFAULT 0,
-    created_byt INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_client) REFERENCES client(id_client),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
 
 CREATE TABLE livraison_client (
@@ -248,7 +278,8 @@ CREATE TABLE livraison_client (
     valide_par INT,
     date_validation DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client)
+    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
 
 CREATE TABLE facture_client (
@@ -265,7 +296,8 @@ CREATE TABLE facture_client (
     valide_par INT,
     date_validation DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (livraison_client_id) REFERENCES livraison_client(id_livraison_client)
+    FOREIGN KEY (livraison_client_id) REFERENCES livraison_client(id_livraison_client),
+    FOREIGN KEY (client_id) REFERENCES client(id_client)
 );
 
 CREATE TABLE encaissement_client (
@@ -300,7 +332,9 @@ CREATE TABLE lot (
     date_limite_consommation DATE,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_article) REFERENCES article(id_article)
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    INDEX idx_lot_date_entree (date_entree)
 );
 
 -- ==============================
@@ -346,7 +380,7 @@ INSERT INTO mouvement_stock_type(id_categorie_mouvement_stock, code, libelle, im
 (1, 'ANNULATION_RESERVATION', 'Annulation réservation stock', FALSE, FALSE);
 
 CREATE TABLE mouvement_stock (
-    id_mouvement_stock BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
 
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
@@ -360,6 +394,9 @@ CREATE TABLE mouvement_stock (
 
     quantite DECIMAL(15,3) NOT NULL,
     cout_unitaire DECIMAL(15,4),
+    ecart_valorisation DECIMAL(15,2) DEFAULT 0,
+
+    mouvement_numero VARCHAR(50) UNIQUE,
 
     motif VARCHAR(255),
 
@@ -383,6 +420,21 @@ CREATE TABLE mouvement_stock_status (
     created_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_mouvement_stock) REFERENCES mouvement_stock(id_mouvement_stock)
+);
+
+-- Détails de consommation par lot pour les sorties
+CREATE TABLE mouvement_stock_lot_detail (
+    id_mouvement_stock_lot_detail INT AUTO_INCREMENT PRIMARY KEY,
+    id_mouvement_stock INT NOT NULL,
+    id_lot INT NOT NULL,
+    quantite DECIMAL(15,3) NOT NULL,
+    cout_unitaire DECIMAL(15,4) NOT NULL,
+    valeur DECIMAL(15,2) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_mouvement_stock) REFERENCES mouvement_stock(id_mouvement_stock),
+    FOREIGN KEY (id_lot) REFERENCES lot(id_lot),
+    INDEX idx_msl_detail_mouv (id_mouvement_stock),
+    INDEX idx_msl_detail_lot (id_lot)
 );
 
 CREATE TABLE stock_courant (
@@ -410,5 +462,35 @@ CREATE TABLE stock_reservation (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_article) REFERENCES article(id_article),
     FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
+);
+
+-- ==============================
+-- CLOTURE MENSUELLE DU STOCK / GEL DU CUMP
+-- ==============================
+CREATE TABLE stock_cloture_periode (
+    id_stock_cloture_periode INT AUTO_INCREMENT PRIMARY KEY,
+    annee INT NOT NULL,
+    mois INT NOT NULL,
+    statut ENUM('OUVERT','CLOTURE') DEFAULT 'OUVERT',
+    date_cloture DATETIME,
+    UNIQUE KEY uniq_stock_cloture_periode (annee, mois)
+);
+
+CREATE TABLE stock_cloture_detail (
+    id_stock_cloture_detail INT AUTO_INCREMENT PRIMARY KEY,
+    id_stock_cloture_periode INT NOT NULL,
+    id_article INT NOT NULL,
+    id_depot INT NOT NULL,
+    qty_ouverture DECIMAL(15,3),
+    valeur_ouverture DECIMAL(15,2),
+    cump_ouverture DECIMAL(15,4),
+    qty_cloture DECIMAL(15,3),
+    valeur_cloture DECIMAL(15,2),
+    cump_cloture DECIMAL(15,4),
+    FOREIGN KEY (id_stock_cloture_periode) REFERENCES stock_cloture_periode(id_stock_cloture_periode),
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    INDEX idx_stock_cloture_detail_periode (id_stock_cloture_periode),
+    INDEX idx_stock_cloture_detail_art_dep (id_article, id_depot)
 );
 

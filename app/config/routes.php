@@ -30,6 +30,7 @@ require __DIR__ . '/routes/ressourceHumaine/LLMRoute.php';
 // avis
 require __DIR__ . '/routes/AVIS/KPI/KpiRoute.php';
 require __DIR__ . '/routes/AVIS/stock/StockRoute.php';
+require __DIR__ . '/routes/AVIS/stock/StockApiRoute.php';
 
 // avis - referentiel
 require __DIR__ . '/routes/AVIS/referentiel/client/ClientRoute.php';

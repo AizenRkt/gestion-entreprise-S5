@@ -35,13 +35,13 @@ class FournisseurApiController {
 
     public static function createFournisseur() {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             $model = new FournisseurModel();
             $id = $model->insert(
-                $data->nom ?? '',
-                $data->adresse ?? null,
-                $data->telephone ?? null,
-                $data->email ?? null
+                $json['nom'] ?? '',
+                $json['adresse'] ?? null,
+                $json['telephone'] ?? null,
+                $json['email'] ?? null
             );
             Flight::json(['success' => true, 'message' => 'Fournisseur créé', 'id' => $id]);
         } catch (Exception $e) {
@@ -51,13 +51,13 @@ class FournisseurApiController {
 
     public static function updateFournisseur($id_fournisseur) {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             FournisseurModel::update(
                 $id_fournisseur,
-                $data->nom ?? '',
-                $data->adresse ?? null,
-                $data->telephone ?? null,
-                $data->email ?? null
+                $json['nom'] ?? '',
+                $json['adresse'] ?? null,
+                $json['telephone'] ?? null,
+                $json['email'] ?? null
             );
             Flight::json(['success' => true, 'message' => 'Fournisseur modifié']);
         } catch (Exception $e) {
@@ -128,13 +128,13 @@ class FournisseurApiController {
 
     public static function createFournisseurArticle() {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             $model = new FournisseurArticleModel();
             $id = $model->insert(
-                $data->id_fournisseur ?? '',
-                $data->id_article ?? '',
-                $data->prix_achat ?? null,
-                $data->delai_livraison ?? null
+                $json['id_fournisseur'] ?? '',
+                $json['id_article'] ?? '',
+                $json['prix_achat'] ?? null,
+                $json['delai_livraison'] ?? null
             );
             Flight::json(['success' => true, 'message' => 'Association fournisseur-article créée', 'id' => $id]);
         } catch (Exception $e) {
@@ -144,11 +144,11 @@ class FournisseurApiController {
 
     public static function updateFournisseurArticle($id_fournisseur_article) {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             FournisseurArticleModel::update(
                 $id_fournisseur_article,
-                $data->prix_achat ?? null,
-                $data->delai_livraison ?? null
+                $json['prix_achat'] ?? null,
+                $json['delai_livraison'] ?? null
             );
             Flight::json(['success' => true, 'message' => 'Association fournisseur-article modifiée']);
         } catch (Exception $e) {

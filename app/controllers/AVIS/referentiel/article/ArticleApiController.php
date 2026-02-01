@@ -38,12 +38,12 @@ class ArticleApiController {
 
     public static function createArticleFamille() {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             $model = new ArticleFamilleModel();
             $id = $model->insert(
-                $data->code ?? '',
-                $data->nom ?? '',
-                $data->description ?? null
+                $json['code'] ?? '',
+                $json['nom'] ?? '',
+                $json['description'] ?? null
             );
             Flight::json(['success' => true, 'message' => 'Famille d\'article créée', 'id' => $id]);
         } catch (Exception $e) {
@@ -53,12 +53,12 @@ class ArticleApiController {
 
     public static function updateArticleFamille($id_article_famille) {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             ArticleFamilleModel::update(
                 $id_article_famille,
-                $data->code ?? '',
-                $data->nom ?? '',
-                $data->description ?? null
+                $json['code'] ?? '',
+                $json['nom'] ?? '',
+                $json['description'] ?? null
             );
             Flight::json(['success' => true, 'message' => 'Famille d\'article modifiée']);
         } catch (Exception $e) {
@@ -111,18 +111,18 @@ class ArticleApiController {
 
     public static function createArticle() {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             $model = new ArticleModel();
             $id = $model->insert(
-                $data->code ?? '',
-                $data->designation ?? '',
-                $data->id_famille_article_famille ?? null,
-                $data->id_methode_valorisation ?? null,
-                $data->unite ?? null,
-                $data->prix_achat ?? null,
-                $data->prix_vente ?? null,
-                $data->stock_min ?? 0,
-                $data->actif ?? true
+                $json['code'] ?? '',
+                $json['designation'] ?? '',
+                $json['id_famille_article_famille'] ?? null,
+                $json['id_methode_valorisation'] ?? null,
+                $json['unite'] ?? null,
+                $json['prix_achat'] ?? null,
+                $json['prix_vente'] ?? null,
+                $json['stock_min'] ?? 0,
+                $json['actif'] ?? true
             );
             Flight::json(['success' => true, 'message' => 'Article créé', 'id' => $id]);
         } catch (Exception $e) {
@@ -132,18 +132,18 @@ class ArticleApiController {
 
     public static function updateArticle($id_article) {
         try {
-            $data = Flight::request()->data;
+            $json = json_decode(Flight::request()->getBody(), true) ?? [];
             ArticleModel::update(
                 $id_article,
-                $data->code ?? '',
-                $data->designation ?? '',
-                $data->id_famille_article_famille ?? null,
-                $data->id_methode_valorisation ?? null,
-                $data->unite ?? null,
-                $data->prix_achat ?? null,
-                $data->prix_vente ?? null,
-                $data->stock_min ?? 0,
-                $data->actif ?? true
+                $json['code'] ?? '',
+                $json['designation'] ?? '',
+                $json['id_famille_article_famille'] ?? null,
+                $json['id_methode_valorisation'] ?? null,
+                $json['unite'] ?? null,
+                $json['prix_achat'] ?? null,
+                $json['prix_vente'] ?? null,
+                $json['stock_min'] ?? 0,
+                $json['actif'] ?? true
             );
             Flight::json(['success' => true, 'message' => 'Article modifié']);
         } catch (Exception $e) {

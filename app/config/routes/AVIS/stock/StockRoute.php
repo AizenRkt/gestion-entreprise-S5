@@ -11,3 +11,10 @@ $controller = new MouvStockController();
 
 $router->get('/stock/mouvement/list', [$controller, 'mouvementStockList']);
 $router->get('/stock/mouvement/saisie', [$controller, 'mouvementStockSaisie']);
+$router->get('/stock/mouvement/@id/valider', [$controller, 'mouvementStockValidation']);
+
+// Admin settings page
+$router->get('/stock/admin/settings', [$controller, 'adminStockSettings']);
+
+// Reservations page
+$router->get('/stock/reservations', [$controller, 'stockReservations']);

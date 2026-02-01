@@ -79,7 +79,13 @@ Flight::map('menuFrontOffice', function () {
     Flight::render('ui/menuFrontOffice');
 });
 
+// Flight::map('menuBackOffice', function () {
+//     $menu = Controller::getMenuByUser();
+//     Flight::render($menu);
+// });
+
 Flight::map('menuBackOffice', function () {
-    $menu = Controller::getMenuByUser();
+    // $menu = Controller::getMenuByUser();
+    $menu = "ui/menu/avis/stock/menuStock.php";
     Flight::render($menu);
 });

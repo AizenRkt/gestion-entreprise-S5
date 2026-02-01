@@ -45,88 +45,97 @@
 
             <!-- Formulaire de saisie -->
             <section class="section">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Nouveau Mouvement</h4>
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <h4 class="card-title mb-0">Nouveau Mouvement</h4>
+                                <span class="badge bg-primary" id="movementBadge">Saisie</span>
+                            </div>
+                            <div class="card-body">
+                                <form id="mvtForm" class="form">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Type de mouvement</label>
+                                            <select class="form-select" id="id_type_mouvement_stock" required></select>
+                                            <small class="text-muted">Choisissez un type (réception, livraison, etc.)</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Dépôt</label>
+                                            <select class="form-select" id="id_depot" required></select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Article</label>
+                                            <select class="form-select" id="id_article" required></select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Lot (si applicable)</label>
+                                            <select class="form-select" id="id_lot">
+                                                <option value="">-- Aucun --</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Quantité</label>
+                                            <input type="number" step="0.001" class="form-control" id="quantite" placeholder="Ex: 10" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Coût unitaire</label>
+                                            <input type="number" step="0.0001" class="form-control" id="cout_unitaire" placeholder="Ex: 0.50">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Date du mouvement</label>
+                                            <input type="datetime-local" class="form-control" id="date_mouvement" value="<?= date('Y-m-d\TH:i') ?>">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label">Motif</label>
+                                            <textarea class="form-control" rows="3" id="motif" placeholder="Ex: Réception fournisseur, ajustement inventaire..."></textarea>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end mt-2">
+                                            <button type="submit" class="btn btn-primary me-2"><i class="bi bi-save"></i> Enregistrer</button>
+                                            <button type="button" class="btn btn-light" id="resetBtn"><i class="bi bi-x-circle"></i> Annuler</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <form class="form form-horizontal">
-                            <div class="form-body">
-                                <div class="row">
-                                    <!-- Type de mouvement -->
-                                    <div class="col-md-6">
-                                        <label>Type de mouvement</label>
-                                        <select class="form-select">
-                                            <option value="">-- Sélectionner --</option>
-                                            <option value="in">Entrée</option>
-                                            <option value="out">Sortie</option>
-                                        </select>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Aperçu Stock</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar bg-primary me-3"><i class="bi bi-box-seam text-white"></i></div>
+                                    <div>
+                                        <div class="small text-muted">Quantité disponible</div>
+                                        <div class="h5" id="stockQuantite">-</div>
                                     </div>
-
-                                    <!-- Dépot -->
-                                    <div class="col-md-6">
-                                        <label>Dépôt</label>
-                                        <select class="form-select">
-                                            <option value="">-- Sélectionner --</option>
-                                            <option value="1">Dépôt Central</option>
-                                            <option value="2">Dépôt Sud</option>
-                                        </select>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="avatar bg-success me-3"><i class="bi bi-currency-dollar text-white"></i></div>
+                                    <div>
+                                        <div class="small text-muted">Valeur du stock</div>
+                                        <div class="h5" id="stockValeur">-</div>
                                     </div>
-
-                                    <!-- Article -->
-                                    <div class="col-md-6">
-                                        <label>Article</label>
-                                        <select class="form-select">
-                                            <option value="">-- Sélectionner --</option>
-                                            <option value="1">Papier A4</option>
-                                            <option value="2">Stylo Bille</option>
-                                            <option value="3">Cartouche Encre</option>
-                                        </select>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar bg-warning me-3"><i class="bi bi-graph-up text-white"></i></div>
+                                    <div>
+                                        <div class="small text-muted">Coût moyen (CUMP)</div>
+                                        <div class="h5" id="stockCump">-</div>
                                     </div>
-
-                                    <!-- Lot -->
-                                    <div class="col-md-6">
-                                        <label>Lot (si applicable)</label>
-                                        <select class="form-select">
-                                            <option value="">-- Aucun --</option>
-                                            <option value="L001">L001 - 01/01/2026</option>
-                                            <option value="L002">L002 - 15/01/2026</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Quantité -->
-                                    <div class="col-md-6">
-                                        <label>Quantité</label>
-                                        <input type="number" step="0.001" class="form-control" placeholder="Ex: 10">
-                                    </div>
-
-                                    <!-- Coût unitaire -->
-                                    <div class="col-md-6">
-                                        <label>Coût unitaire</label>
-                                        <input type="number" step="0.01" class="form-control" placeholder="Ex: 500">
-                                    </div>
-
-                                    <!-- Motif -->
-                                    <div class="col-12">
-                                        <label>Motif</label>
-                                        <textarea class="form-control" rows="3" placeholder="Ex: Réception fournisseur, ajustement inventaire..."></textarea>
-                                    </div>
-
-                                    <!-- Date -->
-                                    <div class="col-md-6">
-                                        <label>Date du mouvement</label>
-                                        <input type="date" class="form-control" value="2026-01-28">
-                                    </div>
-
-                                    <!-- Bouton -->
-                                    <div class="col-12 d-flex justify-content-end mt-3">
-                                        <button type="submit" class="btn btn-primary me-1 mb-1">Enregistrer</button>
-                                        <button type="reset" class="btn btn-light-secondary me-1 mb-1">Annuler</button>
-                                    </div>
-
                                 </div>
                             </div>
-                        </form>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Lots disponibles</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group" id="lotsList"></ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -148,6 +157,151 @@
 
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/chart.js/chart.umd.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/static/js/pages/ui-chartjs.js"></script>
+
+<script>
+const base = '<?= Flight::base() ?>';
+
+function toast(message, type = 'success') {
+    Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: 'top',
+        position: 'right',
+        backgroundColor: type === 'success' ? '#198754' : '#dc3545',
+    }).showToast();
+}
+
+async function fetchJSON(url) {
+    const res = await fetch(url);
+    return res.json();
+}
+
+async function loadTypes() {
+    const sel = document.getElementById('id_type_mouvement_stock');
+    sel.innerHTML = '<option value="">-- Sélectionner --</option>';
+    const r = await fetchJSON(base + '/api/stock/types');
+    if (r.success) {
+        r.data.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id_type_mouvement_stock;
+            opt.textContent = `${t.libelle} (${t.code})`;
+            opt.dataset.categorie = t.id_categorie_mouvement_stock;
+            sel.appendChild(opt);
+        });
+    }
+}
+
+async function loadDepots() {
+    const sel = document.getElementById('id_depot');
+    sel.innerHTML = '<option value="">-- Sélectionner --</option>';
+    const r = await fetchJSON(base + '/api/stock/depots');
+    if (r.success) {
+        r.data.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.id_depot;
+            opt.textContent = `${d.nom} (${d.code})`;
+            sel.appendChild(opt);
+        });
+    }
+}
+
+async function loadArticles() {
+    const sel = document.getElementById('id_article');
+    sel.innerHTML = '<option value="">-- Sélectionner --</option>';
+    const r = await fetchJSON(base + '/api/referentiel/articles/active/list');
+    if (r.success) {
+        r.data.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.id_article;
+            opt.textContent = `${a.designation} (${a.code})`;
+            opt.dataset.methode = a.id_methode_valorisation;
+            sel.appendChild(opt);
+        });
+    }
+}
+
+async function refreshStockAndLots() {
+    const a = document.getElementById('id_article').value;
+    const d = document.getElementById('id_depot').value;
+    if (!a || !d) return;
+    const stock = await fetchJSON(`${base}/api/stock/courant?article=${a}&depot=${d}`);
+    if (stock.success) {
+        const s = stock.data || {quantite: 0, valeur_stock: 0, cout_moyen: null};
+        document.getElementById('stockQuantite').textContent = s.quantite ?? 0;
+        document.getElementById('stockValeur').textContent = s.valeur_stock ?? 0;
+        document.getElementById('stockCump').textContent = s.cout_moyen ?? '-';
+    }
+    const lots = await fetchJSON(`${base}/api/stock/lots?article=${a}&depot=${d}`);
+    if (lots.success) {
+        const ul = document.getElementById('lotsList');
+        ul.innerHTML = '';
+        lots.data.forEach(l => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `<span><strong>${l.lot_numero}</strong> • entrée: ${l.date_entree}</span><span class="badge bg-light text-dark">Qté init: ${l.quantite_initiale} • Coût: ${l.cout_unitaire}</span>`;
+            ul.appendChild(li);
+        });
+        const lotSel = document.getElementById('id_lot');
+        lotSel.innerHTML = '<option value="">-- Aucun --</option>';
+        lots.data.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l.id_lot;
+            opt.textContent = `${l.lot_numero} - ${new Date(l.date_entree).toLocaleDateString()}`;
+            lotSel.appendChild(opt);
+        });
+    }
+}
+
+document.getElementById('id_article').addEventListener('change', refreshStockAndLots);
+document.getElementById('id_depot').addEventListener('change', refreshStockAndLots);
+
+document.getElementById('mvtForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+        id_article: parseInt(document.getElementById('id_article').value || '0'),
+        id_depot: parseInt(document.getElementById('id_depot').value || '0'),
+        id_lot: document.getElementById('id_lot').value || null,
+        id_type_mouvement_stock: parseInt(document.getElementById('id_type_mouvement_stock').value || '0'),
+        sens: (() => {
+            const sel = document.getElementById('id_type_mouvement_stock');
+            const cat = sel.options[sel.selectedIndex]?.dataset.categorie;
+            return cat == '1' ? 1 : 0; // 1=in, 0=out
+        })(),
+        quantite: parseFloat(document.getElementById('quantite').value || '0'),
+        cout_unitaire: document.getElementById('cout_unitaire').value ? parseFloat(document.getElementById('cout_unitaire').value) : null,
+        motif: document.getElementById('motif').value || null,
+        date_mouvement: document.getElementById('date_mouvement').value.replace('T', ' ')
+    };
+
+    if (!payload.id_article || !payload.id_depot || !payload.id_type_mouvement_stock || !payload.quantite) {
+        toast('Champs requis manquants', 'error');
+        return;
+    }
+
+    const res = await fetch(base + '/api/stock/mouvements/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.success) {
+        toast('Mouvement enregistré');
+        refreshStockAndLots();
+        document.getElementById('mvtForm').reset();
+    } else {
+        toast(json.message || 'Erreur à l\'enregistrement', 'error');
+    }
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    document.getElementById('mvtForm').reset();
+});
+
+(async function init() {
+    await Promise.all([loadTypes(), loadDepots(), loadArticles()]);
+})();
+</script>
 
 </body>
 </html>

@@ -11,21 +11,21 @@ use flight\net\Router;
  * ARTICLE FAMILLE - API
  * ============================== */
 $router->get('/api/referentiel/articles/familles/all', [ArticleApiController::class, 'getAllArticleFamilles']);
+$router->get('/api/referentiel/articles/familles/search', [ArticleApiController::class, 'searchArticleFamille']);
 $router->get('/api/referentiel/articles/familles/@id', [ArticleApiController::class, 'getArticleFamilleById']);
-$router->post('/api/referentiel/articles/familles/create', [ArticleApiController::class, 'createArticleFamille']);
+$router->post('/api/referentiel/articles/familles', [ArticleApiController::class, 'createArticleFamille']);
 $router->put('/api/referentiel/articles/familles/@id', [ArticleApiController::class, 'updateArticleFamille']);
 $router->delete('/api/referentiel/articles/familles/@id', [ArticleApiController::class, 'deleteArticleFamille']);
-$router->get('/api/referentiel/articles/familles/search', [ArticleApiController::class, 'searchArticleFamille']);
 
 /* ==============================
  * ARTICLE - API
  * ============================== */
 $router->get('/api/referentiel/articles/all', [ArticleApiController::class, 'getAllArticles']);
+$router->get('/api/referentiel/articles/search', [ArticleApiController::class, 'searchArticle']);
 $router->get('/api/referentiel/articles/@id', [ArticleApiController::class, 'getArticleById']);
-$router->post('/api/referentiel/articles/create', [ArticleApiController::class, 'createArticle']);
+$router->post('/api/referentiel/articles', [ArticleApiController::class, 'createArticle']);
 $router->put('/api/referentiel/articles/@id', [ArticleApiController::class, 'updateArticle']);
 $router->delete('/api/referentiel/articles/@id', [ArticleApiController::class, 'deleteArticle']);
-$router->get('/api/referentiel/articles/search', [ArticleApiController::class, 'searchArticle']);
 $router->get('/api/referentiel/articles/famille/@id_famille', [ArticleApiController::class, 'getArticleByFamille']);
 $router->get('/api/referentiel/articles/active/list', [ArticleApiController::class, 'getActiveArticles']);
 

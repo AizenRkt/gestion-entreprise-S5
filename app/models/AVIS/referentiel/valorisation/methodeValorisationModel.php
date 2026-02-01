@@ -77,4 +77,26 @@ class MethodeValorisationModel {
             throw new Exception("Erreur de suppression : " . $e->getMessage());
         }
     }
+
+    /**
+     * S'assure que les méthodes de valorisation de base existent (cump, fifo, lifo)
+     */
+    public static function ensureDefaults(): bool {
+        $db = Flight::db();
+        $defaults = [
+            ['code' => 'cump', 'libelle' => 'Coût moyen pondéré (CUMP)'],
+            ['code' => 'fifo', 'libelle' => 'Premier Entré, Premier Sorti (FIFO)'],
+            ['code' => 'lifo', 'libelle' => 'Dernier Entré, Premier Sorti (LIFO)'],
+        ];
+        foreach ($defaults as $def) {
+            $stmt = $db->prepare("SELECT COUNT(*) FROM methode_valorisation WHERE LOWER(code) = :code");
+            $stmt->execute([':code' => strtolower($def['code'])]);
+            $exists = (int)$stmt->fetchColumn() > 0;
+            if (!$exists) {
+                $ins = $db->prepare("INSERT INTO methode_valorisation (code, libelle) VALUES (:code, :libelle)");
+                $ins->execute([':code' => strtolower($def['code']), ':libelle' => $def['libelle']]);
+            }
+        }
+        return true;
+    }
 }
