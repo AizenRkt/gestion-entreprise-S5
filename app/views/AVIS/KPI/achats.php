@@ -90,46 +90,102 @@
 
         <div class="page-content">
 
-            <!-- ALERTES -->
+            <!-- ALERTES DYNAMIQUES -->
             <section class="row mb-4">
+                <?php if (isset($supplierRiskShare) && $supplierRiskShare > 40): ?>
                 <div class="col-12">
                     <div class="alert alert-danger border-danger" style="border-left: 4px solid;">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-exclamation-octagon-fill me-3 fs-4"></i>
                             <div class="flex-grow-1">
                                 <strong>Alerte Risque Fournisseur :</strong> 
-                                <span class="ms-2">Fournisseur A représente <strong>42%</strong> du volume d'achats (seuil critique > 40%)</span>
+                                <span class="ms-2"><?= htmlspecialchars($topSupplierName) ?> représente <strong><?= $supplierRiskShare ?>%</strong> du volume d'achats (seuil critique > 40%)</span>
                             </div>
                             <button class="btn btn-sm btn-outline-danger">Analyser</button>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
+
+                <?php if (isset($urgentOrdersCount) && $urgentOrdersCount > 5): ?>
                 <div class="col-12">
                     <div class="alert alert-warning border-warning" style="border-left: 4px solid;">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-clock-history me-3 fs-4"></i>
                             <div class="flex-grow-1">
                                 <strong>Attention :</strong> 
-                                <span class="ms-2"><strong>18 commandes urgentes</strong> ce mois (15% du total) - Objectif < 10%</span>
+                                <span class="ms-2"><strong><?= $urgentOrdersCount ?> commandes urgentes</strong> ce mois (Objectif < 5)</span>
                             </div>
                             <button class="btn btn-sm btn-outline-warning">Voir détails</button>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </section>
 
             <!-- KPI CARDS PRINCIPAUX -->
             <section class="row">
+                <!-- KPI 1 -->
                 <div class="col-12 col-md-6 col-xl-3">
                     <div class="card stat-card">
                         <div class="card-body px-4 py-4">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="text-muted font-semibold mb-2">Cycle Time DA→BC</h6>
-                                    <h3 class="font-extrabold mb-0">3,5 j</h3>
+                                    <h6 class="text-muted font-semibold mb-2">Combien avons-nous dépensé ?</h6>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($totalSpend ?? 0, 2, ',', ' ') ?> €</h3>
+                                    <div class="mt-2">
+                                        <span class="badge bg-primary badge-metric">
+                                            <i class="bi bi-currency-euro"></i> Total Achats Global
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="metric-icon bg-light-primary">
+                                    <i class="bi bi-wallet2 text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">Volume total des commandes validées</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 2 -->
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card stat-card">
+                        <div class="card-body px-4 py-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-muted font-semibold mb-2">Combien de commandes en attente ?</h6>
+                                    <h3 class="font-extrabold mb-0"><?= $pendingOrders ?></h3>
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning text-dark badge-metric">
+                                            <i class="bi bi-hourglass-split"></i> En cours
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="metric-icon bg-light-warning">
+                                    <i class="bi bi-cart3 text-warning"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">Demandes d'achat (Créées ou Visées)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 3 -->
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card stat-card">
+                        <div class="card-body px-4 py-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-muted font-semibold mb-2">Quel est le délai moyen ?</h6>
+                                    <h3 class="font-extrabold mb-0"><?= $avgLeadTime ?> j</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-success badge-metric">
-                                            <i class="bi bi-check-circle"></i> Médiane
+                                            <i class="bi bi-speedometer2"></i> Lead Time
                                         </span>
                                     </div>
                                 </div>
@@ -138,183 +194,39 @@
                                 </div>
                             </div>
                             <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">P90: 7,0 jours</small>
-                                    <small class="text-success">-5% vs M-1</small>
-                                </div>
-                                <div class="progress progress-thin">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small class="text-muted">Objectif: ≤ 3 jours</small>
+                                <small class="text-muted">Temps moyen entre Commande et Réception</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- KPI 4 -->
                 <div class="col-12 col-md-6 col-xl-3">
                     <div class="card stat-card">
                         <div class="card-body px-4 py-4">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h6 class="text-muted font-semibold mb-2">Respect Délais Fournisseurs</h6>
-                                    <h3 class="font-extrabold mb-0">92%</h3>
-                                    <div class="mt-2">
-                                        <span class="badge bg-success badge-metric">
-                                            <i class="bi bi-truck"></i> OTD Supplier
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="metric-icon bg-light-success">
-                                    <i class="bi bi-calendar-check text-success"></i>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">108/117 livraisons à temps</small>
-                                    <small class="text-success">+3% vs M-1</small>
-                                </div>
-                                <div class="progress progress-thin">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 92%" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small class="text-muted">Objectif: ≥ 95%</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="card stat-card">
-                        <div class="card-body px-4 py-4">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="text-muted font-semibold mb-2">Réception Conforme</h6>
-                                    <h3 class="font-extrabold mb-0">96%</h3>
+                                    <h6 class="text-muted font-semibold mb-2">Qui est le Top Fournisseur ?</h6>
+                                    <h3 class="font-extrabold mb-0" style="font-size: 1.2rem;"><?= htmlspecialchars($topSupplierName) ?></h3>
                                     <div class="mt-2">
                                         <span class="badge bg-info badge-metric">
-                                            <i class="bi bi-clipboard-check"></i> Qualité/Quantité
+                                            <?= number_format($topSupplierAmount ?? 0, 2, ',', ' ') ?> €
                                         </span>
                                     </div>
                                 </div>
                                 <div class="metric-icon bg-light-info">
-                                    <i class="bi bi-box-seam-fill text-info"></i>
+                                    <i class="bi bi-trophy text-info"></i>
                                 </div>
                             </div>
                             <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">112/117 réceptions OK</small>
-                                    <small class="text-info">+1% vs M-1</small>
-                                </div>
-                                <div class="progress progress-thin">
-                                    <div class="progress-bar bg-info" role="progressbar" style="width: 96%" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small class="text-muted">Objectif: ≥ 98%</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="card stat-card">
-                        <div class="card-body px-4 py-4">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="text-muted font-semibold mb-2">Litiges Facture</h6>
-                                    <h3 class="font-extrabold mb-0">3%</h3>
-                                    <div class="mt-2">
-                                        <span class="badge bg-warning text-dark badge-metric">
-                                            <i class="bi bi-exclamation-triangle"></i> 3-Way Match
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="metric-icon bg-light-warning">
-                                    <i class="bi bi-file-earmark-x text-warning"></i>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">4/117 factures en litige</small>
-                                    <small class="text-warning">+1% vs M-1</small>
-                                </div>
-                                <div class="progress progress-thin">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 97%" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <small class="text-muted">Objectif: ≤ 2%</small>
+                                <small class="text-muted">Fournisseur avec le plus gros volume d'achats</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- KPI SECONDAIRES -->
-            <section class="row">
-                <div class="col-12 col-md-3">
-                    <div class="card card-metric-small" style="border-left-color: #435ebe;">
-                        <div class="card-body py-3 px-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <small class="text-muted d-block">Commandes urgentes</small>
-                                    <h5 class="mb-0 text-danger">15%</h5>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-danger">18/120</span>
-                                    <small class="text-muted d-block mt-1">Objectif < 10%</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <div class="card card-metric-small" style="border-left-color: #28a745;">
-                        <div class="card-body py-3 px-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <small class="text-muted d-block">Taux de service</small>
-                                    <h5 class="mb-0 text-success">97,5%</h5>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-success">+2%</span>
-                                    <small class="text-muted d-block mt-1">vs M-1</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <div class="card card-metric-small" style="border-left-color: #ffc107;">
-                        <div class="card-body py-3 px-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <small class="text-muted d-block">Lead Time moyen</small>
-                                    <h5 class="mb-0">12,3 j</h5>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-success">-8%</span>
-                                    <small class="text-muted d-block mt-1">vs M-1</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <div class="card card-metric-small" style="border-left-color: #17a2b8;">
-                        <div class="card-body py-3 px-4">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <small class="text-muted d-block">Économies réalisées</small>
-                                    <h5 class="mb-0 text-success">42 500 €</h5>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-info">+15%</span>
-                                    <small class="text-muted d-block mt-1">vs M-1</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <!-- KPI SECONDAIRES REMOVED FOR CONSISTENCY -->
 
             <!-- GRAPHIQUES PRINCIPAUX -->
             <section class="row">
@@ -365,77 +277,27 @@
                                         <tr>
                                             <th>Fournisseur</th>
                                             <th>Volume Achats (€)</th>
-                                            <th>% Total</th>
-                                            <th>OTD %</th>
-                                            <th>Qualité %</th>
-                                            <th>Lead Time (j)</th>
-                                            <th>Litiges</th>
-                                            <th>Risque</th>
-                                            <th>Score Global</th>
+                                            <th>Nb Commandes</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td><strong>Fournisseur A</strong></td>
-                                            <td>420 000</td>
-                                            <td><span class="badge bg-danger">42%</span></td>
-                                            <td><span class="badge bg-warning text-dark">88%</span></td>
-                                            <td><span class="badge bg-success">97%</span></td>
-                                            <td>15,2</td>
-                                            <td>5</td>
-                                            <td><span class="supplier-risk risk-high"></span> Élevé</td>
-                                            <td><span class="badge bg-warning text-dark">72/100</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-outline-warning"><i class="bi bi-exclamation-triangle"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Fournisseur B</strong></td>
-                                            <td>280 000</td>
-                                            <td><span class="badge bg-warning text-dark">28%</span></td>
-                                            <td><span class="badge bg-success">94%</span></td>
-                                            <td><span class="badge bg-success">96%</span></td>
-                                            <td>11,5</td>
-                                            <td>2</td>
-                                            <td><span class="supplier-risk risk-medium"></span> Moyen</td>
-                                            <td><span class="badge bg-success">85/100</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-check-circle"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Fournisseur C</strong></td>
-                                            <td>180 000</td>
-                                            <td><span class="badge bg-success">18%</span></td>
-                                            <td><span class="badge bg-success">96%</span></td>
-                                            <td><span class="badge bg-success">98%</span></td>
-                                            <td>9,8</td>
-                                            <td>1</td>
-                                            <td><span class="supplier-risk risk-low"></span> Faible</td>
-                                            <td><span class="badge bg-success">92/100</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-outline-success"><i class="bi bi-star"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Fournisseur D</strong></td>
-                                            <td>120 000</td>
-                                            <td><span class="badge bg-info">12%</span></td>
-                                            <td><span class="badge bg-danger">82%</span></td>
-                                            <td><span class="badge bg-warning text-dark">92%</span></td>
-                                            <td>18,5</td>
-                                            <td>8</td>
-                                            <td><span class="supplier-risk risk-high"></span> Élevé</td>
-                                            <td><span class="badge bg-danger">65/100</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
-                                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i></button>
-                                            </td>
-                                        </tr>
+                                        <?php if (!empty($suppliersPerf)): ?>
+                                            <?php foreach ($suppliersPerf as $supplier): ?>
+                                            <tr>
+                                                <td><strong><?= htmlspecialchars($supplier['nom']) ?></strong></td>
+                                                <td><?= number_format($supplier['volume_achat'] ?? 0, 2, ',', ' ') ?></td>
+                                                <td><span class="badge bg-info"><?= $supplier['nb_commandes'] ?></span></td>
+                                                <td class="table-actions">
+                                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="4" class="text-center">Aucune donnée fournisseur disponible</td>
+                                            </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -519,7 +381,7 @@
                                     <h4 class="card-title mb-0">Litiges et Non-conformités en Cours</h4>
                                     <p class="text-muted small mb-0">Dernière mise à jour: <?= date('d/m/Y') ?></p>
                                 </div>
-                                <span class="badge bg-warning text-dark fs-6">4 litiges actifs</span>
+                                <span class="badge bg-warning text-dark fs-6"><?= count($litiges) ?> litiges actifs</span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -540,62 +402,38 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td><strong>#L-2401</strong></td>
-                                            <td>15/01/2026</td>
-                                            <td>Fournisseur A</td>
-                                            <td><span class="badge bg-danger">Facture</span></td>
-                                            <td>Écart prix unitaire vs BC</td>
-                                            <td>4 200</td>
-                                            <td><span class="badge bg-danger">Haute</span></td>
-                                            <td><span class="badge bg-warning text-dark">En cours</span></td>
-                                            <td>J. Martin</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>#L-2398</strong></td>
-                                            <td>12/01/2026</td>
-                                            <td>Fournisseur D</td>
-                                            <td><span class="badge bg-warning text-dark">Qualité</span></td>
-                                            <td>Pièces non-conformes aux specs</td>
-                                            <td>8 500</td>
-                                            <td><span class="badge bg-danger">Haute</span></td>
-                                            <td><span class="badge bg-info">Analyse</span></td>
-                                            <td>S. Dubois</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>#L-2387</strong></td>
-                                            <td>08/01/2026</td>
-                                            <td>Fournisseur B</td>
-                                            <td><span class="badge bg-info">Quantité</span></td>
-                                            <td>Livraison partielle non signalée</td>
-                                            <td>2 100</td>
-                                            <td><span class="badge bg-warning text-dark">Moyenne</span></td>
-                                            <td><span class="badge bg-warning text-dark">En cours</span></td>
-                                            <td>J. Martin</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>#L-2375</strong></td>
-                                            <td>03/01/2026</td>
-                                            <td>Fournisseur A</td>
-                                            <td><span class="badge bg-secondary">Délai</span></td>
-                                            <td>Retard de livraison > 5 jours</td>
-                                            <td>-</td>
-                                            <td><span class="badge bg-info">Faible</span></td>
-                                            <td><span class="badge bg-success">Résolu</span></td>
-                                            <td>S. Dubois</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
+                                        <?php if (!empty($litiges)): ?>
+                                            <?php foreach ($litiges as $litige): ?>
+                                            <tr>
+                                                <td><strong>#<?= htmlspecialchars($litige['ref_litige']) ?></strong></td>
+                                                <td><?= date('d/m/Y', strtotime($litige['date_litige'])) ?></td>
+                                                <td><?= htmlspecialchars($litige['fournisseur_nom']) ?></td>
+                                                <td>
+                                                    <span class="badge 
+                                                        <?= $litige['type_litige'] == 'Facture' ? 'bg-danger' : 
+                                                           ($litige['type_litige'] == 'Qualité' ? 'bg-warning text-dark' : 'bg-info') ?>">
+                                                        <?= htmlspecialchars($litige['type_litige']) ?>
+                                                    </span>
+                                                </td>
+                                                <td><?= htmlspecialchars($litige['description']) ?></td>
+                                                <td><?= $litige['montant_enjeu'] > 0 ? number_format($litige['montant_enjeu'], 0, ',', ' ') : '-' ?></td>
+                                                <td>
+                                                    <span class="badge <?= $litige['priorite'] == 'Haute' ? 'bg-danger' : 'bg-warning text-dark' ?>">
+                                                        <?= htmlspecialchars($litige['priorite']) ?>
+                                                    </span>
+                                                </td>
+                                                <td><span class="badge bg-warning text-dark"><?= htmlspecialchars($litige['statut']) ?></span></td>
+                                                <td><?= htmlspecialchars($litige['responsable']) ?></td>
+                                                <td class="table-actions">
+                                                    <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="10" class="text-center">Aucun litige en cours</td>
+                                            </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -618,8 +456,8 @@
                                     <span class="badge bg-primary">Assigné</span>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <i class="bi bi-person-fill"></i> <strong>Marc Lefebvre</strong><br>
-                                    <i class="bi bi-envelope"></i> m.lefebvre@company.com<br>
+                                    <i class="bi bi-person-fill"></i> <strong><?= $_SESSION['user']['nom'] ?? 'Utilisateur' ?></strong><br>
+                                    <i class="bi bi-envelope"></i> <?= $_SESSION['user']['email'] ?? 'email@entreprise.com' ?><br>
                                     <i class="bi bi-telephone"></i> +33 1 23 45 67 89
                                 </p>
                             </div>
@@ -749,42 +587,30 @@
             order: [[1, 'desc']]
         });
 
-        // Graphique 1: Évolution Cycle Time
+        // Graphique 1: Évolution Cycle Time - DONNEES REELLES
+        <?php 
+            $cycleMonths = array_column($cycleTimeData, 'mois');
+            $cycleValues = array_column($cycleTimeData, 'avg_days');
+        ?>
         var optionsCycleTime = {
             series: [
                 {
-                    name: 'Médiane (jours)',
-                    data: [4.2, 4.0, 3.8, 3.6, 3.5, 3.5, 3.7, 3.4, 3.3, 3.5, 3.5, 3.5]
-                },
-                {
-                    name: 'P90 (jours)',
-                    data: [7.8, 7.5, 7.2, 7.0, 7.0, 7.1, 7.3, 6.8, 6.9, 7.0, 7.0, 7.0]
+                    name: 'Moyenne (jours)',
+                    data: [<?php echo implode(', ', $cycleValues ?: [0]); ?>]
                 }
             ],
             chart: {
                 type: 'line',
                 height: 350,
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: true,
-                        selection: true,
-                        zoom: true,
-                        zoomin: true,
-                        zoomout: true,
-                        pan: true,
-                        reset: true
-                    }
-                },
-                sparkline: { enabled: false }
+                toolbar: { show: true }
             },
-            colors: ['#28a745', '#ffc107'],
+            colors: ['#28a745'],
             stroke: {
                 curve: 'smooth',
                 width: 2
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: [<?php echo "'" . implode("', '", $cycleMonths ?: []) . "'"; ?>]
             },
             yaxis: {
                 title: {
@@ -836,15 +662,16 @@
         };
         new ApexCharts(document.querySelector('#chart-cycletime-distribution'), optionsDistribution).render();
 
-        // Graphique 3: Concentration Fournisseurs (Pie)
+        // Graphique 3: Concentration Fournisseurs (Pie) - DONNEES REELLES
+        <?php if (!empty($suppliersPerf)): ?>
         var optionsConcentration = {
-            series: [42, 28, 18, 12],
+            series: [<?php echo implode(', ', array_column($suppliersPerf, 'volume_achat')); ?>],
             chart: {
                 type: 'donut',
                 height: 350
             },
-            labels: ['Fournisseur A', 'Fournisseur B', 'Fournisseur C', 'Fournisseur D'],
-            colors: ['#dc3545', '#ffc107', '#28a745', '#17a2b8'],
+            labels: [<?php echo "'" . implode("', '", array_column($suppliersPerf, 'nom')) . "'"; ?>],
+            colors: ['#dc3545', '#ffc107', '#28a745', '#17a2b8', '#6f42c1'],
             plotOptions: {
                 pie: {
                     donut: {
@@ -863,22 +690,39 @@
             }
         };
         new ApexCharts(document.querySelector('#chart-concentration'), optionsConcentration).render();
+        <?php endif; ?>
 
-        // Graphique 4: Évolution Prix d'Achat
+        // Graphique 4: Évolution Prix d'Achat - DONNEES REELLES
+        <?php 
+            // Simple mapping for demo: extract price for the first article found in history
+            $priceMonths = array_unique(array_column($priceHistoryData, 'mois'));
+            sort($priceMonths);
+            
+            // Check if we have data, otherwise fallback
+            if (!empty($priceHistoryData)) {
+                $uniqueArticles = array_unique(array_column($priceHistoryData, 'designation'));
+                $seriesData = [];
+                
+                foreach ($uniqueArticles as $articleName) {
+                    $dataPoints = [];
+                    foreach ($priceMonths as $month) {
+                        // Find price for this article and month
+                        $price = null;
+                        foreach ($priceHistoryData as $row) {
+                            if ($row['designation'] === $articleName && $row['mois'] === $month) {
+                                $price = $row['prix'];
+                                break;
+                            }
+                        }
+                        $dataPoints[] = $price ?: 0; // 0 or previous value would be better
+                    }
+                    $seriesData[] = "{ name: '" . addslashes($articleName) . "', data: [" . implode(',', $dataPoints) . "] }";
+                }
+            }
+        ?>
         var optionsPrixEvolution = {
             series: [
-                {
-                    name: 'Article A (Composant électronique)',
-                    data: [100, 101, 102, 103, 104, 105, 103, 102, 101, 100, 99, 98]
-                },
-                {
-                    name: 'Article B (Matière première)',
-                    data: [100, 102, 105, 108, 110, 112, 111, 109, 107, 105, 103, 101]
-                },
-                {
-                    name: 'Article C (Service)',
-                    data: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
-                }
+                <?php echo !empty($seriesData) ? implode(',', $seriesData) : "{ name: 'Aucune donnée', data: [] }"; ?>
             ],
             chart: {
                 type: 'line',
@@ -891,11 +735,11 @@
                 width: 2
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: [<?php echo !empty($priceMonths) ? "'" . implode("', '", $priceMonths) . "'" : ""; ?>]
             },
             yaxis: {
                 title: {
-                    text: 'Index (Base 100)'
+                    text: 'Prix (€)'
                 }
             },
             legend: {
@@ -908,35 +752,26 @@
         };
         new ApexCharts(document.querySelector('#chart-prix-evolution'), optionsPrixEvolution).render();
 
-        // Graphique 5: Taux Commandes Urgentes
+        // Graphique 5: Taux Commandes Urgentes - DONNEES REELLES (Mois courant)
         var optionsUrgent = {
             series: [
                 {
-                    name: 'Taux urgences (%)',
-                    data: [8, 9, 7, 11, 13, 14, 15, 16, 17, 16, 15, 15]
-                },
-                {
-                    name: 'Objectif (%)',
-                    data: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+                    name: 'Nombre urgences',
+                    data: [<?= $urgentOrdersCount ?? 0 ?>] 
                 }
             ],
             chart: {
-                type: 'line',
+                type: 'bar', // Changed to bar as we only have 1 point
                 height: 350,
                 toolbar: { show: true }
             },
-            colors: ['#dc3545', '#28a745'],
-            stroke: {
-                curve: 'smooth',
-                width: [2, 2],
-                dashArray: [0, 5]
-            },
+            colors: ['#dc3545'],
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: ['Mois en cours']
             },
             yaxis: {
                 title: {
-                    text: 'Pourcentage (%)'
+                    text: 'Nombre de commandes'
                 }
             },
             legend: {
@@ -949,12 +784,13 @@
         };
         new ApexCharts(document.querySelector('#chart-urgent'), optionsUrgent).render();
 
-        // Graphique 6: OTD par Fournisseur
+        // Graphique 6: OTD par Fournisseur - DONNEES REELLES
+        <?php if (!empty($suppliersPerf)): ?>
         var optionsOTD = {
             series: [
                 {
-                    name: 'OTD (%)',
-                    data: [88, 94, 96, 82]
+                    name: 'Nb Commandes',
+                    data: [<?php echo implode(', ', array_column($suppliersPerf, 'nb_commandes')); ?>]
                 }
             ],
             chart: {
@@ -964,15 +800,13 @@
             },
             colors: ['#435ebe'],
             xaxis: {
-                categories: ['Fournisseur A', 'Fournisseur B', 'Fournisseur C', 'Fournisseur D']
+                categories: [<?php echo "'" . implode("', '", array_column($suppliersPerf, 'nom')) . "'"; ?>]
             },
             yaxis: {
                 title: {
-                    text: 'OTD (%)',
+                    text: 'Nombre de commandes',
                     align: 'high'
-                },
-                min: 0,
-                max: 100
+                }
             },
             plotOptions: {
                 bar: {
@@ -985,9 +819,6 @@
             },
             dataLabels: {
                 enabled: true,
-                formatter: function(val) {
-                    return val + '%';
-                },
                 offsetY: -20
             },
             grid: {
@@ -996,6 +827,7 @@
             }
         };
         new ApexCharts(document.querySelector('#chart-otd-fournisseurs'), optionsOTD).render();
+        <?php endif; ?>
     });
 </script>
 

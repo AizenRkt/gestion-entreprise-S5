@@ -89,32 +89,37 @@
 
         <div class="page-content">
 
-            <!-- ALERTES -->
+            <!-- ALERTES DYNAMIQUES -->
             <section class="row mb-4">
+                <?php if (isset($backlogCount) && $backlogCount > 10): ?>
                 <div class="col-12">
                     <div class="alert alert-danger border-danger" style="border-left: 4px solid;">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-exclamation-octagon-fill me-3 fs-4"></i>
                             <div class="flex-grow-1">
                                 <strong>Backlog critique :</strong> 
-                                <span class="ms-2"><strong>12 commandes non servies</strong> (16 800 €) • Stock insuffisant: SKU-X45, SKU-Y78</span>
+                                <span class="ms-2"><strong><?= $backlogCount ?> commandes non servies</strong> (<?= number_format($backlogAmount, 0, ',', ' ') ?> €)</span>
                             </div>
                             <button class="btn btn-sm btn-outline-danger">Action urgente</button>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
+                
+                <?php if (isset($delayedCount) && $delayedCount > 5): ?>
                 <div class="col-12">
                     <div class="alert alert-warning border-warning" style="border-left: 4px solid;">
                         <div class="d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
                             <div class="flex-grow-1">
                                 <strong>Commandes en retard :</strong> 
-                                <span class="ms-2"><strong>8 commandes</strong> avec délai > 5 jours • Impact: 9 500 € • Clients: A, B, D</span>
+                                <span class="ms-2"><strong><?= $delayedCount ?> commandes</strong> avec délai > 7 jours • Impact: <?= number_format($delayedAmount, 0, ',', ' ') ?> €</span>
                             </div>
                             <button class="btn btn-sm btn-outline-warning">Détails</button>
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </section>
 
             <!-- KPI PRINCIPAUX -->
@@ -125,7 +130,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Commandes en cours</h6>
-                                    <h3 class="font-extrabold mb-0">54</h3>
+                                    <h3 class="font-extrabold mb-0"><?= $ordersInProgress ?></h3>
                                     <div class="mt-2">
                                         <span class="badge bg-info badge-metric">
                                             <i class="bi bi-clock-history"></i> En traitement
@@ -156,7 +161,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Taux d'annulation</h6>
-                                    <h3 class="font-extrabold mb-0">4%</h3>
+                                    <h3 class="font-extrabold mb-0"><?= $cancellationRate ?>%</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-warning badge-metric">
                                             <i class="bi bi-x-circle"></i> Motifs
@@ -187,7 +192,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Remises accordées</h6>
-                                    <h3 class="font-extrabold mb-0">12 500 €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($discountsGranted, 0, ',', ' ') ?> €</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-success badge-metric">
                                             <i class="bi bi-percent"></i> vs plafond
@@ -218,7 +223,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Avoirs</h6>
-                                    <h3 class="font-extrabold mb-0">8 300 €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($creditsTotal, 0, ',', ' ') ?> €</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-info badge-metric">
                                             <i class="bi bi-arrow-counterclockwise"></i> Retour / Casse / Erreur
@@ -252,7 +257,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Chiffre d'affaires</small>
-                                    <h5 class="mb-0 text-primary">185 600 €</h5>
+                                    <h5 class="mb-0 text-primary"><?= number_format($revenue, 0, ',', ' ') ?> €</h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary">+12%</span>
@@ -269,7 +274,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Taux de service</small>
-                                    <h5 class="mb-0 text-success">96,2%</h5>
+                                    <h5 class="mb-0 text-success"><?= $serviceRate ?>%</h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-success">+2,1%</span>
@@ -286,7 +291,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Nombre clients</small>
-                                    <h5 class="mb-0">42</h5>
+                                    <h5 class="mb-0"><?= $customerCount ?></h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-warning text-dark">+5</span>
@@ -303,7 +308,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Ticket moyen</small>
-                                    <h5 class="mb-0 text-success">4 419 €</h5>
+                                    <h5 class="mb-0 text-success"><?= number_format($avgTicket, 0, ',', ' ') ?> €</h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-info">+6%</span>
@@ -378,7 +383,7 @@
                                     <h4 class="card-title mb-0">Commandes en Retard (> 5 jours)</h4>
                                     <p class="text-muted small mb-0">Impact total: 9 500 €</p>
                                 </div>
-                                <span class="badge bg-danger fs-6">8 commandes retardées</span>
+                                <span class="badge bg-danger fs-6"><?= count($delayedOrders) ?> commandes retardées</span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -398,46 +403,28 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td><strong>#CMD-001245</strong></td>
-                                            <td><span class="customer-name">Client A</span></td>
-                                            <td>08/01/2026</td>
-                                            <td>13/01/2026</td>
-                                            <td><span class="badge bg-danger">8 jours</span></td>
-                                            <td>2 300</td>
-                                            <td>Stock insuffisant</td>
-                                            <td><span class="badge bg-danger">Critique</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button>
-                                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>#CMD-001242</strong></td>
-                                            <td><span class="customer-name">Client B</span></td>
-                                            <td>10/01/2026</td>
-                                            <td>15/01/2026</td>
-                                            <td><span class="badge bg-danger">6 jours</span></td>
-                                            <td>1 850</td>
-                                            <td>Retard fournisseur</td>
-                                            <td><span class="badge bg-warning text-dark">Haute</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>#CMD-001238</strong></td>
-                                            <td><span class="customer-name">Client D</span></td>
-                                            <td>05/01/2026</td>
-                                            <td>12/01/2026</td>
-                                            <td><span class="badge bg-danger">9 jours</span></td>
-                                            <td>3 100</td>
-                                            <td>Problème transport</td>
-                                            <td><span class="badge bg-danger">Critique</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
+                                        <?php if (!empty($delayedOrders)): ?>
+                                            <?php foreach ($delayedOrders as $order): ?>
+                                            <tr>
+                                                <td><strong><?= htmlspecialchars($order['commande_numero']) ?></strong></td>
+                                                <td><span class="customer-name"><?= htmlspecialchars($order['client_nom']) ?></span></td>
+                                                <td><?= date('d/m/Y', strtotime($order['commande_date'])) ?></td>
+                                                <td><?= date('d/m/Y', strtotime($order['date_prevue'])) ?></td>
+                                                <td><span class="badge bg-danger"><?= $order['jours_retard'] ?> jours</span></td>
+                                                <td><?= number_format($order['montant_ttc'], 0, ',', ' ') ?></td>
+                                                <td><?= htmlspecialchars($order['motif']) ?></td>
+                                                <td><span class="badge bg-danger"><?= htmlspecialchars($order['statut_priorite']) ?></span></td>
+                                                <td class="table-actions">
+                                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></button>
+                                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-exclamation"></i></button>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="9" class="text-center">Aucune commande en retard</td>
+                                            </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
