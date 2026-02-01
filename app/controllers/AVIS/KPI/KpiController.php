@@ -26,16 +26,11 @@ class KpiController
     {
         $db = Flight::db();
 
-        // 1. Total Achats (suivi Bon de Commande validés)
-        // Question: "Combien avons-nous depense ?"
+        // 1. Total Spend (Valid POs)
         $sqlSpend = "SELECT SUM(montant_ttc) as total FROM bon_commande_fournisseur"; 
-        // Note: idealement filtrer par statut 'validé' si la colonne existe ou 'date' pour YTD. 
-        // Ici on prend le total global pour l'instant ou on suppose que tout BC est validé.
-        // On va checker bon_commande_fournisseur_status si besoin mais restons simple pour start.
         $totalSpend = $db->query($sqlSpend)->fetchColumn() ?: 0;
 
-        // 2. Top Fournisseur
-        // Question: "Qui est notre plus gros fournisseur ?"
+        // 2. Top Supplier
         $sqlTopSupplier = "SELECT f.nom, SUM(b.montant_ttc) as total 
                            FROM bon_commande_fournisseur b
                            JOIN fournisseur f ON b.id_fournisseur = f.id_fournisseur
@@ -46,23 +41,18 @@ class KpiController
         $topSupplierName = $topSupplierData['nom'] ?? 'N/A';
         $topSupplierAmount = $topSupplierData['total'] ?? 0;
 
-        // 3. Commandes en cours (Demande achat non clôturée ou BC non livré)
-        // Question: "Combien de commandes sont en attente ?"
-        // On compte les Demandes d'achat en statut 'CREE' ou 'VISEE'
+        // 3. Pending Orders (Created or Visas)
         $sqlPending = "SELECT COUNT(*) FROM demande_achat WHERE statut IN ('CREE', 'VISEE')";
         $pendingOrders = $db->query($sqlPending)->fetchColumn() ?: 0;
 
-        // 4. Average Lead Time (Délai moyen commande -> réception)
-        // Question: "En combien de temps sommes-nous livrés ?"
-        // On compare date réception vs date BC
+        // 4. Average Lead Time
         $sqlLeadTime = "SELECT AVG(DATEDIFF(r.reception_date, b.bc_date)) as avg_days
                         FROM reception_fournisseur r
                         JOIN bon_commande_fournisseur b ON r.id_bon_commande_fournisseur = b.id_bon_commande_fournisseur";
         $avgLeadTime = $db->query($sqlLeadTime)->fetchColumn();
         $avgLeadTime = $avgLeadTime ? round($avgLeadTime, 1) : 0;
 
-        // Données pour le tableau fournisseurs (Performance)
-        // On recupere quelques fournisseurs avec leurs montants
+        // 5. Suppliers Performance
         $sqlSuppliers = "SELECT f.nom, COALESCE(SUM(b.montant_ttc), 0) as volume_achat, COUNT(b.id_bon_commande_fournisseur) as nb_commandes
                          FROM fournisseur f
                          LEFT JOIN bon_commande_fournisseur b ON f.id_fournisseur = b.id_fournisseur
@@ -71,32 +61,37 @@ class KpiController
                          LIMIT 5";
         $suppliersPerf = $db->query($sqlSuppliers)->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Données pour graphique: Evolution mensuelle des achats (4 derniers mois)
+        // 6. Monthly Spend Evolution (Bar Chart)
         $sqlMonthlyEvolution = "SELECT 
                                     DATE_FORMAT(bc_date, '%Y-%m') as mois,
                                     SUM(montant_ttc) as total_achats,
                                     COUNT(*) as nb_commandes
                                 FROM bon_commande_fournisseur
-                                WHERE bc_date >= DATE_SUB(NOW(), INTERVAL 4 MONTH)
+                                WHERE bc_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
                                 GROUP BY DATE_FORMAT(bc_date, '%Y-%m')
                                 ORDER BY mois ASC";
         $monthlyData = $db->query($sqlMonthlyEvolution)->fetchAll(\PDO::FETCH_ASSOC);
 
+        // 7. Spend by Category (Pie Chart) - NEW
+        $sqlSpendByCategory = "SELECT af.nom, SUM(dal.prix_unitaire * dal.quantite) as total
+                               FROM bon_commande_fournisseur b
+                               JOIN demande_achat d ON b.id_demande_achat = d.id_demande_achat
+                               JOIN demande_achat_ligne dal ON d.id_demande_achat = dal.id_demande_achat
+                               JOIN article a ON dal.id_article = a.id_article
+                               JOIN article_famille af ON a.id_famille_article_famille = af.id_article_famille
+                               GROUP BY af.nom";
+        $spendByCategory = $db->query($sqlSpendByCategory)->fetchAll(\PDO::FETCH_ASSOC);
 
-        // 5. Alerts & Risk Analysis
-        // Risk: Top Supplier Share
+        // 8. Alerts & Risk
         $supplierRiskShare = ($totalSpend > 0) ? round(($topSupplierAmount / $totalSpend) * 100, 1) : 0;
         
-        // Urgent Orders (this month)
-        // Supposons que 'remarque' contient 'urgent' ou priorite haute
         $sqlUrgent = "SELECT COUNT(*) FROM demande_achat 
                       WHERE (remarque LIKE '%urgent%' OR remarque LIKE '%URGENT%') 
                       AND MONTH(date_demande) = MONTH(CURRENT_DATE())
                       AND YEAR(date_demande) = YEAR(CURRENT_DATE())";
         $urgentOrdersCount = $db->query($sqlUrgent)->fetchColumn() ?: 0;
 
-        // 6. Charts Data
-        // Cycle Time Evolution (Avg days between DA date and BC date per month)
+        // 9. Cycle Time Evolution (Line Chart)
         $sqlCycleTime = "SELECT 
                             DATE_FORMAT(b.bc_date, '%Y-%m') as mois,
                             AVG(DATEDIFF(b.bc_date, d.date_demande)) as avg_days
@@ -107,7 +102,7 @@ class KpiController
                          ORDER BY mois ASC";
         $cycleTimeData = $db->query($sqlCycleTime)->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Price Evolution (Article A vs B) - Mocked logic if table empty, but trying fetch
+        // 10. Price Evolution (Line Chart)
         $sqlPriceHistory = "SELECT 
                                 a.designation, 
                                 aph.prix_vente as prix, 
@@ -118,8 +113,7 @@ class KpiController
                             ORDER BY aph.date_modification ASC";
         $priceHistoryData = $db->query($sqlPriceHistory)->fetchAll(\PDO::FETCH_ASSOC);
         
-        // Litigations (Active)
-        // On checke si la table existe, sinon vide
+        // 11. Litigations & Quality Rate
         try {
             $sqlLitiges = "SELECT l.*, f.nom as fournisseur_nom 
                            FROM litige_fournisseur l
@@ -128,8 +122,15 @@ class KpiController
                            ORDER BY l.date_litige DESC
                            LIMIT 5";
             $litiges = $db->query($sqlLitiges)->fetchAll(\PDO::FETCH_ASSOC);
+            
+            // Calculate Quality Rate (1 - (Litigations / Total BCs)) * 100
+            $totalBCs = $db->query("SELECT COUNT(*) FROM bon_commande_fournisseur")->fetchColumn() ?: 1;
+            $totalLitiges = $db->query("SELECT COUNT(*) FROM litige_fournisseur")->fetchColumn() ?: 0;
+            $qualityRate = round((1 - ($totalLitiges / ($totalBCs ?: 1))) * 100, 1);
+            
         } catch (\Exception $e) {
             $litiges = [];
+            $qualityRate = 100;
         }
 
         Flight::render('AVIS/kpi/achats', [
@@ -141,11 +142,13 @@ class KpiController
             'avgLeadTime' => $avgLeadTime,
             'suppliersPerf' => $suppliersPerf,
             'monthlyData' => $monthlyData,
+            'spendByCategory' => $spendByCategory,
             'supplierRiskShare' => $supplierRiskShare,
             'urgentOrdersCount' => $urgentOrdersCount,
             'cycleTimeData' => $cycleTimeData,
             'priceHistoryData' => $priceHistoryData,
-            'litiges' => $litiges
+            'litiges' => $litiges,
+            'qualityRate' => $qualityRate
         ]);
     }
 

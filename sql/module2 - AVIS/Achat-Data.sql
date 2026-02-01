@@ -169,3 +169,38 @@ INSERT INTO article_prix_historique (id_article, prix_vente, date_modification) 
 (2, 103, DATE_SUB(NOW(), INTERVAL 2 MONTH)),
 (2, 101, DATE_SUB(NOW(), INTERVAL 1 MONTH));
 
+
+-- ==========================================
+-- ENRICHISSEMENT DONNÉES ACHATS (NOUVEAU)
+-- ==========================================
+
+-- 1. Création des familles d'articles
+INSERT INTO article_famille (code, nom, description) VALUES
+('FAM-MP', 'Matières Premières', 'Farines, Sucres, Huiles'),
+('FAM-EMB', 'Emballages', 'Cartons, Plastiques, Étiquettes'),
+('FAM-ING', 'Ingrédients Spéciaux', 'Arômes, Colorants, Levures');
+
+-- 2. Mise à jour des articles avec leur famille
+UPDATE article SET id_famille_article_famille = (SELECT id_article_famille FROM article_famille WHERE code = 'FAM-ING') WHERE code IN ('AVBIS001', 'AVCHO002');
+UPDATE article SET id_famille_article_famille = (SELECT id_article_famille FROM article_famille WHERE code = 'FAM-MP') WHERE code IN ('AVFAR003', 'AVSUC004', 'AVHUI005');
+
+-- 3. Ajout de nouvelles commandes pour avoir de la diversité dans les familles et mois
+-- Création des DA historiques
+INSERT INTO demande_achat (numero, date_demande, id_fournisseur, statut, montant_ht, created_by, created_at) VALUES
+('DMDA-HIST-1', DATE_SUB(NOW(), INTERVAL 95 DAY), 1, 'VISEE', 250000, 1, DATE_SUB(NOW(), INTERVAL 95 DAY)),
+('DMDA-HIST-2', DATE_SUB(NOW(), INTERVAL 90 DAY), 2, 'VISEE', 180000, 1, DATE_SUB(NOW(), INTERVAL 90 DAY)),
+('DMDA-HIST-3', DATE_SUB(NOW(), INTERVAL 65 DAY), 1, 'VISEE', 280000, 1, DATE_SUB(NOW(), INTERVAL 65 DAY)),
+('DMDA-HIST-4', DATE_SUB(NOW(), INTERVAL 35 DAY), 1, 'VISEE', 320000, 1, DATE_SUB(NOW(), INTERVAL 35 DAY));
+
+-- Lier les BC existants (3, 4, 6, 9) à ces DA pour pouvoir faire le lien vers article
+UPDATE bon_commande_fournisseur SET id_demande_achat = (SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-1') WHERE bc_numero = 'BC00003';
+UPDATE bon_commande_fournisseur SET id_demande_achat = (SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-2') WHERE bc_numero = 'BC00004';
+UPDATE bon_commande_fournisseur SET id_demande_achat = (SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-3') WHERE bc_numero = 'BC00006';
+UPDATE bon_commande_fournisseur SET id_demande_achat = (SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-4') WHERE bc_numero = 'BC00009';
+
+-- Ajouter des lignes à ces DA
+INSERT INTO demande_achat_ligne (id_demande_achat, id_article, designation, quantite, prix_unitaire, tva) VALUES
+((SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-1'), (SELECT id_article FROM article WHERE code='AVFAR003'), 'Farine', 100, 2500, 20),
+((SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-2'), (SELECT id_article FROM article WHERE code='AVBIS001'), 'Biscuit', 500, 360, 20),
+((SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-3'), (SELECT id_article FROM article WHERE code='AVHUI005'), 'Huile', 200, 1400, 20),
+((SELECT id_demande_achat FROM demande_achat WHERE numero = 'DMDA-HIST-4'), (SELECT id_article FROM article WHERE code='AVCHO002'), 'Chocolat', 300, 1066, 20);

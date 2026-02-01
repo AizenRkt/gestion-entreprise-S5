@@ -244,10 +244,10 @@
                 <div class="col-12 col-xl-4">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Distribution Cycle Time</h4>
+                            <h4 class="card-title">Dépenses par Famille d'Achat</h4>
                         </div>
                         <div class="card-body">
-                            <div id="chart-cycletime-distribution"></div>
+                            <div id="chart-spend-category"></div>
                         </div>
                     </div>
                 </div>
@@ -349,11 +349,11 @@
                 <div class="col-12 col-xl-6">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Taux de Commandes Urgentes</h4>
-                            <p class="text-muted small mb-0">Évolution mensuelle (objectif < 10%)</p>
+                            <h4 class="card-title">Évolution Mensuelle des Dépenses</h4>
+                            <p class="text-muted small mb-0">Montants validés (6 derniers mois)</p>
                         </div>
                         <div class="card-body">
-                            <div id="chart-urgent"></div>
+                            <div id="chart-monthly-spend"></div>
                         </div>
                     </div>
                 </div>
@@ -633,34 +633,28 @@
         };
         new ApexCharts(document.querySelector('#chart-cycletime'), optionsCycleTime).render();
 
-        // Graphique 2: Distribution Cycle Time
-        var optionsDistribution = {
-            series: [
-                {
-                    name: 'Nombre de commandes',
-                    data: [5, 12, 25, 22, 18, 8, 4, 2]
-                }
-            ],
+        // Graphique 2: Dépenses par Catégorie (Pie)
+        <?php if (!empty($spendByCategory)): ?>
+        var optionsCategory = {
+            series: [<?php echo implode(', ', array_map(function($i){ return $i['total']; }, $spendByCategory)); ?>],
             chart: {
-                type: 'bar',
+                type: 'pie',
                 height: 350,
-                toolbar: { show: false }
+                toolbar: { show: true }
             },
-            colors: ['#435ebe'],
-            xaxis: {
-                categories: ['1-2j', '2-3j', '3-4j', '4-5j', '5-6j', '6-7j', '7-8j', '>8j']
+            labels: [<?php echo "'" . implode("', '", array_map(function($i){ return addslashes($i['nom']); }, $spendByCategory)) . "'"; ?>],
+            colors: ['#435ebe', '#55c6e8', '#4ecdc4', '#ffc107', '#dc3545'],
+            dataLabels: {
+                formatter: function (val, opts) {
+                    return opts.w.config.series[opts.seriesIndex].toLocaleString('fr-FR') + ' €';
+                },
             },
-            yaxis: {
-                title: {
-                    text: 'Nombre de commandes'
-                }
-            },
-            grid: {
-                show: true,
-                borderColor: '#e7e7e7'
-            }
+            legend: { position: 'bottom' }
         };
-        new ApexCharts(document.querySelector('#chart-cycletime-distribution'), optionsDistribution).render();
+        new ApexCharts(document.querySelector('#chart-spend-category'), optionsCategory).render();
+        <?php else: ?>
+        document.querySelector('#chart-spend-category').innerHTML = '<div class="alert alert-light text-center">Aucune donnée disponible</div>';
+        <?php endif; ?>
 
         // Graphique 3: Concentration Fournisseurs (Pie) - DONNEES REELLES
         <?php if (!empty($suppliersPerf)): ?>
@@ -753,36 +747,51 @@
         new ApexCharts(document.querySelector('#chart-prix-evolution'), optionsPrixEvolution).render();
 
         // Graphique 5: Taux Commandes Urgentes - DONNEES REELLES (Mois courant)
-        var optionsUrgent = {
-            series: [
-                {
-                    name: 'Nombre urgences',
-                    data: [<?= $urgentOrdersCount ?? 0 ?>] 
-                }
-            ],
+        // Graphique 5: Évolution Mensuelle des Dépenses (Bar)
+        <?php if (!empty($monthlyData)): ?>
+        var optionsMonthly = {
+            series: [{
+                name: 'Montant (€)',
+                data: [<?php echo implode(', ', array_column($monthlyData, 'total_achats')); ?>]
+            }],
             chart: {
-                type: 'bar', // Changed to bar as we only have 1 point
+                type: 'bar',
                 height: 350,
                 toolbar: { show: true }
             },
-            colors: ['#dc3545'],
-            xaxis: {
-                categories: ['Mois en cours']
-            },
-            yaxis: {
-                title: {
-                    text: 'Nombre de commandes'
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    dataLabels: {
+                        position: 'top', // top, center, bottom
+                    },
                 }
             },
-            legend: {
-                position: 'top'
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return (val / 1000).toFixed(1) + " k€";
+                },
+                offsetY: -20,
+                style: {
+                    colors: ["#304758"]
+                }
+            },
+            colors: ['#6f42c1'],
+            xaxis: {
+                categories: [<?php echo "'" . implode("', '", array_column($monthlyData, 'mois')) . "'"; ?>],
+                position: 'bottom'
+            },
+            yaxis: {
+                title: { text: 'Montant HT (€)' }
             },
             grid: {
                 show: true,
                 borderColor: '#e7e7e7'
             }
         };
-        new ApexCharts(document.querySelector('#chart-urgent'), optionsUrgent).render();
+        new ApexCharts(document.querySelector('#chart-monthly-spend'), optionsMonthly).render();
+        <?php endif; ?>
 
         // Graphique 6: OTD par Fournisseur - DONNEES REELLES
         <?php if (!empty($suppliersPerf)): ?>
