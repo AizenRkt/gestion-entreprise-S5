@@ -497,3 +497,40 @@ CREATE TABLE stock_cloture_detail (
     INDEX idx_stock_cloture_detail_art_dep (id_article, id_depot)
 );
 
+CREATE TABLE inventaire (
+    id_inventaire INT AUTO_INCREMENT PRIMARY KEY,
+    inventaire_numero VARCHAR(50) NOT NULL UNIQUE,
+    date_inventaire DATETIME NOT NULL,
+    id_depot INT NOT NULL,
+    commentaire VARCHAR(255),
+    statut ENUM('BROUILLON','VALIDE','ANNULE') DEFAULT 'BROUILLON',
+    cree_par INT NOT NULL,
+    valide_par INT,
+    date_validation DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
+);
+
+CREATE TABLE inventaire_status (
+    id_inventaire_status INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire INT NOT NULL,
+    libelle ENUM('BROUILLON','VALIDE','ANNULE'),
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_inventaire) REFERENCES inventaire(id_inventaire)
+);
+
+CREATE TABLE inventaire_ligne (
+    id_inventaire_ligne INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire INT NOT NULL,
+    id_article INT NOT NULL,
+    id_lot INT,
+    quantite_theorique DECIMAL(15,3) NOT NULL,
+    quantite_physique DECIMAL(15,3) NOT NULL,
+    cout_unitaire DECIMAL(15,4) NOT NULL,
+    FOREIGN KEY (id_inventaire) REFERENCES inventaire(id_inventaire),
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_lot) REFERENCES lot(id_lot)
+);
+
+

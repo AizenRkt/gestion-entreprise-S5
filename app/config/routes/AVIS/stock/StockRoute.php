@@ -22,3 +22,10 @@ $router->get('/stock/admin/settings', [$controller, 'adminStockSettings']);
 
 // Reservations page
 $router->get('/stock/reservations', [$controller, 'stockReservations']);
+
+// Inventaire views
+use app\controllers\AVIS\stock\InventaireController;
+$invController = new InventaireController();
+$router->get('/stock/inventaires', [$invController, 'list']);
+$router->get('/stock/inventaires/saisie', [$invController, 'saisie']);
+$router->get('/stock/inventaires/saisie/@id', [$invController, 'saisie']);

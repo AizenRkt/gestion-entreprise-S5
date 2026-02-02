@@ -52,6 +52,7 @@
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/mouvement/saisie" class="submenu-link">Saisie</a></li>
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/mouvement/list" class="submenu-link">Listing</a></li>
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/reservations" class="submenu-link">Réservations</a></li>
+                        <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaires" class="submenu-link">Inventaires</a></li>
                     </ul>
                 </li>
 
