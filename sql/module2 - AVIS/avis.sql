@@ -468,6 +468,91 @@ CREATE TABLE stock_reservation (
 );
 
 -- ==============================
+-- INVENTAIRE - PLANIFICATION
+-- ==============================
+CREATE TABLE inventaire_campagne (
+    id_inventaire_campagne INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    libelle VARCHAR(150) NOT NULL,
+    description TEXT,
+    type_campagne ENUM('GENERAL','PARTIEL','CYCLE') DEFAULT 'GENERAL',
+    statut ENUM('BROUILLON','PLANIFIE','EN_COURS','CLOTURE') DEFAULT 'BROUILLON',
+    date_planification DATETIME DEFAULT CURRENT_TIMESTAMP,
+    date_debut_prevue DATETIME,
+    date_fin_prevue DATETIME,
+    created_by INT NOT NULL,
+    updated_by INT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE inventaire_campagne_depot (
+    id_inventaire_campagne_depot INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire_campagne INT NOT NULL,
+    id_depot INT NOT NULL,
+    id_site INT,
+    zone VARCHAR(100),
+    commentaire VARCHAR(255),
+    FOREIGN KEY (id_inventaire_campagne) REFERENCES inventaire_campagne(id_inventaire_campagne),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    FOREIGN KEY (id_site) REFERENCES site(id_site)
+);
+
+CREATE TABLE inventaire_campagne_cible (
+    id_inventaire_campagne_cible INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire_campagne INT NOT NULL,
+    type_cible ENUM('TOUS','FAMILLE','ARTICLE') NOT NULL DEFAULT 'TOUS',
+    id_article INT,
+    id_article_famille INT,
+    inclure_lots BOOLEAN DEFAULT TRUE,
+    commentaire VARCHAR(255),
+    FOREIGN KEY (id_inventaire_campagne) REFERENCES inventaire_campagne(id_inventaire_campagne),
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_article_famille) REFERENCES article_famille(id_article_famille)
+);
+
+CREATE TABLE inventaire_equipe (
+    id_inventaire_equipe INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire_campagne INT NOT NULL,
+    nom_equipe VARCHAR(100) NOT NULL,
+    id_responsable INT,
+    commentaire VARCHAR(255),
+    FOREIGN KEY (id_inventaire_campagne) REFERENCES inventaire_campagne(id_inventaire_campagne)
+);
+-- NOTE: id_responsable correspond à un employé (module RH) si disponible.
+
+CREATE TABLE inventaire_equipe_membre (
+    id_inventaire_equipe_membre INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire_equipe INT NOT NULL,
+    id_employe INT NOT NULL,
+    role_membre ENUM('SUPERVISEUR','COMPTEUR','OBSERVATEUR') DEFAULT 'COMPTEUR',
+    FOREIGN KEY (id_inventaire_equipe) REFERENCES inventaire_equipe(id_inventaire_equipe),
+    UNIQUE KEY uniq_inventaire_equipe_membre (id_inventaire_equipe, id_employe)
+);
+-- NOTE: id_employe fait référence à la table employe du module RH.
+
+-- ==============================
+-- INVENTAIRE - COMPTAGE
+-- ==============================
+CREATE TABLE inventaire_comptage (
+    id_inventaire_comptage INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire_campagne INT NOT NULL,
+    id_depot INT NOT NULL,
+    id_article INT NOT NULL,
+    id_lot INT,
+    quantite_theorique DECIMAL(15,3),
+    quantite_comptee DECIMAL(15,3) NOT NULL,
+    ecart DECIMAL(15,3),
+    commentaire VARCHAR(255),
+    date_comptage DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_by INT NOT NULL,
+    FOREIGN KEY (id_inventaire_campagne) REFERENCES inventaire_campagne(id_inventaire_campagne),
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    FOREIGN KEY (id_article) REFERENCES article(id_article),
+    FOREIGN KEY (id_lot) REFERENCES lot(id_lot),
+    UNIQUE KEY uniq_inventaire_comptage (id_inventaire_campagne, id_depot, id_article, id_lot)
+);
+
+-- ==============================
 -- CLOTURE MENSUELLE DU STOCK / GEL DU CUMP
 -- ==============================
 CREATE TABLE stock_cloture_periode (

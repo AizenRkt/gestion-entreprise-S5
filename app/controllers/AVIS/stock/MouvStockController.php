@@ -42,5 +42,20 @@ class MouvStockController
         Flight::render('AVIS/stock/reservations');
     }
 
+    public function inventoryPlanning()
+    {
+        Flight::render('AVIS/stock/inventairePlan');
+    }
+
+    public function inventoryCounting()
+    {
+        Flight::render('AVIS/stock/inventaireComptage');
+    }
+
+    public function inventorySheet()
+    {
+        Flight::render('AVIS/stock/inventaireFiche');
+    }
+
 
 }

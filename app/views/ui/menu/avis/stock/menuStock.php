@@ -57,6 +57,18 @@
 
                 <li class="sidebar-item has-sub">
                     <a href="#" class='sidebar-link'>
+                        <i class="bi bi-layout-text-sidebar"></i>
+                        <span>Inventaire</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/planification" class="submenu-link">Planification inventaire</a></li>
+                        <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/comptage" class="submenu-link">Saisie comptage</a></li>
+                        <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/fiche" class="submenu-link">Fiche de comptage</a></li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
                         <i class="bi bi-gear"></i>
                         <span>Administration</span>
                     </a>

@@ -22,3 +22,9 @@ $router->get('/stock/admin/settings', [$controller, 'adminStockSettings']);
 
 // Reservations page
 $router->get('/stock/reservations', [$controller, 'stockReservations']);
+
+// Inventory planning page
+$router->get('/stock/inventaire/planification', [$controller, 'inventoryPlanning']);
+$router->get('/stock/inventaire/comptage', [$controller, 'inventoryCounting']);
+$router->get('/stock/inventaire/fiche', [$controller, 'inventorySheet']);
+

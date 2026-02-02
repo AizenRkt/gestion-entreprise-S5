@@ -2,6 +2,7 @@
 
 use app\controllers\AVIS\stock\MouvStockApiController;
 use app\controllers\AVIS\stock\StockAdminApiController;
+use app\controllers\AVIS\stock\InventoryPlanningApiController;
 use flight\net\Router;
 
 /**
@@ -24,6 +25,19 @@ $router->get('/api/stock/lots', [MouvStockApiController::class, 'getLots']);
 $router->post('/api/stock/lots/create', [MouvStockApiController::class, 'createLot']);
 $router->get('/api/stock/courant', [MouvStockApiController::class, 'getStockCourant']);
 $router->get('/api/stock/reservations', [MouvStockApiController::class, 'listReservations']);
+
+// Inventory planning
+$router->get('/api/stock/inventaire/campagnes', [InventoryPlanningApiController::class, 'listCampaigns']);
+$router->get('/api/stock/inventaire/campagnes/@id', [InventoryPlanningApiController::class, 'getCampaign']);
+$router->post('/api/stock/inventaire/campagnes', [InventoryPlanningApiController::class, 'createCampaign']);
+$router->post('/api/stock/inventaire/campagnes/@id/valider', [InventoryPlanningApiController::class, 'validateCampaign']);
+$router->get('/api/stock/inventaire/sites', [InventoryPlanningApiController::class, 'listSites']);
+$router->get('/api/stock/inventaire/article-familles', [InventoryPlanningApiController::class, 'listArticleFamilies']);
+$router->get('/api/stock/inventaire/comptages', [InventoryPlanningApiController::class, 'listCounts']);
+$router->post('/api/stock/inventaire/comptages', [InventoryPlanningApiController::class, 'createCount']);
+$router->get('/api/stock/inventaire/fiche', [InventoryPlanningApiController::class, 'listCountSheet']);
+$router->get('/api/stock/inventaire/fiche.csv', [InventoryPlanningApiController::class, 'exportCountSheetCsv']);
+$router->get('/api/stock/inventaire/fiche.pdf', [InventoryPlanningApiController::class, 'exportCountSheetPdf']);
 
 // Admin: per-article defaults and closure operations
 $router->get('/api/stock/admin/articles', [StockAdminApiController::class, 'listArticlesDefaults']);
