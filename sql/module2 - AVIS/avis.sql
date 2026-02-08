@@ -14,14 +14,16 @@ CREATE TABLE client (
     telephone VARCHAR(30),
     email VARCHAR(100),
     adresse TEXT,
-    id_client_type INT NOT NULL,
-    FOREIGN KEY (id_client_type) REFERENCES client_type(id_client_type)
+    -- id_client_type INT NOT NULL,
+    -- FOREIGN KEY (id_client_type) REFERENCES client_type(id_client_type)
+    id_type INT,
+    FOREIGN KEY (id_type) REFERENCES client_type(id_client_type)
 );
 
 -- methodes de valorisation
 CREATE TABLE methode_valorisation (
     id_methode_valorisation INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(10),
+    code VARCHAR(10) NOT NULL UNIQUE,
     libelle VARCHAR(50) NOT NULL
 );
 
@@ -51,8 +53,8 @@ CREATE TABLE article (
     id_article INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     designation VARCHAR(150) NOT NULL,
-    id_famille_article_famille INT REFERENCES article_famille(id_article_famille),
-    id_methode_valorisation INT REFERENCES methode_valorisation(id_methode_valorisation),
+    id_famille_article_famille INT,
+    id_methode_valorisation INT,
     allocation_defaut ENUM('fifo','lifo','fefo'),
     unite VARCHAR(20) NOT NULL,
     prix_achat NUMERIC(12,2),
@@ -98,6 +100,8 @@ CREATE TABLE fournisseur_article (
     FOREIGN KEY (id_article) REFERENCES article(id_article)
 );
 
+
+
 -- entrepot, site 
 CREATE TABLE depot (
     id_depot INT AUTO_INCREMENT PRIMARY KEY,
@@ -136,6 +140,7 @@ CREATE TABLE document_avis (
     FOREIGN KEY (id_document_type) REFERENCES document_type_avis(id_document_type)
 );
 
+
 CREATE TABLE document_status_avis (
     id_document_status INT AUTO_INCREMENT PRIMARY KEY,
     libelle ENUM('valide', 'annule')
@@ -144,6 +149,48 @@ CREATE TABLE document_status_avis (
 -- =========================================================
 -- achats / ventes
 -- =========================================================
+-- ==============================
+-- DEMANDE D'ACHAT
+-- ==============================
+CREATE TABLE demande_achat (
+    id_demande_achat INT AUTO_INCREMENT PRIMARY KEY,
+    numero VARCHAR(30) NOT NULL UNIQUE,
+    date_demande DATE NOT NULL,
+    id_fournisseur INT NOT NULL,
+    remarque TEXT,
+    statut ENUM('CREE','VISEE','REJETEE') DEFAULT 'CREE',
+    montant_ht DECIMAL(15,2) DEFAULT 0,
+    montant_tva DECIMAL(15,2) DEFAULT 0,
+    montant_ttc DECIMAL(15,2) DEFAULT 0,
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur)
+);
+
+CREATE TABLE demande_achat_ligne (
+    id_demande_achat_ligne INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_achat INT NOT NULL,
+    id_article INT,
+    code_article VARCHAR(50),
+    designation VARCHAR(200) NOT NULL,
+    quantite DECIMAL(15,3) NOT NULL,
+    prix_unitaire DECIMAL(15,2) NOT NULL,
+    tva DECIMAL(6,3) DEFAULT 0,
+    quantite_stock DECIMAL(15,3) DEFAULT 0,
+    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat) ON DELETE CASCADE,
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
+);
+
+CREATE TABLE demande_achat_statut (
+    id_demande_achat_statut INT AUTO_INCREMENT PRIMARY KEY,
+    id_demande_achat INT NOT NULL,
+    statut ENUM('CREE','VISEE','REJETEE') NOT NULL,
+    commentaire VARCHAR(255),
+    created_by INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat) ON DELETE CASCADE
+);
 
 -- =========================
 -- BON DE COMMANDE, RECEPTION, FACTURE, PAIEMENT FOURNISSEUR
@@ -154,13 +201,15 @@ CREATE TABLE bon_commande_fournisseur (
     bc_date DATETIME NOT NULL,
     id_fournisseur INT NOT NULL,
     id_depot INT NOT NULL,
+    id_demande_achat INT,
     montant_ht DECIMAL(15,2) DEFAULT 0,
     montant_tva DECIMAL(15,2) DEFAULT 0,
     montant_ttc DECIMAL(15,2) DEFAULT 0,
     created_by INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_fournisseur) REFERENCES fournisseur(id_fournisseur),
-    FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
+    FOREIGN KEY (id_depot) REFERENCES depot(id_depot),
+    FOREIGN KEY (id_demande_achat) REFERENCES demande_achat(id_demande_achat)
 );
 CREATE TABLE bon_commande_fournisseur_status (
     id_bon_commande_fournisseur_status INT AUTO_INCREMENT PRIMARY KEY,
@@ -281,6 +330,7 @@ CREATE TABLE livraison_client (
     FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client),
     FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
+
 
 CREATE TABLE facture_client (
     id_facture_client INT AUTO_INCREMENT PRIMARY KEY,
@@ -437,8 +487,8 @@ CREATE TABLE mouvement_stock_lot_detail (
     INDEX idx_msl_detail_lot (id_lot)
 );
 
+
 CREATE TABLE stock_courant (
-    id_stock_courant INT AUTO_INCREMENT PRIMARY KEY,
     id_article INT NOT NULL,
     id_depot INT NOT NULL,
 

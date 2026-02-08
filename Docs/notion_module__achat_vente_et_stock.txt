@@ -1,0 +1,1264 @@
+            module : achat, vente et stock
+                   Date de création   @January 20, 2026 4:32 AM
+
+                   Matière             gestion d'entreprise
+
+
+
+            CAHIER DES CHARGES COMPLET
+            Module Achats – Ventes – Stock – Inventaires
+
+            Présentation générale
+            1.1 Contexte
+            L’entreprise souhaite disposer d’un système centralisé pour la gestion :
+
+                  des achats
+
+                  des ventes
+
+                  des stocks
+
+                  des inventaires
+
+                  du pilotage décisionnel (KPI)
+
+            Les processus actuels sont dispersés (Excel, mails, outils partiels), générant :
+
+                  erreurs
+
+                  manque de traçabilité
+
+                  risques financiers et opérationnels
+
+
+            1.2 Objectifs généraux
+                  Centraliser l’ensemble du cycle logistique et commercial
+
+                  Assurer une traçabilité totale (qui / quand / pourquoi)
+
+                  Appliquer des règles strictes de contrôle interne
+
+                  Améliorer la fiabilité du stock
+
+
+
+
+module : achat, vente et stock                                                                 1
+                  Fournir des indicateurs de pilotage par rôle
+
+
+            Périmètre fonctionnel global
+            Modules inclus
+              1. Référentiels
+
+              2. Achats
+
+              3. Ventes
+
+              4. Stocks
+
+              5. Inventaires
+
+              6. Finance (liaison facturation / paiements)
+
+              7. Tableaux de bord & KPI
+
+              8. Administration & Sécurité
+
+
+            Utilisateurs & rôles
+            3.1 Typologie des utilisateurs
+                  Demandeur
+
+                  Acheteur
+
+                  Responsable achats
+
+                  Magasinier réception
+
+                  Magasinier sortie
+
+                  Chef magasin
+
+                  Commercial
+
+                  Responsable ventes
+
+                  Comptable
+
+                  DAF
+
+                  Directeur général
+
+                  Administrateur système
+
+
+
+
+module : achat, vente et stock                                   2
+            3.2 Gestion des accès (RBAC + ABAC)
+                  RBAC : rôles métiers
+
+                  ABAC : règles par :
+
+                        site
+
+                        dépôt
+
+                        catégorie d’articles
+
+                        montant
+
+                        département
+
+            🔐 Principes clés :
+                  Moindre privilège
+
+                  Séparation stricte des tâches
+
+                  Double validation sur opérations sensibles
+
+                  Journalisation non modifiable
+
+
+            Détail des modules fonctionnels
+
+            MODULE 1 – RÉFÉRENTIELS
+            Fonctionnalités
+                  Gestion des articles
+
+                  Gestion des fournisseurs
+
+                  Gestion des clients
+
+                  Gestion des dépôts / emplacements
+
+                  Unités de mesure
+
+                  Taxes (TVA, exonération…)
+
+                  Tarifs (achat / vente)
+
+            Pages nécessaires
+                  Liste articles
+
+
+
+
+module : achat, vente et stock                                 3
+                  Fiche article (onglets)
+
+                        Général
+
+                        Stock
+
+                        Lots / séries
+
+                        Coûts
+
+                  Fournisseurs
+
+                  Clients
+
+                  Dépôts & emplacements
+
+                  Paramétrage taxes
+
+
+            MODULE 2 – ACHATS
+            Processus
+              1. Demande d’achat (DA)
+
+              2. Validation hiérarchique (N1/N2/N3)
+
+              3. Pro-forma fournisseur
+
+              4. Bon de commande (BC)
+
+              5. Réception
+
+              6. Facture fournisseur
+
+              7. Paiement
+
+            Fonctionnalités clés
+                  Workflow de validation configurable
+
+                  Seuils de validation par montant
+
+                  Réception partielle
+
+                  Rapprochement 3-way match :
+
+                        BC
+
+                        Réception
+
+                        Facture
+
+
+
+module : achat, vente et stock                          4
+            Pages
+                  Demandes d’achat
+
+                  Validation DA
+
+                  Bons de commande
+
+                  Réceptions fournisseurs
+
+                  Factures fournisseurs
+
+                  Litiges fournisseurs
+
+
+            MODULE 3 – VENTES
+            Processus
+              1. Devis (pro-forma)
+
+              2. Commande client
+
+              3. Réservation stock
+
+              4. Livraison
+
+              5. Facturation
+
+              6. Encaissement
+
+            Règles
+                  Remises plafonnées
+
+                  Validation des remises exceptionnelles
+
+                  Interdiction de livrer sans stock réservé
+
+            Pages
+                  Devis clients
+
+                  Commandes clients
+
+                  Préparation livraison
+
+                  Factures clients
+
+                  Avoirs
+
+                  Encaissements
+
+
+
+module : achat, vente et stock                                5
+            MODULE 4 – STOCKS
+            Fonctionnalités
+                  Entrées stock
+
+                  Sorties stock
+
+                  Transferts inter-dépôts
+
+                  Réservations
+
+                  Lots / séries / DLC / DLUO
+
+                  Blocage automatique produits périmés
+
+            Méthodes de gestion
+                  FIFO
+
+                  FEFO
+
+                  CUMP
+
+            Pages
+                  Tableau de stock
+
+                  Mouvements de stock
+
+                  Transferts
+
+                  Suivi lots / séries
+
+                  Alertes (rupture / péremption)
+
+
+            MODULE 5 – INVENTAIRES
+            Types
+                  Inventaire tournant
+
+                  Inventaire annuel
+
+            Règles
+                  Écarts justifiés
+
+
+
+
+module : achat, vente et stock                           6
+                  Validation obligatoire par responsable
+
+                  Historique des ajustements
+
+            Pages
+                  Lancement inventaire
+
+                  Saisie comptage
+
+                  Comparaison théorique / physique
+
+                  Validation ajustements
+
+
+            MODULE 6 – FINANCE (INTERFACE)
+            Fonctionnalités
+                  Facturation
+
+                  Avoirs
+
+                  Paiements
+
+                  Rapprochement comptable
+
+            Pages
+                  Factures fournisseurs
+
+                  Factures clients
+
+                  Paiements
+
+                  Rapprochements
+
+
+            MODULE 7 – TABLEAUX DE BORD & KPI
+            Direction Générale
+                  CA
+
+                  Marge
+
+                  Valeur stock
+
+                  Rotation stock
+
+
+
+
+module : achat, vente et stock                             7
+                  Écarts inventaire
+
+            Achats
+                  Délais DA → BC
+
+                  Performance fournisseurs
+
+                  Litiges
+
+            Stock
+                  Précision stock
+
+                  Obsolescence
+
+                  Productivité magasin
+
+            Ventes
+                  Commandes en retard
+
+                  Remises
+
+                  Avoirs
+
+                  Backlog
+
+            Pages
+                  Dashboard global
+
+                  Dashboard par rôle
+
+                  Exports Excel / PDF
+
+
+            MODULE 8 – ADMINISTRATION
+            Fonctionnalités
+                  Gestion utilisateurs
+
+                  Gestion rôles
+
+                  Délégation temporaire
+
+                  Paramétrage workflows
+
+                  Journaux d’audit
+
+
+
+
+module : achat, vente et stock               8
+            Pages
+                  Utilisateurs
+
+                  Rôles & permissions
+
+                  Paramètres système
+
+                  Logs & audits
+
+
+
+
+            LOGIQUE DES PERMISSIONS (QUI FAIT
+            QUOI / QUI VALIDE QUOI)
+            On va raisonner en 4 principes simples :
+
+              1. Celui qui crée ne valide jamais
+
+              2. Les validations dépendent du montant / du risque
+
+              3. Les opérations qui impactent l’argent ou le stock sont contrôlées
+
+              4. Tout est tracé
+
+
+            1. LES GRANDES FAMILLES DE RÔLES
+              Famille            Objectif
+
+              Demande            Exprimer un besoin
+
+              Exécution          Faire l’opération
+
+              Validation         Autoriser / contrôler
+
+              Finance            Vérifier l’impact financier
+
+              Direction          Autorisation finale
+
+              Admin              Paramétrer (pas opérer)
+
+
+
+            2. ACHATS – QUI FAIT QUOI
+            2.1 Demande d’achat (DA)
+              Action                  Rôle                     Peut ?
+
+              Créer DA                Demandeur                ok
+
+
+
+
+module : achat, vente et stock                                                       9
+              Action                   Rôle                       Peut ?
+
+              Modifier DA              Demandeur                  ok (tant que non validée)
+
+              Valider DA               Demandeur                  non
+
+              Valider DA               Chef service (N1)          ok
+
+              Valider DA > seuil       Responsable achats (N2)    ok
+
+              Valider DA très élevé    DAF / DG (N3)              ok
+
+            Règle clé
+
+                Si montant DA > seuil N1 → validation N2 obligatoire
+                Si montant DA > seuil N2 → validation N3 obligatoire
+
+
+
+            2.2 Bon de commande (BC)
+              Action                         Rôle
+
+              Créer BC                       Acheteur
+
+              Modifier BC                    Acheteur
+
+              Approuver BC                   Responsable achats
+
+              Approuver BC > seuil           DAF / DG
+
+              Créer ET approuver BC          INTERDIT
+
+            Règle système
+
+
+                create_user_id != approve_user_id
+
+
+
+
+            3. RÉCEPTION STOCK
+            3.1 Réception fournisseur
+              Action                  Rôle
+
+              Réceptionner            Magasinier réception
+
+              Modifier coûts          non
+
+              Réception partielle     ok
+
+              Valider réception       Chef magasin
+
+
+
+
+module : achat, vente et stock                                                                10
+            Pourquoi ?
+
+                  Le magasinier compte
+
+                  Le chef magasin contrôle
+
+
+            4. FACTURE FOURNISSEUR (3-WAY MATCH)
+              Action                              Rôle
+
+              Saisir facture                      Comptable
+
+              Valider facture                     Finance
+
+              Réceptionner ET valider facture     non
+
+            Blocage automatique si :
+
+                  Quantité ≠ réception
+
+                  Prix ≠ BC
+
+
+            5. VENTES – QUI FAIT QUOI
+            5.1 Devis & commande client
+
+              Action                       Rôle
+
+              Créer devis                  Commercial
+
+              Appliquer remise standard    Commercial
+
+              Appliquer remise élevée      Responsable ventes
+
+              Valider commande             Responsable ventes
+
+            Exemple
+
+
+                remise > 10% → validation obligatoire
+
+
+
+            5.2 Livraison
+
+              Action               Rôle
+
+              Préparer livraison   Magasinier sortie
+
+              Confirmer sortie     Magasinier
+
+
+
+
+module : achat, vente et stock                                  11
+              Action               Rôle
+
+              Valider livraison    Chef magasin
+
+            Stock réservé obligatoire
+
+                stock_disponible >= quantité
+
+
+
+            6. STOCK – MOUVEMENTS SENSIBLES
+            6.1 Ajustement de stock
+              Action                 Rôle
+
+              Proposer ajustement    Magasinier
+
+              Valider ajustement     Chef magasin
+
+              Ajustement > seuil     DAF
+
+            Toujours avec justification écrite
+
+
+            6.2 Inventaire
+              Action                      Rôle
+
+              Compter                     Équipe inventaire
+
+              Valider écarts              Chef magasin
+
+              Approuver écarts > seuil    DAF
+
+             Interdit
+
+                même personne = compter + valider
+
+
+
+
+            7. FINANCE
+              Action                      Rôle
+
+              Voir marges                 Finance
+
+              Modifier coûts              non
+
+              Clôturer période            DAF
+
+
+
+
+module : achat, vente et stock                                12
+              Action                          Rôle
+
+              Débloquer rétro-datation        DAF
+
+
+
+            8. DIRECTION (DAF / DG)
+              Pouvoir                                Pourquoi
+
+              Validation exceptionnelle              Cas sensibles
+
+              Déblocage                              Urgence
+
+              Vue consolidée                         Pilotage
+
+              Aucune opération quotidienne           Contrôle
+
+
+
+            9. ADMINISTRATEUR SYSTÈME
+              Action                  Autorisé ?
+
+              Créer utilisateurs      ok
+
+              Gérer rôles             ok
+
+              Modifier stock          non
+
+              Valider documents       non
+
+            Admin ≠ métier
+
+
+            10. RÈGLES À CODER OBLIGATOIREMENT
+            Règles techniques simples
+
+                - create_user_id ≠ validate_user_id
+                - toute action sensible = log
+                - validation = état (DRAFT → VALIDATED)
+                - seuils paramétrables en base
+
+
+
+            RÉSUMÉ ULTRA SIMPLE
+
+              Étape                Qui fait             Qui valide
+
+              DA                   Demandeur            Chef / Resp / DAF
+
+
+
+
+module : achat, vente et stock                                              13
+              Étape              Qui fait       Qui valide
+
+              BC                 Acheteur       Resp achats / DAF
+
+              Réception          Magasinier     Chef magasin
+
+              Facture            Comptable      Finance
+
+              Devis              Commercial     Resp ventes
+
+              Livraison          Magasinier     Chef magasin
+
+              Inventaire         Équipe         Chef / DAF
+
+
+
+
+            1. C’EST QUOI UN KPI
+            Un KPI (Key Performance Indicator) = un indicateur quantifiable qui permet de
+            savoir si le processus fonctionne bien ou mal.
+            Exemples :
+
+                   Le stock est-il fiable ?
+
+                   Les fournisseurs respectent-ils les délais ?
+
+                   Est-ce qu’on perd de l’argent à cause des écarts ?
+
+                   Les commerciaux abusent-ils des remises ?
+
+            Sans KPI :
+
+                   gestion à l’aveugle
+
+                   décisions au feeling
+
+                   fraudes invisibles
+
+
+
+            2. POURQUOI LES KPI SONT CRITIQUES
+            DANS TON MODULE
+            Ton module touche :
+
+                   argent
+
+                   stock
+
+                   clients
+
+
+
+
+module : achat, vente et stock                                                              14
+                  fournisseurs
+
+            Donc :
+
+                  un petit problème = grosse perte
+
+                  un mauvais process = risque systémique
+
+            Les KPI servent à :
+
+                  détecter les anomalies
+
+                  mesurer la performance
+
+                  comparer périodes / sites / équipes
+
+                  déclencher des actions correctives
+
+
+
+            3. RÈGLE D’OR DES KPI
+            Chaque KPI doit répondre à UNE question précise
+            “Pourquoi ce chiffre m’aide à décider ?”
+
+
+
+            4. KPI PAR RÔLE (TRÈS IMPORTANT)
+            Direction Générale / DAF
+            Objectif
+            Vue macro, stratégique
+
+            KPI clés
+              KPI                    Utilité
+
+              CA total               Suivre activité
+
+              Marge brute            Rentabilité
+
+              Valeur du stock        Cash immobilisé
+
+              Rotation stock         Qualité gestion stock
+
+              Écart inventaire (%)   Fiabilité
+
+            Décision possible
+
+
+
+
+module : achat, vente et stock                                15
+            Réduire stock / changer politique achats
+
+
+            5. KPI ACHATS / SUPPLY CHAIN
+            Objectif
+            Efficacité fournisseurs & processus
+
+            KPI clés
+              KPI                                Pourquoi
+
+              Délai DA → BC                      Lenteur interne
+
+              Taux respect délais fournisseurs   Fiabilité fournisseur
+
+              Réceptions conformes (%)           Qualité
+
+              Litiges facture (%)                Risque finance
+
+              Évolution prix achat               Inflation / négociation
+
+            Exemple
+
+
+                Si OTD fournisseur < 80% → fournisseur à risque
+
+
+
+            6. KPI STOCK / MAGASIN
+            Objectif
+            Fiabilité et performance opérationnelle
+
+            KPI clés
+              KPI                    Utilité
+
+              Taux précision stock   Fiabilité système
+
+              Obsolescence           Perte future
+
+              Péremption             Risque immédiat
+
+              Productivité picking   Performance équipe
+
+              Temps réception        Efficacité logistique
+
+            Indicateur clé
+
+
+
+
+module : achat, vente et stock                                             16
+                Précision stock < 95% = danger
+
+
+
+            7. KPI VENTES
+            Objectif
+            Qualité des ventes
+
+            KPI clés
+              KPI                     Utilité
+
+              Commandes en retard     Satisfaction client
+
+              Taux annulation         Problème process
+
+              Remises moyennes        Discipline commerciale
+
+              Avoirs                  Erreurs / litiges
+
+              Backlog                 Perte opportunité
+
+            Alerte
+
+
+                Remise moyenne > seuil → dérive commerciale
+
+
+
+            8. KPI FINANCE
+            Objectif
+            Contrôle financier
+
+            KPI clés
+              KPI                     Utilité
+
+              Factures bloquées       Problème process
+
+              Écart stock comptable   Risque audit
+
+              Variation marge         Problème prix/coût
+
+              Paiements en retard     Trésorerie
+
+
+
+
+module : achat, vente et stock                                 17
+            9. COMMENT CALCULER LES KPI
+            (EXEMPLES)
+            Exemple 1 : Taux de précision stock
+
+                (Quantité théorique correcte / Quantité comptée) × 100
+
+
+
+            Exemple 2 : Rotation stock
+
+                Coût des ventes / Stock moyen
+
+
+
+            Exemple 3 : Délai DA → BC
+                DATEDIFF(date_bc, date_da)
+
+
+
+            Exemple 4 : Taux litige fournisseur
+
+                Factures en litige / Factures totales
+
+
+
+
+            10. COMMENT LES IMPLÉMENTER
+            TECHNIQUEMENT
+            10.1 Base de données
+            Tables sources
+                  commandes
+
+                  mouvements_stock
+
+                  factures
+
+                  inventaires
+
+                  paiements
+
+
+
+module : achat, vente et stock                                           18
+            Jamais modifier les données source
+
+
+            10.2 Vues SQL (recommandé)
+
+                CREATE VIEW kpi_stock_precision AS
+                SELECT
+                 depot_id,
+                 COUNT(CASE WHEN ecart = 0 THEN 1 END) * 100.0 / COUNT(*) AS preci
+                sion
+                FROM inventaire_ligne
+                GROUP BY depot_id;
+
+
+                  rapide
+
+                  sécurisé
+
+                  réutilisable
+
+
+            10.3 Backend
+                  Services KPI en lecture seule
+
+                  Filtrage par :
+
+                        période
+
+                        site
+
+                        dépôt
+
+                        rôle utilisateur
+
+
+            10.4 Frontend (Dashboard)
+            Bon dashboard =
+                  graphiques simples
+
+                  seuils visuels (rouge / orange / vert)
+
+                  comparaison périodes
+
+                  drill-down (cliquer pour voir détail)
+
+
+
+
+module : achat, vente et stock                                                       19
+            pas 30 KPI
+            5–10 max par rôle
+
+
+
+            11. KPI ≠ SIMPLE STATISTIQUE
+              Stat               KPI
+
+              “Nb commandes”     “Commandes en retard %”
+
+              “Valeur stock”     “Stock obsolète %”
+
+              “Total ventes”     “Marge %”
+
+
+
+
+            12. KPI → ACTION
+            Un KPI DOIT permettre :
+
+                  alerte
+
+                  décision
+
+                  action
+
+            Exemple :
+
+                KPI rouge → action obligatoire
+
+
+
+
+            RÉSUMÉ ULTRA CLAIR
+                  KPI = outil de décision
+
+                  Différents KPI selon rôle
+
+                  Peu mais pertinents
+
+                  Basés sur données fiables
+
+                  Calculés automatiquement
+
+                  Visuels et comparables
+
+
+
+
+module : achat, vente et stock                             20
+            MÉTHODES DE GESTION / VALORISATION
+            DE STOCK
+            Pourquoi ces méthodes existent ?
+            Parce que :
+
+                  un même article peut être acheté à des prix différents
+
+                  on doit savoir quel coût utiliser quand on sort du stock
+
+                  le stock doit rester cohérent, traçable et auditable
+
+
+
+            FIFO – First In, First Out
+            Principe
+            Le premier article entré est le premier sorti
+            On consomme les lots les plus anciens en priorité.
+
+
+            Exemple simple
+              Date entrée        Qté               Prix unitaire
+
+              01/01              100               10
+
+              10/01              100               12
+
+            Sortie de 120 unités
+
+              Sortie             Qté               Coût
+
+              Lot 01/01          100               100 × 10
+
+              Lot 10/01          20                20 × 12
+
+            Coût sortie = 1 240
+
+
+            Avantages
+                  Reflète la réalité physique
+
+                  Valorisation réaliste du stock
+
+                  Conforme aux normes comptables
+
+
+
+module : achat, vente et stock                                               21
+            Inconvénients
+                  Calcul plus complexe
+
+                  Gestion des lots obligatoire
+
+
+            Quand utiliser FIFO ?
+                  Produits non périssables
+
+                  Industrie
+
+                  Commerce général
+
+
+
+            CUMP – Coût Unitaire Moyen Pondéré
+            Principe
+            On moyenne les coûts à chaque entrée
+
+
+            Exemple
+              Entrée             Qté             Prix
+
+              Achat 1            100             10
+
+              Achat 2            100             12
+
+            CUMP =
+
+                (100×10 + 100×12) / 200 = 11
+
+            Toute sortie est valorisée à 11
+
+
+            Avantages
+                  Très simple à calculer
+
+                  Stable (moins de variation)
+
+                  Facile à coder
+
+            Inconvénients
+                  Moins réaliste
+
+
+
+module : achat, vente et stock                          22
+                  Masque les variations de prix
+
+
+            Quand utiliser CUMP ?
+                  Articles homogènes
+
+                  Stock massif
+
+                  Comptabilité simple
+
+
+
+            FEFO – First Expired, First Out
+            Principe
+            Le lot qui expire en premier sort en premier
+            Ce n’est pas une méthode comptable, mais logistique.
+
+
+            Exemple
+              Lot                Qté          Date expiration
+
+              A                  50           10/02
+
+              B                  50           01/03
+
+            Sortie de 30 → Lot A
+
+
+            Avantages
+                  Évite la péremption
+
+                  Réduit pertes
+
+                  Indispensable pour produits sensibles
+
+            Inconvénients
+                  Gestion lots obligatoire
+
+                  Plus complexe
+
+
+            Quand utiliser FEFO ?
+                  Alimentaire
+
+
+
+
+module : achat, vente et stock                                     23
+                  Pharmaceutique
+
+                  Produits périssables
+
+
+
+            DIFFÉRENCE CLÉ ENTRE FIFO ET FEFO
+              FIFO                   FEFO
+
+              Basé sur date entrée   Basé sur date expiration
+
+              Logique comptable      Logique qualité
+
+              Coût prioritaire       Péremption prioritaire
+
+            En pratique :
+
+            FEFO pour sortir physiquement, FIFO pour valoriser
+
+
+
+            COMMENT LE SYSTÈME CHOISIT LA
+            MÉTHODE
+            Par article ou famille
+
+                Article A → FIFO
+                Article B → CUMP
+                Article C → FEFO
+
+
+
+
+            COMMENT CODER LA LOGIQUE
+            (CONCEPTUEL)
+            FIFO / FEFO – Sélection des lots
+
+                SELECT *
+                FROM stock_lot
+                WHERE article_id = ?
+                 AND quantite_disponible > 0
+                ORDER BY
+                 CASE
+
+
+
+module : achat, vente et stock                                   24
+                   WHEN methode = 'FEFO' THEN date_expiration
+                   ELSE date_entree
+                 END ASC;
+
+
+
+            CUMP – Calcul à chaque entrée
+
+                nouveau_cump =
+                (stock_qte × ancien_cump + entree_qte × prix_entree)
+                /
+                (stock_qte + entree_qte)
+
+
+
+
+            RÈGLES MÉTIER OBLIGATOIRES
+             La méthode ne change pas en cours d’exercice
+            Sortie stock = écriture irréversible
+            Toute sortie référence :
+
+                  lot
+
+                  coût
+
+                  document
+
+                  utilisateur
+
+
+
+            IMPACT SUR KPI & FINANCE
+              Méthode            Impact
+
+              FIFO               Coûts réels, marge variable
+
+              CUMP               Marge lissée
+
+              FEFO               Réduction pertes
+
+
+
+
+            RECOMMANDATION POUR TON PROJET
+            Pour un projet académique / entreprise :
+
+
+module : achat, vente et stock                                         25
+                  FIFO par défaut
+
+                  FEFO pour périssables
+
+                  CUMP optionnel
+
+
+
+            RÉSUMÉ FINAL
+              Méthode            Usage        Complexité
+
+              FIFO               Standard     Moyenne
+
+              CUMP               Simple       Faible
+
+              FEFO               Périssable   Élevée
+
+
+
+
+module : achat, vente et stock                             26
+

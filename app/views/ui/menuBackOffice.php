@@ -132,6 +132,18 @@
                     </a>
                 </li> -->
                 
+                <li class="sidebar-item has-sub">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-bag-fill"></i>
+                        <span>Achats</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item">
+                            <a href="<?= Flight::base() ?>/achats" class="submenu-link">Tableau de bord</a>
+                        </li>
+                    </ul>
+                </li>
+
                 <li class="sidebar-title">Compte</li>
 
                 <li class="sidebar-item">

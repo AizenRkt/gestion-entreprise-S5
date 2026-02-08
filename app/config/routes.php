@@ -45,6 +45,8 @@ require __DIR__ . '/routes/AVIS/referentiel/document/DocumentRoute.php';
 require __DIR__ . '/routes/AVIS/referentiel/document/DocumentApiRoute.php';
 require __DIR__ . '/routes/AVIS/referentiel/valorisation/ValorisationRoute.php';
 require __DIR__ . '/routes/AVIS/referentiel/valorisation/ValorisationApiRoute.php';
+require __DIR__ . '/routes/AVIS/Achat/AchatRoute.php';
+require __DIR__ . '/routes/AVIS/Vente/VenteRoute.php';
 
 /** 
  * @var Router $router 
