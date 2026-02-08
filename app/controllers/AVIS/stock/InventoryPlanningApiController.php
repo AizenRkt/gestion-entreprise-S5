@@ -131,6 +131,26 @@ class InventoryPlanningApiController
         }
     }
 
+    public static function saveCount()
+    {
+        try {
+            // $userId = self::requireAuth();
+            $userId = (int)($_SESSION['user']['id_user'] ?? 0);
+            $raw = Flight::request()->getBody();
+            $data = json_decode($raw, true);
+            if (!is_array($data)) {
+                $data = Flight::request()->data->getData() ?? [];
+            }
+            $countId = InventoryCountingModel::saveCount($data, $userId);
+            $campagneId = (int)$data['id_inventaire_campagne'];
+            $depotId = isset($data['id_depot']) ? (int)$data['id_depot'] : null;
+            $rows = InventoryCountingModel::listCounts($campagneId, $depotId);
+            Flight::json(['success' => true, 'data' => $rows, 'id' => $countId]);
+        } catch (Exception $e) {
+            Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public static function listCountSheet()
     {
         try {
@@ -347,6 +367,24 @@ class InventoryPlanningApiController
             // Clôturer la campagne
             $upd = $db->prepare("UPDATE inventaire_campagne SET statut = 'CLOTURE', updated_by = :u, updated_at = NOW() WHERE id_inventaire_campagne = :id");
             $upd->execute([':u' => $userId, ':id' => $campagneId]);
+
+            // journal validation
+            $totEcart = 0.0; $totVal = 0.0;
+            foreach ($rows as $r) {
+                $totEcart += (float)($r['ecart'] ?? 0);
+                if (isset($r['valeur_physique'], $r['valeur_theorique'])) {
+                    $totVal += ((float)$r['valeur_physique'] - (float)$r['valeur_theorique']);
+                }
+            }
+            $valIns = $db->prepare("INSERT INTO inventaire_campagne_validation (id_inventaire_campagne, validated_by, total_ecart, total_valeur_ecart, commentaire)
+                VALUES (:cid, :uid, :ec, :val, :com)");
+            $valIns->execute([
+                ':cid' => $campagneId,
+                ':uid' => $userId,
+                ':ec' => $totEcart,
+                ':val' => $totVal,
+                ':com' => 'Validation automatique des écarts'
+            ]);
 
             $db->commit();
             Flight::json(['success' => true, 'message' => 'Campagne validée', 'ajustements' => $adjusted]);

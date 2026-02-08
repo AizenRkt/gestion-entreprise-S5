@@ -35,6 +35,7 @@ $router->get('/api/stock/inventaire/sites', [InventoryPlanningApiController::cla
 $router->get('/api/stock/inventaire/article-familles', [InventoryPlanningApiController::class, 'listArticleFamilies']);
 $router->get('/api/stock/inventaire/comptages', [InventoryPlanningApiController::class, 'listCounts']);
 $router->post('/api/stock/inventaire/comptages', [InventoryPlanningApiController::class, 'createCount']);
+$router->post('/api/stock/inventaire/comptages/save', [InventoryPlanningApiController::class, 'saveCount']);
 $router->get('/api/stock/inventaire/fiche', [InventoryPlanningApiController::class, 'listCountSheet']);
 $router->get('/api/stock/inventaire/fiche.csv', [InventoryPlanningApiController::class, 'exportCountSheetCsv']);
 $router->get('/api/stock/inventaire/fiche.pdf', [InventoryPlanningApiController::class, 'exportCountSheetPdf']);

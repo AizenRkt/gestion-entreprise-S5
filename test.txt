@@ -8,3 +8,6 @@ Invoke-WebRequest "http://localhost/S5/gestion-entreprise-S5/contrat/renouveller
             JOIN service s ON p.id_service = s.id_service
             JOIN departement d ON s.id_dept = d.id_dept;
             
+            
+            
+http://172.50.1.108:8085/kolotv/pages/module.jsp?idSupport=&idCategorieIngredient=&d=2026-02-02&but=reservation%2Freservation-details-calendrier.jsp

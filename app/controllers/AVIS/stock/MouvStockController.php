@@ -57,5 +57,15 @@ class MouvStockController
         Flight::render('AVIS/stock/inventaireFiche');
     }
 
+    public function inventoryValidationList()
+    {
+        Flight::render('AVIS/stock/inventaireValidationList');
+    }
+
+    public function inventoryValidation($id)
+    {
+        Flight::render('AVIS/stock/inventaireValidation', ['id_inventaire_campagne' => (int)$id]);
+    }
+
 
 }

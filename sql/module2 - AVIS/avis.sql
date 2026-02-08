@@ -468,7 +468,7 @@ CREATE TABLE stock_reservation (
 );
 
 -- ==============================
--- INVENTAIRE - PLANIFICATION
+-- INVENTAIRE
 -- ==============================
 CREATE TABLE inventaire_campagne (
     id_inventaire_campagne INT AUTO_INCREMENT PRIMARY KEY,
@@ -530,9 +530,6 @@ CREATE TABLE inventaire_equipe_membre (
 );
 -- NOTE: id_employe fait référence à la table employe du module RH.
 
--- ==============================
--- INVENTAIRE - COMPTAGE
--- ==============================
 CREATE TABLE inventaire_comptage (
     id_inventaire_comptage INT AUTO_INCREMENT PRIMARY KEY,
     id_inventaire_campagne INT NOT NULL,
@@ -550,6 +547,17 @@ CREATE TABLE inventaire_comptage (
     FOREIGN KEY (id_article) REFERENCES article(id_article),
     FOREIGN KEY (id_lot) REFERENCES lot(id_lot),
     UNIQUE KEY uniq_inventaire_comptage (id_inventaire_campagne, id_depot, id_article, id_lot)
+);
+
+CREATE TABLE inventaire_campagne_validation (
+    id_inventaire_campagne_validation INT AUTO_INCREMENT PRIMARY KEY,
+    id_inventaire_campagne INT NOT NULL,
+    validated_by INT NOT NULL,
+    total_ecart DECIMAL(15,3),
+    total_valeur_ecart DECIMAL(15,2),
+    commentaire VARCHAR(255),
+    date_validation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_inventaire_campagne) REFERENCES inventaire_campagne(id_inventaire_campagne)
 );
 
 -- ==============================

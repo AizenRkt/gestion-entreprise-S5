@@ -27,4 +27,6 @@ $router->get('/stock/reservations', [$controller, 'stockReservations']);
 $router->get('/stock/inventaire/planification', [$controller, 'inventoryPlanning']);
 $router->get('/stock/inventaire/comptage', [$controller, 'inventoryCounting']);
 $router->get('/stock/inventaire/fiche', [$controller, 'inventorySheet']);
+$router->get('/stock/inventaire/validation', [$controller, 'inventoryValidationList']);
+$router->get('/stock/inventaire/validation/@id', [$controller, 'inventoryValidation']);
 

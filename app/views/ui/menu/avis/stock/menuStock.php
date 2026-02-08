@@ -64,6 +64,7 @@
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/planification" class="submenu-link">Planification inventaire</a></li>
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/comptage" class="submenu-link">Saisie comptage</a></li>
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/fiche" class="submenu-link">Fiche de comptage</a></li>
+                        <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/validation" class="submenu-link">Validation campagnes</a></li>
                     </ul>
                 </li>
 

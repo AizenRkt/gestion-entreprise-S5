@@ -81,6 +81,67 @@ class InventoryCountingModel
         return (int)$db->lastInsertId();
     }
 
+    public static function saveCount(array $payload, int $userId): int
+    {
+        $db = Flight::db();
+        if (empty($payload['id_inventaire_campagne']) || empty($payload['id_depot']) || empty($payload['id_article'])) {
+            throw new PDOException('Campagne, dépôt et article requis');
+        }
+        if (!isset($payload['quantite_comptee'])) {
+            throw new PDOException('Quantité comptée requise');
+        }
+
+        $campId = (int)$payload['id_inventaire_campagne'];
+        $depotId = (int)$payload['id_depot'];
+        $articleId = (int)$payload['id_article'];
+        $lotId = $payload['id_lot'] ?? null;
+
+        // théorique
+        $quantiteTheorique = null;
+        $stockSt = $db->prepare("SELECT quantite FROM stock_courant WHERE id_article = :art AND id_depot = :dep");
+        $stockSt->execute([':art' => $articleId, ':dep' => $depotId]);
+        $row = $stockSt->fetch(PDO::FETCH_ASSOC);
+        if ($row) { $quantiteTheorique = (float)$row['quantite']; }
+
+        $quantiteComptee = (float)$payload['quantite_comptee'];
+        $ecart = is_null($quantiteTheorique) ? null : $quantiteComptee - $quantiteTheorique;
+
+        // upsert sur clé unique
+        $existing = $db->prepare("SELECT id_inventaire_comptage FROM inventaire_comptage WHERE id_inventaire_campagne = :c AND id_depot = :d AND id_article = :a AND ((id_lot IS NULL AND :lot IS NULL) OR id_lot = :lot)");
+        $existing->execute([':c' => $campId, ':d' => $depotId, ':a' => $articleId, ':lot' => $lotId]);
+        $rowExist = $existing->fetch(PDO::FETCH_ASSOC);
+        if ($rowExist) {
+            $stmt = $db->prepare("UPDATE inventaire_comptage
+                SET quantite_theorique = :qt, quantite_comptee = :qc, ecart = :ecart, commentaire = :commentaire, date_comptage = NOW(), created_by = :u
+                WHERE id_inventaire_comptage = :id");
+            $stmt->execute([
+                ':qt' => $quantiteTheorique,
+                ':qc' => $quantiteComptee,
+                ':ecart' => $ecart,
+                ':commentaire' => $payload['commentaire'] ?? null,
+                ':u' => $userId,
+                ':id' => (int)$rowExist['id_inventaire_comptage']
+            ]);
+            return (int)$rowExist['id_inventaire_comptage'];
+        }
+
+        $stmt = $db->prepare("INSERT INTO inventaire_comptage
+            (id_inventaire_campagne, id_depot, id_article, id_lot, quantite_theorique, quantite_comptee, ecart, commentaire, created_by)
+            VALUES (:cid, :depot, :article, :lot, :qtheo, :qcomptee, :ecart, :commentaire, :user)");
+        $stmt->execute([
+            ':cid' => $campId,
+            ':depot' => $depotId,
+            ':article' => $articleId,
+            ':lot' => $lotId,
+            ':qtheo' => $quantiteTheorique,
+            ':qcomptee' => $quantiteComptee,
+            ':ecart' => $ecart,
+            ':commentaire' => $payload['commentaire'] ?? null,
+            ':user' => $userId,
+        ]);
+        return (int)$db->lastInsertId();
+    }
+
     public static function listSheet(int $campagneId, ?int $depotId = null, ?int $familleId = null, ?int $articleId = null): array
     {
         $db = Flight::db();
