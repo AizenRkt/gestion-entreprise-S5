@@ -16,7 +16,7 @@
 </head>
 <body>
 <div id="app">
-    <?php Flight::render('ui/menu/avis/stock/menuStock'); ?>
+    <?php Flight::menuBackOffice() ?>
     <div id="main" class="layout-navbar">
         <header class="mb-3">
             <a href="#" class="burger-btn d-block d-xl-none">
