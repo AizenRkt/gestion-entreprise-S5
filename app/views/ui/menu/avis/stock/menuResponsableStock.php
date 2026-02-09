@@ -41,6 +41,7 @@
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
+                <?= Flight::userCard() ?>
 
                 <li class="sidebar-title">Tableau de bord</li>
 
@@ -139,6 +140,7 @@
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/referentiel/fournisseur-article/list" class="submenu-link">Articles par fournisseur</a></li>
                     </ul>
                 </li>
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>

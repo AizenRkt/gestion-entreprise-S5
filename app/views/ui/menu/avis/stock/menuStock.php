@@ -40,6 +40,7 @@
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
+                <?= Flight::userCard() ?>
 
                 <li class="sidebar-title">Stock</li>
 
@@ -205,6 +206,7 @@
                         </li>
                     </ul>
                 </li> -->
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>

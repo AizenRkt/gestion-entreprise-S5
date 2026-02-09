@@ -41,7 +41,7 @@
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
-
+                <?= Flight::userCard() ?>
                 <li class="sidebar-title">Demandes d'achat</li>
 
                 <li class="sidebar-item">
@@ -57,6 +57,7 @@
                         <span>Mes demandes</span>
                     </a>
                 </li>
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>

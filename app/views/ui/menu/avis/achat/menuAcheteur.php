@@ -79,6 +79,7 @@
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/avis/achat/receptions/nouveau" class="submenu-link">Nouvelle réception</a></li>
                     </ul>
                 </li>
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>

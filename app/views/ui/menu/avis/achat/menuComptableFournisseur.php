@@ -41,6 +41,7 @@
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
+                <?= Flight::userCard() ?>
 
                 <li class="sidebar-title">Comptabilité Fournisseur</li>
 
@@ -72,6 +73,7 @@
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/avis/achat/paiements/nouveau" class="submenu-link">Nouveau paiement</a></li>
                     </ul>
                 </li>
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>
