@@ -417,7 +417,6 @@ CREATE TABLE livraison_client (
     FOREIGN KEY (id_depot) REFERENCES depot(id_depot)
 );
 
-
 CREATE TABLE facture_client (
     id_facture_client INT AUTO_INCREMENT PRIMARY KEY,
     numero_facture VARCHAR(50) NOT NULL UNIQUE,
@@ -725,4 +724,5 @@ CREATE TABLE stock_cloture_detail (
     INDEX idx_stock_cloture_detail_periode (id_stock_cloture_periode),
     INDEX idx_stock_cloture_detail_art_dep (id_article, id_depot)
 );
+
 
