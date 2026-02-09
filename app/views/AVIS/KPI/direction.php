@@ -111,7 +111,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Chiffre d'Affaires</h6>
-                                        <h3 class="font-extrabold mb-0"><?= number_format($ca['valeur'] ?? 0, 0, ',', ' ') ?> €</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($ca['valeur'] ?? 0, 0, ',', ' ') ?> Ar</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-<?= ($ca['variationM1'] ?? 0) >= 0 ? 'success' : 'danger' ?>">
                                                 <i class="bi bi-arrow-<?= ($ca['variationM1'] ?? 0) >= 0 ? 'up' : 'down' ?>"></i> <?= ($ca['variationM1'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($ca['variationM1'] ?? 0, 1, ',', ' ') ?>% vs M-1
@@ -126,7 +126,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">Objectif mensuel: <?= number_format($ca['objectif'] ?? 0, 0, ',', ' ') ?> €</small>
+                                    <small class="text-muted">Objectif mensuel: <?= number_format($ca['objectif'] ?? 0, 0, ',', ' ') ?> Ar</small>
                                     <div class="progress progress-thin mt-2">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: <?= min($ca['progressObjectif'] ?? 0, 100) ?>%" aria-valuenow="<?= $ca['progressObjectif'] ?? 0 ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -141,7 +141,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Marge Brute</h6>
-                                        <h3 class="font-extrabold mb-0"><?= number_format($marge['valeur'] ?? 0, 0, ',', ' ') ?> €</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($marge['valeur'] ?? 0, 0, ',', ' ') ?> Ar</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-info">
                                                 <?= number_format($marge['tauxMarge'] ?? 0, 1, ',', ' ') ?>% du CA
@@ -171,7 +171,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Valeur Stock Total</h6>
-                                        <h3 class="font-extrabold mb-0"><?= number_format($valeurStock['valeur'] ?? 0, 0, ',', ' ') ?> €</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($valeurStock['valeur'] ?? 0, 0, ',', ' ') ?> Ar</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-<?= ($valeurStock['variationM1'] ?? 0) <= 0 ? 'warning' : 'danger' ?> text-dark">
                                                 <i class="bi bi-arrow-<?= ($valeurStock['variationM1'] ?? 0) >= 0 ? 'up' : 'down' ?>"></i> <?= number_format($valeurStock['variationM1'] ?? 0, 1, ',', ' ') ?>% vs M-1
@@ -245,11 +245,11 @@
                                         <thead>
                                             <tr>
                                                 <th>Site</th>
-                                                <th>CA (€)</th>
+                                                <th>CA (Ar)</th>
                                                 <th>Évol. M-1</th>
-                                                <th>Marge Brute (€)</th>
+                                                <th>Marge Brute (Ar)</th>
                                                 <th>Marge %</th>
-                                                <th>Valeur Stock (€)</th>
+                                                <th>Valeur Stock (Ar)</th>
                                                 <th>Rotation</th>
                                                 <th>Statut</th>
                                             </tr>
@@ -349,9 +349,9 @@
                                         <strong class="text-<?= ($valeurStock['variationM1'] ?? 0) <= 0 ? 'warning' : 'danger' ?>"><?= number_format($valeurStock['variationM1'] ?? 0, 1, ',', ' ') ?>%</strong>
                                     </div>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-warning" style="width: <?= min(100, abs($valeurStock['variationM1'] ?? 0) * 5 + 50) ?>%"><?= number_format(($valeurStock['valeur'] ?? 0) / 1000, 0, ',', ' ') ?> K€</div>
+                                        <div class="progress-bar bg-warning" style="width: <?= min(100, abs($valeurStock['variationM1'] ?? 0) * 5 + 50) ?>%"><?= number_format(($valeurStock['valeur'] ?? 0) / 1000, 0, ',', ' ') ?> KAr</div>
                                     </div>
-                                    <small class="text-muted">M-1: <?= number_format($valeurStock['valeurM1'] ?? 0, 0, ',', ' ') ?> €</small>
+                                    <small class="text-muted">M-1: <?= number_format($valeurStock['valeurM1'] ?? 0, 0, ',', ' ') ?> Ar</small>
                                 </div>
 
                                 <div class="mb-4">
@@ -360,9 +360,9 @@
                                         <strong class="text-<?= ($valeurStock['variationM12'] ?? 0) <= 0 ? 'success' : 'danger' ?>"><?= number_format($valeurStock['variationM12'] ?? 0, 1, ',', ' ') ?>%</strong>
                                     </div>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-success" style="width: <?= min(100, abs($valeurStock['variationM12'] ?? 0) * 5 + 50) ?>%"><?= number_format(($valeurStock['valeur'] ?? 0) / 1000, 0, ',', ' ') ?> K€</div>
+                                        <div class="progress-bar bg-success" style="width: <?= min(100, abs($valeurStock['variationM12'] ?? 0) * 5 + 50) ?>%"><?= number_format(($valeurStock['valeur'] ?? 0) / 1000, 0, ',', ' ') ?> KAr</div>
                                     </div>
-                                    <small class="text-muted">M-12: <?= number_format($valeurStock['valeurM12'] ?? 0, 0, ',', ' ') ?> €</small>
+                                    <small class="text-muted">M-12: <?= number_format($valeurStock['valeurM12'] ?? 0, 0, ',', ' ') ?> Ar</small>
                                 </div>
 
                                 <hr>
@@ -394,7 +394,7 @@
                             <div class="card-header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h4 class="card-title mb-0">Top 10 Surstocks / Obsolescence</h4>
-                                    <span class="badge bg-danger">Valeur immobilisée: <?= number_format($surstocks['valeurTotale'] ?? 0, 0, ',', ' ') ?> €</span>
+                                    <span class="badge bg-danger">Valeur immobilisée: <?= number_format($surstocks['valeurTotale'] ?? 0, 0, ',', ' ') ?> Ar</span>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -406,7 +406,7 @@
                                                 <th>Article</th>
                                                 <th>Référence</th>
                                                 <th>Qty Stock</th>
-                                                <th>Valeur (€)</th>
+                                                <th>Valeur (Ar)</th>
                                                 <th>Dernière vente</th>
                                                 <th>Statut</th>
                                             </tr>
@@ -491,8 +491,8 @@
                                         <div class="card bg-light-<?= ($ecarts['totaux']['ecartValeur'] ?? 0) < 0 ? 'danger' : 'success' ?>">
                                             <div class="card-body text-center">
                                                 <h6 class="text-muted mb-2">Écart Total (Valeur)</h6>
-                                                <h3 class="text-<?= ($ecarts['totaux']['ecartValeur'] ?? 0) < 0 ? 'danger' : 'success' ?> mb-0"><?= number_format($ecarts['totaux']['ecartValeur'] ?? 0, 0, ',', ' ') ?> €</h3>
-                                                <small class="text-muted">Sur <?= number_format($ecarts['totaux']['valeurStock'] ?? 0, 0, ',', ' ') ?> €</small>
+                                                <h3 class="text-<?= ($ecarts['totaux']['ecartValeur'] ?? 0) < 0 ? 'danger' : 'success' ?> mb-0"><?= number_format($ecarts['totaux']['ecartValeur'] ?? 0, 0, ',', ' ') ?> Ar</h3>
+                                                <small class="text-muted">Sur <?= number_format($ecarts['totaux']['valeurStock'] ?? 0, 0, ',', ' ') ?> Ar</small>
                                             </div>
                                         </div>
                                     </div>
@@ -530,8 +530,8 @@
                                         <thead>
                                             <tr>
                                                 <th>Dépôt</th>
-                                                <th>Valeur Stock (€)</th>
-                                                <th>Écart Valeur (€)</th>
+                                                <th>Valeur Stock (Ar)</th>
+                                                <th>Écart Valeur (Ar)</th>
                                                 <th>Écart %</th>
                                                 <th>Articles en écart</th>
                                                 <th>Fiabilité</th>
@@ -697,22 +697,22 @@
         yaxis: [
             {
                 title: {
-                    text: 'CA (€)'
+                    text: 'CA (Ar)'
                 },
                 labels: {
                     formatter: function(val) {
-                        return val.toLocaleString() + ' €';
+                        return val.toLocaleString() + ' Ar';
                     }
                 }
             },
             {
                 opposite: true,
                 title: {
-                    text: 'Marge Brute (€)'
+                    text: 'Marge Brute (Ar)'
                 },
                 labels: {
                     formatter: function(val) {
-                        return val.toLocaleString() + ' €';
+                        return val.toLocaleString() + ' Ar';
                     }
                 }
             },
@@ -737,7 +737,7 @@
                     if (opts.seriesIndex === 2) {
                         return val.toFixed(1) + '%';
                     }
-                    return val.toLocaleString() + ' €';
+                    return val.toLocaleString() + ' Ar';
                 }
             }
         },
@@ -769,7 +769,7 @@
         tooltip: {
             y: {
                 formatter: function(val) {
-                    return val.toLocaleString() + ' €';
+                    return val.toLocaleString() + ' Ar';
                 }
             }
         },
@@ -784,7 +784,7 @@
                             label: 'Total Stock',
                             formatter: function(w) {
                                 var total = stockSiteData.total || 0;
-                                return total.toLocaleString() + ' €';
+                                return total.toLocaleString() + ' Ar';
                             }
                         }
                     }
@@ -829,11 +829,11 @@
         yaxis: [
             {
                 title: {
-                    text: 'Valeur Stock (€)'
+                    text: 'Valeur Stock (Ar)'
                 },
                 labels: {
                     formatter: function(val) {
-                        return val.toLocaleString() + ' €';
+                        return val.toLocaleString() + ' Ar';
                     }
                 }
             },
@@ -897,7 +897,7 @@
         tooltip: {
             y: {
                 formatter: function(val) {
-                    return val.toLocaleString() + ' €';
+                    return val.toLocaleString() + ' Ar';
                 }
             }
         },

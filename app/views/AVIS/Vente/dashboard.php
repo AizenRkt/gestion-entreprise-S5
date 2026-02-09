@@ -277,5 +277,8 @@
 </div>
 
 <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 </body>
 </html>

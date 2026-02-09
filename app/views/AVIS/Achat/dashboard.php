@@ -213,6 +213,9 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 <script>
     $(function() {
         $('#suppliersTable').DataTable();

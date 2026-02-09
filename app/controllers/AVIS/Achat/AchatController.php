@@ -465,6 +465,13 @@ class AchatController
             return;
         }
 
+        // Vérification du rôle - Seul ROLE_RESPONSABLE_ACHATS peut valider
+        $userRole = $_SESSION['user']['role'] ?? '';
+        if ($userRole !== 'ROLE_RESPONSABLE_ACHATS') {
+            Flight::halt(403, 'Accès refusé. Seul le Responsable Achats peut valider les demandes.');
+            return;
+        }
+
         try {
             $this->purchaseRequestModel->updateStatus($id, 'VISEE', (int) $_SESSION['user']['id_user'], null);
             Flight::redirect('/avis/achat/demandes/' . $id);

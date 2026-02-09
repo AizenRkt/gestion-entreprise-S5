@@ -64,6 +64,13 @@
                 <li class="sidebar-title">Consultation</li>
 
                 <li class="sidebar-item">
+                    <a href="<?= Flight::base() ?>/stock/inventaire/disponibilite" class='sidebar-link'>
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Disponibilité & Valeur</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
                     <a href="<?= Flight::base() ?>/referentiel/article/list" class='sidebar-link'>
                         <i class="bi bi-archive"></i>
                         <span>Liste articles</span>

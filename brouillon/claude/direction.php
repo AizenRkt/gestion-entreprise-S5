@@ -79,7 +79,7 @@
                                 <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
                                 <div>
                                     <strong>Attention :</strong> Rotation stock (4,2) en dessous de l'objectif (≥5). 
-                                    Valeur immobilisée en surstock : <strong>148 000 €</strong>
+                                    Valeur immobilisée en surstock : <strong>148 000 Ar</strong>
                                 </div>
                             </div>
                         </div>
@@ -94,7 +94,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Chiffre d'Affaires</h6>
-                                        <h3 class="font-extrabold mb-0">1 250 000 €</h3>
+                                        <h3 class="font-extrabold mb-0">1 250 000 Ar</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-success">
                                                 <i class="bi bi-arrow-up"></i> +8,0% vs M-1
@@ -109,7 +109,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">Objectif mensuel: 1 200 000 €</small>
+                                    <small class="text-muted">Objectif mensuel: 1 200 000 Ar</small>
                                     <div class="progress progress-thin mt-2">
                                         <div class="progress-bar bg-success" role="progressbar" style="width: 104%" aria-valuenow="104" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
@@ -124,7 +124,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Marge Brute</h6>
-                                        <h3 class="font-extrabold mb-0">420 000 €</h3>
+                                        <h3 class="font-extrabold mb-0">420 000 Ar</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-info">
                                                 33,6% du CA
@@ -154,7 +154,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Valeur Stock Total</h6>
-                                        <h3 class="font-extrabold mb-0">310 000 €</h3>
+                                        <h3 class="font-extrabold mb-0">310 000 Ar</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-warning text-dark">
                                                 <i class="bi bi-arrow-down"></i> -5,0% vs M-1
@@ -222,11 +222,11 @@
                                         <thead>
                                             <tr>
                                                 <th>Site</th>
-                                                <th>CA (€)</th>
+                                                <th>CA (Ar)</th>
                                                 <th>Évol. M-1</th>
-                                                <th>Marge Brute (€)</th>
+                                                <th>Marge Brute (Ar)</th>
                                                 <th>Marge %</th>
-                                                <th>Valeur Stock (€)</th>
+                                                <th>Valeur Stock (Ar)</th>
                                                 <th>Rotation</th>
                                                 <th>Statut</th>
                                             </tr>
@@ -332,9 +332,9 @@
                                         <strong class="text-warning">-5,0%</strong>
                                     </div>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-warning" style="width: 95%">310 K€</div>
+                                        <div class="progress-bar bg-warning" style="width: 95%">310 KAr</div>
                                     </div>
-                                    <small class="text-muted">M-1: 326 500 €</small>
+                                    <small class="text-muted">M-1: 326 500 Ar</small>
                                 </div>
 
                                 <div class="mb-4">
@@ -343,9 +343,9 @@
                                         <strong class="text-success">-8,2%</strong>
                                     </div>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-success" style="width: 91.8%">310 K€</div>
+                                        <div class="progress-bar bg-success" style="width: 91.8%">310 KAr</div>
                                     </div>
-                                    <small class="text-muted">M-12: 337 800 €</small>
+                                    <small class="text-muted">M-12: 337 800 Ar</small>
                                 </div>
 
                                 <hr>
@@ -377,7 +377,7 @@
                             <div class="card-header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h4 class="card-title mb-0">Top 10 Surstocks / Obsolescence</h4>
-                                    <span class="badge bg-danger">Valeur immobilisée: 148 000 €</span>
+                                    <span class="badge bg-danger">Valeur immobilisée: 148 000 Ar</span>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -389,7 +389,7 @@
                                                 <th>Article</th>
                                                 <th>Référence</th>
                                                 <th>Qty Stock</th>
-                                                <th>Valeur (€)</th>
+                                                <th>Valeur (Ar)</th>
                                                 <th>Dernière vente</th>
                                                 <th>Statut</th>
                                             </tr>
@@ -487,8 +487,8 @@
                                         <div class="card bg-light-danger">
                                             <div class="card-body text-center">
                                                 <h6 class="text-muted mb-2">Écart Total (Valeur)</h6>
-                                                <h3 class="text-danger mb-0">-3 100 €</h3>
-                                                <small class="text-muted">Sur 310 000 €</small>
+                                                <h3 class="text-danger mb-0">-3 100 Ar</h3>
+                                                <small class="text-muted">Sur 310 000 Ar</small>
                                             </div>
                                         </div>
                                     </div>
@@ -526,8 +526,8 @@
                                         <thead>
                                             <tr>
                                                 <th>Dépôt</th>
-                                                <th>Valeur Stock (€)</th>
-                                                <th>Écart Valeur (€)</th>
+                                                <th>Valeur Stock (Ar)</th>
+                                                <th>Écart Valeur (Ar)</th>
                                                 <th>Écart %</th>
                                                 <th>Articles en écart</th>
                                                 <th>Fiabilité</th>
@@ -682,22 +682,22 @@
         yaxis: [
             {
                 title: {
-                    text: 'CA (€)'
+                    text: 'CA (Ar)'
                 },
                 labels: {
                     formatter: function(val) {
-                        return val.toLocaleString() + ' €';
+                        return val.toLocaleString() + ' Ar';
                     }
                 }
             },
             {
                 opposite: true,
                 title: {
-                    text: 'Marge Brute (€)'
+                    text: 'Marge Brute (Ar)'
                 },
                 labels: {
                     formatter: function(val) {
-                        return val.toLocaleString() + ' €';
+                        return val.toLocaleString() + ' Ar';
                     }
                 }
             },
@@ -722,7 +722,7 @@
                     if (opts.seriesIndex === 2) {
                         return val.toFixed(1) + '%';
                     }
-                    return val.toLocaleString() + ' €';
+                    return val.toLocaleString() + ' Ar';
                 }
             }
         },
@@ -753,7 +753,7 @@
         tooltip: {
             y: {
                 formatter: function(val) {
-                    return val.toLocaleString() + ' €';
+                    return val.toLocaleString() + ' Ar';
                 }
             }
         },
@@ -767,7 +767,7 @@
                             show: true,
                             label: 'Total Stock',
                             formatter: function(w) {
-                                return '310 000 €';
+                                return '310 000 Ar';
                             }
                         }
                     }
@@ -811,11 +811,11 @@
         yaxis: [
             {
                 title: {
-                    text: 'Valeur Stock (€)'
+                    text: 'Valeur Stock (Ar)'
                 },
                 labels: {
                     formatter: function(val) {
-                        return val.toLocaleString() + ' €';
+                        return val.toLocaleString() + ' Ar';
                     }
                 }
             },
@@ -878,7 +878,7 @@
         tooltip: {
             y: {
                 formatter: function(val) {
-                    return val.toLocaleString() + ' €';
+                    return val.toLocaleString() + ' Ar';
                 }
             }
         },

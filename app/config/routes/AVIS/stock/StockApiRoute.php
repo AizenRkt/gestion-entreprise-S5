@@ -25,6 +25,8 @@ $router->get('/api/stock/lots', [MouvStockApiController::class, 'getLots']);
 $router->post('/api/stock/lots/create', [MouvStockApiController::class, 'createLot']);
 $router->get('/api/stock/courant', [MouvStockApiController::class, 'getStockCourant']);
 $router->get('/api/stock/reservations', [MouvStockApiController::class, 'listReservations']);
+$router->get('/api/stock/disponibilite', [MouvStockApiController::class, 'listAvailability']);
+$router->get('/api/stock/disponibilite/historique', [MouvStockApiController::class, 'getAvailabilityHistory']);
 
 // Inventory planning
 $router->get('/api/stock/inventaire/campagnes', [InventoryPlanningApiController::class, 'listCampaigns']);

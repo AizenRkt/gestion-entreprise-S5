@@ -80,6 +80,7 @@
                     <ul class="submenu">
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/comptage" class="submenu-link">Saisie comptage</a></li>
                         <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/fiche" class="submenu-link">Fiche de comptage</a></li>
+                        <li class="submenu-item"><a href="<?= Flight::base() ?>/stock/inventaire/disponibilite" class="submenu-link">Disponibilité & Valeur</a></li>
                     </ul>
                 </li>
 

@@ -169,6 +169,7 @@
 
 <script>
 const base = '<?= Flight::base() ?>';
+const userRole = '<?= $_SESSION['user']['role'] ?? '' ?>';
 
 function toast(message, type = 'success') {
     Toastify({ text: message, duration: 3000, close: true, gravity: 'top', position: 'right', backgroundColor: type === 'success' ? '#198754' : '#dc3545' }).showToast();
@@ -215,7 +216,7 @@ function renderMovements(rows) {
         const sensBadge = r.sens == 1 ? '<span class="badge bg-success">Entrée</span>' : '<span class="badge bg-danger">Sortie</span>';
         const statutBadge = r.date_validation ? '<span class="badge bg-success">Validé</span>' : '<span class="badge bg-secondary">Brouillon</span>';
         const actionButtons = [];
-        if (!r.date_validation) {
+        if (!r.date_validation && userRole === 'ROLE_RESPONSABLE_STOCK') {
             actionButtons.push(`<a href="${base}/stock/mouvement/${r.id_mouvement_stock}/valider" class="btn btn-sm btn-primary"><i class=\"bi bi-check2-circle\"></i> Valider</a>`);
         }
         // Details modal

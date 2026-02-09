@@ -488,49 +488,32 @@ CREATE TABLE ligne_livraison_client (
     FOREIGN KEY (id_ligne_commande_client) REFERENCES ligne_commande_client(id_ligne_commande_client)
 );
 
--- Ajouter statut, valide_par, date_validation à commande_client
--- Utiliser des procédures pour vérifier si les colonnes existent
-DELIMITER //
+CREATE TABLE commande_annulation (
+    id_annulation INT AUTO_INCREMENT PRIMARY KEY,
+    id_commande_client INT NOT NULL,
+    date_annulation DATE NOT NULL,
+    motif VARCHAR(100),
+    raison_detail TEXT,
+    montant_impact DECIMAL(15,2),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client)
+);
 
-DROP PROCEDURE IF EXISTS add_columns_commande_client//
-
-CREATE PROCEDURE add_columns_commande_client()
-BEGIN
-    -- Ajouter colonne statut si elle n'existe pas
-    IF NOT EXISTS (
-        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'commande_client' 
-        AND COLUMN_NAME = 'statut'
-    ) THEN
-        ALTER TABLE commande_client ADD COLUMN statut ENUM('BROUILLON','VALIDE','CLOTURE') DEFAULT 'BROUILLON';
-    END IF;
-    
-    -- Ajouter colonne valide_par si elle n'existe pas
-    IF NOT EXISTS (
-        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'commande_client' 
-        AND COLUMN_NAME = 'valide_par'
-    ) THEN
-        ALTER TABLE commande_client ADD COLUMN valide_par INT NULL;
-    END IF;
-    
-    -- Ajouter colonne date_validation si elle n'existe pas
-    IF NOT EXISTS (
-        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = 'commande_client' 
-        AND COLUMN_NAME = 'date_validation'
-    ) THEN
-        ALTER TABLE commande_client ADD COLUMN date_validation DATETIME NULL;
-    END IF;
-END//
-
-DELIMITER ;
-
-CALL add_columns_commande_client();
-DROP PROCEDURE IF EXISTS add_columns_commande_client;
+-- Table pour avoirs/crédits
+CREATE TABLE avoir_client (
+    id_avoir INT AUTO_INCREMENT PRIMARY KEY,
+    numero_avoir VARCHAR(50) NOT NULL UNIQUE,
+    date_avoir DATE NOT NULL,
+    id_commande_client INT NOT NULL,
+    id_client INT NOT NULL,
+    type_avoir VARCHAR(50),
+    motif TEXT,
+    montant DECIMAL(15,2) NOT NULL,
+    statut ENUM('En attente', 'Émis', 'Validé') DEFAULT 'En attente',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client),
+    FOREIGN KEY (id_client) REFERENCES client(id_client)
+);
 
 -- ==============================
 -- LOT (clé FIFO / LIFO / FEFO)

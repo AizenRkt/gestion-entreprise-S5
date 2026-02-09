@@ -41,8 +41,8 @@ class KpiDirectionModel
             // CA du mois courant (basé sur les factures clients)
             $sqlCA = "SELECT COALESCE(SUM(fc.montant_ttc), 0) as ca_mois
                       FROM facture_client fc
-                      WHERE MONTH(fc.facture_date) = MONTH(CURDATE())
-                        AND YEAR(fc.facture_date) = YEAR(CURDATE())";
+                      WHERE MONTH(fc.date_facture) = MONTH(CURDATE())
+                        AND YEAR(fc.date_facture) = YEAR(CURDATE())";
             $stmt = $db->prepare($sqlCA);
             $stmt->execute();
             $caMois = (float)$stmt->fetchColumn();
@@ -50,8 +50,8 @@ class KpiDirectionModel
             // CA du mois précédent (M-1)
             $sqlPrev = "SELECT COALESCE(SUM(fc.montant_ttc), 0) as ca_prev
                         FROM facture_client fc
-                        WHERE MONTH(fc.facture_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
-                          AND YEAR(fc.facture_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+                        WHERE MONTH(fc.date_facture) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+                          AND YEAR(fc.date_facture) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
             $stmtPrev = $db->prepare($sqlPrev);
             $stmtPrev->execute();
             $caPrev = (float)$stmtPrev->fetchColumn();
@@ -59,8 +59,8 @@ class KpiDirectionModel
             // CA du même mois l'année dernière (M-12)
             $sqlYearAgo = "SELECT COALESCE(SUM(fc.montant_ttc), 0) as ca_year
                            FROM facture_client fc
-                           WHERE MONTH(fc.facture_date) = MONTH(CURDATE())
-                             AND YEAR(fc.facture_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR))";
+                           WHERE MONTH(fc.date_facture) = MONTH(CURDATE())
+                             AND YEAR(fc.date_facture) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 YEAR))";
             $stmtYear = $db->prepare($sqlYearAgo);
             $stmtYear->execute();
             $caYear = (float)$stmtYear->fetchColumn();
@@ -74,9 +74,9 @@ class KpiDirectionModel
                             FROM (
                                 SELECT SUM(fc.montant_ttc) as monthly_ca
                                 FROM facture_client fc
-                                WHERE fc.facture_date >= DATE_SUB(CURDATE(), INTERVAL 4 MONTH)
-                                  AND fc.facture_date < DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
-                                GROUP BY YEAR(fc.facture_date), MONTH(fc.facture_date)
+                                WHERE fc.date_facture >= DATE_SUB(CURDATE(), INTERVAL 4 MONTH)
+                                  AND fc.date_facture < DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+                                GROUP BY YEAR(fc.date_facture), MONTH(fc.date_facture)
                             ) sub";
             $stmtObj = $db->prepare($sqlObjectif);
             $stmtObj->execute();
@@ -115,14 +115,14 @@ class KpiDirectionModel
             // CA mois courant
             $sqlCA = "SELECT COALESCE(SUM(fc.montant_ht), 0) as ca_ht
                       FROM facture_client fc
-                      WHERE MONTH(fc.facture_date) = MONTH(CURDATE())
-                        AND YEAR(fc.facture_date) = YEAR(CURDATE())";
+                      WHERE MONTH(fc.date_facture) = MONTH(CURDATE())
+                        AND YEAR(fc.date_facture) = YEAR(CURDATE())";
             $stmt = $db->prepare($sqlCA);
             $stmt->execute();
             $caHT = (float)$stmt->fetchColumn();
 
             // Coût des ventes (sortie de stock valorisée)
-            $sqlCout = "SELECT COALESCE(SUM(ms.valeur_mouvement), 0) as cout_ventes
+            $sqlCout = "SELECT COALESCE(SUM(ms.quantite * ms.cout_unitaire), 0) as cout_ventes
                         FROM mouvement_stock ms
                         INNER JOIN mouvement_stock_type mst ON mst.id_type_mouvement_stock = ms.id_type_mouvement_stock
                         WHERE mst.code = 'VENTE_LIVRAISON'
@@ -138,13 +138,13 @@ class KpiDirectionModel
             // Marge mois précédent pour variation
             $sqlPrevCA = "SELECT COALESCE(SUM(fc.montant_ht), 0) as ca_ht
                           FROM facture_client fc
-                          WHERE MONTH(fc.facture_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
-                            AND YEAR(fc.facture_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
+                          WHERE MONTH(fc.date_facture) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+                            AND YEAR(fc.date_facture) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
             $stmtPrevCA = $db->prepare($sqlPrevCA);
             $stmtPrevCA->execute();
             $caPrevHT = (float)$stmtPrevCA->fetchColumn();
 
-            $sqlPrevCout = "SELECT COALESCE(SUM(ms.valeur_mouvement), 0) as cout_ventes
+            $sqlPrevCout = "SELECT COALESCE(SUM(ms.quantite * ms.cout_unitaire), 0) as cout_ventes
                             FROM mouvement_stock ms
                             INNER JOIN mouvement_stock_type mst ON mst.id_type_mouvement_stock = ms.id_type_mouvement_stock
                             WHERE mst.code = 'VENTE_LIVRAISON'
@@ -189,14 +189,14 @@ class KpiDirectionModel
             $db = Flight::db();
 
             // Valeur stock actuelle
-            $sqlStock = "SELECT COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur_stock
+            $sqlStock = "SELECT COALESCE(SUM(sc.valeur_stock), 0) as valeur_stock
                          FROM stock_courant sc";
             $stmt = $db->prepare($sqlStock);
             $stmt->execute();
             $valeurStock = (float)$stmt->fetchColumn();
 
             // Valeur stock M-1 (depuis clôture ou estimation)
-            $sqlPrev = "SELECT COALESCE(SUM(scd.quantite * scd.cout_unitaire), 0) as valeur_prev
+            $sqlPrev = "SELECT COALESCE(SUM(scd.valeur_cloture), 0) as valeur_prev
                         FROM stock_cloture_detail scd
                         INNER JOIN stock_cloture_periode scp ON scp.id_stock_cloture_periode = scd.id_stock_cloture_periode
                         WHERE scp.annee = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
@@ -206,7 +206,7 @@ class KpiDirectionModel
             $valeurPrev = (float)$stmtPrev->fetchColumn();
 
             // Valeur stock M-12
-            $sqlYear = "SELECT COALESCE(SUM(scd.quantite * scd.cout_unitaire), 0) as valeur_year
+            $sqlYear = "SELECT COALESCE(SUM(scd.valeur_cloture), 0) as valeur_year
                         FROM stock_cloture_detail scd
                         INNER JOIN stock_cloture_periode scp ON scp.id_stock_cloture_periode = scd.id_stock_cloture_periode
                         WHERE scp.annee = YEAR(DATE_SUB(CURDATE(), INTERVAL 12 MONTH))
@@ -221,10 +221,10 @@ class KpiDirectionModel
             // Couverture en jours (valeur stock / CA journalier moyen)
             $sqlCAMoyen = "SELECT COALESCE(AVG(daily_ca), 0) as ca_jour
                            FROM (
-                               SELECT DATE(facture_date) as jour, SUM(montant_ttc) as daily_ca
+                               SELECT DATE(date_facture) as jour, SUM(montant_ttc) as daily_ca
                                FROM facture_client
-                               WHERE facture_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-                               GROUP BY DATE(facture_date)
+                               WHERE date_facture >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                               GROUP BY DATE(date_facture)
                            ) sub";
             $stmtCA = $db->prepare($sqlCAMoyen);
             $stmtCA->execute();
@@ -261,7 +261,7 @@ class KpiDirectionModel
             $db = Flight::db();
 
             // Coût des ventes sur 12 mois
-            $sqlCoutVentes = "SELECT COALESCE(SUM(ms.valeur_mouvement), 0) as cout_ventes
+            $sqlCoutVentes = "SELECT COALESCE(SUM(ms.quantite * ms.cout_unitaire), 0) as cout_ventes
                               FROM mouvement_stock ms
                               INNER JOIN mouvement_stock_type mst ON mst.id_type_mouvement_stock = ms.id_type_mouvement_stock
                               WHERE mst.code = 'VENTE_LIVRAISON'
@@ -271,13 +271,13 @@ class KpiDirectionModel
             $coutVentes = (float)$stmt->fetchColumn();
 
             // Stock moyen (début + fin / 2, basé sur clôtures)
-            $sqlStockCourant = "SELECT COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as stock_actuel
+            $sqlStockCourant = "SELECT COALESCE(SUM(sc.valeur_stock), 0) as stock_actuel
                                 FROM stock_courant sc";
             $stmtCourant = $db->prepare($sqlStockCourant);
             $stmtCourant->execute();
             $stockActuel = (float)$stmtCourant->fetchColumn();
 
-            $sqlStockDebut = "SELECT COALESCE(SUM(scd.quantite * scd.cout_unitaire), 0) as stock_debut
+            $sqlStockDebut = "SELECT COALESCE(SUM(scd.valeur_cloture), 0) as stock_debut
                               FROM stock_cloture_detail scd
                               INNER JOIN stock_cloture_periode scp ON scp.id_stock_cloture_periode = scd.id_stock_cloture_periode
                               WHERE scp.annee = YEAR(DATE_SUB(CURDATE(), INTERVAL 12 MONTH))
@@ -330,31 +330,31 @@ class KpiDirectionModel
                     LEFT JOIN (
                         SELECT 
                             cc.id_depot,
-                            SUM(CASE WHEN MONTH(fc.facture_date) = MONTH(CURDATE()) AND YEAR(fc.facture_date) = YEAR(CURDATE()) 
+                            SUM(CASE WHEN MONTH(fc.date_facture) = MONTH(CURDATE()) AND YEAR(fc.date_facture) = YEAR(CURDATE()) 
                                      THEN fc.montant_ttc ELSE 0 END) as ca_mois,
-                            SUM(CASE WHEN MONTH(fc.facture_date) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
-                                          AND YEAR(fc.facture_date) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
+                            SUM(CASE WHEN MONTH(fc.date_facture) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
+                                          AND YEAR(fc.date_facture) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))
                                      THEN fc.montant_ttc ELSE 0 END) as ca_prev
                         FROM facture_client fc
-                        INNER JOIN livraison_client lc ON fc.id_livraison_client = lc.id_livraison_client
+                        INNER JOIN livraison_client lc ON fc.livraison_client_id = lc.id_livraison_client
                         INNER JOIN commande_client cc ON lc.id_commande_client = cc.id_commande_client
                         GROUP BY cc.id_depot
                     ) ca ON ca.id_depot = d.id_depot
                     LEFT JOIN (
                         SELECT 
                             cc.id_depot,
-                            SUM(fc.montant_ht) - COALESCE(SUM(ms.valeur_mouvement), 0) as marge_mois
+                            SUM(fc.montant_ht) - COALESCE(SUM(ms.quantite * ms.cout_unitaire), 0) as marge_mois
                         FROM facture_client fc
-                        INNER JOIN livraison_client lc ON fc.id_livraison_client = lc.id_livraison_client
+                        INNER JOIN livraison_client lc ON fc.livraison_client_id = lc.id_livraison_client
                         INNER JOIN commande_client cc ON lc.id_commande_client = cc.id_commande_client
                         LEFT JOIN mouvement_stock ms ON ms.id_document_origine = lc.id_livraison_client
                             AND ms.type_document_origine = 'LIVRAISON'
-                        WHERE MONTH(fc.facture_date) = MONTH(CURDATE())
-                          AND YEAR(fc.facture_date) = YEAR(CURDATE())
+                        WHERE MONTH(fc.date_facture) = MONTH(CURDATE())
+                          AND YEAR(fc.date_facture) = YEAR(CURDATE())
                         GROUP BY cc.id_depot
                     ) marge ON marge.id_depot = d.id_depot
                     LEFT JOIN (
-                        SELECT id_depot, SUM(quantite * cout_unitaire_moyen) as valeur_stock
+                        SELECT id_depot, SUM(valeur_stock) as valeur_stock
                         FROM stock_courant
                         GROUP BY id_depot
                     ) stock ON stock.id_depot = d.id_depot
@@ -450,7 +450,7 @@ class KpiDirectionModel
                         a.designation as article,
                         a.code as reference,
                         COALESCE(SUM(sc.quantite), 0) as quantite_stock,
-                        COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur,
+                        COALESCE(SUM(sc.valeur_stock), 0) as valeur,
                         MAX(ms.date_mouvement) as derniere_vente,
                         DATEDIFF(CURDATE(), MAX(ms.date_mouvement)) as jours_sans_vente
                     FROM article a
@@ -528,10 +528,10 @@ class KpiDirectionModel
             $db = Flight::db();
 
             // Dernière campagne d'inventaire
-            $sqlCampagne = "SELECT id_inventaire_campagne, date_debut
+            $sqlCampagne = "SELECT id_inventaire_campagne, date_debut_prevue
                             FROM inventaire_campagne
                             WHERE statut = 'CLOTURE'
-                            ORDER BY date_debut DESC
+                            ORDER BY date_debut_prevue DESC
                             LIMIT 1";
             $stmtCamp = $db->prepare($sqlCampagne);
             $stmtCamp->execute();
@@ -552,14 +552,14 @@ class KpiDirectionModel
             }
 
             $idCampagne = $campagne['id_inventaire_campagne'];
-            $dateInventaire = $campagne['date_debut'];
+            $dateInventaire = $campagne['date_debut_prevue'];
 
             // Écarts par dépôt
             $sql = "SELECT 
                         d.id_depot,
                         d.nom as depot,
-                        COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur_stock,
-                        COALESCE(SUM(ic.ecart * sc.cout_unitaire_moyen), 0) as ecart_valeur,
+                        COALESCE(SUM(sc.valeur_stock), 0) as valeur_stock,
+                        COALESCE(SUM(ic.ecart * sc.cout_moyen), 0) as ecart_valeur,
                         COUNT(CASE WHEN ic.ecart != 0 THEN 1 END) as articles_ecart
                     FROM depot d
                     LEFT JOIN stock_courant sc ON sc.id_depot = d.id_depot
@@ -663,7 +663,7 @@ class KpiDirectionModel
             if ($surstocks['valeurTotale'] > 0) {
                 $alertes[] = [
                     'type' => 'warning',
-                    'message' => 'Valeur immobilisée en surstock : ' . number_format($surstocks['valeurTotale'], 0, ',', ' ') . ' €'
+                    'message' => 'Valeur immobilisée en surstock : ' . number_format($surstocks['valeurTotale'], 0, ',', ' ') . ' Ar'
                 ];
             }
 
@@ -701,7 +701,7 @@ class KpiDirectionModel
             $db = Flight::db();
 
             // Stock actif (mouvement < 6 mois)
-            $sqlActif = "SELECT COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur
+            $sqlActif = "SELECT COALESCE(SUM(sc.valeur_stock), 0) as valeur
                          FROM stock_courant sc
                          WHERE EXISTS (
                              SELECT 1 FROM mouvement_stock ms
@@ -715,7 +715,7 @@ class KpiDirectionModel
             $stockActif = (float)$stmt->fetchColumn();
 
             // Surstock (6-12 mois sans mouvement)
-            $sqlSurstock = "SELECT COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur
+            $sqlSurstock = "SELECT COALESCE(SUM(sc.valeur_stock), 0) as valeur
                             FROM stock_courant sc
                             WHERE EXISTS (
                                 SELECT 1 FROM mouvement_stock ms
@@ -737,7 +737,7 @@ class KpiDirectionModel
             $surstock = (float)$stmtSur->fetchColumn();
 
             // Obsolète (> 12 mois sans mouvement)
-            $sqlObsolete = "SELECT COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur
+            $sqlObsolete = "SELECT COALESCE(SUM(sc.valeur_stock), 0) as valeur
                             FROM stock_courant sc
                             WHERE NOT EXISTS (
                                 SELECT 1 FROM mouvement_stock ms
@@ -792,7 +792,7 @@ class KpiDirectionModel
                 // CA du mois
                 $sqlCA = "SELECT COALESCE(SUM(fc.montant_ttc), 0) as ca
                           FROM facture_client fc
-                          WHERE YEAR(fc.facture_date) = :annee AND MONTH(fc.facture_date) = :mois";
+                          WHERE YEAR(fc.date_facture) = :annee AND MONTH(fc.date_facture) = :mois";
                 $stmtCA = $db->prepare($sqlCA);
                 $stmtCA->execute([':annee' => $annee, ':mois' => $numMois]);
                 $ca = (float)$stmtCA->fetchColumn();
@@ -802,14 +802,14 @@ class KpiDirectionModel
                 $sqlMarge = "SELECT 
                                 COALESCE(SUM(fc.montant_ht), 0) as ca_ht,
                                 COALESCE((
-                                    SELECT SUM(ms.valeur_mouvement)
+                                    SELECT SUM(ms.quantite * ms.cout_unitaire)
                                     FROM mouvement_stock ms
                                     INNER JOIN mouvement_stock_type mst ON mst.id_type_mouvement_stock = ms.id_type_mouvement_stock
                                     WHERE mst.code = 'VENTE_LIVRAISON'
                                       AND YEAR(ms.date_mouvement) = :annee2 AND MONTH(ms.date_mouvement) = :mois2
                                 ), 0) as cout
                              FROM facture_client fc
-                             WHERE YEAR(fc.facture_date) = :annee AND MONTH(fc.facture_date) = :mois";
+                             WHERE YEAR(fc.date_facture) = :annee AND MONTH(fc.date_facture) = :mois";
                 $stmtMarge = $db->prepare($sqlMarge);
                 $stmtMarge->execute([':annee' => $annee, ':mois' => $numMois, ':annee2' => $annee, ':mois2' => $numMois]);
                 $row = $stmtMarge->fetch(PDO::FETCH_ASSOC);
@@ -821,7 +821,7 @@ class KpiDirectionModel
                 $margePctData[] = $margePct;
 
                 // Valeur stock (de la clôture ou estimation)
-                $sqlStock = "SELECT COALESCE(SUM(scd.quantite * scd.cout_unitaire), 0) as valeur
+                $sqlStock = "SELECT COALESCE(SUM(scd.valeur_cloture), 0) as valeur
                              FROM stock_cloture_detail scd
                              INNER JOIN stock_cloture_periode scp ON scp.id_stock_cloture_periode = scd.id_stock_cloture_periode
                              WHERE scp.annee = :annee AND scp.mois = :mois";
@@ -831,7 +831,7 @@ class KpiDirectionModel
 
                 // Si pas de clôture, utiliser stock courant pour le mois actuel
                 if ($stock == 0 && $i == 0) {
-                    $sqlCourant = "SELECT COALESCE(SUM(quantite * cout_unitaire_moyen), 0) FROM stock_courant";
+                    $sqlCourant = "SELECT COALESCE(SUM(valeur_stock), 0) FROM stock_courant";
                     $stock = (float)$db->query($sqlCourant)->fetchColumn();
                 }
                 $stockData[] = round($stock, 0);
@@ -843,7 +843,7 @@ class KpiDirectionModel
             }
 
             // Stock par site (donut chart)
-            $sqlStockSite = "SELECT d.nom, COALESCE(SUM(sc.quantite * sc.cout_unitaire_moyen), 0) as valeur
+            $sqlStockSite = "SELECT d.nom, COALESCE(SUM(sc.valeur_stock), 0) as valeur
                              FROM depot d
                              LEFT JOIN stock_courant sc ON sc.id_depot = d.id_depot
                              GROUP BY d.id_depot, d.nom

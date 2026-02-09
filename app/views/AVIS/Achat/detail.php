@@ -54,7 +54,10 @@
                                 </div>
                                 <div class="d-flex gap-2">
                                     <a href="<?= Flight::base() ?>/avis/achat/saisie" class="btn btn-outline-secondary btn-sm">Modifier</a>
-                                    <?php if (($request['statut'] ?? '') !== 'VISEE'): ?>
+                                    <?php 
+                                    $userRole = $_SESSION['user']['role'] ?? '';
+                                    if (($request['statut'] ?? '') !== 'VISEE' && $userRole === 'ROLE_RESPONSABLE_ACHATS'): 
+                                    ?>
                                         <form method="POST" action="<?= Flight::base() ?>/avis/achat/demandes/<?= htmlspecialchars($request['id_demande_achat']) ?>/valider" class="d-inline">
                                             <button type="submit" class="btn btn-primary btn-sm">Valider</button>
                                         </form>

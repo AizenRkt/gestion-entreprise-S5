@@ -19,12 +19,9 @@ class PurchaseRequestModel
     public function generateNumber(): string
     {
         $db = Flight::db();
-        $lastNumber = $db->query('SELECT numero FROM demande_achat ORDER BY id_demande_achat DESC LIMIT 1')->fetchColumn();
-        $counter = 1;
-
-        if ($lastNumber && preg_match('/DMDA(\d+)/', $lastNumber, $matches)) {
-            $counter = (int) $matches[1] + 1;
-        }
+        // Récupérer le plus grand numéro existant (extraction du compteur numérique)
+        $maxCounter = $db->query("SELECT MAX(CAST(SUBSTRING(numero, 5) AS UNSIGNED)) FROM demande_achat WHERE numero LIKE 'DMDA%'")->fetchColumn();
+        $counter = $maxCounter ? (int) $maxCounter + 1 : 1;
 
         return sprintf('DMDA%05d', $counter);
     }

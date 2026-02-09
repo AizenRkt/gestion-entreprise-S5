@@ -98,7 +98,7 @@
                             <i class="bi bi-exclamation-octagon-fill me-3 fs-4"></i>
                             <div class="flex-grow-1">
                                 <strong>Backlog critique :</strong> 
-                                <span class="ms-2"><strong><?= $backlogCount ?> commandes non servies</strong> (<?= number_format($backlogAmount, 0, ',', ' ') ?> €)</span>
+                                <span class="ms-2"><strong><?= $backlogCount ?> commandes non servies</strong> (<?= number_format($backlogAmount, 0, ',', ' ') ?> Ar)</span>
                             </div>
                             <button class="btn btn-sm btn-outline-danger">Action urgente</button>
                         </div>
@@ -113,7 +113,7 @@
                             <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
                             <div class="flex-grow-1">
                                 <strong>Commandes en retard :</strong> 
-                                <span class="ms-2"><strong><?= $delayedCount ?> commandes</strong> avec délai > 7 jours • Impact: <?= number_format($delayedAmount, 0, ',', ' ') ?> €</span>
+                                <span class="ms-2"><strong><?= $delayedCount ?> commandes</strong> avec délai > 7 jours • Impact: <?= number_format($delayedAmount, 0, ',', ' ') ?> Ar</span>
                             </div>
                             <button class="btn btn-sm btn-outline-warning">Détails</button>
                         </div>
@@ -192,7 +192,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Remises accordées</h6>
-                                    <h3 class="font-extrabold mb-0"><?= number_format($discountsGranted, 0, ',', ' ') ?> €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($discountsGranted, 0, ',', ' ') ?> Ar</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-success badge-metric">
                                             <i class="bi bi-percent"></i> vs plafond
@@ -205,7 +205,7 @@
                             </div>
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Plafond: 15 000 €</small>
+                                    <small class="text-muted">Plafond: 15 000 Ar</small>
                                     <small class="text-success">-5% vs M-1</small>
                                 </div>
                                 <div class="progress progress-thin">
@@ -223,7 +223,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Avoirs</h6>
-                                    <h3 class="font-extrabold mb-0"><?= number_format($creditsTotal, 0, ',', ' ') ?> €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($creditsTotal, 0, ',', ' ') ?> Ar</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-info badge-metric">
                                             <i class="bi bi-arrow-counterclockwise"></i> Retour / Casse / Erreur
@@ -242,7 +242,7 @@
                                 <div class="progress progress-thin">
                                     <div class="progress-bar bg-info" role="progressbar" style="width: 83%" aria-valuenow="83" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="text-muted">Objectif: < 5 000 €</small>
+                                <small class="text-muted">Objectif: < 5 000 Ar</small>
                             </div>
                         </div>
                     </div>
@@ -257,7 +257,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Chiffre d'affaires</small>
-                                    <h5 class="mb-0 text-primary"><?= number_format($revenue, 0, ',', ' ') ?> €</h5>
+                                    <h5 class="mb-0 text-primary"><?= number_format($revenue, 0, ',', ' ') ?> Ar</h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary">+12%</span>
@@ -308,7 +308,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Ticket moyen</small>
-                                    <h5 class="mb-0 text-success"><?= number_format($avgTicket, 0, ',', ' ') ?> €</h5>
+                                    <h5 class="mb-0 text-success"><?= number_format($avgTicket, 0, ',', ' ') ?> Ar</h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-info">+6%</span>
@@ -381,7 +381,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h4 class="card-title mb-0">Commandes en Retard (> 5 jours)</h4>
-                                    <p class="text-muted small mb-0">Impact total: 9 500 €</p>
+                                    <p class="text-muted small mb-0">Impact total: 9 500 Ar</p>
                                 </div>
                                 <span class="badge bg-danger fs-6"><?= count($delayedOrders) ?> commandes retardées</span>
                             </div>
@@ -396,7 +396,7 @@
                                             <th>Date commande</th>
                                             <th>Date prévue</th>
                                             <th>Retard (j)</th>
-                                            <th>Montant (€)</th>
+                                            <th>Montant (Ar)</th>
                                             <th>Motif</th>
                                             <th>Statut</th>
                                             <th>Actions</th>
@@ -441,7 +441,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h4 class="card-title mb-0">Annulations & Remises (Derniers 30 jours)</h4>
-                                    <p class="text-muted small mb-0">Total: 28 annulations, 12 500 € en remises, 4 200 € en avoirs</p>
+                                    <p class="text-muted small mb-0">Total: 28 annulations, 12 500 Ar en remises, 4 200 Ar en avoirs</p>
                                 </div>
                                 <span class="badge bg-warning text-dark fs-6">44 mouvements</span>
                             </div>
@@ -544,7 +544,7 @@
                                                     <td><span class="badge bg-info">Promotion janvier</span></td>
                                                     <td>340</td>
                                                     <td>5%</td>
-                                                    <td>500 € <span class="badge bg-success">OK</span></td>
+                                                    <td>500 Ar <span class="badge bg-success">OK</span></td>
                                                     <td>Système</td>
                                                 </tr>
                                                 <tr>
@@ -554,7 +554,7 @@
                                                     <td><span class="badge bg-warning text-dark">Fidélité client</span></td>
                                                     <td>280</td>
                                                     <td>3%</td>
-                                                    <td>200 € <span class="badge bg-danger">⚠️ -80€</span></td>
+                                                    <td>200 Ar <span class="badge bg-danger">⚠️ -80Ar</span></td>
                                                     <td>F. Laurent</td>
                                                 </tr>
                                                 <tr>
@@ -564,7 +564,7 @@
                                                     <td><span class="badge bg-success">Volume annuel</span></td>
                                                     <td>520</td>
                                                     <td>8%</td>
-                                                    <td>1 000 € <span class="badge bg-success">OK</span></td>
+                                                    <td>1 000 Ar <span class="badge bg-success">OK</span></td>
                                                     <td>Système</td>
                                                 </tr>
                                             </tbody>
@@ -656,133 +656,13 @@
                 </div>
             </section>
 
-            <!-- RESPONSABLE COMMERCIAL -->
-            <section class="row">
-                <div class="col-12 col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Responsable Commercial</h4>
-                        </div>
-                        <div class="card-body text-center">
-                            <img src="<?= Flight::base() ?>/public/template/assets/images/faces/1.jpg" alt="F. Laurent" class="rounded-circle mb-3" width="80">
-                            <h5>François Laurent</h5>
-                            <p class="text-muted small">Directeur Commercial</p>
-                            <div class="mt-3 text-start">
-                                <p><strong>📧 Email:</strong> f.laurent@company.com</p>
-                                <p><strong>☎️ Téléphone:</strong> +33 1 XX XX XX XX</p>
-                                <p><strong>📱 Mobile:</strong> +33 6 XX XX XX XX</p>
-                            </div>
-                            <div class="mt-3 pt-3 border-top">
-                                <p class="mb-2"><strong>Équipe (4 commerciaux):</strong></p>
-                                <div class="list-group list-group-flush">
-                                    <div class="list-group-item px-0 py-2 text-start small">
-                                        <span class="badge bg-info me-2">S1</span>Marie Dubois (Zone Nord)
-                                    </div>
-                                    <div class="list-group-item px-0 py-2 text-start small">
-                                        <span class="badge bg-info me-2">S2</span>Jean Moreau (Zone Ouest)
-                                    </div>
-                                    <div class="list-group-item px-0 py-2 text-start small">
-                                        <span class="badge bg-info me-2">S3</span>Sophie Martin (Zone Est)
-                                    </div>
-                                    <div class="list-group-item px-0 py-2 text-start small">
-                                        <span class="badge bg-info me-2">S4</span>Pierre Laurent (Zone Sud)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Objectifs et Actions Recommandées</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-4">
-                                <h6 class="mb-3"><strong>📊 Objectifs du mois</strong></h6>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <small><strong>Chiffre d'affaires</strong></small>
-                                                <small class="text-success">+12%</small>
-                                            </div>
-                                            <div class="progress" style="height: 20px;">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
-                                            </div>
-                                            <small class="text-muted">Cible: 250k€ | Actuel: 185.6k€</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between mb-1">
-                                                <small><strong>Service rate</strong></small>
-                                                <small class="text-success">+2.1%</small>
-                                            </div>
-                                            <div class="progress" style="height: 20px;">
-                                                <div class="progress-bar bg-info" role="progressbar" style="width: 96%;" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100">96.2%</div>
-                                            </div>
-                                            <small class="text-muted">Cible: 98% | Actuel: 96.2%</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="border-top pt-4">
-                                <h6 class="mb-3"><strong>🎯 Actions Recommandées</strong></h6>
-                                
-                                <div class="alert alert-danger d-flex align-items-start mb-3">
-                                    <div class="me-3" style="font-size: 1.2rem;">🔴</div>
-                                    <div class="flex-grow-1">
-                                        <strong>URGENCE - Backlog critique</strong><br>
-                                        <small>12 commandes non servies (16.8k€) en raison de stocks insuffisants</small><br>
-                                        <button class="btn btn-sm btn-outline-danger mt-2"><i class="bi bi-arrow-right"></i> Contacter Stock</button>
-                                    </div>
-                                </div>
-
-                                <div class="alert alert-warning d-flex align-items-start mb-3">
-                                    <div class="me-3" style="font-size: 1.2rem;">⚠️</div>
-                                    <div class="flex-grow-1">
-                                        <strong>ATTENTION - Commandes en retard</strong><br>
-                                        <small>8 commandes retardées (9.5k€): Clients A, B, D. Risque insatisfaction client</small><br>
-                                        <button class="btn btn-sm btn-outline-warning mt-2"><i class="bi bi-telephone"></i> Appels clients</button>
-                                    </div>
-                                </div>
-
-                                <div class="alert alert-info d-flex align-items-start mb-3">
-                                    <div class="me-3" style="font-size: 1.2rem;">ℹ️</div>
-                                    <div class="flex-grow-1">
-                                        <strong>INFO - Analyse des remises</strong><br>
-                                        <small>Budget remises à 83% d'utilisation. 2 commandes dépassent plafond (-80€). À réviser avant fin mois</small><br>
-                                        <button class="btn btn-sm btn-outline-info mt-2"><i class="bi bi-graph-up"></i> Rapport détaillé</button>
-                                    </div>
-                                </div>
-
-                                <div class="alert alert-success d-flex align-items-start">
-                                    <div class="me-3" style="font-size: 1.2rem;">✅</div>
-                                    <div class="flex-grow-1">
-                                        <strong>À FAIRE - Processus prévention backlog</strong><br>
-                                        <small>Mettre en place vérification stock AVANT confirmation commande pour éviter futurs backlogs</small><br>
-                                        <button class="btn btn-sm btn-outline-success mt-2"><i class="bi bi-pencil-square"></i> Détails action</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
 <!-- JS -->
 <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/apexcharts/apexcharts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/responsive/2.4.1/js/dataTables.responsive.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 
 <script>
 // ============================================

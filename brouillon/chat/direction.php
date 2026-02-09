@@ -36,7 +36,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h6>Chiffre d’Affaires</h6>
-                            <h4 class="text-success">1 250 000 €</h4>
+                            <h4 class="text-success">1 250 000 Ar</h4>
                             <small class="text-muted">+8% vs M-1</small>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h6>Marge Brute</h6>
-                            <h4>420 000 €</h4>
+                            <h4>420 000 Ar</h4>
                             <small class="text-muted">33,6 %</small>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h6>Valeur Stock</h6>
-                            <h4 class="text-warning">310 000 €</h4>
+                            <h4 class="text-warning">310 000 Ar</h4>
                             <small class="text-muted">-5% vs M-1</small>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                                 <thead>
                                 <tr>
                                     <th>Dépôt</th>
-                                    <th>Valeur (€)</th>
+                                    <th>Valeur (Ar)</th>
                                     <th>%</th>
                                 </tr>
                                 </thead>
@@ -193,7 +193,7 @@ new Chart(document.getElementById('surstockChart'), {
     data: {
         labels: ['Article A','Article B','Article C','Article D','Article E'],
         datasets: [{
-            label: 'Valeur immobilisée (€)',
+            label: 'Valeur immobilisée (Ar)',
             data: [42000, 38000, 29000, 21000, 18000]
         }]
     }

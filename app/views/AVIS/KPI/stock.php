@@ -154,7 +154,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Obsolescence / Péremption</h6>
-                                    <h3 class="font-extrabold mb-0"><?= number_format($obsolescence['valeur_risque'] ?? 0, 0, ',', ' ') ?> €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($obsolescence['valeur_risque'] ?? 0, 0, ',', ' ') ?> Ar</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-danger badge-metric">
                                             <i class="bi bi-clock-history"></i> Lots à risque
@@ -259,7 +259,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Valeur stock total</small>
-                                    <h5 class="mb-0 text-primary"><?= number_format($valeurStock['valeur'] ?? 0, 0, ',', ' ') ?> €</h5>
+                                    <h5 class="mb-0 text-primary"><?= number_format($valeurStock['valeur'] ?? 0, 0, ',', ' ') ?> Ar</h5>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge <?= ($valeurStock['variation'] ?? 0) >= 0 ? 'bg-primary' : 'bg-danger' ?>">
@@ -454,8 +454,8 @@
                                             <td><span class="sku-code"><?= htmlspecialchars($lot['article_code'] ?? '') ?></span></td>
                                             <td><?= htmlspecialchars($lot['article_designation'] ?? '') ?></td>
                                             <td><?= number_format($lot['quantite_restante'] ?? 0, 0, ',', ' ') ?></td>
-                                            <td><?= number_format($lot['cout_unitaire'] ?? 0, 2, ',', ' ') ?> €</td>
-                                            <td><strong><?= number_format($lot['valeur_totale'] ?? 0, 0, ',', ' ') ?> €</strong></td>
+                                            <td><?= number_format($lot['cout_unitaire'] ?? 0, 2, ',', ' ') ?> Ar</td>
+                                            <td><strong><?= number_format($lot['valeur_totale'] ?? 0, 0, ',', ' ') ?> Ar</strong></td>
                                             <td><?= $lot['date_expiration'] ? date('d/m/Y', strtotime($lot['date_expiration'])) : '-' ?></td>
                                             <td><span class="badge <?= $badgeClass ?>"><?= $jours ?> jours</span></td>
                                             <td><span class="status-indicator <?= $statusClass ?>"></span> <?= $lot['risque_label'] ?? '' ?></td>
@@ -559,7 +559,7 @@
                                             <th>Stock Physique</th>
                                             <th>Écart</th>
                                             <th>% Écart</th>
-                                            <th>Valeur Écart (€)</th>
+                                            <th>Valeur Écart (Ar)</th>
                                             <th>Date Audit</th>
                                             <th>Priorité</th>
                                             <th>Actions</th>
@@ -583,7 +583,7 @@
                                             <td><?= number_format($ecart['quantite_comptee'] ?? 0, 0, ',', ' ') ?></td>
                                             <td><span class="badge <?= $badgeClass ?>"><?= ($ecart['ecart'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($ecart['ecart'] ?? 0, 0, ',', ' ') ?></span></td>
                                             <td><span class="badge <?= $badgeClass ?>"><?= $pctEcart >= 0 ? '+' : '' ?><?= number_format($pctEcart, 1, ',', ' ') ?>%</span></td>
-                                            <td><?= number_format($ecart['valeur_ecart'] ?? 0, 0, ',', ' ') ?> €</td>
+                                            <td><?= number_format($ecart['valeur_ecart'] ?? 0, 0, ',', ' ') ?> Ar</td>
                                             <td><?= $ecart['date_audit'] ? date('d/m/Y', strtotime($ecart['date_audit'])) : '-' ?></td>
                                             <td><span class="badge <?= $badgeClass ?>"><?= $ecart['priorite_label'] ?? '' ?></span></td>
                                             <td class="table-actions">
@@ -626,6 +626,9 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 
 <script>
     // Données des graphiques depuis PHP
@@ -718,7 +721,7 @@
         var optionsObsolescence = {
             series: [
                 {
-                    name: 'Valeur €',
+                    name: 'Valeur Ar',
                     data: obsolescenceData.data.length > 0 ? obsolescenceData.data : [0]
                 }
             ],
@@ -735,7 +738,7 @@
             },
             yaxis: {
                 title: {
-                    text: 'Valeur (€)'
+                    text: 'Valeur (Ar)'
                 }
             },
             plotOptions: {
@@ -750,7 +753,7 @@
             dataLabels: {
                 enabled: true,
                 formatter: function(val) {
-                    return val.toLocaleString() + '€';
+                    return val.toLocaleString() + 'Ar';
                 },
                 offsetY: -20
             },

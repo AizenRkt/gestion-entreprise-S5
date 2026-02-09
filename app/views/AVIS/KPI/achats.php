@@ -132,7 +132,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Combien avons-nous dépensé ?</h6>
-                                    <h3 class="font-extrabold mb-0"><?= number_format($totalSpend ?? 0, 2, ',', ' ') ?> €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($totalSpend ?? 0, 2, ',', ' ') ?> Ar</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-primary badge-metric">
                                             <i class="bi bi-currency-euro"></i> Total Achats Global
@@ -210,7 +210,7 @@
                                     <h3 class="font-extrabold mb-0" style="font-size: 1.2rem;"><?= htmlspecialchars($topSupplierName) ?></h3>
                                     <div class="mt-2">
                                         <span class="badge bg-info badge-metric">
-                                            <?= number_format($topSupplierAmount ?? 0, 2, ',', ' ') ?> €
+                                            <?= number_format($topSupplierAmount ?? 0, 2, ',', ' ') ?> Ar
                                         </span>
                                     </div>
                                 </div>
@@ -276,7 +276,7 @@
                                     <thead>
                                         <tr>
                                             <th>Fournisseur</th>
-                                            <th>Volume Achats (€)</th>
+                                            <th>Volume Achats (Ar)</th>
                                             <th>Nb Commandes</th>
                                             <th>Actions</th>
                                         </tr>
@@ -394,7 +394,7 @@
                                             <th>Fournisseur</th>
                                             <th>Type</th>
                                             <th>Description</th>
-                                            <th>Montant (€)</th>
+                                            <th>Montant (Ar)</th>
                                             <th>Priorité</th>
                                             <th>Statut</th>
                                             <th>Responsable</th>
@@ -442,99 +442,6 @@
                 </div>
             </section>
 
-            <!-- INFOS RESPONSABLE & ACTIONS RECOMMANDÉES -->
-            <section class="row">
-                <div class="col-12 col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Informations - Responsable Achats</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <strong>Responsable Achats / Supply Chain</strong>
-                                    <span class="badge bg-primary">Assigné</span>
-                                </div>
-                                <p class="text-muted mb-0">
-                                    <i class="bi bi-person-fill"></i> <strong><?= $_SESSION['user']['nom'] ?? 'Utilisateur' ?></strong><br>
-                                    <i class="bi bi-envelope"></i> <?= $_SESSION['user']['email'] ?? 'email@entreprise.com' ?><br>
-                                    <i class="bi bi-telephone"></i> +33 1 23 45 67 89
-                                </p>
-                            </div>
-                            <hr>
-                            <div class="mb-3">
-                                <h6 class="font-semibold mb-2">Objectifs du Mois</h6>
-                                <ul class="list-unstyled">
-                                    <li class="mb-2">
-                                        <i class="bi bi-check-circle text-success"></i> 
-                                        <span>Réduire cycle time à ≤ 3 jours</span>
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="bi bi-clock text-warning"></i> 
-                                        <span>Atteindre OTD supplier ≥ 95%</span>
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="bi bi-exclamation-triangle text-danger"></i> 
-                                        <span>Réduire urgences < 10%</span>
-                                    </li>
-                                    <li>
-                                        <i class="bi bi-piggy-bank text-info"></i> 
-                                        <span>Réaliser €50k d'économies</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Actions Recommandées</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="action-item mb-3 pb-3 border-bottom">
-                                <div class="d-flex align-items-start">
-                                    <span class="badge bg-danger me-3 mt-1">🔴 URGENCE</span>
-                                    <div>
-                                        <h6 class="mb-1">Audit Fournisseur A</h6>
-                                        <p class="text-muted small mb-1">Risque concentration 42% + délais 88%</p>
-                                        <button class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-arrow-right"></i> Planifier visite
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="action-item mb-3 pb-3 border-bottom">
-                                <div class="d-flex align-items-start">
-                                    <span class="badge bg-warning text-dark me-3 mt-1">⚠️ ATTENTION</span>
-                                    <div>
-                                        <h6 class="mb-1">Réduire Commandes Urgentes</h6>
-                                        <p class="text-muted small mb-1">18 urgences ce mois (objectif 12)</p>
-                                        <button class="btn btn-sm btn-outline-warning">
-                                            <i class="bi bi-arrow-right"></i> Revoir prévisions
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="action-item mb-3">
-                                <div class="d-flex align-items-start">
-                                    <span class="badge bg-info me-3 mt-1">ℹ️ INFO</span>
-                                    <div>
-                                        <h6 class="mb-1">Diversifier Fournisseurs</h6>
-                                        <p class="text-muted small mb-1">Challenger Fournisseur C pour 10% volume</p>
-                                        <button class="btn btn-sm btn-outline-info">
-                                            <i class="bi bi-arrow-right"></i> Voir propositions
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- FOOTER -->
             <section class="row mt-4">
@@ -559,6 +466,10 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
+
+<script src="<?= Flight::base() ?>/public/template/assets/static/js/components/dark.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="<?= Flight::base() ?>/public/template/assets/compiled/js/app.js"></script>
 
 <script>
     // Initialiser DataTables
@@ -646,7 +557,7 @@
             colors: ['#435ebe', '#55c6e8', '#4ecdc4', '#ffc107', '#dc3545'],
             dataLabels: {
                 formatter: function (val, opts) {
-                    return opts.w.config.series[opts.seriesIndex].toLocaleString('fr-FR') + ' €';
+                    return opts.w.config.series[opts.seriesIndex].toLocaleString('fr-FR') + ' Ar';
                 },
             },
             legend: { position: 'bottom' }
@@ -733,7 +644,7 @@
             },
             yaxis: {
                 title: {
-                    text: 'Prix (€)'
+                    text: 'Prix (Ar)'
                 }
             },
             legend: {
@@ -751,7 +662,7 @@
         <?php if (!empty($monthlyData)): ?>
         var optionsMonthly = {
             series: [{
-                name: 'Montant (€)',
+                name: 'Montant (Ar)',
                 data: [<?php echo implode(', ', array_column($monthlyData, 'total_achats')); ?>]
             }],
             chart: {
@@ -770,7 +681,7 @@
             dataLabels: {
                 enabled: true,
                 formatter: function (val) {
-                    return (val / 1000).toFixed(1) + " k€";
+                    return (val / 1000).toFixed(1) + " kAr";
                 },
                 offsetY: -20,
                 style: {
@@ -783,7 +694,7 @@
                 position: 'bottom'
             },
             yaxis: {
-                title: { text: 'Montant HT (€)' }
+                title: { text: 'Montant HT (Ar)' }
             },
             grid: {
                 show: true,

@@ -274,6 +274,14 @@ class MouvStockApiController
 	public static function validateMovement($id) {
 		try {
 			$userId = (int)($_SESSION['user']['id_user'] ?? 0);
+			$userRole = $_SESSION['user']['role'] ?? '';
+			
+			// Seul le Responsable Stock peut valider les mouvements
+			if ($userRole !== 'ROLE_RESPONSABLE_STOCK') {
+				Flight::json(['success' => false, 'message' => 'Accès refusé. Seul le Responsable Stock peut valider les mouvements.'], 403);
+				return;
+			}
+			
 			$id = (int)$id;
 			$req = Flight::request();
 			$valuation = strtolower($req->query->valuation ?? 'auto'); // 'cump'|'fifo'|'lifo'|'auto'
@@ -670,6 +678,212 @@ class MouvStockApiController
 		if (!is_string($date)) return false;
 		$d = \DateTime::createFromFormat('Y-m-d', $date);
 		return $d && $d->format('Y-m-d') === $date;
+	}
+
+	/**
+	 * Liste la disponibilité et valeur des articles avec filtres optionnels
+	 * GET /api/stock/disponibilite?article=&depot=&date_debut=&date_fin=
+	 */
+	public static function listAvailability() {
+		try {
+			$db = \Flight::db();
+			$q = \Flight::request()->query;
+			
+			$params = [];
+			$where = [];
+			
+			// Filtre par article
+			if (!empty($q->article)) {
+				$where[] = 'sc.id_article = :article';
+				$params[':article'] = (int)$q->article;
+			}
+			
+			// Filtre par dépôt
+			if (!empty($q->depot)) {
+				$where[] = 'sc.id_depot = :depot';
+				$params[':depot'] = (int)$q->depot;
+			}
+			
+			// Filtre par famille d'article
+			if (!empty($q->famille)) {
+				$where[] = 'a.id_famille_article_famille = :famille';
+				$params[':famille'] = (int)$q->famille;
+			}
+			
+			// Recherche textuelle
+			if (!empty($q->search)) {
+				$where[] = '(a.code LIKE :search OR a.designation LIKE :search)';
+				$params[':search'] = '%' . $q->search . '%';
+			}
+			
+			// Filtre stock positif uniquement
+			if (!empty($q->stock_positif) && $q->stock_positif === '1') {
+				$where[] = 'sc.quantite > 0';
+			}
+			
+			$sql = "SELECT 
+						sc.id_article,
+						sc.id_depot,
+						a.code AS article_code,
+						a.designation AS article_designation,
+						af.nom AS famille,
+						d.nom AS depot_nom,
+						sc.quantite,
+						sc.valeur_stock,
+						sc.cout_moyen,
+						COALESCE(res.quantite_reservee, 0) AS quantite_reservee,
+						(sc.quantite - COALESCE(res.quantite_reservee, 0)) AS quantite_disponible,
+						(SELECT MAX(ms.date_mouvement) 
+						 FROM mouvement_stock ms 
+						 WHERE ms.id_article = sc.id_article AND ms.id_depot = sc.id_depot) AS dernier_mouvement
+					FROM stock_courant sc
+					INNER JOIN article a ON a.id_article = sc.id_article
+					LEFT JOIN article_famille af ON af.id_article_famille = a.id_famille_article_famille
+					INNER JOIN depot d ON d.id_depot = sc.id_depot
+					LEFT JOIN (
+						SELECT id_article, id_depot, SUM(quantite) AS quantite_reservee
+						FROM stock_reservation
+						WHERE (date_expiration IS NULL OR date_expiration >= NOW())
+						GROUP BY id_article, id_depot
+						HAVING SUM(quantite) > 0
+					) res ON res.id_article = sc.id_article AND res.id_depot = sc.id_depot";
+			
+			if (!empty($where)) {
+				$sql .= "\nWHERE " . implode(' AND ', $where);
+			}
+			
+			$sql .= "\nORDER BY a.designation ASC, d.nom ASC";
+			
+			$stmt = $db->prepare($sql);
+			$stmt->execute($params);
+			$rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+			
+			// Calcul des totaux
+			$totalQuantite = 0;
+			$totalValeur = 0;
+			$totalReserve = 0;
+			$totalDisponible = 0;
+			
+			foreach ($rows as $row) {
+				$totalQuantite += (float)$row['quantite'];
+				$totalValeur += (float)$row['valeur_stock'];
+				$totalReserve += (float)$row['quantite_reservee'];
+				$totalDisponible += (float)$row['quantite_disponible'];
+			}
+			
+			\Flight::json([
+				'success' => true,
+				'data' => $rows,
+				'totaux' => [
+					'quantite' => $totalQuantite,
+					'valeur' => $totalValeur,
+					'reservee' => $totalReserve,
+					'disponible' => $totalDisponible,
+					'nb_articles' => count($rows)
+				]
+			]);
+		} catch (\Exception $e) {
+			\Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
+		}
+	}
+
+	/**
+	 * Historique des mouvements par article sur une période
+	 * GET /api/stock/disponibilite/historique?article=&depot=&date_debut=&date_fin=
+	 */
+	public static function getAvailabilityHistory() {
+		try {
+			$db = \Flight::db();
+			$q = \Flight::request()->query;
+			
+			$params = [];
+			$where = [];
+			
+			// Filtre par article (obligatoire pour l'historique)
+			if (!empty($q->article)) {
+				$where[] = 'ms.id_article = :article';
+				$params[':article'] = (int)$q->article;
+			}
+			
+			// Filtre par dépôt
+			if (!empty($q->depot)) {
+				$where[] = 'ms.id_depot = :depot';
+				$params[':depot'] = (int)$q->depot;
+			}
+			
+			// Filtre par date début
+			if (!empty($q->date_debut)) {
+				$where[] = 'DATE(ms.date_mouvement) >= :date_debut';
+				$params[':date_debut'] = $q->date_debut;
+			}
+			
+			// Filtre par date fin
+			if (!empty($q->date_fin)) {
+				$where[] = 'DATE(ms.date_mouvement) <= :date_fin';
+				$params[':date_fin'] = $q->date_fin;
+			}
+			
+			$sql = "SELECT 
+						ms.id_mouvement_stock,
+						ms.date_mouvement,
+						ms.id_article,
+						a.code AS article_code,
+						a.designation AS article_designation,
+						ms.id_depot,
+						d.nom AS depot_nom,
+						mst.code AS type_code,
+						mst.libelle AS type_libelle,
+						ms.sens,
+						ms.quantite,
+						ms.cout_unitaire,
+						(ms.quantite * COALESCE(ms.cout_unitaire, 0)) AS valeur,
+						ms.statut
+					FROM mouvement_stock ms
+					INNER JOIN article a ON a.id_article = ms.id_article
+					INNER JOIN depot d ON d.id_depot = ms.id_depot
+					INNER JOIN mouvement_stock_type mst ON mst.id_type_mouvement_stock = ms.id_type_mouvement_stock";
+			
+			if (!empty($where)) {
+				$sql .= "\nWHERE " . implode(' AND ', $where);
+			}
+			
+			$sql .= "\nORDER BY ms.date_mouvement DESC LIMIT 500";
+			
+			$stmt = $db->prepare($sql);
+			$stmt->execute($params);
+			$rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+			
+			// Calcul des totaux par sens
+			$totalEntree = 0;
+			$totalSortie = 0;
+			$valeurEntree = 0;
+			$valeurSortie = 0;
+			
+			foreach ($rows as $row) {
+				if ((int)$row['sens'] === 1) {
+					$totalEntree += (float)$row['quantite'];
+					$valeurEntree += (float)$row['valeur'];
+				} else {
+					$totalSortie += (float)$row['quantite'];
+					$valeurSortie += (float)$row['valeur'];
+				}
+			}
+			
+			\Flight::json([
+				'success' => true,
+				'data' => $rows,
+				'totaux' => [
+					'entrees' => $totalEntree,
+					'sorties' => $totalSortie,
+					'valeur_entrees' => $valeurEntree,
+					'valeur_sorties' => $valeurSortie,
+					'solde_quantite' => $totalEntree - $totalSortie,
+					'solde_valeur' => $valeurEntree - $valeurSortie
+				]
+			]);
+		} catch (\Exception $e) {
+			\Flight::json(['success' => false, 'message' => $e->getMessage()], 500);
+		}
 	}
 }
 

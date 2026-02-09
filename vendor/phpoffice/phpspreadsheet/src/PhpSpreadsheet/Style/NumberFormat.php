@@ -87,10 +87,10 @@ class NumberFormat extends Supervisor
 
     const FORMAT_CURRENCY_USD_INTEGER = '$#,##0_-';
     const FORMAT_CURRENCY_USD = '$#,##0.00_-';
-    const FORMAT_CURRENCY_EUR_INTEGER = '#,##0_-[$€]';
-    const FORMAT_CURRENCY_EUR = '#,##0.00_-[$€]';
+    const FORMAT_CURRENCY_EUR_INTEGER = '#,##0_-[$Ar]';
+    const FORMAT_CURRENCY_EUR = '#,##0.00_-[$Ar]';
     const FORMAT_ACCOUNTING_USD = '_("$"* #,##0.00_);_("$"* \(#,##0.00\);_("$"* "-"??_);_(@_)';
-    const FORMAT_ACCOUNTING_EUR = '_("€"* #,##0.00_);_("€"* \(#,##0.00\);_("€"* "-"??_);_(@_)';
+    const FORMAT_ACCOUNTING_EUR = '_("Ar"* #,##0.00_);_("Ar"* \(#,##0.00\);_("Ar"* "-"??_);_(@_)';
 
     const SHORT_DATE_INDEX = 14;
     const DATE_TIME_INDEX = 22;

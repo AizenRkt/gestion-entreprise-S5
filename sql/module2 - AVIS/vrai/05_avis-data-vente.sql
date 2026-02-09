@@ -4,7 +4,7 @@
 -- Ce fichier contient des données de test pour le dashboard KPI Ventes
 -- À exécuter après ventes_tables.sql
 
-USE gestion_entreprise;
+USE gestion_entreprise_test;
 
 -- ============================================
 -- CLIENTS
@@ -21,7 +21,7 @@ INSERT INTO client (nom, telephone, email, adresse, id_type) VALUES
 -- COMMANDES CLIENT
 -- ============================================
 -- Commandes validées et livrées (succès)
-INSERT INTO commande_client (commande_numero, commande_date, id_client, id_depot, montant_ht, montant_tva, montant_ttc, statut, created_byt, valide_par, date_validation) VALUES
+INSERT INTO commande_client (commande_numero, commande_date, id_client, id_depot, montant_ht, montant_tva, montant_ttc, statut, created_by, valide_par, date_validation) VALUES
 ('CMD-001201', DATE_SUB(NOW(), INTERVAL 45 DAY), 1, 1, 5000.00, 1000.00, 6000.00, 'CLOTURE', 1, 1, DATE_SUB(NOW(), INTERVAL 44 DAY)),
 ('CMD-001205', DATE_SUB(NOW(), INTERVAL 40 DAY), 4, 1, 8500.00, 1700.00, 10200.00, 'CLOTURE', 1, 1, DATE_SUB(NOW(), INTERVAL 39 DAY)),
 ('CMD-001210', DATE_SUB(NOW(), INTERVAL 35 DAY), 2, 1, 3200.00, 640.00, 3840.00, 'CLOTURE', 1, 1, DATE_SUB(NOW(), INTERVAL 34 DAY)),
@@ -126,36 +126,36 @@ INSERT INTO encaissement_client (numero_encaissement, date_encaissement, facture
 -- ============================================
 
 -- Table temporaire pour annulations (si pas de colonne statut annulé)
-CREATE TABLE IF NOT EXISTS commande_annulation (
-    id_annulation INT AUTO_INCREMENT PRIMARY KEY,
-    id_commande_client INT NOT NULL,
-    date_annulation DATE NOT NULL,
-    motif VARCHAR(100),
-    raison_detail TEXT,
-    montant_impact DECIMAL(15,2),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client)
-);
+-- CREATE TABLE IF NOT EXISTS commande_annulation (
+--     id_annulation INT AUTO_INCREMENT PRIMARY KEY,
+--     id_commande_client INT NOT NULL,
+--     date_annulation DATE NOT NULL,
+--     motif VARCHAR(100),
+--     raison_detail TEXT,
+--     montant_impact DECIMAL(15,2),
+--     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client)
+-- );
 
 INSERT INTO commande_annulation (id_commande_client, date_annulation, motif, raison_detail, montant_impact) VALUES
 (9, DATE_SUB(NOW(), INTERVAL 11 DAY), 'Demande client', 'Client a changé d''avis', 3360.00),
 (11, DATE_SUB(NOW(), INTERVAL 7 DAY), 'Stock insuffisant', 'Article en rupture prévue', 1740.00);
 
 -- Table pour avoirs/crédits
-CREATE TABLE IF NOT EXISTS avoir_client (
-    id_avoir INT AUTO_INCREMENT PRIMARY KEY,
-    numero_avoir VARCHAR(50) NOT NULL UNIQUE,
-    date_avoir DATE NOT NULL,
-    id_commande_client INT NOT NULL,
-    id_client INT NOT NULL,
-    type_avoir VARCHAR(50),
-    motif TEXT,
-    montant DECIMAL(15,2) NOT NULL,
-    statut ENUM('En attente', 'Émis', 'Validé') DEFAULT 'En attente',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client),
-    FOREIGN KEY (id_client) REFERENCES client(id_client)
-);
+-- CREATE TABLE IF NOT EXISTS avoir_client (
+--     id_avoir INT AUTO_INCREMENT PRIMARY KEY,
+--     numero_avoir VARCHAR(50) NOT NULL UNIQUE,
+--     date_avoir DATE NOT NULL,
+--     id_commande_client INT NOT NULL,
+--     id_client INT NOT NULL,
+--     type_avoir VARCHAR(50),
+--     motif TEXT,
+--     montant DECIMAL(15,2) NOT NULL,
+--     statut ENUM('En attente', 'Émis', 'Validé') DEFAULT 'En attente',
+--     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client),
+--     FOREIGN KEY (id_client) REFERENCES client(id_client)
+-- );
 
 INSERT INTO avoir_client (numero_avoir, date_avoir, id_commande_client, id_client, type_avoir, motif, montant, statut) VALUES
 ('AV-001228', DATE_SUB(NOW(), INTERVAL 10 DAY), 7, 1, 'Retour produit', 'Article non conforme - Retourné 08/01', 1200.00, 'Émis'),

@@ -1300,7 +1300,7 @@ var _re_escape_regex = new RegExp( '(\\' + [ '/', '.', '*', '+', '?', '|', '(', 
 // - Ƀ - Bitcoin
 // - Ξ - Ethereum
 //   standards as thousands separators.
-var _re_formatted_numeric = /['\u00A0,$£€¥%\u2009\u202F\u20BD\u20a9\u20BArfkɃΞ]/gi;
+var _re_formatted_numeric = /['\u00A0,$£Ar¥%\u2009\u202F\u20BD\u20a9\u20BArfkɃΞ]/gi;
 
 
 var _empty = function ( d ) {
