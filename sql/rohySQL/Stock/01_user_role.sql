@@ -3,6 +3,11 @@
 --donc on insere poste stock
 --lie lemploye avec le poste via employe_statut et le poste doit etre en lien avec service
 
+CREATE TABLE departement (
+    id_dept INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE service (
     id_service INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
@@ -25,8 +30,8 @@ CREATE TABLE employe (
     email VARCHAR(150) UNIQUE NOT NULL,
     telephone VARCHAR(20),
     genre VARCHAR(1),
-    date_embauche DATE,
-    FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
+    date_embauche DATE
+    -- FOREIGN KEY (id_candidat) REFERENCES candidat(id_candidat)
 );
 
 CREATE TABLE employe_statut (

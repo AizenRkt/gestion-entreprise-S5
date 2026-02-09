@@ -71,20 +71,37 @@
 
             <div class="page-content">
 
+                <?php
+                // Extraction des données KPI
+                $ca = $kpi['chiffreAffaires'] ?? [];
+                $marge = $kpi['margeBrute'] ?? [];
+                $valeurStock = $kpi['valeurStock'] ?? [];
+                $rotation = $kpi['rotationStock'] ?? [];
+                $sites = $kpi['performancesSites'] ?? [];
+                $surstocks = $kpi['surstocks'] ?? [];
+                $ecarts = $kpi['ecartsInventaire'] ?? [];
+                $alertes = $kpi['alertes'] ?? [];
+                $obsolescence = $kpi['obsolescenceAnalyse'] ?? [];
+                $charts = $kpi['charts'] ?? [];
+                ?>
+
                 <!-- ALERTES & INDICATEURS CRITIQUES -->
+                <?php if (!empty($alertes)): ?>
                 <section class="row mb-4">
                     <div class="col-12">
-                        <div class="alert alert-custom alert-warning" style="border-left-color: #ffc107;">
+                        <?php foreach ($alertes as $alerte): ?>
+                        <div class="alert alert-custom alert-<?= $alerte['type'] ?>" style="border-left-color: <?= $alerte['type'] === 'danger' ? '#dc3545' : '#ffc107' ?>;">
                             <div class="d-flex align-items-center">
                                 <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
                                 <div>
-                                    <strong>Attention :</strong> Rotation stock (4,2) en dessous de l'objectif (≥5). 
-                                    Valeur immobilisée en surstock : <strong>148 000 €</strong>
+                                    <strong>Attention :</strong> <?= htmlspecialchars($alerte['message']) ?>
                                 </div>
                             </div>
                         </div>
+                        <?php endforeach; ?>
                     </div>
                 </section>
+                <?php endif; ?>
 
                 <!-- KPI CARDS PRINCIPAUX -->
                 <section class="row">
@@ -94,13 +111,13 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Chiffre d'Affaires</h6>
-                                        <h3 class="font-extrabold mb-0">1 250 000 €</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($ca['valeur'] ?? 0, 0, ',', ' ') ?> €</h3>
                                         <div class="mt-2">
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-arrow-up"></i> +8,0% vs M-1
+                                            <span class="badge bg-<?= ($ca['variationM1'] ?? 0) >= 0 ? 'success' : 'danger' ?>">
+                                                <i class="bi bi-arrow-<?= ($ca['variationM1'] ?? 0) >= 0 ? 'up' : 'down' ?>"></i> <?= ($ca['variationM1'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($ca['variationM1'] ?? 0, 1, ',', ' ') ?>% vs M-1
                                             </span>
-                                            <span class="badge bg-light-success ms-1">
-                                                +12,5% vs M-12
+                                            <span class="badge bg-light-<?= ($ca['variationM12'] ?? 0) >= 0 ? 'success' : 'danger' ?> ms-1">
+                                                <?= ($ca['variationM12'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($ca['variationM12'] ?? 0, 1, ',', ' ') ?>% vs M-12
                                             </span>
                                         </div>
                                     </div>
@@ -109,9 +126,9 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">Objectif mensuel: 1 200 000 €</small>
+                                    <small class="text-muted">Objectif mensuel: <?= number_format($ca['objectif'] ?? 0, 0, ',', ' ') ?> €</small>
                                     <div class="progress progress-thin mt-2">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 104%" aria-valuenow="104" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?= min($ca['progressObjectif'] ?? 0, 100) ?>%" aria-valuenow="<?= $ca['progressObjectif'] ?? 0 ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -124,13 +141,13 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Marge Brute</h6>
-                                        <h3 class="font-extrabold mb-0">420 000 €</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($marge['valeur'] ?? 0, 0, ',', ' ') ?> €</h3>
                                         <div class="mt-2">
                                             <span class="badge bg-info">
-                                                33,6% du CA
+                                                <?= number_format($marge['tauxMarge'] ?? 0, 1, ',', ' ') ?>% du CA
                                             </span>
                                             <span class="badge bg-light-info ms-1">
-                                                +1,2 pts vs M-1
+                                                <?= ($marge['variationPts'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($marge['variationPts'] ?? 0, 1, ',', ' ') ?> pts vs M-1
                                             </span>
                                         </div>
                                     </div>
@@ -139,9 +156,9 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">Objectif: 35%</small>
+                                    <small class="text-muted">Objectif: <?= $marge['objectif'] ?? 35 ?>%</small>
                                     <div class="progress progress-thin mt-2">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: 96%" aria-valuenow="96" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: <?= min($marge['progressObjectif'] ?? 0, 100) ?>%" aria-valuenow="<?= $marge['progressObjectif'] ?? 0 ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -154,13 +171,13 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Valeur Stock Total</h6>
-                                        <h3 class="font-extrabold mb-0">310 000 €</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($valeurStock['valeur'] ?? 0, 0, ',', ' ') ?> €</h3>
                                         <div class="mt-2">
-                                            <span class="badge bg-warning text-dark">
-                                                <i class="bi bi-arrow-down"></i> -5,0% vs M-1
+                                            <span class="badge bg-<?= ($valeurStock['variationM1'] ?? 0) <= 0 ? 'warning' : 'danger' ?> text-dark">
+                                                <i class="bi bi-arrow-<?= ($valeurStock['variationM1'] ?? 0) >= 0 ? 'up' : 'down' ?>"></i> <?= number_format($valeurStock['variationM1'] ?? 0, 1, ',', ' ') ?>% vs M-1
                                             </span>
-                                            <span class="badge bg-light-warning text-dark ms-1">
-                                                -8,2% vs M-12
+                                            <span class="badge bg-light-<?= ($valeurStock['variationM12'] ?? 0) <= 0 ? 'success' : 'danger' ?> text-dark ms-1">
+                                                <?= number_format($valeurStock['variationM12'] ?? 0, 1, ',', ' ') ?>% vs M-12
                                             </span>
                                         </div>
                                     </div>
@@ -169,9 +186,9 @@
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">Couverture: 9,4 jours</small>
+                                    <small class="text-muted">Couverture: <?= number_format($valeurStock['couvertureJours'] ?? 0, 1, ',', ' ') ?> jours</small>
                                     <div class="progress progress-thin mt-2">
-                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: <?= min(($valeurStock['couvertureJours'] ?? 0) * 3, 100) ?>%" aria-valuenow="<?= $valeurStock['couvertureJours'] ?? 0 ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -184,24 +201,30 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="text-muted font-semibold mb-2">Rotation Stock</h6>
-                                        <h3 class="font-extrabold mb-0">4,2</h3>
+                                        <h3 class="font-extrabold mb-0"><?= number_format($rotation['valeur'] ?? 0, 1, ',', ' ') ?></h3>
                                         <div class="mt-2">
+                                            <?php if ($rotation['sousCible'] ?? true): ?>
                                             <span class="badge bg-danger">
                                                 <i class="bi bi-exclamation-circle"></i> Sous objectif
                                             </span>
+                                            <?php else: ?>
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Objectif atteint
+                                            </span>
+                                            <?php endif; ?>
                                             <span class="badge bg-light-secondary ms-1">
-                                                Cible: ≥ 5
+                                                Cible: ≥ <?= $rotation['objectif'] ?? 5 ?>
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="metric-icon bg-light-danger">
-                                        <i class="bi bi-arrow-repeat text-danger"></i>
+                                    <div class="metric-icon bg-light-<?= ($rotation['sousCible'] ?? true) ? 'danger' : 'success' ?>">
+                                        <i class="bi bi-arrow-repeat text-<?= ($rotation['sousCible'] ?? true) ? 'danger' : 'success' ?>"></i>
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">Écart: -16% vs objectif</small>
+                                    <small class="text-muted">Écart: <?= number_format($rotation['ecartObjectif'] ?? 0, 0, ',', ' ') ?>% vs objectif</small>
                                     <div class="progress progress-thin mt-2">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 84%" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-<?= ($rotation['sousCible'] ?? true) ? 'danger' : 'success' ?>" role="progressbar" style="width: <?= min($rotation['progressObjectif'] ?? 0, 100) ?>%" aria-valuenow="<?= $rotation['progressObjectif'] ?? 0 ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -232,46 +255,40 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <?php foreach (($sites['sites'] ?? []) as $site): ?>
                                             <tr>
-                                                <td><strong>Central</strong></td>
-                                                <td>620 000</td>
-                                                <td><span class="badge bg-success">+9,2%</span></td>
-                                                <td>215 000</td>
-                                                <td><span class="badge bg-info">34,7%</span></td>
-                                                <td>180 000</td>
-                                                <td>4,5</td>
-                                                <td><span class="badge bg-success">Bon</span></td>
+                                                <td><strong><?= htmlspecialchars($site['site']) ?></strong></td>
+                                                <td><?= number_format($site['ca'], 0, ',', ' ') ?></td>
+                                                <td>
+                                                    <span class="badge bg-<?= $site['variationCA'] >= 0 ? 'success' : 'danger' ?>">
+                                                        <?= $site['variationCA'] >= 0 ? '+' : '' ?><?= number_format($site['variationCA'], 1, ',', ' ') ?>%
+                                                    </span>
+                                                </td>
+                                                <td><?= number_format($site['margeBrute'], 0, ',', ' ') ?></td>
+                                                <td><span class="badge bg-info"><?= number_format($site['tauxMarge'], 1, ',', ' ') ?>%</span></td>
+                                                <td><?= number_format($site['valeurStock'], 0, ',', ' ') ?></td>
+                                                <td><?= number_format($site['rotation'], 1, ',', ' ') ?></td>
+                                                <td>
+                                                    <?php if ($site['statut'] === 'Bon'): ?>
+                                                    <span class="badge bg-success">Bon</span>
+                                                    <?php elseif ($site['statut'] === 'Moyen'): ?>
+                                                    <span class="badge bg-warning text-dark">Moyen</span>
+                                                    <?php else: ?>
+                                                    <span class="badge bg-danger">Alerte</span>
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
-                                            <tr>
-                                                <td><strong>Nord</strong></td>
-                                                <td>380 000</td>
-                                                <td><span class="badge bg-success">+7,8%</span></td>
-                                                <td>125 000</td>
-                                                <td><span class="badge bg-info">32,9%</span></td>
-                                                <td>80 000</td>
-                                                <td>4,2</td>
-                                                <td><span class="badge bg-warning text-dark">Moyen</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Sud</strong></td>
-                                                <td>250 000</td>
-                                                <td><span class="badge bg-success">+5,1%</span></td>
-                                                <td>80 000</td>
-                                                <td><span class="badge bg-info">32,0%</span></td>
-                                                <td>50 000</td>
-                                                <td>3,8</td>
-                                                <td><span class="badge bg-danger">Alerte</span></td>
-                                            </tr>
+                                            <?php endforeach; ?>
                                         </tbody>
                                         <tfoot class="table-light">
                                             <tr>
                                                 <td><strong>TOTAL</strong></td>
-                                                <td><strong>1 250 000</strong></td>
-                                                <td><span class="badge bg-success">+8,0%</span></td>
-                                                <td><strong>420 000</strong></td>
-                                                <td><span class="badge bg-info">33,6%</span></td>
-                                                <td><strong>310 000</strong></td>
-                                                <td><strong>4,2</strong></td>
+                                                <td><strong><?= number_format($sites['totaux']['ca'] ?? 0, 0, ',', ' ') ?></strong></td>
+                                                <td>-</td>
+                                                <td><strong><?= number_format($sites['totaux']['margeBrute'] ?? 0, 0, ',', ' ') ?></strong></td>
+                                                <td><span class="badge bg-info"><?= number_format($sites['totaux']['tauxMarge'] ?? 0, 1, ',', ' ') ?>%</span></td>
+                                                <td><strong><?= number_format($sites['totaux']['valeurStock'] ?? 0, 0, ',', ' ') ?></strong></td>
+                                                <td><strong><?= number_format($sites['totaux']['rotation'] ?? 0, 1, ',', ' ') ?></strong></td>
                                                 <td>-</td>
                                             </tr>
                                         </tfoot>
@@ -329,23 +346,23 @@
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Valeur Stock vs M-1</span>
-                                        <strong class="text-warning">-5,0%</strong>
+                                        <strong class="text-<?= ($valeurStock['variationM1'] ?? 0) <= 0 ? 'warning' : 'danger' ?>"><?= number_format($valeurStock['variationM1'] ?? 0, 1, ',', ' ') ?>%</strong>
                                     </div>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-warning" style="width: 95%">310 K€</div>
+                                        <div class="progress-bar bg-warning" style="width: <?= min(100, abs($valeurStock['variationM1'] ?? 0) * 5 + 50) ?>%"><?= number_format(($valeurStock['valeur'] ?? 0) / 1000, 0, ',', ' ') ?> K€</div>
                                     </div>
-                                    <small class="text-muted">M-1: 326 500 €</small>
+                                    <small class="text-muted">M-1: <?= number_format($valeurStock['valeurM1'] ?? 0, 0, ',', ' ') ?> €</small>
                                 </div>
 
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Valeur Stock vs M-12</span>
-                                        <strong class="text-success">-8,2%</strong>
+                                        <strong class="text-<?= ($valeurStock['variationM12'] ?? 0) <= 0 ? 'success' : 'danger' ?>"><?= number_format($valeurStock['variationM12'] ?? 0, 1, ',', ' ') ?>%</strong>
                                     </div>
                                     <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-success" style="width: 91.8%">310 K€</div>
+                                        <div class="progress-bar bg-success" style="width: <?= min(100, abs($valeurStock['variationM12'] ?? 0) * 5 + 50) ?>%"><?= number_format(($valeurStock['valeur'] ?? 0) / 1000, 0, ',', ' ') ?> K€</div>
                                     </div>
-                                    <small class="text-muted">M-12: 337 800 €</small>
+                                    <small class="text-muted">M-12: <?= number_format($valeurStock['valeurM12'] ?? 0, 0, ',', ' ') ?> €</small>
                                 </div>
 
                                 <hr>
@@ -353,17 +370,17 @@
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div>
                                         <small class="text-muted d-block">Rotation actuelle</small>
-                                        <h4 class="mb-0">4,2</h4>
+                                        <h4 class="mb-0"><?= number_format($rotation['valeur'] ?? 0, 1, ',', ' ') ?></h4>
                                     </div>
                                     <div class="text-end">
                                         <small class="text-muted d-block">Objectif</small>
-                                        <h4 class="mb-0 text-success">≥ 5,0</h4>
+                                        <h4 class="mb-0 text-success">≥ <?= number_format($rotation['objectif'] ?? 5, 1, ',', ' ') ?></h4>
                                     </div>
                                 </div>
 
-                                <div class="alert alert-light-danger mb-0">
+                                <div class="alert alert-light-<?= ($rotation['sousCible'] ?? true) ? 'danger' : 'success' ?> mb-0">
                                     <i class="bi bi-info-circle"></i> 
-                                    <strong>-16%</strong> sous l'objectif de rotation
+                                    <strong><?= number_format($rotation['ecartObjectif'] ?? 0, 0, ',', ' ') ?>%</strong> <?= ($rotation['sousCible'] ?? true) ? 'sous' : 'au-dessus de' ?> l'objectif de rotation
                                 </div>
                             </div>
                         </div>
@@ -377,7 +394,7 @@
                             <div class="card-header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h4 class="card-title mb-0">Top 10 Surstocks / Obsolescence</h4>
-                                    <span class="badge bg-danger">Valeur immobilisée: 148 000 €</span>
+                                    <span class="badge bg-danger">Valeur immobilisée: <?= number_format($surstocks['valeurTotale'] ?? 0, 0, ',', ' ') ?> €</span>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -395,51 +412,28 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <?php foreach (($surstocks['articles'] ?? []) as $art): ?>
                                             <tr>
-                                                <td>1</td>
-                                                <td>Composant électronique XR45</td>
-                                                <td>ART-2841</td>
-                                                <td>850</td>
-                                                <td>42 000</td>
-                                                <td>Il y a 18 mois</td>
-                                                <td><span class="badge bg-danger">Obsolète</span></td>
+                                                <td><?= $art['rang'] ?></td>
+                                                <td><?= htmlspecialchars($art['article']) ?></td>
+                                                <td><?= htmlspecialchars($art['reference']) ?></td>
+                                                <td><?= number_format($art['quantite'], 0, ',', ' ') ?></td>
+                                                <td><?= number_format($art['valeur'], 0, ',', ' ') ?></td>
+                                                <td><?= htmlspecialchars($art['derniereVente']) ?></td>
+                                                <td>
+                                                    <?php if ($art['statut'] === 'Obsolète'): ?>
+                                                    <span class="badge bg-danger">Obsolète</span>
+                                                    <?php else: ?>
+                                                    <span class="badge bg-warning text-dark">Surstock</span>
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
+                                            <?php endforeach; ?>
+                                            <?php if (empty($surstocks['articles'])): ?>
                                             <tr>
-                                                <td>2</td>
-                                                <td>Pièce mécanique série B</td>
-                                                <td>ART-1923</td>
-                                                <td>620</td>
-                                                <td>38 000</td>
-                                                <td>Il y a 14 mois</td>
-                                                <td><span class="badge bg-danger">Obsolète</span></td>
+                                                <td colspan="7" class="text-center text-muted">Aucun article en surstock ou obsolescence</td>
                                             </tr>
-                                            <tr>
-                                                <td>3</td>
-                                                <td>Câble assemblage V2</td>
-                                                <td>ART-3015</td>
-                                                <td>1200</td>
-                                                <td>29 000</td>
-                                                <td>Il y a 8 mois</td>
-                                                <td><span class="badge bg-warning text-dark">Surstock</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td>4</td>
-                                                <td>Module LED Gen3</td>
-                                                <td>ART-4782</td>
-                                                <td>380</td>
-                                                <td>21 000</td>
-                                                <td>Il y a 11 mois</td>
-                                                <td><span class="badge bg-danger">Obsolète</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5</td>
-                                                <td>Connecteur standard ISO</td>
-                                                <td>ART-2156</td>
-                                                <td>950</td>
-                                                <td>18 000</td>
-                                                <td>Il y a 6 mois</td>
-                                                <td><span class="badge bg-warning text-dark">Surstock</span></td>
-                                            </tr>
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -457,14 +451,24 @@
                                 
                                 <div class="mt-4">
                                     <h6 class="mb-3">Actions recommandées</h6>
+                                    <?php if (($surstocks['nbObsolete'] ?? 0) > 0): ?>
                                     <div class="alert alert-light-warning">
                                         <i class="bi bi-exclamation-triangle"></i>
-                                        <strong>3 articles</strong> sans mouvement depuis +12 mois
+                                        <strong><?= $surstocks['nbObsolete'] ?> article(s)</strong> sans mouvement depuis +12 mois
                                     </div>
+                                    <?php endif; ?>
+                                    <?php if (($surstocks['nbSurstock'] ?? 0) > 0): ?>
                                     <div class="alert alert-light-info">
                                         <i class="bi bi-info-circle"></i>
-                                        <strong>2 articles</strong> en surstock (>6 mois de couverture)
+                                        <strong><?= $surstocks['nbSurstock'] ?> article(s)</strong> en surstock (>6 mois de couverture)
                                     </div>
+                                    <?php endif; ?>
+                                    <?php if (($surstocks['nbObsolete'] ?? 0) == 0 && ($surstocks['nbSurstock'] ?? 0) == 0): ?>
+                                    <div class="alert alert-light-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        <strong>Aucun</strong> article en situation critique
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -478,25 +482,25 @@
                             <div class="card-header">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h4 class="card-title mb-0">Écarts Inventaire par Dépôt</h4>
-                                    <span class="badge bg-light-secondary">Dernier inventaire: <?= date('d/m/Y', strtotime('-15 days')) ?></span>
+                                    <span class="badge bg-light-secondary">Dernier inventaire: <?= $ecarts['dateInventaire'] ? date('d/m/Y', strtotime($ecarts['dateInventaire'])) : 'N/A' ?></span>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row mb-4">
                                     <div class="col-md-3">
-                                        <div class="card bg-light-danger">
+                                        <div class="card bg-light-<?= ($ecarts['totaux']['ecartValeur'] ?? 0) < 0 ? 'danger' : 'success' ?>">
                                             <div class="card-body text-center">
                                                 <h6 class="text-muted mb-2">Écart Total (Valeur)</h6>
-                                                <h3 class="text-danger mb-0">-3 100 €</h3>
-                                                <small class="text-muted">Sur 310 000 €</small>
+                                                <h3 class="text-<?= ($ecarts['totaux']['ecartValeur'] ?? 0) < 0 ? 'danger' : 'success' ?> mb-0"><?= number_format($ecarts['totaux']['ecartValeur'] ?? 0, 0, ',', ' ') ?> €</h3>
+                                                <small class="text-muted">Sur <?= number_format($ecarts['totaux']['valeurStock'] ?? 0, 0, ',', ' ') ?> €</small>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="card bg-light-danger">
+                                        <div class="card bg-light-<?= abs($ecarts['totaux']['ecartPourcent'] ?? 0) > 0.5 ? 'danger' : 'success' ?>">
                                             <div class="card-body text-center">
                                                 <h6 class="text-muted mb-2">Écart Total (%)</h6>
-                                                <h3 class="text-danger mb-0">-1,0%</h3>
+                                                <h3 class="text-<?= abs($ecarts['totaux']['ecartPourcent'] ?? 0) > 0.5 ? 'danger' : 'success' ?> mb-0"><?= number_format($ecarts['totaux']['ecartPourcent'] ?? 0, 1, ',', ' ') ?>%</h3>
                                                 <small class="text-muted">Seuil acceptable: ±0,5%</small>
                                             </div>
                                         </div>
@@ -505,8 +509,8 @@
                                         <div class="card bg-light-warning">
                                             <div class="card-body text-center">
                                                 <h6 class="text-muted mb-2">Articles en écart</h6>
-                                                <h3 class="text-warning mb-0">47</h3>
-                                                <small class="text-muted">Sur 1 253 articles</small>
+                                                <h3 class="text-warning mb-0"><?= number_format($ecarts['totaux']['articlesEcart'] ?? 0, 0, ',', ' ') ?></h3>
+                                                <small class="text-muted">-</small>
                                             </div>
                                         </div>
                                     </div>
@@ -514,7 +518,7 @@
                                         <div class="card bg-light-info">
                                             <div class="card-body text-center">
                                                 <h6 class="text-muted mb-2">Fiabilité Inventaire</h6>
-                                                <h3 class="text-info mb-0">96,2%</h3>
+                                                <h3 class="text-info mb-0"><?= number_format($ecarts['totaux']['fiabilite'] ?? 100, 1, ',', ' ') ?>%</h3>
                                                 <small class="text-muted">Objectif: ≥98%</small>
                                             </div>
                                         </div>
@@ -536,45 +540,52 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <?php foreach (($ecarts['depots'] ?? []) as $depot): ?>
                                             <tr>
-                                                <td><strong>Central</strong></td>
-                                                <td>180 000</td>
-                                                <td class="text-danger">-4 200</td>
-                                                <td><span class="badge bg-danger">-2,3%</span></td>
-                                                <td>28</td>
-                                                <td>94,1%</td>
-                                                <td><span class="badge bg-danger"><i class="bi bi-exclamation-circle"></i> Critique</span></td>
-                                                <td><button class="btn btn-sm btn-outline-primary">Analyser</button></td>
+                                                <td><strong><?= htmlspecialchars($depot['depot']) ?></strong></td>
+                                                <td><?= number_format($depot['valeurStock'], 0, ',', ' ') ?></td>
+                                                <td class="text-<?= $depot['ecartValeur'] < 0 ? 'danger' : ($depot['ecartValeur'] > 0 ? 'success' : 'muted') ?>">
+                                                    <?= $depot['ecartValeur'] != 0 ? number_format($depot['ecartValeur'], 0, ',', ' ') : '-' ?>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-<?= abs($depot['ecartPourcent']) <= 0.5 ? 'success' : (abs($depot['ecartPourcent']) <= 2 ? 'warning' : 'danger') ?>">
+                                                        <?= number_format($depot['ecartPourcent'], 1, ',', ' ') ?>%
+                                                    </span>
+                                                </td>
+                                                <td><?= $depot['articlesEcart'] ?></td>
+                                                <td><?= number_format($depot['fiabilite'], 1, ',', ' ') ?>%</td>
+                                                <td>
+                                                    <?php if ($depot['statut'] === 'Conforme'): ?>
+                                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Conforme</span>
+                                                    <?php elseif ($depot['statut'] === 'À surveiller'): ?>
+                                                    <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> À surveiller</span>
+                                                    <?php else: ?>
+                                                    <span class="badge bg-danger"><i class="bi bi-exclamation-circle"></i> Critique</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <?php if ($depot['statut'] !== 'Conforme'): ?>
+                                                    <button class="btn btn-sm btn-outline-primary">Analyser</button>
+                                                    <?php else: ?>
+                                                    <button class="btn btn-sm btn-outline-secondary" disabled>-</button>
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
+                                            <?php endforeach; ?>
+                                            <?php if (empty($ecarts['depots'])): ?>
                                             <tr>
-                                                <td><strong>Nord</strong></td>
-                                                <td>80 000</td>
-                                                <td class="text-success">+1 100</td>
-                                                <td><span class="badge bg-success">+1,4%</span></td>
-                                                <td>12</td>
-                                                <td>97,8%</td>
-                                                <td><span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> À surveiller</span></td>
-                                                <td><button class="btn btn-sm btn-outline-primary">Analyser</button></td>
+                                                <td colspan="8" class="text-center text-muted">Aucun inventaire clôturé disponible</td>
                                             </tr>
-                                            <tr>
-                                                <td><strong>Sud</strong></td>
-                                                <td>50 000</td>
-                                                <td class="text-success">-</td>
-                                                <td><span class="badge bg-success">0,0%</span></td>
-                                                <td>7</td>
-                                                <td>98,9%</td>
-                                                <td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Conforme</span></td>
-                                                <td><button class="btn btn-sm btn-outline-secondary" disabled>-</button></td>
-                                            </tr>
+                                            <?php endif; ?>
                                         </tbody>
                                         <tfoot class="table-light">
                                             <tr>
                                                 <td><strong>TOTAL</strong></td>
-                                                <td><strong>310 000</strong></td>
-                                                <td class="text-danger"><strong>-3 100</strong></td>
-                                                <td><span class="badge bg-danger">-1,0%</span></td>
-                                                <td><strong>47</strong></td>
-                                                <td><strong>96,2%</strong></td>
+                                                <td><strong><?= number_format($ecarts['totaux']['valeurStock'] ?? 0, 0, ',', ' ') ?></strong></td>
+                                                <td class="text-<?= ($ecarts['totaux']['ecartValeur'] ?? 0) < 0 ? 'danger' : 'success' ?>"><strong><?= number_format($ecarts['totaux']['ecartValeur'] ?? 0, 0, ',', ' ') ?></strong></td>
+                                                <td><span class="badge bg-<?= abs($ecarts['totaux']['ecartPourcent'] ?? 0) > 0.5 ? 'danger' : 'success' ?>"><?= number_format($ecarts['totaux']['ecartPourcent'] ?? 0, 1, ',', ' ') ?>%</span></td>
+                                                <td><strong><?= $ecarts['totaux']['articlesEcart'] ?? 0 ?></strong></td>
+                                                <td><strong><?= number_format($ecarts['totaux']['fiabilite'] ?? 100, 1, ',', ' ') ?>%</strong></td>
                                                 <td>-</td>
                                                 <td>-</td>
                                             </tr>
@@ -610,6 +621,9 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
 <script>
+    // Données des graphiques depuis PHP
+    const chartsData = <?= json_encode($charts ?? []) ?>;
+    
     // DataTables
     $(document).ready(function() {
         $('#tableSites').DataTable({
@@ -642,7 +656,8 @@
         });
     });
 
-    // Chart CA & Marge
+    // Chart CA & Marge (dynamique)
+    var caMargeData = chartsData.caMargeEvolution || {labels: [], ca: [], marge: [], margePct: []};
     var optionsCA = {
         chart: {
             type: 'line',
@@ -658,17 +673,17 @@
             {
                 name: "Chiffre d'Affaires",
                 type: 'column',
-                data: [950000, 980000, 1020000, 1050000, 1100000, 1120000, 1150000, 1130000, 1180000, 1200000, 1220000, 1250000]
+                data: caMargeData.ca.length > 0 ? caMargeData.ca : [0]
             },
             {
                 name: "Marge Brute",
                 type: 'line',
-                data: [310000, 320000, 335000, 345000, 360000, 370000, 380000, 375000, 390000, 400000, 410000, 420000]
+                data: caMargeData.marge.length > 0 ? caMargeData.marge : [0]
             },
             {
                 name: "Marge %",
                 type: 'line',
-                data: [32.6, 32.7, 32.8, 32.9, 32.7, 33.0, 33.0, 33.2, 33.1, 33.3, 33.6, 33.6]
+                data: caMargeData.margePct.length > 0 ? caMargeData.margePct : [0]
             }
         ],
         stroke: {
@@ -677,7 +692,7 @@
         },
         colors: ['#435ebe', '#55c6a9', '#f9b959'],
         xaxis: {
-            categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+            categories: caMargeData.labels.length > 0 ? caMargeData.labels : ['']
         },
         yaxis: [
             {
@@ -738,15 +753,16 @@
     var chartCA = new ApexCharts(document.querySelector("#chart-ca"), optionsCA);
     chartCA.render();
 
-    // Chart Stock par Site (Donut)
+    // Chart Stock par Site (Donut - dynamique)
+    var stockSiteData = chartsData.stockParSite || {labels: [], data: [], total: 0};
     var optionsStockSite = {
         chart: {
             type: 'donut',
             height: 300
         },
-        series: [180000, 80000, 50000],
-        labels: ['Central (58%)', 'Nord (26%)', 'Sud (16%)'],
-        colors: ['#435ebe', '#55c6a9', '#f9b959'],
+        series: stockSiteData.data.length > 0 ? stockSiteData.data : [0],
+        labels: stockSiteData.labels.length > 0 ? stockSiteData.labels : ['Aucun'],
+        colors: ['#435ebe', '#55c6a9', '#f9b959', '#e74c3c', '#9b59b6'],
         legend: {
             position: 'bottom'
         },
@@ -767,7 +783,8 @@
                             show: true,
                             label: 'Total Stock',
                             formatter: function(w) {
-                                return '310 000 €';
+                                var total = stockSiteData.total || 0;
+                                return total.toLocaleString() + ' €';
                             }
                         }
                     }
@@ -779,7 +796,8 @@
     var chartStockSite = new ApexCharts(document.querySelector("#stockSiteChart"), optionsStockSite);
     chartStockSite.render();
 
-    // Chart Évolution Stock & Rotation
+    // Chart Évolution Stock & Rotation (dynamique)
+    var stockEvolData = chartsData.stockEvolution || {labels: [], valeurStock: [], rotation: []};
     var optionsStockEvol = {
         chart: {
             type: 'line',
@@ -792,12 +810,12 @@
             {
                 name: "Valeur Stock",
                 type: 'column',
-                data: [337800, 340000, 335000, 332000, 328000, 325000, 322000, 320000, 318000, 315000, 326500, 310000]
+                data: stockEvolData.valeurStock.length > 0 ? stockEvolData.valeurStock : [0]
             },
             {
                 name: "Rotation Stock",
                 type: 'line',
-                data: [3.8, 3.9, 4.0, 4.1, 4.0, 4.2, 4.3, 4.1, 4.2, 4.3, 4.0, 4.2]
+                data: stockEvolData.rotation.length > 0 ? stockEvolData.rotation : [0]
             }
         ],
         stroke: {
@@ -806,7 +824,7 @@
         },
         colors: ['#f9b959', '#e74c3c'],
         xaxis: {
-            categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+            categories: stockEvolData.labels.length > 0 ? stockEvolData.labels : ['']
         },
         yaxis: [
             {
@@ -863,14 +881,15 @@
     var chartStockEvol = new ApexCharts(document.querySelector("#chart-stock-evolution"), optionsStockEvol);
     chartStockEvol.render();
 
-    // Chart Obsolescence (Pie)
+    // Chart Obsolescence (Pie - dynamique)
+    var obsolescenceData = chartsData.obsolescence || {labels: [], data: []};
     var optionsObsolescence = {
         chart: {
             type: 'pie',
             height: 250
         },
-        series: [101000, 47000, 162000],
-        labels: ['Obsolète (>12 mois)', 'Surstock (6-12 mois)', 'Stock Actif'],
+        series: obsolescenceData.data.length > 0 ? obsolescenceData.data : [0],
+        labels: obsolescenceData.labels.length > 0 ? obsolescenceData.labels : ['Aucun'],
         colors: ['#e74c3c', '#f39c12', '#27ae60'],
         legend: {
             position: 'bottom'

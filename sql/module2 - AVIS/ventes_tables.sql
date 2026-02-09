@@ -4,7 +4,7 @@
 -- Ces tables complètent le schéma existant pour le module VENTES
 -- À exécuter après le script mio.sql
 
-USE gestion_entreprise;
+USE gestion_entreprise_test;
 
 -- ============================================
 -- TABLE: ligne_commande_client

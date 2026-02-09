@@ -98,46 +98,21 @@
 
         <div class="page-content">
 
-            <!-- ALERTES -->
-            <section class="row mb-4">
-                <div class="col-12">
-                    <div class="alert alert-danger border-danger" style="border-left: 4px solid;">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-x-circle me-3 fs-4"></i>
-                            <div class="flex-grow-1">
-                                <strong>Écart stock :</strong> 
-                                <span class="ms-2"><strong>2 références</strong> avec écart > 10% (SKU-A215, SKU-C902) • Impacts: 2 840 €</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-danger">Analyser</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="alert alert-warning border-warning" style="border-left: 4px solid;">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-exclamation-triangle me-3 fs-4"></i>
-                            <div class="flex-grow-1">
-                                <strong>Obsolescence :</strong> 
-                                <span class="ms-2"><strong>5 lots</strong> à risque de péremption dans ≤ 30 jours • Valeur: 7 200 €</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-warning">Voir détails</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="alert alert-info border-info" style="border-left: 4px solid;">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-info-circle me-3 fs-4"></i>
-                            <div class="flex-grow-1">
-                                <strong>Performance :</strong> 
-                                <span class="ms-2">Productivité picking <strong>-4%</strong> vs M-1 (48 lignes/h au lieu de 50) • Investigation équipe requise</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-info">Détails</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+            <?php
+            // Extraction des données KPI
+            $precision = $kpi['precision'] ?? [];
+            $obsolescence = $kpi['obsolescence'] ?? [];
+            $productivite = $kpi['productivite'] ?? [];
+            $dockToStock = $kpi['dockToStock'] ?? [];
+            $valeurStock = $kpi['valeurStock'] ?? [];
+            $refsActives = $kpi['referencesActives'] ?? [];
+            $rotation = $kpi['rotationStock'] ?? [];
+            $tauxService = $kpi['tauxService'] ?? [];
+            $lotsRisque = $kpi['lotsRisque'] ?? [];
+            $ecartsStock = $kpi['ecartsStock'] ?? [];
+            $charts = $kpi['charts'] ?? [];
+            ?>
+            
             <!-- KPI PRINCIPAUX -->
             <section class="row">
                 <div class="col-12 col-md-6 col-xl-3">
@@ -146,7 +121,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Taux de précision stock</h6>
-                                    <h3 class="font-extrabold mb-0">94%</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($precision['taux'] ?? 0, 1, ',', ' ') ?>%</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-success badge-metric">
                                             <i class="bi bi-check2-circle"></i> Théorique vs Physique
@@ -159,13 +134,15 @@
                             </div>
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Écart moyen: 6%</small>
-                                    <small class="text-success">+2% vs M-1</small>
+                                    <small class="text-muted">Écart moyen: <?= number_format($precision['ecart_moyen'] ?? 0, 1, ',', ' ') ?>%</small>
+                                    <small class="<?= ($precision['variation'] ?? 0) >= 0 ? 'text-success' : 'text-danger' ?>">
+                                        <?= ($precision['variation'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($precision['variation'] ?? 0, 1, ',', ' ') ?>% vs M-1
+                                    </small>
                                 </div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 94%" aria-valuenow="94" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $precision['taux'] ?? 0 ?>%" aria-valuenow="<?= $precision['taux'] ?? 0 ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="text-muted">Objectif: ≥ 98%</small>
+                                <small class="text-muted">Objectif: ≥ <?= $precision['objectif'] ?? 98 ?>%</small>
                             </div>
                         </div>
                     </div>
@@ -177,7 +154,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Obsolescence / Péremption</h6>
-                                    <h3 class="font-extrabold mb-0">7 200 €</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($obsolescence['valeur_risque'] ?? 0, 0, ',', ' ') ?> €</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-danger badge-metric">
                                             <i class="bi bi-clock-history"></i> Lots à risque
@@ -190,13 +167,16 @@
                             </div>
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">5 lots critiques</small>
-                                    <small class="text-danger">+3 vs M-1</small>
+                                    <small class="text-muted"><?= $obsolescence['nb_critiques'] ?? 0 ?> lots critiques</small>
+                                    <small class="<?= ($obsolescence['variation'] ?? 0) > 0 ? 'text-danger' : 'text-success' ?>">
+                                        <?= ($obsolescence['variation'] ?? 0) >= 0 ? '+' : '' ?><?= $obsolescence['variation'] ?? 0 ?> vs M-1
+                                    </small>
                                 </div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <?php $obsProgress = min(100, (($obsolescence['nb_lots'] ?? 0) / max($obsolescence['objectif'] ?? 5, 1)) * 100); ?>
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: <?= $obsProgress ?>%" aria-valuenow="<?= $obsProgress ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="text-muted">Objectif: < 5 lots</small>
+                                <small class="text-muted">Objectif: < <?= $obsolescence['objectif'] ?? 5 ?> lots</small>
                             </div>
                         </div>
                     </div>
@@ -208,7 +188,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Productivité Préparation</h6>
-                                    <h3 class="font-extrabold mb-0">48 lignes/h</h3>
+                                    <h3 class="font-extrabold mb-0"><?= $productivite['lignes_par_heure'] ?? 0 ?> lignes/h</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-info badge-metric">
                                             <i class="bi bi-people"></i> Picking
@@ -221,13 +201,16 @@
                             </div>
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Erreurs: 2%</small>
-                                    <small class="text-info">+0,5% vs M-1</small>
+                                    <small class="text-muted">Erreurs: <?= number_format($productivite['taux_erreur'] ?? 0, 1, ',', ' ') ?>%</small>
+                                    <small class="<?= ($productivite['variation'] ?? 0) >= 0 ? 'text-success' : 'text-danger' ?>">
+                                        <?= ($productivite['variation'] ?? 0) >= 0 ? '+' : '' ?><?= $productivite['variation'] ?? 0 ?> vs M-1
+                                    </small>
                                 </div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-info" role="progressbar" style="width: 48%" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <?php $prodProgress = min(100, (($productivite['lignes_par_heure'] ?? 0) / max($productivite['objectif'] ?? 50, 1)) * 100); ?>
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: <?= $prodProgress ?>%" aria-valuenow="<?= $prodProgress ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="text-muted">Objectif: ≥ 50 lignes/h</small>
+                                <small class="text-muted">Objectif: ≥ <?= $productivite['objectif'] ?? 50 ?> lignes/h</small>
                             </div>
                         </div>
                     </div>
@@ -239,7 +222,7 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h6 class="text-muted font-semibold mb-2">Temps de traitement réception</h6>
-                                    <h3 class="font-extrabold mb-0">6,8 h</h3>
+                                    <h3 class="font-extrabold mb-0"><?= number_format($dockToStock['temps_moyen'] ?? 0, 1, ',', ' ') ?> h</h3>
                                     <div class="mt-2">
                                         <span class="badge bg-warning badge-metric">
                                             <i class="bi bi-clock"></i> Dock-to-stock
@@ -252,13 +235,16 @@
                             </div>
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <small class="text-muted">Moyenne cible: 5 h</small>
-                                    <small class="text-warning">+1,8 h vs M-1</small>
+                                    <small class="text-muted">Moyenne cible: <?= $dockToStock['objectif_cible'] ?? 5 ?> h</small>
+                                    <small class="<?= ($dockToStock['variation'] ?? 0) <= 0 ? 'text-success' : 'text-warning' ?>">
+                                        <?= ($dockToStock['variation'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($dockToStock['variation'] ?? 0, 1, ',', ' ') ?> h vs M-1
+                                    </small>
                                 </div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <?php $dtsProgress = min(100, (($dockToStock['temps_moyen'] ?? 0) / max($dockToStock['objectif'] ?? 6, 1)) * 100); ?>
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: <?= $dtsProgress ?>%" aria-valuenow="<?= $dtsProgress ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="text-muted">Objectif: ≤ 6 h</small>
+                                <small class="text-muted">Objectif: ≤ <?= $dockToStock['objectif'] ?? 6 ?> h</small>
                             </div>
                         </div>
                     </div>
@@ -273,10 +259,12 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Valeur stock total</small>
-                                    <h5 class="mb-0 text-primary">485 200 €</h5>
+                                    <h5 class="mb-0 text-primary"><?= number_format($valeurStock['valeur'] ?? 0, 0, ',', ' ') ?> €</h5>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-primary">+3,2%</span>
+                                    <span class="badge <?= ($valeurStock['variation'] ?? 0) >= 0 ? 'bg-primary' : 'bg-danger' ?>">
+                                        <?= ($valeurStock['variation'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($valeurStock['variation'] ?? 0, 1, ',', ' ') ?>%
+                                    </span>
                                     <small class="text-muted d-block mt-1">vs M-1</small>
                                 </div>
                             </div>
@@ -290,10 +278,10 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Références actives</small>
-                                    <h5 class="mb-0 text-success">2 847</h5>
+                                    <h5 class="mb-0 text-success"><?= number_format($refsActives['count'] ?? 0, 0, ',', ' ') ?></h5>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-success">+24</span>
+                                    <span class="badge bg-success"><?= ($refsActives['variation'] ?? 0) >= 0 ? '+' : '' ?><?= $refsActives['variation'] ?? 0 ?></span>
                                     <small class="text-muted d-block mt-1">vs M-1</small>
                                 </div>
                             </div>
@@ -307,10 +295,10 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Rotation des stocks</small>
-                                    <h5 class="mb-0">8,2x/an</h5>
+                                    <h5 class="mb-0"><?= number_format($rotation['rotation'] ?? 0, 1, ',', ' ') ?>x/an</h5>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-warning text-dark">+0,3</span>
+                                    <span class="badge bg-warning text-dark"><?= ($rotation['variation'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($rotation['variation'] ?? 0, 1, ',', ' ') ?></span>
                                     <small class="text-muted d-block mt-1">vs M-1</small>
                                 </div>
                             </div>
@@ -324,10 +312,10 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block">Taux de service</small>
-                                    <h5 class="mb-0 text-success">98,1%</h5>
+                                    <h5 class="mb-0 text-success"><?= number_format($tauxService['taux'] ?? 0, 1, ',', ' ') ?>%</h5>
                                 </div>
                                 <div class="text-end">
-                                    <span class="badge bg-success">+1,2%</span>
+                                    <span class="badge bg-success"><?= ($tauxService['variation'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($tauxService['variation'] ?? 0, 1, ',', ' ') ?>%</span>
                                     <small class="text-muted d-block mt-1">vs M-1</small>
                                 </div>
                             </div>
@@ -424,7 +412,7 @@
                                 <h4 class="card-title mb-0">Lots à Risque - Obsolescence / Péremption</h4>
                                 <div>
                                     <span class="badge bg-danger me-2">
-                                        <i class="bi bi-exclamation-circle"></i> 5 lots critiques
+                                        <i class="bi bi-exclamation-circle"></i> <?= $obsolescence['nb_critiques'] ?? 0 ?> lots critiques
                                     </span>
                                     <button class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-download"></i> Export
@@ -450,79 +438,40 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <?php if (empty($lotsRisque)): ?>
                                         <tr>
-                                            <td><strong>LOT-2024-001</strong></td>
-                                            <td><span class="sku-code">SKU-A215</span></td>
-                                            <td>Composant électronique</td>
-                                            <td>125</td>
-                                            <td>28,50 €</td>
-                                            <td><strong>3 562 €</strong></td>
-                                            <td>28/02/2026</td>
-                                            <td><span class="badge bg-danger">38 jours</span></td>
-                                            <td><span class="status-indicator status-warning"></span> Moyen</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-warning" title="Promouvoir"><i class="bi bi-tag"></i></button>
-                                                <button class="btn btn-sm btn-outline-info" title="Détails"><i class="bi bi-eye"></i></button>
-                                            </td>
+                                            <td colspan="10" class="text-center text-muted">Aucun lot à risque</td>
                                         </tr>
+                                        <?php else: ?>
+                                        <?php foreach ($lotsRisque as $lot): ?>
+                                        <?php 
+                                            $jours = (int)($lot['jours_restants'] ?? 0);
+                                            $badgeClass = $jours <= 30 ? 'bg-danger' : 'bg-warning text-dark';
+                                            $statusClass = $lot['risque'] === 'critique' ? 'status-critical' : ($lot['risque'] === 'eleve' || $lot['risque'] === 'moyen' ? 'status-warning' : 'status-ok');
+                                        ?>
                                         <tr>
-                                            <td><strong>LOT-2024-015</strong></td>
-                                            <td><span class="sku-code">SKU-B402</span></td>
-                                            <td>Matière première (résine)</td>
-                                            <td>240</td>
-                                            <td>12,30 €</td>
-                                            <td><strong>2 952 €</strong></td>
-                                            <td>15/02/2026</td>
-                                            <td><span class="badge bg-danger">25 jours</span></td>
-                                            <td><span class="status-indicator status-critical"></span> Élevé</td>
+                                            <td><strong><?= htmlspecialchars($lot['lot_numero'] ?? '') ?></strong></td>
+                                            <td><span class="sku-code"><?= htmlspecialchars($lot['article_code'] ?? '') ?></span></td>
+                                            <td><?= htmlspecialchars($lot['article_designation'] ?? '') ?></td>
+                                            <td><?= number_format($lot['quantite_restante'] ?? 0, 0, ',', ' ') ?></td>
+                                            <td><?= number_format($lot['cout_unitaire'] ?? 0, 2, ',', ' ') ?> €</td>
+                                            <td><strong><?= number_format($lot['valeur_totale'] ?? 0, 0, ',', ' ') ?> €</strong></td>
+                                            <td><?= $lot['date_expiration'] ? date('d/m/Y', strtotime($lot['date_expiration'])) : '-' ?></td>
+                                            <td><span class="badge <?= $badgeClass ?>"><?= $jours ?> jours</span></td>
+                                            <td><span class="status-indicator <?= $statusClass ?>"></span> <?= $lot['risque_label'] ?? '' ?></td>
                                             <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-danger" title="Action urgente"><i class="bi bi-exclamation-triangle"></i></button>
-                                                <button class="btn btn-sm btn-outline-info" title="Détails"><i class="bi bi-eye"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>LOT-2024-028</strong></td>
-                                            <td><span class="sku-code">SKU-C902</span></td>
-                                            <td>Packaging (emballages)</td>
-                                            <td>500</td>
-                                            <td>2,80 €</td>
-                                            <td><strong>1 400 €</strong></td>
-                                            <td>10/03/2026</td>
-                                            <td><span class="badge bg-warning text-dark">48 jours</span></td>
-                                            <td><span class="status-indicator status-ok"></span> Faible</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-info" title="Détails"><i class="bi bi-eye"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>LOT-2024-042</strong></td>
-                                            <td><span class="sku-code">SKU-D110</span></td>
-                                            <td>Accessoires (joints)</td>
-                                            <td>180</td>
-                                            <td>8,50 €</td>
-                                            <td><strong>1 530 €</strong></td>
-                                            <td>05/02/2026</td>
-                                            <td><span class="badge bg-danger">15 jours</span></td>
-                                            <td><span class="status-indicator status-critical"></span> Critique</td>
-                                            <td class="table-actions">
+                                                <?php if ($lot['risque'] === 'critique'): ?>
                                                 <button class="btn btn-sm btn-danger" title="Destruire"><i class="bi bi-trash"></i></button>
+                                                <?php elseif ($lot['risque'] === 'eleve'): ?>
+                                                <button class="btn btn-sm btn-outline-danger" title="Action urgente"><i class="bi bi-exclamation-triangle"></i></button>
+                                                <?php else: ?>
+                                                <button class="btn btn-sm btn-outline-warning" title="Promouvoir"><i class="bi bi-tag"></i></button>
+                                                <?php endif; ?>
                                                 <button class="btn btn-sm btn-outline-info" title="Détails"><i class="bi bi-eye"></i></button>
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td><strong>LOT-2024-056</strong></td>
-                                            <td><span class="sku-code">SKU-E225</span></td>
-                                            <td>Produits chimiques (solvant)</td>
-                                            <td>60</td>
-                                            <td>22,00 €</td>
-                                            <td><strong>1 320 €</strong></td>
-                                            <td>12/03/2026</td>
-                                            <td><span class="badge bg-warning text-dark">50 jours</span></td>
-                                            <td><span class="status-indicator status-ok"></span> Faible</td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-info" title="Détails"><i class="bi bi-eye"></i></button>
-                                            </td>
-                                        </tr>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -595,7 +544,8 @@
                                     <h4 class="card-title mb-0">Écarts de Stock - Audit Théorique vs Physique</h4>
                                     <p class="text-muted small mb-0">Derniers inventaires • Écarts > 2%</p>
                                 </div>
-                                <span class="badge bg-danger fs-6">2 écarts critiques</span>
+                                <?php $nbCritiques = count(array_filter($ecartsStock, fn($e) => $e['priorite'] === 'critique')); ?>
+                                <span class="badge bg-danger fs-6"><?= $nbCritiques ?> écarts critiques</span>
                             </div>
                         </div>
                         <div class="card-body">
@@ -616,121 +566,39 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <?php if (empty($ecartsStock)): ?>
                                         <tr>
-                                            <td><strong><span class="sku-code">SKU-A215</span></strong></td>
-                                            <td>Composant électronique</td>
-                                            <td>350</td>
-                                            <td>310</td>
-                                            <td><span class="badge bg-danger">-40</span></td>
-                                            <td><span class="badge bg-danger">-11,4%</span></td>
-                                            <td>-1 140 €</td>
-                                            <td>18/01/2026</td>
-                                            <td><span class="badge bg-danger">Critique</span></td>
+                                            <td colspan="10" class="text-center text-muted">Aucun écart significatif</td>
+                                        </tr>
+                                        <?php else: ?>
+                                        <?php foreach ($ecartsStock as $ecart): ?>
+                                        <?php 
+                                            $pctEcart = (float)($ecart['pourcent_ecart'] ?? 0);
+                                            $badgeClass = $ecart['priorite'] === 'critique' ? 'bg-danger' : ($ecart['priorite'] === 'moyen' ? 'bg-warning text-dark' : 'bg-secondary');
+                                        ?>
+                                        <tr>
+                                            <td><strong><span class="sku-code"><?= htmlspecialchars($ecart['article_code'] ?? '') ?></span></strong></td>
+                                            <td><?= htmlspecialchars($ecart['article_designation'] ?? '') ?></td>
+                                            <td><?= number_format($ecart['quantite_theorique'] ?? 0, 0, ',', ' ') ?></td>
+                                            <td><?= number_format($ecart['quantite_comptee'] ?? 0, 0, ',', ' ') ?></td>
+                                            <td><span class="badge <?= $badgeClass ?>"><?= ($ecart['ecart'] ?? 0) >= 0 ? '+' : '' ?><?= number_format($ecart['ecart'] ?? 0, 0, ',', ' ') ?></span></td>
+                                            <td><span class="badge <?= $badgeClass ?>"><?= $pctEcart >= 0 ? '+' : '' ?><?= number_format($pctEcart, 1, ',', ' ') ?>%</span></td>
+                                            <td><?= number_format($ecart['valeur_ecart'] ?? 0, 0, ',', ' ') ?> €</td>
+                                            <td><?= $ecart['date_audit'] ? date('d/m/Y', strtotime($ecart['date_audit'])) : '-' ?></td>
+                                            <td><span class="badge <?= $badgeClass ?>"><?= $ecart['priorite_label'] ?? '' ?></span></td>
                                             <td class="table-actions">
+                                                <?php if ($ecart['priorite'] === 'critique'): ?>
                                                 <button class="btn btn-sm btn-outline-danger"><i class="bi bi-search"></i></button>
                                                 <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong><span class="sku-code">SKU-C902</span></strong></td>
-                                            <td>Packaging (emballages)</td>
-                                            <td>1200</td>
-                                            <td>1060</td>
-                                            <td><span class="badge bg-danger">-140</span></td>
-                                            <td><span class="badge bg-danger">-11,7%</span></td>
-                                            <td>-1 700 €</td>
-                                            <td>17/01/2026</td>
-                                            <td><span class="badge bg-danger">Critique</span></td>
-                                            <td class="table-actions">
-                                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-search"></i></button>
-                                                <button class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong><span class="sku-code">SKU-B402</span></strong></td>
-                                            <td>Matière première (résine)</td>
-                                            <td>450</td>
-                                            <td>440</td>
-                                            <td><span class="badge bg-warning text-dark">-10</span></td>
-                                            <td><span class="badge bg-warning text-dark">-2,2%</span></td>
-                                            <td>-123 €</td>
-                                            <td>16/01/2026</td>
-                                            <td><span class="badge bg-warning text-dark">Moyen</span></td>
-                                            <td class="table-actions">
+                                                <?php else: ?>
                                                 <button class="btn btn-sm btn-outline-info"><i class="bi bi-search"></i></button>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
+                                        <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ACTIONS RECOMMANDÉES -->
-            <section class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Actions Recommandées</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12 col-md-6">
-                                    <div class="action-item mb-3 pb-3 border-bottom">
-                                        <div class="d-flex align-items-start">
-                                            <span class="badge bg-danger me-3 mt-1">🔴 URGENCE</span>
-                                            <div>
-                                                <h6 class="mb-1">Résoudre écarts SKU-A215 & C902</h6>
-                                                <p class="text-muted small mb-1">Perte totale: 2 840 € • Investigation & correction inventaire</p>
-                                                <button class="btn btn-sm btn-outline-danger">
-                                                    <i class="bi bi-arrow-right"></i> Enquête terrain
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="action-item mb-3 pb-3 border-bottom">
-                                        <div class="d-flex align-items-start">
-                                            <span class="badge bg-warning text-dark me-3 mt-1">⚠️ ATTENTION</span>
-                                            <div>
-                                                <h6 class="mb-1">Liquider lots périmés LOT-2024-015</h6>
-                                                <p class="text-muted small mb-1">Expiration 15/02 → 2 952 € • Moins de 25 jours</p>
-                                                <button class="btn btn-sm btn-outline-warning">
-                                                    <i class="bi bi-arrow-right"></i> Démarque urgente
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="action-item mb-3 pb-3 border-bottom">
-                                        <div class="d-flex align-items-start">
-                                            <span class="badge bg-info me-3 mt-1">ℹ️ INFO</span>
-                                            <div>
-                                                <h6 class="mb-1">Améliorer productivité picking</h6>
-                                                <p class="text-muted small mb-1">48 lignes/h vs 50 objectif (-4%) • Causede ralentissements?</p>
-                                                <button class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-arrow-right"></i> Audit équipe
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="action-item mb-3">
-                                        <div class="d-flex align-items-start">
-                                            <span class="badge bg-success me-3 mt-1">✅ À FAIRE</span>
-                                            <div>
-                                                <h6 class="mb-1">Accélérer dock-to-stock</h6>
-                                                <p class="text-muted small mb-1">6,8h vs 6h objectif • Formation contrôle réception?</p>
-                                                <button class="btn btn-sm btn-outline-success">
-                                                    <i class="bi bi-arrow-right"></i> Optimiser process
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -760,6 +628,9 @@
 <script src="<?= Flight::base() ?>/public/template/assets/extensions/toastify-js/src/toastify.js"></script>
 
 <script>
+    // Données des graphiques depuis PHP
+    const chartsData = <?= json_encode($charts ?? []) ?>;
+    
     // Initialiser DataTables
     $(document).ready(function() {
         // Table Obsolescence
@@ -787,15 +658,16 @@
         });
 
         // Graphique 1: Taux de précision stock
+        var precisionData = chartsData.precision || {labels: [], data: [], objectif: []};
         var optionsPrecision = {
             series: [
                 {
                     name: 'Précision %',
-                    data: [92, 93, 91, 94, 92, 93, 94, 95, 94, 94, 93, 94]
+                    data: precisionData.data.length > 0 ? precisionData.data : [0]
                 },
                 {
                     name: 'Objectif %',
-                    data: [98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98]
+                    data: precisionData.objectif.length > 0 ? precisionData.objectif : [98]
                 }
             ],
             chart: {
@@ -821,7 +693,7 @@
                 dashArray: [0, 5]
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: precisionData.labels.length > 0 ? precisionData.labels : ['']
             },
             yaxis: {
                 title: {
@@ -842,11 +714,12 @@
         new ApexCharts(document.querySelector('#chart-stock-precision'), optionsPrecision).render();
 
         // Graphique 2: Obsolescence
+        var obsolescenceData = chartsData.obsolescence || {labels: [], data: []};
         var optionsObsolescence = {
             series: [
                 {
                     name: 'Valeur €',
-                    data: [5000, 4800, 4700, 5200, 5000, 5100, 5300, 5400, 5200, 5300, 5000, 7200]
+                    data: obsolescenceData.data.length > 0 ? obsolescenceData.data : [0]
                 }
             ],
             chart: {
@@ -858,7 +731,7 @@
             },
             colors: ['#dc3545'],
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: obsolescenceData.labels.length > 0 ? obsolescenceData.labels : ['']
             },
             yaxis: {
                 title: {
@@ -889,15 +762,16 @@
         new ApexCharts(document.querySelector('#chart-obsolescence'), optionsObsolescence).render();
 
         // Graphique 3: Productivité Picking
+        var productiviteData = chartsData.productivite || {labels: [], data: [], objectif: []};
         var optionsProductivite = {
             series: [
                 {
                     name: 'Lignes/heure',
-                    data: [45, 46, 47, 48, 46, 47, 48, 49, 48, 48, 47, 48]
+                    data: productiviteData.data.length > 0 ? productiviteData.data : [0]
                 },
                 {
                     name: 'Objectif',
-                    data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+                    data: productiviteData.objectif.length > 0 ? productiviteData.objectif : [50]
                 }
             ],
             chart: {
@@ -914,7 +788,7 @@
                 dashArray: [0, 5]
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: productiviteData.labels.length > 0 ? productiviteData.labels : ['']
             },
             yaxis: {
                 title: {
@@ -932,15 +806,16 @@
         new ApexCharts(document.querySelector('#chart-productivite'), optionsProductivite).render();
 
         // Graphique 4: Dock-to-Stock
+        var dockToStockData = chartsData.dockToStock || {labels: [], data: [], objectif: []};
         var optionsDockToStock = {
             series: [
                 {
                     name: 'Temps réel (h)',
-                    data: [6.5, 6.7, 6.4, 6.8, 6.5, 6.6, 6.7, 6.8, 6.7, 6.8, 6.6, 6.8]
+                    data: dockToStockData.data.length > 0 ? dockToStockData.data : [0]
                 },
                 {
                     name: 'Objectif (h)',
-                    data: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
+                    data: dockToStockData.objectif.length > 0 ? dockToStockData.objectif : [6]
                 }
             ],
             chart: {
@@ -957,7 +832,7 @@
                 dashArray: [0, 5]
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: dockToStockData.labels.length > 0 ? dockToStockData.labels : ['']
             },
             yaxis: {
                 title: {
@@ -975,15 +850,16 @@
         new ApexCharts(document.querySelector('#chart-docktostock'), optionsDockToStock).render();
 
         // Graphique 5: Erreurs de Picking
+        var pickingErrorsData = chartsData.pickingErrors || {labels: [], data: [], objectif: []};
         var optionsPickingErrors = {
             series: [
                 {
                     name: 'Taux d\'erreurs (%)',
-                    data: [2.1, 1.9, 2.2, 1.8, 2.0, 1.9, 2.1, 1.7, 2.0, 2.1, 1.8, 2.0]
+                    data: pickingErrorsData.data.length > 0 ? pickingErrorsData.data : [0]
                 },
                 {
                     name: 'Objectif (%)',
-                    data: [1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5]
+                    data: pickingErrorsData.objectif.length > 0 ? pickingErrorsData.objectif : [1.5]
                 }
             ],
             chart: {
@@ -998,7 +874,7 @@
                 curve: 'smooth'
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: pickingErrorsData.labels.length > 0 ? pickingErrorsData.labels : ['']
             },
             yaxis: {
                 title: {
@@ -1023,15 +899,16 @@
         new ApexCharts(document.querySelector('#chart-picking-errors'), optionsPickingErrors).render();
 
         // Graphique 6: Taux de Service par Zone
+        var serviceRateData = chartsData.serviceRate || {labels: [], data: [], objectif: []};
         var optionsServiceRate = {
             series: [
                 {
                     name: 'Taux service (%)',
-                    data: [96.5, 97.2, 96.8, 97.5, 97.2, 97.8, 98.1, 97.9, 98.0, 97.6, 97.4, 98.1]
+                    data: serviceRateData.data.length > 0 ? serviceRateData.data : [0]
                 },
                 {
                     name: 'Objectif (%)',
-                    data: [98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98, 98]
+                    data: serviceRateData.objectif.length > 0 ? serviceRateData.objectif : [98]
                 }
             ],
             chart: {
@@ -1048,7 +925,7 @@
                 dashArray: [0, 5]
             },
             xaxis: {
-                categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+                categories: serviceRateData.labels.length > 0 ? serviceRateData.labels : ['']
             },
             yaxis: {
                 title: {

@@ -5,7 +5,7 @@ INSERT INTO client_type (libelle) VALUES
 ('Particulier'), ('Entreprise');
 
 -- ====== Clients ======
-INSERT INTO client (nom, telephone, email, adresse, id_client_type) VALUES
+INSERT INTO client (nom, telephone, email, adresse, id_type) VALUES
 ('Dupont SARL', '0341234567', 'contact@dupont.com', 'Antananarivo', 2),
 ('Rasoa', '0329876543', 'rasoa@email.com', 'Toamasina', 1);
 

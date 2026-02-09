@@ -3,6 +3,8 @@
 namespace app\controllers\AVIS\KPI;
 
 use Flight;
+use app\models\AVIS\KPI\KpiStockModel;
+use app\models\AVIS\KPI\KpiDirectionModel;
 
 class KpiController
 {
@@ -11,8 +13,11 @@ class KpiController
      * ============================== */
     public static function direction()
     {
+        $kpi = KpiDirectionModel::getAllKpis();
+        
         Flight::render('AVIS/kpi/direction', [
-            'title' => 'Tableau de bord - Direction Générale'
+            'title' => 'Tableau de bord - Direction Générale',
+            'kpi' => $kpi
         ]);
     }
 
@@ -157,8 +162,12 @@ class KpiController
      * ============================== */
     public static function stock()
     {
+        // Récupérer toutes les données KPI dynamiques
+        $kpiData = KpiStockModel::getAllKpis();
+        
         Flight::render('AVIS/kpi/stock', [
-            'title' => 'KPI Stock & Magasin'
+            'title' => 'KPI Stock & Magasin',
+            'kpi' => $kpiData
         ]);
     }
 
