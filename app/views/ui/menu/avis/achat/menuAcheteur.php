@@ -42,6 +42,9 @@
         <div class="sidebar-menu">
             <ul class="menu">
 
+                <!-- partie avatar -->
+                <?= Flight::userCard() ?>
+
                 <li class="sidebar-title">Achats</li>
 
                 <li class="sidebar-item has-sub">

@@ -42,6 +42,9 @@
         <div class="sidebar-menu">
             <ul class="menu">
 
+                <!-- partie avatar -->
+                <?= Flight::userCard() ?>
+
                 <li class="sidebar-title">Inventaire</li>
 
                 <li class="sidebar-item">
@@ -66,6 +69,9 @@
                         <span>Liste articles</span>
                     </a>
                 </li>
+
+                <!-- partie compte -->
+                <?= Flight::userAccount() ?>
 
             </ul>
         </div>

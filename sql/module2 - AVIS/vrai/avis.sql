@@ -93,6 +93,12 @@ CREATE TABLE client_type (
     id_client_type INT AUTO_INCREMENT PRIMARY KEY,
     libelle VARCHAR(50) NOT NULL
 );
+INSERT IGNORE INTO client_type (libelle) VALUES
+('Particulier'),
+('Professionnel'),
+('Grossiste'),
+('Revendeur');
+
 
 CREATE TABLE client (
     id_client INT AUTO_INCREMENT PRIMARY KEY,
@@ -112,7 +118,6 @@ CREATE TABLE methode_valorisation (
     code VARCHAR(10) NOT NULL UNIQUE,
     libelle VARCHAR(50) NOT NULL
 );
-
 INSERT INTO methode_valorisation (code, libelle) VALUES
 ('FIFO', 'First In First Out'),
 ('LIFO', 'Last In First Out'),
@@ -356,6 +361,13 @@ CREATE TABLE mode_paiement (
     code VARCHAR(20) NOT NULL UNIQUE,
     libelle VARCHAR(50) NOT NULL
 );
+INSERT IGNORE INTO mode_paiement (code, libelle) VALUES
+('ESP', 'Espèces'),
+('CHQ', 'Chèque'),
+('VIR', 'Virement bancaire'),
+('CB', 'Carte bancaire'),
+('PRE', 'Prélèvement');
+
 CREATE TABLE paiement_fournisseur (
     id_paiement_fournisseur INT AUTO_INCREMENT PRIMARY KEY,
     paiement_numero VARCHAR(50) NOT NULL UNIQUE,
@@ -449,6 +461,77 @@ CREATE TABLE encaissement_client (
     FOREIGN KEY (id_mode_paiement) REFERENCES mode_paiement(id_mode_paiement)
 );
 
+CREATE TABLE ligne_commande_client (
+    id_ligne_commande_client INT AUTO_INCREMENT PRIMARY KEY,
+    id_commande_client INT NOT NULL,
+    id_article INT NOT NULL,
+    quantite DECIMAL(15,3) NOT NULL,
+    prix_unitaire DECIMAL(15,2) NOT NULL,
+    remise_pourcent DECIMAL(5,2) DEFAULT 0,
+    remise_validee BOOLEAN DEFAULT FALSE COMMENT 'True si remise > 10% validée par responsable',
+    taux_tva DECIMAL(5,2) DEFAULT 20,
+    montant_ht DECIMAL(15,2) NOT NULL,
+    montant_tva DECIMAL(15,2) NOT NULL,
+    montant_ttc DECIMAL(15,2) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_commande_client) REFERENCES commande_client(id_commande_client) ON DELETE CASCADE,
+    FOREIGN KEY (id_article) REFERENCES article(id_article)
+);
+
+CREATE TABLE ligne_livraison_client (
+    id_ligne_livraison_client INT AUTO_INCREMENT PRIMARY KEY,
+    id_livraison_client INT NOT NULL,
+    id_ligne_commande_client INT NOT NULL,
+    quantite_livree DECIMAL(15,3) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_livraison_client) REFERENCES livraison_client(id_livraison_client) ON DELETE CASCADE,
+    FOREIGN KEY (id_ligne_commande_client) REFERENCES ligne_commande_client(id_ligne_commande_client)
+);
+
+-- Ajouter statut, valide_par, date_validation à commande_client
+-- Utiliser des procédures pour vérifier si les colonnes existent
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS add_columns_commande_client//
+
+CREATE PROCEDURE add_columns_commande_client()
+BEGIN
+    -- Ajouter colonne statut si elle n'existe pas
+    IF NOT EXISTS (
+        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'commande_client' 
+        AND COLUMN_NAME = 'statut'
+    ) THEN
+        ALTER TABLE commande_client ADD COLUMN statut ENUM('BROUILLON','VALIDE','CLOTURE') DEFAULT 'BROUILLON';
+    END IF;
+    
+    -- Ajouter colonne valide_par si elle n'existe pas
+    IF NOT EXISTS (
+        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'commande_client' 
+        AND COLUMN_NAME = 'valide_par'
+    ) THEN
+        ALTER TABLE commande_client ADD COLUMN valide_par INT NULL;
+    END IF;
+    
+    -- Ajouter colonne date_validation si elle n'existe pas
+    IF NOT EXISTS (
+        SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'commande_client' 
+        AND COLUMN_NAME = 'date_validation'
+    ) THEN
+        ALTER TABLE commande_client ADD COLUMN date_validation DATETIME NULL;
+    END IF;
+END//
+
+DELIMITER ;
+
+CALL add_columns_commande_client();
+DROP PROCEDURE IF EXISTS add_columns_commande_client;
+
 -- ==============================
 -- LOT (clé FIFO / LIFO / FEFO)
 -- ==============================
@@ -513,6 +596,12 @@ INSERT INTO mouvement_stock_type (id_categorie_mouvement_stock, code, libelle, i
 INSERT INTO mouvement_stock_type(id_categorie_mouvement_stock, code, libelle, impact_valorisation, necessite_validation)VALUES
 (2, 'RESERVATION', 'Réservation stock (non valorisée)', FALSE, FALSE),
 (1, 'ANNULATION_RESERVATION', 'Annulation réservation stock', FALSE, FALSE);
+
+-- INSERT IGNORE INTO mouvement_stock_type (id_categorie_mouvement_stock, code, libelle, impact_valorisation) VALUES
+-- ((SELECT id_categorie_mouvement_stock FROM mouvement_stock_categorie WHERE code = 'out'), 'RESERVATION_VENTE', 'Réservation pour vente', 0),
+-- ((SELECT id_categorie_mouvement_stock FROM mouvement_stock_categorie WHERE code = 'in'), 'LIBERATION_RESERVATION', 'Libération de réservation', 0),
+-- ((SELECT id_categorie_mouvement_stock FROM mouvement_stock_categorie WHERE code = 'out'), 'SORTIE_VENTE', 'Sortie pour vente', 1);
+
 
 CREATE TABLE mouvement_stock (
     id_mouvement_stock INT AUTO_INCREMENT PRIMARY KEY,
@@ -726,3 +815,48 @@ CREATE TABLE stock_cloture_detail (
 );
 
 
+-- pointage
+CREATE TABLE statut_pointage (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    heure TIME,
+    remarque VARCHAR(255),
+    tolerance INT,
+    jour INT CHECK (jour BETWEEN 1 AND 7)  -- 1 = lundi, 7 = dimanche
+);
+
+CREATE TABLE checkin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    datetime_checkin DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+CREATE TABLE checkout (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    datetime_checkout DATETIME NOT NULL,
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe)
+);
+
+
+CREATE TABLE pointage (
+    id_pointage INT AUTO_INCREMENT PRIMARY KEY,
+    id_employe INT NOT NULL,
+    id_checkin INT,
+    id_checkout INT,
+    retard_min INT,
+    duree_work TIME,
+    date_pointage DATE NOT NULL,
+    statut VARCHAR(50),
+    FOREIGN KEY (id_employe) REFERENCES employe(id_employe),
+    FOREIGN KEY (id_checkin) REFERENCES checkin(id),
+    FOREIGN KEY (id_checkout) REFERENCES checkout(id),
+    UNIQUE KEY unique_pointage_jour (id_employe, date_pointage)
+);
+
+CREATE TABLE jour_ferie (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    recurrence ENUM('annuel', 'fixe') NOT NULL
+);
